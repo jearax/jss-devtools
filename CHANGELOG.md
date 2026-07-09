@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.11
+
+### Patch Changes
+
+- e426431: Fix defineConfig temporal dead zone - move declaration after eslintConfigNode
+
 ## 0.0.9
 
 ### Patch Changes
