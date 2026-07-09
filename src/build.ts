@@ -26,6 +26,11 @@ const EXTERNAL_DEPS = [
 	'eslint-plugin-react',
 	'eslint-plugin-react-hooks',
 	'eslint-plugin-jsx-a11y',
+	'eslint-plugin-react-native',
+
+	'eslint-plugin-autofix',
+	'eslint-plugin-prefer-arrow-functions',
+	'globals',
 
 	'@next/eslint-plugin-next',
 	'eslint-plugin-tailwindcss',

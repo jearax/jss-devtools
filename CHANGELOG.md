@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3
+
+### Patch Changes
+
+- Fix module resolution errors by adding missing peer dependencies to build externals. Previously, eslint-plugin-autofix, eslint-plugin-prefer-arrow-functions, and globals were being bundled instead of treated as external dependencies.
+
 ## 0.0.2
 
 ### Patch Changes
