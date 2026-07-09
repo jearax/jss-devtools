@@ -15,10 +15,11 @@ const EXTERNAL_DEPS = [
 	'prettier',
 	'eslint',
 	'@eslint/js',
-	// typescript-eslint meta-package only — standalone parser/plugin removed
-	// (not imported in flat config). Re-add '@typescript-eslint/parser' and
-	// '@typescript-eslint/eslint-plugin' if a future ESLint 9 build needs them.
+	// typescript-eslint meta-package (primary) + standalone parser/plugin
+	// (fallback). Config dynamically resolves whichever the consumer has.
 	'typescript-eslint',
+	'@typescript-eslint/parser',
+	'@typescript-eslint/eslint-plugin',
 
 	'eslint-config-prettier',
 	'eslint-plugin-prettier',

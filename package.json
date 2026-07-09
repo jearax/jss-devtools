@@ -1,6 +1,6 @@
 {
   "name": "jss-devtools",
-  "version": "0.0.17",
+  "version": "0.0.19",
   "description": "JavaScript stack dev tools CLI - ESLint 8.x edition with cross-platform support",
   "license": "MIT",
   "type": "module",
@@ -43,6 +43,8 @@
   "peerDependencies": {
     "@eslint/js": "^8.0.0",
     "@next/eslint-plugin-next": "^14.0.0 || ^15.0.0 || ^16.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0 || ^7.0.0 || ^8.0.0",
+    "@typescript-eslint/parser": "^6.0.0 || ^7.0.0 || ^8.0.0",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-autofix": "^2.0.0",
@@ -64,6 +66,15 @@
   },
   "peerDependenciesMeta": {
     "@next/eslint-plugin-next": {
+      "optional": true
+    },
+    "typescript-eslint": {
+      "optional": true
+    },
+    "@typescript-eslint/parser": {
+      "optional": true
+    },
+    "@typescript-eslint/eslint-plugin": {
       "optional": true
     },
     "eslint-plugin-react": {

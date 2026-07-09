@@ -1,12 +1,44 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
+import { createRequire } from 'node:module'
+
 import pluginJs from '@eslint/js'
 import plugAutofix from 'eslint-plugin-autofix'
 import pluginImport from 'eslint-plugin-import'
 import pluginPreferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'
 import globals from 'globals'
-import tseslint from 'typescript-eslint'
+
+const require = createRequire(import.meta.url)
+
+/**
+ * Resolve the typescript-eslint recommended config. Prefers the
+ * `typescript-eslint` meta-package; falls back to building it from the
+ * standalone parser + plugin for consumers on the older split setup.
+ * Returns [] if neither is installed (TypeScript rules silently skipped).
+ */
+const resolveTsEslintConfigs = (): any[] => {
+	try {
+		const tseslint = require('typescript-eslint')
+		if (tseslint?.configs?.recommended) return tseslint.configs.recommended
+	} catch {
+		// meta-package not installed — try standalone parser+plugin below
+	}
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const parser = require('@typescript-eslint/parser')
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const plugin = require('@typescript-eslint/eslint-plugin')
+		return [
+			{ languageOptions: { parser: parser.parser ?? parser } },
+			{ plugins: { '@typescript-eslint': plugin } },
+			{ rules: plugin.configs?.recommended?.rules ?? {} }
+		]
+	} catch {
+		// neither installed — TypeScript rules silently skipped
+	}
+	return []
+}
 
 export const eslintConfigNode = [
 	{
@@ -20,7 +52,7 @@ export const eslintConfigNode = [
 	},
 
 	pluginJs.configs.recommended,
-	...tseslint.configs.recommended,
+	...resolveTsEslintConfigs(),
 
 	{
 		plugins: {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.19
+
+### Patch Changes
+
+- Dynamic typescript-eslint resolution: prefer meta-package, fall back to parser+plugin for legacy consumers
+
 ## 0.0.17
 
 ### Patch Changes
