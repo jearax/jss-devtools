@@ -31,17 +31,17 @@ const buildWrapperConfig = (options: EslintConfigOptions): string => {
 
 	// Framework plugins (next already composes react internally).
 	if (framework === 'react' || framework === 'react-native') {
-		parts.push('\t...pluginReact')
+		parts.push('\t...pluginReact()')
 	} else if (framework === 'nextjs') {
-		parts.push('\t...pluginNext')
+		parts.push('\t...pluginNext()')
 	}
 
 	if (useTailwind) {
-		parts.push('\t...pluginTailwind')
+		parts.push('\t...pluginTailwind()')
 	}
 
 	if (useStorybook) {
-		parts.push('\t...pluginStorybook')
+		parts.push('\t...pluginStorybook()')
 	}
 
 	return parts.join(',\n')

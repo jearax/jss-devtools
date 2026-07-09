@@ -123,7 +123,7 @@ export const eslintConfigNode = [
 	}
 ]
 
-export const pluginReact = [
+export const pluginReact = () => [
 	{
 		settings: {
 			react: {
@@ -163,7 +163,7 @@ export const pluginReact = [
 	}
 ]
 
-export const pluginNext = [
+export const pluginNext = () => [
 	{
 		plugins: {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -180,7 +180,7 @@ export const pluginNext = [
 	}
 ]
 
-export const pluginStorybook = [
+export const pluginStorybook = () => [
 	{
 		plugins: {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -195,7 +195,7 @@ export const pluginStorybook = [
 	}
 ]
 
-export const pluginTailwind = [
+export const pluginTailwind = () => [
 	{
 		plugins: {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
