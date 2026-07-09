@@ -1,0 +1,3 @@
+#!/bin/sh
+# Placeholder for prepare-commit-msg hook
+# Commitlint support was removed in v1.x

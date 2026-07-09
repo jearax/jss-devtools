@@ -1,0 +1,4 @@
+#!/bin/sh
+# Placeholder for commit-msg hook
+# Commitlint support was removed in v1.x
+# Basic commit message validation can be added here if needed
