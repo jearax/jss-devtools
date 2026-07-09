@@ -1,19 +1,36 @@
-# @jearax/jss-devtools
+# jss-devtools
 
 > Dev-tools CLI for the JavaScript stack — scaffolds ESLint 8.x + Prettier + Husky + lint-staged + TS alias imports.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Node.js Version](https://img.shields.io/node/v/@jearax/jss-devtools.svg)](https://www.npmjs.com/package/@jearax/jss-devtools)
+[![Node.js Version](https://img.shields.io/node/v/jss-devtools.svg)](https://www.npmjs.com/package/jss-devtools)
 
 ## Requirements
 
 - **Node.js** >= 22
-- **ESLint** 8.x only (v0.x line; ESLint 9.x support comes later)
+- **ESLint** 8.x only (v0.x line - ESLint 9.x support planned for v1.0)
+
+## Peer Dependencies
+
+This package requires ESLint 8.x and related plugins as peer dependencies. These will be installed automatically when you run `jss-devtools init`:
+
+```json
+{
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "typescript-eslint": "^6.21.0",
+    "@eslint/js": "^8.57.1",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.9.4"
+  }
+}
+```
 
 ## Quick start
 
 ```bash
-npm install --save-dev @jearax/jss-devtools
+npm install --save-dev jss-devtools
 npx jss-devtools init
 ```
 
@@ -62,11 +79,12 @@ jss-devtools init --framework react --tailwind --aliasImport
 ## Generated ESLint config
 
 ```javascript
-import { defineConfig, eslintConfigNode, pluginReact } from '@jearax/jss-devtools'
+import { eslintConfigNode, pluginReact } from 'jss-devtools'
 
-const eslintConfig = defineConfig(eslintConfigNode, pluginReact())
-
-export default eslintConfig
+export default [
+  eslintConfigNode,
+  pluginReact()
+]
 ```
 
 Framework plugins: `pluginReact()` (React/RN), `pluginNext()` (Next.js), `pluginTailwind()`, `pluginStorybook()`.
@@ -77,4 +95,4 @@ Framework plugins: `pluginReact()` (React/RN), `pluginNext()` (Next.js), `plugin
 
 ## License
 
-[MIT](./LICENSE) © 2026 jearax
+[MIT](./LICENSE) © 2026 jjuidev
