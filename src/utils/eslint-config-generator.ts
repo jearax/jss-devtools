@@ -27,21 +27,21 @@ import { name as PKG } from '../../package.json'
 const buildWrapperConfig = (options: EslintConfigOptions): string => {
 	const { framework, useTailwind, useStorybook } = options
 
-	const parts: string[] = ['\teslintConfigNode']
+	const parts: string[] = ['\tawait eslintConfigNode()']
 
 	// Framework plugins (next already composes react internally).
 	if (framework === 'react' || framework === 'react-native') {
-		parts.push('\tpluginReact()')
+		parts.push('\tawait pluginReact()')
 	} else if (framework === 'nextjs') {
-		parts.push('\tpluginNext()')
+		parts.push('\tawait pluginNext()')
 	}
 
 	if (useTailwind) {
-		parts.push('\tpluginTailwind()')
+		parts.push('\tawait pluginTailwind()')
 	}
 
 	if (useStorybook) {
-		parts.push('\tpluginStorybook()')
+		parts.push('\tawait pluginStorybook()')
 	}
 
 	return parts.join(',\n')
@@ -64,9 +64,9 @@ const buildImports = (options: EslintConfigOptions): string => {
 const generateConfig = (options: EslintConfigOptions): string => {
 	return `${buildImports(options)}
 
-export default [
+export default await Promise.all([
 ${buildWrapperConfig(options)}
-];
+]).then(configs => configs.flat());
 `
 }
 

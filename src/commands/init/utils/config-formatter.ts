@@ -1,13 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import pluginJs from '@eslint/js'
-import plugAutofix from 'eslint-plugin-autofix'
-import pluginImport from 'eslint-plugin-import'
-import pluginPreferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
-
 const loadModule = async (name: string) => {
 	try {
 		const module = await import(name)
@@ -38,120 +31,131 @@ export const defineESLintConfig = async (...configs: any[]) => {
 	return resolvedConfigs.flat()
 }
 
-export const eslintConfigNode = defineESLintConfig(
-	{
-		files: ['**/*.{js,ts,jsx,tsx}'],
-		languageOptions: {
-			globals: {
-				...globals.node,
-				...globals.browser
+export const eslintConfigNode = async () => {
+	const [pluginJs, plugAutofix, pluginImport, pluginPreferArrowFunctions, globals, tseslint] = await Promise.all([
+		loadModule('@eslint/js'),
+		loadModule('eslint-plugin-autofix'),
+		loadModule('eslint-plugin-import'),
+		loadModule('eslint-plugin-prefer-arrow-functions'),
+		loadModule('globals'),
+		loadModule('typescript-eslint')
+	])
+
+	return defineESLintConfig(
+		{
+			files: ['**/*.{js,ts,jsx,tsx}'],
+			languageOptions: {
+				globals: {
+					...globals.node,
+					...globals.browser
+				}
 			}
-		}
-	},
-
-	pluginJs.configs.recommended,
-	tseslint.configs.recommended,
-
-	{
-		plugins: {
-			import: pluginImport,
-			'prefer-arrow-functions': pluginPreferArrowFunctions,
-			autofix: plugAutofix
 		},
 
-		rules: {
-			// autofix
-			'autofix/eol-last': 'error',
-			'autofix/curly': 'error',
-			'autofix/no-lonely-if': 'error',
-			'autofix/no-else-return': 'error',
-			'autofix/object-shorthand': 'error',
-			'autofix/object-curly-newline': [
-				'error',
-				{
-					ObjectExpression: {
-						multiline: true,
-						minProperties: 2,
-						consistent: true
-					}
-				}
-			],
+		pluginJs.configs.recommended,
+		tseslint.configs.recommended,
 
-			// @typescript-eslint
-			'@typescript-eslint/no-unused-vars': [
-				'warn',
-				{
-					args: 'all',
-					argsIgnorePattern: '^_',
-					varsIgnorePattern: '^_',
-					caughtErrorsIgnorePattern: '^_',
-					destructuredArrayIgnorePattern: '^_',
-					ignoreRestSiblings: true
-				}
-			],
-			'@typescript-eslint/no-explicit-any': 'off',
-			'@typescript-eslint/no-empty-object-type': 'off',
-			'@typescript-eslint/consistent-type-imports': ['error', { prefer: 'no-type-imports' }],
+		{
+			plugins: {
+				import: pluginImport,
+				'prefer-arrow-functions': pluginPreferArrowFunctions,
+				autofix: plugAutofix
+			},
 
-			// eslint-plugin-prefer-arrow-functions
-			'prefer-arrow-functions/prefer-arrow-functions': 'error',
-
-			// eslint-plugin-import
-			'import/first': 'error',
-			'import/newline-after-import': 'error',
-			'import/no-duplicates': 'error',
-			'import/no-anonymous-default-export': 'error',
-			'import/order': [
-				'error',
-				{
-					'newlines-between': 'always',
-					alphabetize: {
-						order: 'asc',
-						caseInsensitive: true
-					},
-					pathGroups: [
-						{
-							pattern: '@/**',
-							group: 'internal'
+			rules: {
+				// autofix
+				'autofix/eol-last': 'error',
+				'autofix/curly': 'error',
+				'autofix/no-lonely-if': 'error',
+				'autofix/no-else-return': 'error',
+				'autofix/object-shorthand': 'error',
+				'autofix/object-curly-newline': [
+					'error',
+					{
+						ObjectExpression: {
+							multiline: true,
+							minProperties: 2,
+							consistent: true
 						}
-					],
+					}
+				],
 
-					groups: ['builtin', 'external', ['internal', 'parent', 'sibling', 'index'], ['object', 'unknown', 'type']]
-				}
-			],
+				// @typescript-eslint
+				'@typescript-eslint/no-unused-vars': [
+					'warn',
+					{
+						args: 'all',
+						argsIgnorePattern: '^_',
+						varsIgnorePattern: '^_',
+						caughtErrorsIgnorePattern: '^_',
+						destructuredArrayIgnorePattern: '^_',
+						ignoreRestSiblings: true
+					}
+				],
+				'@typescript-eslint/no-explicit-any': 'off',
+				'@typescript-eslint/no-empty-object-type': 'off',
+				'@typescript-eslint/consistent-type-imports': ['error', { prefer: 'no-type-imports' }],
 
-			// Others rules
-			'padding-line-between-statements': [
-				'error',
-				{
-					blankLine: 'any',
-					prev: 'export',
-					next: 'export'
-				},
-				{
-					blankLine: 'always',
-					prev: ['const', 'let', 'var'],
-					next: '*'
-				},
-				{
-					blankLine: 'any',
-					prev: ['const', 'let', 'var'],
-					next: ['const', 'let', 'var']
-				},
-				{
-					blankLine: 'always',
-					prev: '*',
-					next: ['function', 'multiline-const', 'multiline-block-like']
-				},
-				{
-					blankLine: 'always',
-					prev: ['function', 'multiline-const', 'multiline-block-like'],
-					next: '*'
-				}
-			]
+				// eslint-plugin-prefer-arrow-functions
+				'prefer-arrow-functions/prefer-arrow-functions': 'error',
+
+				// eslint-plugin-import
+				'import/first': 'error',
+				'import/newline-after-import': 'error',
+				'import/no-duplicates': 'error',
+				'import/no-anonymous-default-export': 'error',
+				'import/order': [
+					'error',
+					{
+						'newlines-between': 'always',
+						alphabetize: {
+							order: 'asc',
+							caseInsensitive: true
+						},
+						pathGroups: [
+							{
+								pattern: '@/**',
+								group: 'internal'
+							}
+						],
+
+						groups: ['builtin', 'external', ['internal', 'parent', 'sibling', 'index'], ['object', 'unknown', 'type']]
+					}
+				],
+
+				// Others rules
+				'padding-line-between-statements': [
+					'error',
+					{
+						blankLine: 'any',
+						prev: 'export',
+						next: 'export'
+					},
+					{
+						blankLine: 'always',
+						prev: ['const', 'let', 'var'],
+						next: '*'
+					},
+					{
+						blankLine: 'any',
+						prev: ['const', 'let', 'var'],
+						next: ['const', 'let', 'var']
+					},
+					{
+						blankLine: 'always',
+						prev: '*',
+						next: ['function', 'multiline-const', 'multiline-block-like']
+					},
+					{
+						blankLine: 'always',
+						prev: ['function', 'multiline-const', 'multiline-block-like'],
+						next: '*'
+					}
+				]
+			}
 		}
-	}
-)
+	)
+}
 
 export const pluginReact = () =>
 	(async () => {

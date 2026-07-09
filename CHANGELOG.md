@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3
+
+### Patch Changes
+
+- Use lazy imports for all ESLint peer dependencies to fix module resolution errors when importing jss-devtools. Previously, top-level imports of `typescript-eslint` and other peer dependencies caused ERR_PACKAGE_PATH_NOT_EXPORTED and ERR_MODULE_NOT_FOUND errors.
+
 ## 0.0.2
 
 ### Patch Changes
