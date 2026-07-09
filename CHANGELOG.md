@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.13
+
+### Patch Changes
+
+- f741053: Make defineConfig a function to support defineConfig(eslintConfigNode) usage
+
 ## 0.0.11
 
 ### Patch Changes
