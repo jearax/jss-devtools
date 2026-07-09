@@ -8,6 +8,12 @@ import pluginPreferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+/**
+ * Define ESLint config (backward compatibility alias)
+ * @deprecated Use eslintConfigNode directly instead
+ */
+export const defineConfig = eslintConfigNode
+
 export const eslintConfigNode = [
 	{
 		files: ['**/*.{js,ts,jsx,tsx}'],
