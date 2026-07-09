@@ -12,21 +12,21 @@ import { name as PKG } from '../../package.json'
 const buildWrapperConfig = (options: EslintConfigOptions): string => {
 	const { framework, useTailwind, useStorybook } = options
 
-	const parts: string[] = ['\t...eslintConfigNode']
+	const parts: string[] = ['\teslintConfigNode']
 
 	// nextjs config already composes react internally
 	if (framework === 'react' || framework === 'react-native') {
-		parts.push('\t...pluginReact()')
+		parts.push('\tpluginReact()')
 	} else if (framework === 'nextjs') {
-		parts.push('\t...pluginNext()')
+		parts.push('\tpluginNext()')
 	}
 
 	if (useTailwind) {
-		parts.push('\t...pluginTailwind()')
+		parts.push('\tpluginTailwind()')
 	}
 
 	if (useStorybook) {
-		parts.push('\t...pluginStorybook()')
+		parts.push('\tpluginStorybook()')
 	}
 
 	return parts.join(',\n')

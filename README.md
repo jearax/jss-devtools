@@ -82,8 +82,8 @@ jss-devtools init --framework react --tailwind --aliasImport
 import { eslintConfigNode, pluginReact } from 'jss-devtools'
 
 export default [
-  ...eslintConfigNode,
-  ...pluginReact()
+  eslintConfigNode,
+  pluginReact()
 ]
 ```
 

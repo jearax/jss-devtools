@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.21
+
+### Patch Changes
+
+- Redesign config exports as single flat-config objects (no spread needed). User config [eslintConfigNode, pluginReact(), ...] now valid without spreading.
+
 ## 0.0.19
 
 ### Patch Changes
