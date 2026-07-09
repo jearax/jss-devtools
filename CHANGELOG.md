@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.14
+
+### Patch Changes
+
+- 74411b5: Audit fixes: README spread example, add typescript-eslint peerDep, remove unused jsx-a11y, remove @deprecated from defineConfig, cleanup comments
+
 ## 0.0.13
 
 ### Patch Changes
