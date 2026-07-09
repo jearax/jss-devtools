@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.9
+
+### Patch Changes
+
+- 3705bf1: Fix nested array in base config - spread tseslint.configs.recommended
+
 ## 0.0.7
 
 ### Patch Changes
