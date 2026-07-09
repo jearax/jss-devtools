@@ -49,7 +49,6 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-autofix": "^2.0.0",
     "eslint-plugin-import": "^2.0.0",
-    "eslint-plugin-jsx-a11y": "^6.0.0",
     "eslint-plugin-prefer-arrow-functions": "^3.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.0.0",
@@ -62,7 +61,8 @@
     "lint-staged": "^15.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.8.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^6.0.0"
   },
   "peerDependenciesMeta": {
     "@next/eslint-plugin-next": {
@@ -75,9 +75,6 @@
       "optional": true
     },
     "eslint-plugin-react-native": {
-      "optional": true
-    },
-    "eslint-plugin-jsx-a11y": {
       "optional": true
     },
     "eslint-plugin-import": {

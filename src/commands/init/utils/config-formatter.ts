@@ -30,7 +30,6 @@ export const eslintConfigNode = [
 		},
 
 		rules: {
-			// autofix
 			'autofix/eol-last': 'error',
 			'autofix/curly': 'error',
 			'autofix/no-lonely-if': 'error',
@@ -47,7 +46,6 @@ export const eslintConfigNode = [
 				}
 			],
 
-			// @typescript-eslint
 			'@typescript-eslint/no-unused-vars': [
 				'warn',
 				{
@@ -63,10 +61,8 @@ export const eslintConfigNode = [
 			'@typescript-eslint/no-empty-object-type': 'off',
 			'@typescript-eslint/consistent-type-imports': ['error', { prefer: 'no-type-imports' }],
 
-			// eslint-plugin-prefer-arrow-functions
 			'prefer-arrow-functions/prefer-arrow-functions': 'error',
 
-			// eslint-plugin-import
 			'import/first': 'error',
 			'import/newline-after-import': 'error',
 			'import/no-duplicates': 'error',
@@ -90,7 +86,6 @@ export const eslintConfigNode = [
 				}
 			],
 
-			// Others rules
 			'padding-line-between-statements': [
 				'error',
 				{
@@ -123,6 +118,9 @@ export const eslintConfigNode = [
 	}
 ]
 
+// Plugins return functions so require() is deferred until the consumer actually
+// uses the plugin. This prevents "Cannot find module" crashes when a consumer
+// only imports eslintConfigNode but hasn't installed optional peer deps.
 export const pluginReact = () => [
 	{
 		settings: {
@@ -141,22 +139,18 @@ export const pluginReact = () => [
 		},
 
 		rules: {
-			// eslint-plugin-react
 			'react/jsx-uses-react': 'off',
 			'react/react-in-jsx-scope': 'off',
 			'react/display-name': 'off',
-
 			'react/jsx-boolean-value': 'error',
 			'react/jsx-curly-brace-presence': ['error', 'never'],
 			'react/self-closing-comp': 'error',
 
-			// eslint-plugin-react-native
 			'react-native/no-unused-styles': 'warn',
 			'react-native/no-inline-styles': 'warn',
 			'react-native/no-color-literals': 'warn',
 			'react-native/no-raw-text': 'off',
 
-			// eslint-plugin-react-hooks
 			'react-hooks/rules-of-hooks': 'error',
 			'react-hooks/exhaustive-deps': 'warn'
 		}
@@ -171,7 +165,6 @@ export const pluginNext = () => [
 		},
 
 		rules: {
-			// eslint-plugin-next
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			...require('@next/eslint-plugin-next').configs.recommended.rules,
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -188,7 +181,6 @@ export const pluginStorybook = () => [
 		},
 
 		rules: {
-			// eslint-plugin-storybook
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			...require('eslint-plugin-storybook').configs.recommended.rules
 		}
@@ -203,18 +195,12 @@ export const pluginTailwind = () => [
 		},
 
 		rules: {
-			// eslint-plugin-tailwindcss
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			...require('eslint-plugin-tailwindcss').configs.recommended.rules
 		}
 	}
 ]
 
-/**
- * Define ESLint config function (backward compatibility)
- * Merges multiple config arrays into one flat array
- * @deprecated Use eslintConfigNode directly instead
- */
 export const defineConfig = (...configs: any[]) => {
 	if (configs.length === 0) {
 		return eslintConfigNode
