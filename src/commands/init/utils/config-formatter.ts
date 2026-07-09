@@ -211,9 +211,15 @@ export const pluginTailwind = () => [
 ]
 
 /**
- * Define ESLint config (backward compatibility alias)
+ * Define ESLint config function (backward compatibility)
+ * Merges multiple config arrays into one flat array
  * @deprecated Use eslintConfigNode directly instead
  */
-export const defineConfig = eslintConfigNode
+export const defineConfig = (...configs: any[]) => {
+	if (configs.length === 0) {
+		return eslintConfigNode
+	}
+	return configs.flat()
+}
 
 export default eslintConfigNode
