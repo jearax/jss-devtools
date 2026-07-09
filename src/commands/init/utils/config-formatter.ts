@@ -8,37 +8,7 @@ import pluginPreferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
-const loadModule = async (name: string) => {
-	try {
-		const module = await import(name)
-
-		return module.default || module
-	} catch (err) {
-		console.error(`❌ Failed to load module: ${name}`)
-		console.error(`   Please install it: npm install --save-dev ${name}`)
-		throw err
-	}
-}
-
-export const defineESLintConfig = async (...configs: any[]) => {
-	const resolvedConfigs = await Promise.all(
-		configs.map(async (config) => {
-			if (config instanceof Promise) {
-				return await config
-			}
-
-			if (Array.isArray(config)) {
-				return config
-			}
-
-			return config
-		})
-	)
-
-	return resolvedConfigs.flat()
-}
-
-export const eslintConfigNode = defineESLintConfig(
+export const eslintConfigNode = [
 	{
 		files: ['**/*.{js,ts,jsx,tsx}'],
 		languageOptions: {
@@ -151,101 +121,93 @@ export const eslintConfigNode = defineESLintConfig(
 			]
 		}
 	}
-)
+]
 
-export const pluginReact = () =>
-	(async () => {
-		const [pluginReact, pluginReactHooks, pluginReactNative] = await Promise.all([
-			loadModule('eslint-plugin-react'),
-			loadModule('eslint-plugin-react-hooks'),
-			loadModule('eslint-plugin-react-native')
-		])
-
-		return defineESLintConfig({
-			settings: {
-				react: {
-					version: 'detect'
-				}
-			},
-
-			plugins: {
-				react: pluginReact,
-				'react-native': pluginReactNative,
-				'react-hooks': pluginReactHooks
-			},
-
-			rules: {
-				// eslint-plugin-react
-				'react/jsx-uses-react': 'off',
-				'react/react-in-jsx-scope': 'off',
-				'react/display-name': 'off',
-
-				'react/jsx-boolean-value': 'error',
-				'react/jsx-curly-brace-presence': ['error', 'never'],
-				'react/self-closing-comp': 'error',
-
-				// eslint-plugin-react-native
-				'react-native/no-unused-styles': 'warn',
-				'react-native/no-inline-styles': 'warn',
-				'react-native/no-color-literals': 'warn',
-				'react-native/no-raw-text': 'off',
-
-				// eslint-plugin-react-hooks
-				'react-hooks/rules-of-hooks': 'error',
-				'react-hooks/exhaustive-deps': 'warn'
+export const pluginReact = [
+	{
+		settings: {
+			react: {
+				version: 'detect'
 			}
-		})
-	})()
+		},
 
-export const pluginNext = () =>
-	(async () => {
-		const pluginNext = await loadModule('@next/eslint-plugin-next')
+		plugins: {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			react: require('eslint-plugin-react'),
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			'react-native': require('eslint-plugin-react-native'),
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			'react-hooks': require('eslint-plugin-react-hooks')
+		},
 
-		return defineESLintConfig(pluginReact(), {
-			plugins: {
-				'@next/next': pluginNext
-			},
+		rules: {
+			// eslint-plugin-react
+			'react/jsx-uses-react': 'off',
+			'react/react-in-jsx-scope': 'off',
+			'react/display-name': 'off',
 
-			rules: {
-				// eslint-plugin-next
-				...pluginNext.configs.recommended.rules,
-				...pluginNext.configs['core-web-vitals'].rules
-			}
-		})
-	})()
+			'react/jsx-boolean-value': 'error',
+			'react/jsx-curly-brace-presence': ['error', 'never'],
+			'react/self-closing-comp': 'error',
 
-export const pluginStorybook = () =>
-	(async () => {
-		const pluginStorybook = await loadModule('eslint-plugin-storybook')
+			// eslint-plugin-react-native
+			'react-native/no-unused-styles': 'warn',
+			'react-native/no-inline-styles': 'warn',
+			'react-native/no-color-literals': 'warn',
+			'react-native/no-raw-text': 'off',
 
-		return [
-			{
-				plugins: {
-					storybook: pluginStorybook
-				},
-
-				rules: {
-					// eslint-plugin-storybook
-					...pluginStorybook.configs.recommended.rules
-				}
-			}
-		]
-	})()
-
-export const pluginTailwind = () =>
-	(async () => {
-		const pluginTailwind = await loadModule('eslint-plugin-tailwindcss')
-
-		return {
-			plugins: {
-				tailwindcss: pluginTailwind
-			},
-
-			rules: {
-				// eslint-plugin-tailwindcss
-				...pluginTailwind.configs.recommended.rules
-			}
+			// eslint-plugin-react-hooks
+			'react-hooks/rules-of-hooks': 'error',
+			'react-hooks/exhaustive-deps': 'warn'
 		}
-	})()
+	}
+]
+
+export const pluginNext = [
+	{
+		plugins: {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			'@next/next': require('@next/eslint-plugin-next')
+		},
+
+		rules: {
+			// eslint-plugin-next
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			...require('@next/eslint-plugin-next').configs.recommended.rules,
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			...require('@next/eslint-plugin-next').configs['core-web-vitals'].rules
+		}
+	}
+]
+
+export const pluginStorybook = [
+	{
+		plugins: {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			storybook: require('eslint-plugin-storybook')
+		},
+
+		rules: {
+			// eslint-plugin-storybook
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			...require('eslint-plugin-storybook').configs.recommended.rules
+		}
+	}
+]
+
+export const pluginTailwind = [
+	{
+		plugins: {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			tailwindcss: require('eslint-plugin-tailwindcss')
+		},
+
+		rules: {
+			// eslint-plugin-tailwindcss
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			...require('eslint-plugin-tailwindcss').configs.recommended.rules
+		}
+	}
+]
 
 export default eslintConfigNode
