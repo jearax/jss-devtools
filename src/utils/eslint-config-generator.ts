@@ -27,6 +27,7 @@ import { name as PKG } from '../../package.json'
 const buildWrapperConfig = (options: EslintConfigOptions): string => {
 	const { framework, useTailwind, useStorybook } = options
 
+	// Don't spread eslintConfigNode - it's already an array
 	const parts: string[] = ['\t...eslintConfigNode']
 
 	// Framework plugins (next already composes react internally).

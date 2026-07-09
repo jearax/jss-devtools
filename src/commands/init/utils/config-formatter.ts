@@ -20,7 +20,7 @@ export const eslintConfigNode = [
 	},
 
 	pluginJs.configs.recommended,
-	tseslint.configs.recommended,
+	...tseslint.configs.recommended,
 
 	{
 		plugins: {
