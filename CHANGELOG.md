@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.4
+
+### Patch Changes
+
+- Fix module resolution by ensuring all peer dependencies are properly externalized in build. Previously eslint-plugin-autofix, eslint-plugin-prefer-arrow-functions, and globals were incorrectly bundled, causing ENOENT errors when accessing plugin internals.
+
 ## 0.0.3
 
 ### Patch Changes
