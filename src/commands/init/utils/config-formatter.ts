@@ -2,7 +2,6 @@
 // @ts-nocheck
 
 import pluginJs from '@eslint/js'
-import { defineConfig } from 'eslint/config'
 import plugAutofix from 'eslint-plugin-autofix'
 import pluginImport from 'eslint-plugin-import'
 import pluginPreferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'
@@ -36,7 +35,7 @@ export const defineESLintConfig = async (...configs: any[]) => {
 		})
 	)
 
-	return defineConfig(...resolvedConfigs.flat())
+	return resolvedConfigs.flat()
 }
 
 export const eslintConfigNode = defineESLintConfig(

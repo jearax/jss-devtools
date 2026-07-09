@@ -22,7 +22,7 @@ import { name as PKG } from '../../package.json'
 /**
  * Build the wrapper config body: always include the base node config, then
  * compose framework/optional plugin factories as needed. All factories return
- * Promises that defineConfig awaits and flattens.
+ * Promises that are awaited and flattened into the config array.
  */
 const buildWrapperConfig = (options: EslintConfigOptions): string => {
 	const { framework, useTailwind, useStorybook } = options
@@ -49,7 +49,7 @@ const buildWrapperConfig = (options: EslintConfigOptions): string => {
 
 /** Collect only the named imports actually used by the generated config. */
 const buildImports = (options: EslintConfigOptions): string => {
-	const names = ['defineConfig', 'eslintConfigNode']
+	const names = ['eslintConfigNode']
 	const { framework, useTailwind, useStorybook } = options
 
 	if (framework === 'react' || framework === 'react-native') names.push('pluginReact')
@@ -64,11 +64,9 @@ const buildImports = (options: EslintConfigOptions): string => {
 const generateConfig = (options: EslintConfigOptions): string => {
 	return `${buildImports(options)}
 
-const eslintConfig = defineConfig(
+export default [
 ${buildWrapperConfig(options)}
-);
-
-export default eslintConfig;
+];
 `
 }
 

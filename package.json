@@ -1,160 +1,160 @@
 {
-	"name": "jss-devtools",
-	"version": "0.0.1",
-	"description": "JavaScript stack dev tools CLI - ESLint 8.x edition with cross-platform support",
-	"license": "MIT",
-	"type": "module",
-	"exports": {
-		".": {
-			"types": "./dist/types/index.d.ts",
-			"import": "./dist/esm/index.js",
-			"require": "./dist/cjs/index.cjs"
-		}
-	},
-	"main": "./dist/cjs/index.cjs",
-	"module": "./dist/esm/index.js",
-	"bin": {
-		"jss-devtools": "./dist/cli/cli.js"
-	},
-	"files": [
-		"dist"
-	],
-	"scripts": {
-		"build": "bun run src/build.ts",
-		"clean": "rimraf dist",
-		"dev": "bun run --watch src/cli/index.ts",
-		"format": "eslint --fix \"{src,test,tests,lib,libs,script,scripts}/**/*.{js,ts,jsx,tsx}\" && prettier --write \"{src,test,tests,lib,libs,script,scripts}/**/*.{js,ts,jsx,tsx}\"",
-		"prepare": "husky",
-		"release": "bun run clean && bun run build && changeset publish",
-		"version": "changeset version"
-	},
-	"types": "./dist/types/index.d.ts",
-	"dependencies": {
-		"@clack/prompts": "^1.0.1",
-		"citty": "^0.2.1",
-		"consola": "^3.4.2",
-		"defu": "^6.1.4",
-		"execa": "^9.6.1",
-		"figlet": "^1.10.0",
-		"globby": "^16.1.0",
-		"nypm": "^0.6.5",
-		"pathe": "^2.0.3"
-	},
-	"peerDependencies": {
-		"@eslint/js": "^8.0.0",
-		"@next/eslint-plugin-next": "^14.0.0",
-		"@typescript-eslint/eslint-plugin": "^6.0.0",
-		"@typescript-eslint/parser": "^6.0.0",
-		"eslint": "^8.0.0",
-		"eslint-config-prettier": "^9.0.0",
-		"eslint-plugin-autofix": "^2.0.0",
-		"eslint-plugin-import": "^2.0.0",
-		"eslint-plugin-jsx-a11y": "^6.0.0",
-		"eslint-plugin-prefer-arrow-functions": "^3.0.0",
-		"eslint-plugin-prettier": "^5.0.0",
-		"eslint-plugin-react": "^7.0.0",
-		"eslint-plugin-react-hooks": "^7.0.0",
-		"eslint-plugin-react-native": "^4.0.0",
-		"eslint-plugin-storybook": "^0.8.0",
-		"eslint-plugin-tailwindcss": "^3.0.0",
-		"globals": "^15.0.0",
-		"husky": "^9.0.0",
-		"lint-staged": "^15.0.0",
-		"prettier": "^3.0.0",
-		"prettier-plugin-tailwindcss": "^0.8.0",
-		"typescript": "^5.0.0"
-	},
-	"peerDependenciesMeta": {
-		"@next/eslint-plugin-next": {
-			"optional": true
-		},
-		"eslint-plugin-react": {
-			"optional": true
-		},
-		"eslint-plugin-react-hooks": {
-			"optional": true
-		},
-		"eslint-plugin-react-native": {
-			"optional": true
-		},
-		"eslint-plugin-jsx-a11y": {
-			"optional": true
-		},
-		"eslint-plugin-import": {
-			"optional": true
-		},
-		"eslint-plugin-autofix": {
-			"optional": true
-		},
-		"eslint-plugin-prefer-arrow-functions": {
-			"optional": true
-		},
-		"eslint-plugin-storybook": {
-			"optional": true
-		},
-		"eslint-plugin-tailwindcss": {
-			"optional": true
-		},
-		"eslint-config-prettier": {
-			"optional": true
-		},
-		"eslint-plugin-prettier": {
-			"optional": true
-		},
-		"prettier-plugin-tailwindcss": {
-			"optional": true
-		},
-		"globals": {
-			"optional": true
-		},
-		"husky": {
-			"optional": true
-		},
-		"lint-staged": {
-			"optional": true
-		}
-	},
-	"devDependencies": {
-		"@changesets/cli": "^2.29.8",
-		"@eslint/js": "^8.57.1",
-		"@types/bun": "^1.3.14",
-		"@types/figlet": "^1.7.0",
-		"@types/node": "^25.2.3",
-		"@typescript-eslint/eslint-plugin": "^6.21.0",
-		"@typescript-eslint/parser": "^6.21.0",
-		"eslint": "^8.57.1",
-		"eslint-config-prettier": "^9.1.2",
-		"eslint-plugin-autofix": "^2.2.0",
-		"eslint-plugin-import": "^2.32.0",
-		"eslint-plugin-prefer-arrow-functions": "^3.10.1",
-		"globals": "^17.7.0",
-		"husky": "^9.1.7",
-		"lint-staged": "^17.0.8",
-		"prettier": "^3.9.4",
-		"rimraf": "^6.1.2",
-		"tsc-alias": "^1.8.16",
-		"typescript": "^6.0.3"
-	},
-	"keywords": [
-		"cli",
-		"cross-platform",
-		"devtools",
-		"eslint",
-		"prettier"
-	],
-	"engines": {
-		"node": ">=22.0.0"
-	},
-	"publishConfig": {
-		"access": "public"
-	},
-	"lint-staged": {
-		"{src,test,tests,lib,libs,script,scripts}/**/*.{js,ts,jsx,tsx}": [
-			"eslint --fix",
-			"prettier --write"
-		],
-		"package.json": [
-			"bunx prettier-package-json --write"
-		]
-	}
+  "name": "jss-devtools",
+  "version": "0.0.2",
+  "description": "JavaScript stack dev tools CLI - ESLint 8.x edition with cross-platform support",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
+  "bin": {
+    "jss-devtools": "./dist/cli/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun run src/build.ts",
+    "clean": "rimraf dist",
+    "dev": "bun run --watch src/cli/index.ts",
+    "format": "eslint --fix \"{src,test,tests,lib,libs,script,scripts}/**/*.{js,ts,jsx,tsx}\" && prettier --write \"{src,test,tests,lib,libs,script,scripts}/**/*.{js,ts,jsx,tsx}\"",
+    "prepare": "husky",
+    "release": "bun run clean && bun run build && changeset publish",
+    "version": "changeset version"
+  },
+  "types": "./dist/types/index.d.ts",
+  "dependencies": {
+    "@clack/prompts": "^1.0.1",
+    "citty": "^0.2.1",
+    "consola": "^3.4.2",
+    "defu": "^6.1.4",
+    "execa": "^9.6.1",
+    "figlet": "^1.10.0",
+    "globby": "^16.1.0",
+    "nypm": "^0.6.5",
+    "pathe": "^2.0.3"
+  },
+  "peerDependencies": {
+    "@eslint/js": "^8.0.0",
+    "@next/eslint-plugin-next": "^14.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-autofix": "^2.0.0",
+    "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-jsx-a11y": "^6.0.0",
+    "eslint-plugin-prefer-arrow-functions": "^3.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-native": "^4.0.0",
+    "eslint-plugin-storybook": "^0.8.0",
+    "eslint-plugin-tailwindcss": "^3.0.0",
+    "globals": "^15.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@next/eslint-plugin-next": {
+      "optional": true
+    },
+    "eslint-plugin-react": {
+      "optional": true
+    },
+    "eslint-plugin-react-hooks": {
+      "optional": true
+    },
+    "eslint-plugin-react-native": {
+      "optional": true
+    },
+    "eslint-plugin-jsx-a11y": {
+      "optional": true
+    },
+    "eslint-plugin-import": {
+      "optional": true
+    },
+    "eslint-plugin-autofix": {
+      "optional": true
+    },
+    "eslint-plugin-prefer-arrow-functions": {
+      "optional": true
+    },
+    "eslint-plugin-storybook": {
+      "optional": true
+    },
+    "eslint-plugin-tailwindcss": {
+      "optional": true
+    },
+    "eslint-config-prettier": {
+      "optional": true
+    },
+    "eslint-plugin-prettier": {
+      "optional": true
+    },
+    "prettier-plugin-tailwindcss": {
+      "optional": true
+    },
+    "globals": {
+      "optional": true
+    },
+    "husky": {
+      "optional": true
+    },
+    "lint-staged": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@eslint/js": "^8.57.1",
+    "@types/bun": "^1.3.14",
+    "@types/figlet": "^1.7.0",
+    "@types/node": "^25.2.3",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-autofix": "^2.2.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prefer-arrow-functions": "^3.10.1",
+    "globals": "^17.7.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.9.4",
+    "rimraf": "^6.1.2",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^6.0.3"
+  },
+  "keywords": [
+    "cli",
+    "cross-platform",
+    "devtools",
+    "eslint",
+    "prettier"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "lint-staged": {
+    "{src,test,tests,lib,libs,script,scripts}/**/*.{js,ts,jsx,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "package.json": [
+      "bunx prettier-package-json --write"
+    ]
+  }
 }
