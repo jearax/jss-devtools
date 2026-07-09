@@ -5,11 +5,11 @@ import { addDependency, addDevDependency } from '@/utils/package-installer'
 import { PackageToInstall, SetupAnswers } from '@/commands/init/types/setup-pkgs'
 import { RepoState } from '@/utils/repo-detector'
 import { logger } from '@/utils/logger'
+import { extractMajor, parseMajors } from '@/utils/semver-helpers'
 import { peerDependencies } from '../../../../package.json'
 
-/** The declared peerDependencies range for a package (e.g. "^8.0.0"), if any. */
-const peerRange = (pkgName: string): string | undefined =>
-	peerDependencies[pkgName as keyof typeof peerDependencies]
+/** The declared peerDependencies range for a package (e.g. "^6.0.0 || ^7.0.0"), if any. */
+const peerRange = (pkgName: string): string | undefined => peerDependencies[pkgName as keyof typeof peerDependencies]
 
 let offlineWarned = false
 /** Warn once when the npm registry is unreachable. */
@@ -19,72 +19,83 @@ const warnOffline = (): void => {
 	logger.warn('⚠️  Offline: cannot reach the npm registry. Using declared version ranges.')
 }
 
-/**
- * Get latest version within a major range from npm registry.
- * Returns null on network/registry failure (offline) instead of a fake version.
- */
-const fetchLatestVersion = async (pkgName: string, major: string): Promise<string | null> => {
+/** Run `npm view <pkg> <field> --json` with a timeout. Throws on registry/network failure. */
+const npmView = async (pkgName: string, field: string): Promise<string> => {
+	const { stdout } = await execa('npm', ['view', pkgName, field], {
+		stdio: 'pipe',
+		timeout: 10000
+	})
+	return stdout
+}
+
+/** Latest published stable (non-prerelease) version, or null on registry failure. */
+const fetchLatest = async (pkgName: string): Promise<string | null> => {
 	try {
-		const { stdout } = await execa('npm', ['view', pkgName, 'version'], {
-			stdio: 'pipe',
-			timeout: 10000
-		})
-		const latestVersion = stdout.trim()
-
-		// Check if latest version matches the major range
-		const latestMajor = latestVersion.split('.')[0]
-		if (latestMajor === major) {
-			return latestVersion
-		}
-
-		// If latest is different major, find the last version of the requested major
-		const { stdout: versionsStdout } = await execa('npm', ['view', pkgName, 'versions', '--json'], {
-			stdio: 'pipe',
-			timeout: 10000
-		})
-		const versions: string[] = JSON.parse(versionsStdout)
-		const majorVersions = versions
-			.filter((v) => v.startsWith(`${major}.`) && !v.includes('-'))
-			.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
-
-		return majorVersions[0] || null
+		const stdout = await npmView(pkgName, 'versions --json')
+		const versions: string[] = JSON.parse(stdout)
+		const stable = versions.filter((v) => !v.includes('-'))
+		return stable[stable.length - 1] ?? null
 	} catch {
-		// Network/registry failure → caller falls back to the declared range.
 		return null
 	}
 }
 
-/**
- * Cache for fetched versions to avoid redundant npm calls.
- * Null entries mean "could not resolve (offline)".
- */
+/** Latest stable version within a specific major, or null on registry failure. */
+const fetchLatestInMajor = async (pkgName: string, major: number): Promise<string | null> => {
+	try {
+		const stdout = await npmView(pkgName, 'versions --json')
+		const versions: string[] = JSON.parse(stdout)
+		const inMajor = versions
+			.filter((v) => v.startsWith(`${major}.`) && !v.includes('-'))
+			.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+		return inMajor[0] ?? null
+	} catch {
+		return null
+	}
+}
+
 const versionCache = new Map<string, string | null>()
 
 /**
- * Resolve the exact latest version for a package within its pinned major.
- * Returns null when offline/unreachable (warns once). Cached.
+ * Resolve the exact latest version for a package.
+ * Prefers the consumer's already-installed major when it is within the declared
+ * compat range (so we never downgrade/pin against their choice); otherwise picks
+ * the highest declared major. Returns null when offline/unreachable. Cached.
+ *
+ * @param installedVersion consumer's current version string (e.g. "^8.62.0"), if any
  */
-const resolveVersion = async (pkgName: string): Promise<string | null> => {
+const resolveVersion = async (pkgName: string, installedVersion?: string): Promise<string | null> => {
 	const range = peerRange(pkgName)
-	const major = range?.match(/\d+/)?.[0]
-	if (!major) return null
+	if (!range) return null
 
-	const cacheKey = `${pkgName}@${major}`
+	const majors = parseMajors(range)
+
+	// Open range (>=, *) or no pinned major → absolute latest
+	const targetMajor =
+		majors.length === 0
+			? null
+			: (() => {
+					const installedMajor = extractMajor(installedVersion ?? '')
+					if (installedMajor !== null && majors.includes(installedMajor)) return installedMajor
+					return Math.max(...majors)
+				})()
+
+	const cacheKey = targetMajor === null ? `${pkgName}@latest` : `${pkgName}@${targetMajor}`
 	if (versionCache.has(cacheKey)) {
 		return versionCache.get(cacheKey)! ?? null
 	}
 
-	const version = await fetchLatestVersion(pkgName, major)
+	const version = targetMajor === null ? await fetchLatest(pkgName) : await fetchLatestInMajor(pkgName, targetMajor)
 	versionCache.set(cacheKey, version)
 	return version
 }
 
 /**
- * Build install spec (e.g. "eslint@8.57.1"). On offline, falls back to the
- * declared range (e.g. "eslint@^8.0.0") which package managers accept.
+ * Build install spec (e.g. "eslint@8.57.1"). Prefers the consumer's installed
+ * major when compatible. On offline, falls back to the declared range.
  */
-export const buildPkgSpec = async (pkgName: string): Promise<string> => {
-	const version = await resolveVersion(pkgName)
+export const buildPkgSpec = async (pkgName: string, installedVersion?: string): Promise<string> => {
+	const version = await resolveVersion(pkgName, installedVersion)
 	if (version) return `${pkgName}@${version}`
 
 	// Offline → use declared range.
@@ -95,10 +106,10 @@ export const buildPkgSpec = async (pkgName: string): Promise<string> => {
 
 /**
  * Full version range for package.json (e.g. "^8.57.1"). On offline, returns
- * the declared peerDependencies range (e.g. "^8.0.0").
+ * the declared peerDependencies range.
  */
-export const buildPkgRange = async (pkgName: string): Promise<string> => {
-	const version = await resolveVersion(pkgName)
+export const buildPkgRange = async (pkgName: string, installedVersion?: string): Promise<string> => {
+	const version = await resolveVersion(pkgName, installedVersion)
 	if (version) return `^${version}`
 
 	// Offline → use declared range.
@@ -145,8 +156,11 @@ const getPackageDefinitions = (): { common: PackageToInstall[]; formatter: Packa
 		{ name: 'eslint', dev: true },
 		{ name: '@eslint/js', dev: true },
 		{ name: 'globals', dev: true },
-		{ name: '@typescript-eslint/parser', dev: true },
-		{ name: '@typescript-eslint/eslint-plugin', dev: true },
+		// Use the typescript-eslint meta-package (bundles parser + plugin). For
+		// ESLint 8 flat config this is all that's needed. Standalone
+		// `@typescript-eslint/parser` + `@typescript-eslint/eslint-plugin` were
+		// removed — re-add them here if a future ESLint 9 setup needs them split.
+		{ name: 'typescript-eslint', dev: true },
 		{ name: 'eslint-config-prettier', dev: true },
 		{ name: 'eslint-plugin-autofix', dev: true },
 		{ name: 'eslint-plugin-import', dev: true },
@@ -215,12 +229,14 @@ export const buildInstallPlan = async (
 
 	// Fetch all versions in parallel for better performance.
 	// Skip already-installed packages unless the user chose to overwrite them.
+	// Pass the consumer's installed version so we keep their major when compatible.
 	const versionPromises = allNames.map(async (name) => {
 		if (repoState.installedPackages.has(name) && !overwriteSet.has(name)) {
 			return null
 		}
-		const spec = await buildPkgSpec(name)
-		const range = await buildPkgRange(name)
+		const installed = repoState.packageVersions.get(name)
+		const spec = await buildPkgSpec(name, installed)
+		const range = await buildPkgRange(name, installed)
 		return { name, spec, range, dev: true }
 	})
 

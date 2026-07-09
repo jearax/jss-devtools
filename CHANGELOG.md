@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.17
+
+### Patch Changes
+
+- Fix peer dep resolution for ESLint 8 compat: OR-range aware version resolution, prefer consumer installed major, install typescript-eslint meta-package
+
 ## 0.0.15
 
 ### Patch Changes

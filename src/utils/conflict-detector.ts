@@ -1,32 +1,25 @@
 /**
  * Package Conflict Detection Utilities
- * Detects version conflicts between installed and planned packages
+ * Detects version conflicts between installed and planned packages.
+ * Compat is judged against the planned package's declared range (OR-range aware),
+ * so a consumer on typescript-eslint@8 is compatible with a "^6||^7||^8" range.
  */
+
+import { isVersionInRange } from '@/utils/semver-helpers'
 
 export interface PackageConflict {
 	name: string
 	installedVersion?: string
 	plannedVersion?: string
-	isCompatible: boolean // True nếu versions tương đương
+	isCompatible: boolean
 }
 
 /**
- * Extract major version từ semver string
+ * Compatible khi installed version thỏa mãn declared range của planned package.
+ * Planned range có thể là OR range ("^6||^7||^8") hoặc open range (">=0.8.0").
  */
-const extractMajorVersion = (version: string): string | null => {
-	const match = version.match(/[\^~>=]?(\d+)(\.\d+)?(\.\d+)?[x*]?/)
-	return match ? match[1] : null
-}
-
-/**
- * Check nếu 2 versions tương đương (cùng major version)
- */
-const areVersionsCompatible = (v1: string, v2: string): boolean => {
-	const major1 = extractMajorVersion(v1)
-	const major2 = extractMajorVersion(v2)
-
-	if (!major1 || !major2) return true // Can't determine, assume compatible
-	return major1 === major2
+const areVersionsCompatible = (installedVersion: string, plannedRange: string): boolean => {
+	return isVersionInRange(installedVersion, plannedRange)
 }
 
 /**
