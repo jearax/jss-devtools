@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.7
+
+### Patch Changes
+
+- 520ac8e: Fix ESLint 8.x compatibility - convert async config API to synchronous arrays
+- 9bdb33a: Fix lazy plugin loading - prevent require() errors for unused plugins
+
 ## 0.0.4
 
 ### Patch Changes
