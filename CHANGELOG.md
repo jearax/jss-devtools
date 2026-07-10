@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.45
+
+### Patch Changes
+
+- Convert eslint-plugin-storybook peer range to caret-OR form (^0.8.0 || ^8.0.0 || ^9.0.0 || ^10.0.0) — eslint-8-traced, consistent with the caret-OR range convention
+
 ## 0.0.43
 
 ### Patch Changes
