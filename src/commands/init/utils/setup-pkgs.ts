@@ -167,14 +167,20 @@ const getPackageDefinitions = (): { common: PackageToInstall[]; formatter: Packa
 		{ name: 'eslint-plugin-prefer-arrow-functions', dev: true },
 		// Framework-conditional
 		{
-			name: [
-				'eslint-plugin-react',
-				'eslint-plugin-react-hooks',
-				'eslint-plugin-react-native',
-				'eslint-plugin-jsx-a11y'
-			],
+			name: ['eslint-plugin-react', 'eslint-plugin-react-hooks'],
 			dev: true,
 			condition: (a: SetupAnswers) => ['react', 'react-native', 'nextjs'].includes(a.framework)
+		},
+		{
+			name: 'eslint-plugin-react-native',
+			dev: true,
+			condition: (a: SetupAnswers) => a.framework === 'react-native'
+		},
+		// jsx-a11y is web-only (React/Next); not applicable to React Native
+		{
+			name: 'eslint-plugin-jsx-a11y',
+			dev: true,
+			condition: (a: SetupAnswers) => ['react', 'nextjs'].includes(a.framework)
 		},
 		{
 			name: '@next/eslint-plugin-next',

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.27
+
+### Patch Changes
+
+- Exclude jsx-a11y from React Native (web-only): split framework install groups so jsx-a11y applies only to react/nextjs
+
 ## 0.0.25
 
 ### Patch Changes
