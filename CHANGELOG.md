@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.33
+
+### Patch Changes
+
+- Generate self-contained eslint.config.mjs (no jss-devtools import) so the CLI runs purely via npx/dlx/bunx; update docs for PM-specific ephemeral usage
+
 ## 0.0.31
 
 ### Patch Changes
