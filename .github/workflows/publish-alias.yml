@@ -1,5 +1,8 @@
 name: 'Publish version alias'
 
+# Two triggers:
+#  1. workflow_dispatch (manual — needs repo admin)
+#  2. push tag alias-<version> (anyone with push access can fire it)
 on:
   workflow_dispatch:
     inputs:
@@ -11,6 +14,9 @@ on:
         description: 'npm dist-tag for the alias (NOT latest)'
         required: true
         default: 'eslint-v8-alias'
+  push:
+    tags:
+      - 'alias-*'
 
 jobs:
   publish-alias:
@@ -24,6 +30,18 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      - name: Resolve alias version + npm tag
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # tag alias-<version> → strip prefix
+            VERSION="${GITHUB_REF_NAME#alias-}"
+          else
+            VERSION="${{ inputs.alias-version }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "npm-tag=${{ inputs.ref-tag || 'eslint-v8-alias' }}" >> "$GITHUB_OUTPUT"
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -36,11 +54,11 @@ jobs:
         run: bun run build
 
       - name: Set alias version
-        run: npm pkg set version="${{ inputs.alias-version }}"
+        run: npm pkg set version="${{ steps.meta.outputs.version }}"
 
       - name: Publish under alias tag
         run: |
           npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
-          npm publish --access public --tag "${{ inputs.ref-tag }}"
+          npm publish --access public --tag "${{ steps.meta.outputs.npm-tag }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
