@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.25
+
+### Patch Changes
+
+- Add eslint-plugin-jsx-a11y recommended rules to pluginReact (a11y for JSX)
+
 ## 0.0.23
 
 ### Patch Changes

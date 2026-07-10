@@ -156,10 +156,12 @@ export const pluginReact = (): Record<string, any> => {
 	const react = safeRequire('eslint-plugin-react')
 	const reactHooks = safeRequire('eslint-plugin-react-hooks')
 	const reactNative = safeRequire('eslint-plugin-react-native')
+	const jsxAlly = safeRequire('eslint-plugin-jsx-a11y')
 	const plugins: Record<string, any> = {}
 	if (react) plugins.react = react
 	if (reactNative) plugins['react-native'] = reactNative
 	if (reactHooks) plugins['react-hooks'] = reactHooks
+	if (jsxAlly) plugins['jsx-a11y'] = jsxAlly
 
 	const rules: Record<string, any> = {}
 	if (react) {
@@ -185,6 +187,9 @@ export const pluginReact = (): Record<string, any> => {
 			'react-hooks/rules-of-hooks': 'error',
 			'react-hooks/exhaustive-deps': 'warn'
 		})
+	}
+	if (jsxAlly) {
+		Object.assign(rules, jsxAlly.configs?.recommended?.rules ?? {})
 	}
 
 	if (Object.keys(plugins).length === 0) return {}

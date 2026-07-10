@@ -1,6 +1,6 @@
 {
   "name": "jss-devtools",
-  "version": "0.0.23",
+  "version": "0.0.25",
   "description": "JavaScript stack dev tools CLI - ESLint 8.x edition with cross-platform support",
   "license": "MIT",
   "type": "module",
@@ -49,6 +49,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-autofix": "^2.0.0",
     "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-jsx-a11y": "^6.0.0",
     "eslint-plugin-prefer-arrow-functions": "^3.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.0.0",
@@ -87,6 +88,9 @@
       "optional": true
     },
     "eslint-plugin-import": {
+      "optional": true
+    },
+    "eslint-plugin-jsx-a11y": {
       "optional": true
     },
     "eslint-plugin-autofix": {
@@ -132,6 +136,7 @@
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-autofix": "^2.2.0",
     "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prefer-arrow-functions": "^3.10.1",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
