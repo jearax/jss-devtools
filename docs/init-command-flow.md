@@ -1,6 +1,6 @@
 # `jss init` Command Flow
 
-> Áp dụng cho `@jearax/jss-devtools` v1.x (ESLint 8.x). Cập nhật theo code hiện tại.
+> Áp dụng cho `jss-devtools` v1.x (ESLint 8.x). Cập nhật theo code hiện tại.
 
 ## Overview
 
@@ -51,7 +51,7 @@ flowchart TD
     Confirm{confirmInstallation}
     Confirm -->|nothing to install| Formatter
     Confirm -->|non-interactive| Execute
-    Confirm -->|interactive select| UserChoice[default: Save-only<br/>then Install now / Cancel]
+    Confirm -->|interactive select| UserChoice[default: Install now<br/>then Save-only / Cancel]
     UserChoice -->|cancel| Abort
     UserChoice -->|save-only| SavePkg[Save to package.json]
     UserChoice -->|install| Execute[Execute via PM]
@@ -157,7 +157,7 @@ Nếu không có → tạo default (`name` từ cwd dir, `version:1.0.0`, `scrip
 - Summary: `📦 N devDependencies to add: • pkg@x.y.z`. Nếu rỗng → "Nothing to install".
 - **Không** log "Skipped (already installed)" nữa (silent).
 - `-y` hoặc rỗng → auto install.
-- Interactive → `select` default **Save-only** / Install now / Cancel. Cancel → abort.
+- Interactive → `select` default **Install now** / Save-only / Cancel. Cancel → abort.
 
 **3.6 Execute**
 
@@ -180,7 +180,7 @@ Nếu không có → tạo default (`name` từ cwd dir, `version:1.0.0`, `scrip
 **Generated `eslint.config.mjs`** (wrapper import từ package):
 
 ```javascript
-import { defineConfig, eslintConfigNode, pluginReact } from '@jearax/jss-devtools'
+import { defineConfig, eslintConfigNode, pluginReact } from 'jss-devtools'
 
 const eslintConfig = defineConfig(eslintConfigNode, pluginReact())
 
@@ -229,11 +229,11 @@ export default eslintConfig
 **setupAliasImport:**
 
 - Bỏ qua nếu `!useAliasImport`.
-- Không có `tsconfig.json` → **auto-create** tsconfig tối giản (baseUrl `src` + `@/*` → `./*`).
+- Không có `tsconfig.json` → **auto-create** tsconfig tối giản (`@/*` → `./src/*`, **không baseUrl** — modern TS resolve paths relative to tsconfig dir; baseUrl bị deprecated từ TS 5.x).
 - Đọc tsconfig, detect alias hiện có.
-- Nếu đã có default `@/*` → `./*` → **silent** (không prompt).
+- Nếu đã có default `@/*` → `./src/*` (hoặc `./*` với baseUrl legacy) → **silent** (không prompt).
 - Alias khác + interactive → prompt Replace/Keep/Cancel (default Replace).
-- Tính target `baseUrl`+`paths`; **nếu không thay đổi gì → return silently (không write, không log)**.
+- Tính target `paths` (dựa trên có/không baseUrl hiện tại); **không tự thêm baseUrl**. Nếu không thay đổi gì → return silently (không write, không log).
 - Có thay đổi → merge vào `tsconfig.json` + `✔ Updated tsconfig.json with alias imports (@/*)`.
 
 ### 6. Completion
@@ -282,7 +282,7 @@ Các case đã handle:
 14. ✅ **Husky pre-commit có sẵn** → merge (giữ user content + ensure lint-staged).
 15. ✅ **git init** → branch `main` silent.
 
-### Chưa hỗ trợ (planned)
+### Chưa hỗ trợ (planned cho v2.x)
 
 - **Monorepo / workspace** — chỉ đọc `package.json` ở cwd.
-- **ESLint 9.x full support** — phiên bản sau.
+- **ESLint 9.x+ full support** — v2.x line.

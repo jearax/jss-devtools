@@ -106,7 +106,7 @@ export const setupFormatter = async ({
 	// Guard: ESLint 9.x is unsupported by v1.x — always skip regardless of prompt.
 	const eslintDetection = detectEslintConfig(process.cwd())
 	if (eslintDetection.hasConfig && eslintDetection.version === '9') {
-		logger.warn('Detected ESLint 9.x config. @jearax/jss-devtools v1.x supports ESLint 8.x only.')
+		logger.warn('Detected ESLint 9.x config. jss-devtools v1.x supports ESLint 8.x only.')
 		logger.warn('Please upgrade to v2.x for ESLint 9.x support or downgrade to ESLint 8.x.')
 		logger.info('Skipping ESLint config generation...')
 	} else {

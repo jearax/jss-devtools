@@ -5,10 +5,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![npm version](https://img.shields.io/npm/v/jss-devtools.svg)](https://www.npmjs.com/package/jss-devtools)
 
+## Versioning
+
+| Line | ESLint focus |
+|------|--------------|
+| **v1.x** (this) | ESLint `^8.0.0` |
+| v2.x (planned) | ESLint `^9.0.0` and above |
+
 ## Requirements
 
 - **Node.js** >= 22
-- **ESLint** 8.x only (ESLint 9.x support planned for v1.0)
+- **ESLint** 8.x (v1.x line). ESLint 9.x → use the future v2.x.
 
 ## Quick start
 
