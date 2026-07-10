@@ -18,8 +18,6 @@ const EXTERNAL_DEPS = [
 	// typescript-eslint meta-package (primary) + standalone parser/plugin
 	// (fallback). Config dynamically resolves whichever the consumer has.
 	'typescript-eslint',
-	'@typescript-eslint/parser',
-	'@typescript-eslint/eslint-plugin',
 
 	'eslint-config-prettier',
 	'eslint-plugin-prettier',

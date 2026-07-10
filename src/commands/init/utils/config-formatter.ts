@@ -41,6 +41,13 @@ const resolveTsParts = (): { parser: any; plugin: any; rules: Record<string, any
 	return null
 }
 
+// Note: `eslint-plugin-autofix` + `eslint-plugin-prefer-arrow-functions` are
+// kept as optional peers. In ESLint 9 the autofix rules `eol-last` and
+// `object-curly-newline` were removed from core (moved to @stylistic) — these
+// two rules will simply be no-ops if the autofix plugin wraps the deleted core
+// rule. Accepted trade-off: graceful no-op rather than crash. All other autofix
+// rules (curly, no-lonely-if, no-else-return, object-shorthand) are still in
+// core and remain active.
 const ts = resolveTsParts()
 const pluginJs = safeRequire('@eslint/js')
 const plugAutofix = safeRequire('eslint-plugin-autofix')

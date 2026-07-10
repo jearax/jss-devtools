@@ -120,38 +120,38 @@ const extractMajorVersion = (version: string): string | null => {
 }
 
 /**
- * Detect ESLint version from config and package.json
+ * Detect ESLint version from config and package.json.
+ * Priority: package.json version string > config type heuristics.
+ * Note: `@eslint/js` is now a peer for BOTH v8 (backport) and v9 editions,
+ * so its presence alone no longer implies v8 — the eslint version string wins.
  */
 export const detectEslintVersion = (
 	configFiles: string[],
 	packageJsonEslint?: EslintConfigDetection['packageJsonEslint']
 ): EslintVersion => {
-	// Detect from config type
-	const configType = detectEslintConfigType(configFiles)
-
-	// Flat config = ESLint 9+ (unless has @eslint/js which indicates v8 backport)
-	if (configType === 'flat' && !packageJsonEslint?.hasEslintJs) return '9'
-
-	// Legacy config with @eslint/js = ESLint 8 (backport)
-	if (configType === 'legacy' && packageJsonEslint?.hasEslintJs) return '8'
-
-	// Mixed config - prioritize flat (9.x) unless has @eslint/js (8.x backport)
-	if (configType === 'mixed') {
-		return packageJsonEslint?.hasEslintJs ? '8' : '9'
-	}
-
-	// Detect from package.json version string
+	// Strongest signal: the actual eslint version pinned in package.json.
 	if (packageJsonEslint?.version) {
 		const majorVersion = extractMajorVersion(String(packageJsonEslint.version))
 		if (majorVersion === '8') return '8'
 		if (majorVersion === '9') return '9'
 	}
 
-	// Next.js ESLint config typically uses ESLint 8
-	if (packageJsonEslint?.hasEslintConfigNext) return '8'
+	const configType = detectEslintConfigType(configFiles)
 
-	// Legacy config (.eslintrc.*) without @eslint/js - default to ESLint 8
+	// Flat config = ESLint 9+ (flat config is the default in v9). @eslint/js is a
+	// peer for both editions, so it no longer disqualifies v9.
+	if (configType === 'flat') return '9'
+
+	// Legacy config (.eslintrc.*) only runs on ESLint 8.x (v9 dropped it).
 	if (configType === 'legacy') return '8'
+
+	// Mixed config - flat (9.x) takes priority since legacy is ignored by v9.
+	if (configType === 'mixed') return '9'
+
+	// Next.js' own eslint-config-next historically pins ESLint 8; recent
+	// releases (v15+) ship flat config for v9, but absent a version string we
+	// conservatively assume v8 for the legacy setup.
+	if (packageJsonEslint?.hasEslintConfigNext) return '8'
 
 	return 'unknown'
 }
