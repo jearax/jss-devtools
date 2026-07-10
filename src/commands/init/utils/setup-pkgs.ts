@@ -6,7 +6,7 @@ import { PackageToInstall, SetupAnswers } from '@/commands/init/types/setup-pkgs
 import { RepoState } from '@/utils/repo-detector'
 import { logger } from '@/utils/logger'
 import { extractMajor, parseMajors } from '@/utils/semver-helpers'
-import { name as PKG_NAME, version as PKG_VERSION, peerDependencies } from '../../../../package.json'
+import { peerDependencies } from '../../../../package.json'
 
 /** The declared peerDependencies range for a package (e.g. "^6.0.0 || ^7.0.0"), if any. */
 const peerRange = (pkgName: string): string | undefined => peerDependencies[pkgName as keyof typeof peerDependencies]
@@ -93,11 +93,8 @@ const resolveVersion = async (pkgName: string, installedVersion?: string): Promi
 /**
  * Build install spec (e.g. "eslint@8.57.1"). Prefers the consumer's installed
  * major when compatible. On offline, falls back to the declared range.
- * The CLI itself pins to its own running version.
  */
 export const buildPkgSpec = async (pkgName: string, installedVersion?: string): Promise<string> => {
-	if (pkgName === PKG_NAME) return `${pkgName}@${PKG_VERSION}`
-
 	const version = await resolveVersion(pkgName, installedVersion)
 	if (version) return `${pkgName}@${version}`
 
@@ -109,11 +106,9 @@ export const buildPkgSpec = async (pkgName: string, installedVersion?: string): 
 
 /**
  * Full version range for package.json (e.g. "^8.57.1"). On offline, returns
- * the declared peerDependencies range. The CLI itself pins to its own version.
+ * the declared peerDependencies range.
  */
 export const buildPkgRange = async (pkgName: string, installedVersion?: string): Promise<string> => {
-	if (pkgName === PKG_NAME) return `^${PKG_VERSION}`
-
 	const version = await resolveVersion(pkgName, installedVersion)
 	if (version) return `^${version}`
 
@@ -157,9 +152,6 @@ const getPackageDefinitions = (): { common: PackageToInstall[]; formatter: Packa
 		{ name: 'lint-staged', dev: true }
 	],
 	formatter: [
-		// jss-devtools itself — the generated config imports from it, so it must
-		// be present in devDependencies (pinned to the running version).
-		{ name: PKG_NAME, dev: true },
 		{ name: 'prettier', dev: true },
 		{ name: 'eslint', dev: true },
 		{ name: '@eslint/js', dev: true },

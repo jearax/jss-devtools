@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.37
+
+### Patch Changes
+
+- Revert self-install experiment; jss-devtools stays a dependency the consumer declares. Docs updated to run init via npx/yarn dlx/pnpm dlx/bunx
+
 ## 0.0.35
 
 ### Patch Changes
