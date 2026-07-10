@@ -232,6 +232,13 @@ export const pluginTailwind = (): Record<string, any> => {
 	const tailwind = safeRequire('eslint-plugin-tailwindcss')
 	if (!tailwind) return {}
 	return {
+		// eslint-plugin-tailwindcss v4 loads the Tailwind v4 theme by reading the
+		// project's CSS entry (the file with `@import "tailwindcss"` / `@theme`).
+		// Its default `cssFiles` is `src/style.css`, which crashes (ENOENT, fatal)
+		// on any project whose CSS lives elsewhere (index.css, globals.css, ...).
+		// Broaden to any CSS so the plugin finds the real entry and degrades to a
+		// default theme instead of crashing when no Tailwind directive is present.
+		settings: { tailwindcss: { cssFiles: ['**/*.css'] } },
 		plugins: { tailwindcss: tailwind },
 		rules: { ...(tailwind.configs?.recommended?.rules ?? {}) }
 	}
