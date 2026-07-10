@@ -1,6 +1,6 @@
 {
   "name": "jss-devtools",
-  "version": "0.0.37",
+  "version": "0.0.39",
   "description": "JavaScript stack dev tools CLI - ESLint 8.x edition with cross-platform support",
   "license": "MIT",
   "type": "module",

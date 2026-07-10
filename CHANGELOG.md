@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.39
+
+### Patch Changes
+
+- Generated eslint.config.mjs + README use defineConfig(...) as the composer (defineConfig was exported but unused before)
+
 ## 0.0.37
 
 ### Patch Changes

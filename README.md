@@ -77,20 +77,20 @@ npx jss-devtools init --framework react --tailwind --aliasImport
 
 ## Generated ESLint config
 
-Composes ready-made configs exported by `jss-devtools`:
+Composes ready-made configs via `defineConfig`:
 
 ```javascript
-import { eslintConfigNode, pluginReact } from 'jss-devtools'
+import { defineConfig, eslintConfigNode, pluginReact } from 'jss-devtools'
 
-const eslintConfig = [
+const eslintConfig = defineConfig(
   eslintConfigNode,
   pluginReact()
-]
+)
 
 export default eslintConfig
 ```
 
-Exports: `eslintConfigNode` (base), `pluginReact()` (React/RN), `pluginNext()` (Next.js), `pluginTailwind()`, `pluginStorybook()`. Optional plugins degrade gracefully if a peer dep is missing.
+Exports: `defineConfig(...configs)` (composer, flattens to a flat-config array), `eslintConfigNode` (base), `pluginReact()` (React/RN), `pluginNext()` (Next.js), `pluginTailwind()`, `pluginStorybook()`. Optional plugins degrade gracefully if a peer dep is missing.
 
 ## Documentation
 

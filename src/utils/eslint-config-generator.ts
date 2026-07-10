@@ -33,7 +33,7 @@ const buildWrapperConfig = (options: EslintConfigOptions): string => {
 }
 
 const buildImports = (options: EslintConfigOptions): string => {
-	const names = ['eslintConfigNode']
+	const names = ['defineConfig', 'eslintConfigNode']
 	const { framework, useTailwind, useStorybook } = options
 
 	if (framework === 'react' || framework === 'react-native') names.push('pluginReact')
@@ -47,9 +47,9 @@ const buildImports = (options: EslintConfigOptions): string => {
 const generateConfig = (options: EslintConfigOptions): string => {
 	return `${buildImports(options)}
 
-const eslintConfig = [
+const eslintConfig = defineConfig(
 ${buildWrapperConfig(options)}
-]
+)
 
 export default eslintConfig
 `
