@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.29
+
+### Patch Changes
+
+- Generate eslint.config.mjs with a named const (eslintConfig) and default export it
+
 ## 0.0.27
 
 ### Patch Changes

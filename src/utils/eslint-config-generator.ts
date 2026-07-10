@@ -47,9 +47,11 @@ const buildImports = (options: EslintConfigOptions): string => {
 const generateConfig = (options: EslintConfigOptions): string => {
 	return `${buildImports(options)}
 
-export default [
+const eslintConfig = [
 ${buildWrapperConfig(options)}
-];
+]
+
+export default eslintConfig
 `
 }
 
