@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.35
+
+### Patch Changes
+
+- Restore eslintConfigNode/pluginReact export-based config API; init self-installs jss-devtools (pinned to running version) so the config import resolves; docs use npx/dlx/bunx
+
 ## 0.0.33
 
 ### Patch Changes

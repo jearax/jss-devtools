@@ -1,6 +1,6 @@
 # jss-devtools
 
-> One-shot scaffolding CLI for the JavaScript stack — generates ESLint 8.x + Prettier + Husky + lint-staged + TS alias imports. Run via npx/dlx/bunx, no install required.
+> Dev-tools CLI for the JavaScript stack — scaffolds ESLint 8.x + Prettier + Husky + lint-staged + TS alias imports. Run via npx/dlx/bunx.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![npm version](https://img.shields.io/npm/v/jss-devtools.svg)](https://www.npmjs.com/package/jss-devtools)
@@ -12,7 +12,7 @@
 
 ## Quick start
 
-Run once in your project — no install needed. Pick the command for your package manager:
+Run once in your project — no manual install needed. Pick the command for your package manager:
 
 ```bash
 # npm
@@ -34,9 +34,7 @@ Pin a major to stay on the ESLint 8.x line:
 npx jss-devtools@0 init      # latest 0.0.x (ESLint 8.x edition)
 ```
 
-`init` auto-detects your package manager and installs ESLint 8.x + the matching plugins as devDependencies. The generated `eslint.config.mjs` is **self-contained** — it does not import `jss-devtools`, so the CLI isn't needed after scaffolding.
-
-Cross-platform (Windows/macOS/Linux).
+`init` auto-detects your package manager and adds `jss-devtools` + ESLint 8.x + the matching plugins to your devDependencies. Cross-platform (Windows/macOS/Linux).
 
 ## Commands
 
@@ -80,29 +78,20 @@ npx jss-devtools@latest init --framework react --tailwind --aliasImport
 
 ## Generated ESLint config
 
-The generated `eslint.config.mjs` is self-contained — plugins are required directly from your installed devDependencies (no `jss-devtools` import):
+Composes ready-made configs exported by `jss-devtools`:
 
 ```javascript
-import { createRequire } from 'node:module'
-import js from '@eslint/js'
-import globals from 'globals'
-
-const require = createRequire(import.meta.url)
-const safeRequire = (m) => { try { return require(m) } catch { return null } }
+import { eslintConfigNode, pluginReact } from 'jss-devtools'
 
 const eslintConfig = [
-  {
-    files: ['**/*.{js,ts,jsx,tsx}'],
-    languageOptions: { globals: { ...globals.node, ...globals.browser } },
-    plugins: { import: safeRequire('eslint-plugin-import'), /* ... */ },
-    rules: { /* ... */ }
-  }
+  eslintConfigNode,
+  pluginReact()
 ]
 
 export default eslintConfig
 ```
 
-Optional plugins (Tailwind, Storybook, Next) degrade gracefully via `safeRequire` if a peer dep is missing.
+Exports: `eslintConfigNode` (base), `pluginReact()` (React/RN), `pluginNext()` (Next.js), `pluginTailwind()`, `pluginStorybook()`. Optional plugins degrade gracefully if a peer dep is missing.
 
 ## Documentation
 
@@ -111,4 +100,5 @@ Optional plugins (Tailwind, Storybook, Next) degrade gracefully via `safeRequire
 ## License
 
 [MIT](./LICENSE) © 2026 jjuidev
+
 
