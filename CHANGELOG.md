@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.23
+
+### Patch Changes
+
+- Make all plugin factories resilient via safeRequire: missing plugins/peers degrade gracefully to no-op config instead of crashing eslint.config.mjs
+
 ## 0.0.21
 
 ### Patch Changes
