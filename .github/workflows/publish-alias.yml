@@ -1,0 +1,46 @@
+name: 'Publish version alias'
+
+on:
+  workflow_dispatch:
+    inputs:
+      alias-version:
+        description: 'Alias version (semver prerelease, e.g. 0.0.45-eslint-v8)'
+        required: true
+        default: '0.0.45-eslint-v8'
+      ref-tag:
+        description: 'npm dist-tag for the alias (NOT latest)'
+        required: true
+        default: 'eslint-v8-alias'
+
+jobs:
+  publish-alias:
+    name: Publish alias version
+    runs-on: ubuntu-latest
+    environment: main
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Set alias version
+        run: npm pkg set version="${{ inputs.alias-version }}"
+
+      - name: Publish under alias tag
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+          npm publish --access public --tag "${{ inputs.ref-tag }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
