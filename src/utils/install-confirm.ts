@@ -75,10 +75,10 @@ export const confirmInstallation = async (plan: InstallPlan, options: ConfirmOpt
 
 	const selection = await select({
 		message: 'How would you like to install?',
-		initialValue: 'save-only' as InstallSelection,
+		initialValue: 'install' as InstallSelection,
 		options: [
-			{ value: 'save-only', label: 'Save to package.json only (install later)' },
 			{ value: 'install', label: 'Install now' },
+			{ value: 'save-only', label: 'Save to package.json only (install later)' },
 			{ value: 'cancel', label: 'Cancel — no changes' }
 		]
 	})
@@ -212,10 +212,7 @@ export const resolvePackageConflicts = async (
 	// Show incompatible version conflicts as a single compact block — one line
 	// per package (name+version → name+version), both sides bold, no blank lines.
 	const conflictLines = incompatible
-		.map(
-			(c) =>
-				`   ${colors.bold(`${c.name}${c.installedVersion}`)} → ${colors.bold(`${c.name}${c.plannedVersion}`)}`
-		)
+		.map((c) => `   ${colors.bold(`${c.name}${c.installedVersion}`)} → ${colors.bold(`${c.name}${c.plannedVersion}`)}`)
 		.join('\n')
 	logger.warn(`⚠️  Detected version conflicts:\n${conflictLines}`)
 

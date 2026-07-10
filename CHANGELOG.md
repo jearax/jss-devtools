@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.31
+
+### Patch Changes
+
+- Make "Install now" the first and default option in the install confirm prompt
+
 ## 0.0.29
 
 ### Patch Changes
