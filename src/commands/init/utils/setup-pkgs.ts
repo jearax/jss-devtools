@@ -19,9 +19,11 @@ const warnOffline = (): void => {
 	logger.warn('⚠️  Offline: cannot reach the npm registry. Using declared version ranges.')
 }
 
-/** Run `npm view <pkg> <field> --json` with a timeout. Throws on registry/network failure. */
+/** Run `npm view <pkg> <field...>` with a timeout. field is split on spaces so
+ * `npmView(pkg, 'versions --json')` becomes args ['view', pkg, 'versions', '--json']
+ * (execa does not shell-split, so passing it as one arg silently breaks npm). */
 const npmView = async (pkgName: string, field: string): Promise<string> => {
-	const { stdout } = await execa('npm', ['view', pkgName, field], {
+	const { stdout } = await execa('npm', ['view', pkgName, ...field.split(' ')], {
 		stdio: 'pipe',
 		timeout: 10000
 	})

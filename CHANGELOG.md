@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.43
+
+### Patch Changes
+
+- Fix npmView arg splitting so resolveVersion returns exact versions (was passing 'versions --json' as one arg, silently breaking npm → fell back to ranges). Widen globals peer range to ^15||^16||^17
+
 ## 0.0.41
 
 ### Patch Changes

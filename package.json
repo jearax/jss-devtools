@@ -1,6 +1,6 @@
 {
   "name": "jss-devtools",
-  "version": "0.0.41",
+  "version": "0.0.43",
   "description": "JavaScript stack dev tools CLI - ESLint 8.x edition with cross-platform support",
   "license": "MIT",
   "type": "module",
@@ -57,7 +57,7 @@
     "eslint-plugin-react-native": "^4.0.0 || ^5.0.0",
     "eslint-plugin-storybook": ">=0.8.0",
     "eslint-plugin-tailwindcss": "^3.0.0",
-    "globals": "^15.0.0",
+    "globals": "^15.0.0 || ^16.0.0 || ^17.0.0",
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0",
     "prettier": "^3.0.0",
