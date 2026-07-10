@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.41
+
+### Patch Changes
+
+- Fix baseUrl deprecation (drop baseUrl, use paths relative to tsconfig) and widen typescript peer range to ^5||^6
+
 ## 0.0.39
 
 ### Patch Changes

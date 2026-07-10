@@ -1,6 +1,6 @@
 {
   "name": "jss-devtools",
-  "version": "0.0.39",
+  "version": "0.0.41",
   "description": "JavaScript stack dev tools CLI - ESLint 8.x edition with cross-platform support",
   "license": "MIT",
   "type": "module",
@@ -62,7 +62,7 @@
     "lint-staged": "^15.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.8.0",
-    "typescript": "^5.0.0",
+    "typescript": "^5.0.0 || ^6.0.0",
     "typescript-eslint": "^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "peerDependenciesMeta": {

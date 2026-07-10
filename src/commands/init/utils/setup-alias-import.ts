@@ -18,8 +18,9 @@ export const setupAliasImport = async ({
 
 	const tsconfigPath = join(process.cwd(), 'tsconfig.json')
 
-	// No tsconfig.json → create a minimal one (baseUrl src + @/* alias included)
-	// so alias setup is done in one step instead of warn+skip.
+	// No tsconfig.json → create a minimal one with the @/* alias. Modern TS
+	// (5.x+) resolves `paths` relative to the tsconfig.json directory, so no
+	// `baseUrl` is needed — and baseUrl is deprecated (warns now, removed in TS 7).
 	if (!existsSync(tsconfigPath)) {
 		const minimalTsconfig = {
 			compilerOptions: {
@@ -29,8 +30,7 @@ export const setupAliasImport = async ({
 				strict: true,
 				esModuleInterop: true,
 				skipLibCheck: true,
-				baseUrl: 'src',
-				paths: { '@/*': ['./*'] }
+				paths: { '@/*': ['./src/*'] }
 			},
 			include: ['src/**/*'],
 			exclude: ['node_modules']
@@ -52,9 +52,10 @@ export const setupAliasImport = async ({
 		const existingPaths = tsconfig.compilerOptions.paths || {}
 		const existingAliases = Object.keys(existingPaths).filter((key) => key.includes('*') && !key.startsWith('@types/'))
 
-		// Default alias jss-devtools manages: "@/*" → "./*".
-		const hasDefaultAlias =
-			Array.isArray(existingPaths['@/*']) && existingPaths['@/*'].includes('./*')
+		// Default alias jss-devtools manages: "@/*". Modern setups resolve via
+		// "./src/*" (tsconfig-relative, no baseUrl); legacy baseUrl ones use "./*".
+		const aliasValues = Array.isArray(existingPaths['@/*']) ? existingPaths['@/*'] : []
+		const hasDefaultAlias = aliasValues.includes('./*') || aliasValues.includes('./src/*')
 
 		let aliasChar = '@'
 
@@ -101,24 +102,23 @@ export const setupAliasImport = async ({
 			}
 		}
 
-		// Compute the target baseUrl + paths. Only write + log when something
-		// actually changes — if the default alias is already configured, the file
-		// is left untouched and no message is shown.
-		const targetBaseUrl = tsconfig.compilerOptions.baseUrl || 'src'
+		// Compute the alias path. `paths` resolve relative to:
+		//  - the consumer's existing `baseUrl` dir if they set one (legacy)
+		//  - the tsconfig.json dir otherwise (modern, no baseUrl needed)
+		// Never add baseUrl ourselves — it's deprecated (TS 5.x warning, TS 7 removal).
+		const existingBaseUrl = tsconfig.compilerOptions.baseUrl
+		const aliasTarget = existingBaseUrl ? './*' : './src/*'
 		const targetPaths = {
 			...existingPaths, // Keep existing paths
-			[`${aliasChar}/*`]: ['./*'] // Add new alias
+			[`${aliasChar}/*`]: [aliasTarget] // Add new alias
 		}
 
-		const unchanged =
-			tsconfig.compilerOptions.baseUrl === targetBaseUrl &&
-			JSON.stringify(existingPaths) === JSON.stringify(targetPaths)
+		const unchanged = JSON.stringify(existingPaths) === JSON.stringify(targetPaths)
 
 		if (unchanged) {
 			return
 		}
 
-		tsconfig.compilerOptions.baseUrl = targetBaseUrl
 		tsconfig.compilerOptions.paths = targetPaths
 
 		// Write back to file with proper formatting
