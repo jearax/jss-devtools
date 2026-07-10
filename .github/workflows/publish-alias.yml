@@ -3,17 +3,21 @@ name: 'Publish version alias'
 # Two triggers:
 #  1. workflow_dispatch (manual — needs repo admin)
 #  2. push tag alias-<version> (anyone with push access can fire it)
+# Version scheme:
+#   - plain dev builds: 0.0.46, 0.0.47, ...  → npm tag `next` (next-major dev line)
+#   - legacy suffixed: 0.0.45-eslint-v8       → npm tag `eslint-v8-alias`
+#   - workflow_dispatch `ref-tag` overrides the derived tag
 on:
   workflow_dispatch:
     inputs:
       alias-version:
-        description: 'Alias version (semver prerelease, e.g. 0.0.45-eslint-v8)'
+        description: 'Version to publish (plain dev build e.g. 0.0.46, or suffixed e.g. 0.0.45-eslint-v8)'
         required: true
-        default: '0.0.45-eslint-v8'
+        default: '0.0.46'
       ref-tag:
-        description: 'npm dist-tag for the alias (NOT latest)'
-        required: true
-        default: 'eslint-v8-alias'
+        description: 'npm dist-tag override (empty = derive: next / eslint-vN-alias)'
+        required: false
+        default: ''
   push:
     tags:
       - 'alias-*'
@@ -40,7 +44,22 @@ jobs:
             VERSION="${{ inputs.alias-version }}"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "npm-tag=${{ inputs.ref-tag || 'eslint-v8-alias' }}" >> "$GITHUB_OUTPUT"
+
+          # Derive the npm dist-tag. `latest` is reserved for stable majors;
+          # these dev/alias builds always go under a non-latest tag.
+          #   - versions with an `eslint-vN` suffix → `eslint-vN-alias`
+          #     (legacy alias convention, e.g. 0.0.45-eslint-v8)
+          #   - plain 0.0.x dev builds → `next` (the next-major dev line)
+          #   - workflow_dispatch `ref-tag` input overrides both
+          ESLINT_LINE=$(echo "$VERSION" | grep -oE 'eslint-v[0-9]+' || true)
+          if [ -n "${{ inputs.ref-tag }}" ]; then
+            NPM_TAG="${{ inputs.ref-tag }}"
+          elif [ -n "$ESLINT_LINE" ]; then
+            NPM_TAG="${ESLINT_LINE}-alias"
+          else
+            NPM_TAG="next"
+          fi
+          echo "npm-tag=$NPM_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
