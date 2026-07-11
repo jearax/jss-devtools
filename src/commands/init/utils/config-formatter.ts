@@ -2,6 +2,8 @@
 // @ts-nocheck
 
 import { createRequire } from 'node:module'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 
 const require = createRequire(import.meta.url)
 
@@ -228,17 +230,51 @@ export const pluginStorybook = (): Record<string, any> => {
 	}
 }
 
+/**
+ * Common Tailwind v4 CSS entry locations, in priority order. The plugin's
+ * default `cssConfigPath` is `src/style.css`; projects whose CSS lives
+ * elsewhere (CRA/Vite `index.css`, Next `app/globals.css`, ...) crash fatally
+ * (ENOENT) when that default is absent. We detect the real entry instead.
+ */
+const CSS_ENTRY_CANDIDATES = [
+	'src/style.css',
+	'src/index.css',
+	'src/main.css',
+	'src/global.css',
+	'src/globals.css',
+	'src/app.css',
+	'src/App.css',
+	'app/globals.css',
+	'app/src/styles/globals.css',
+	'styles/globals.css'
+]
+
+/**
+ * Find the project's Tailwind CSS entry (relative path from cwd), or undefined
+ * when none of the common locations exists. Runs in the consumer's eslint
+ * process, so process.cwd() is their project root.
+ */
+const detectCssEntry = (): string | undefined => {
+	for (const candidate of CSS_ENTRY_CANDIDATES) {
+		if (existsSync(join(process.cwd(), candidate))) return candidate
+	}
+	return undefined
+}
+
 export const pluginTailwind = (): Record<string, any> => {
 	const tailwind = safeRequire('eslint-plugin-tailwindcss')
 	if (!tailwind) return {}
+	// eslint-plugin-tailwindcss v4 loads the Tailwind v4 theme from a single CSS
+	// config file (`cssConfigPath`, default `src/style.css`). If that file is
+	// absent the plugin crashes fatally (ENOENT). Detect the project's real CSS
+	// entry so it loads instead of crashing. When no known entry exists, disable
+	// the plugin gracefully (return {}) rather than crash — consistent with the
+	// safeRequire degradation pattern. The plugin degrades to an empty theme for
+	// a CSS file without Tailwind directives (no crash).
+	const cssEntry = detectCssEntry()
+	if (!cssEntry) return {}
 	return {
-		// eslint-plugin-tailwindcss v4 loads the Tailwind v4 theme by reading the
-		// project's CSS entry (the file with `@import "tailwindcss"` / `@theme`).
-		// Its default `cssFiles` is `src/style.css`, which crashes (ENOENT, fatal)
-		// on any project whose CSS lives elsewhere (index.css, globals.css, ...).
-		// Broaden to any CSS so the plugin finds the real entry and degrades to a
-		// default theme instead of crashing when no Tailwind directive is present.
-		settings: { tailwindcss: { cssFiles: ['**/*.css'] } },
+		settings: { tailwindcss: { cssConfigPath: cssEntry } },
 		plugins: { tailwindcss: tailwind },
 		rules: { ...(tailwind.configs?.recommended?.rules ?? {}) }
 	}
