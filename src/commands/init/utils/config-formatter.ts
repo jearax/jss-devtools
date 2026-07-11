@@ -2,8 +2,6 @@
 // @ts-nocheck
 
 import { createRequire } from 'node:module'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 
 const require = createRequire(import.meta.url)
 
@@ -230,51 +228,17 @@ export const pluginStorybook = (): Record<string, any> => {
 	}
 }
 
-/**
- * Common Tailwind v4 CSS entry locations, in priority order. The plugin's
- * default `cssConfigPath` is `src/style.css`; projects whose CSS lives
- * elsewhere (CRA/Vite `index.css`, Next `app/globals.css`, ...) crash fatally
- * (ENOENT) when that default is absent. We detect the real entry instead.
- */
-const CSS_ENTRY_CANDIDATES = [
-	'src/style.css',
-	'src/index.css',
-	'src/main.css',
-	'src/global.css',
-	'src/globals.css',
-	'src/app.css',
-	'src/App.css',
-	'app/globals.css',
-	'app/src/styles/globals.css',
-	'styles/globals.css'
-]
-
-/**
- * Find the project's Tailwind CSS entry (relative path from cwd), or undefined
- * when none of the common locations exists. Runs in the consumer's eslint
- * process, so process.cwd() is their project root.
- */
-const detectCssEntry = (): string | undefined => {
-	for (const candidate of CSS_ENTRY_CANDIDATES) {
-		if (existsSync(join(process.cwd(), candidate))) return candidate
-	}
-	return undefined
-}
-
 export const pluginTailwind = (): Record<string, any> => {
 	const tailwind = safeRequire('eslint-plugin-tailwindcss')
 	if (!tailwind) return {}
-	// eslint-plugin-tailwindcss v4 loads the Tailwind v4 theme from a single CSS
-	// config file (`cssConfigPath`, default `src/style.css`). If that file is
-	// absent the plugin crashes fatally (ENOENT). Detect the project's real CSS
-	// entry so it loads instead of crashing. When no known entry exists, disable
-	// the plugin gracefully (return {}) rather than crash — consistent with the
-	// safeRequire degradation pattern. The plugin degrades to an empty theme for
-	// a CSS file without Tailwind directives (no crash).
-	const cssEntry = detectCssEntry()
-	if (!cssEntry) return {}
+	// NOTE: eslint-plugin-tailwindcss v4 (the only ESLint-9 flat-config line)
+	// requires a real Tailwind v4 setup — it loads the theme from a CSS file
+	// whose path is set via `settings.tailwindcss.cssConfigPath` (default
+	// `src/style.css`) and crashes (ENOENT) when that file is absent. The
+	// wrapper only registers the plugin + its recommended flat config; setting
+	// up Tailwind v4 (the CSS entry) is the consumer's responsibility. Init
+	// warns when no Tailwind v4 setup is detected.
 	return {
-		settings: { tailwindcss: { cssConfigPath: cssEntry } },
 		plugins: { tailwindcss: tailwind },
 		rules: { ...(tailwind.configs?.recommended?.rules ?? {}) }
 	}
