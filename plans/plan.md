@@ -20,7 +20,7 @@ Theo yêu cầu: bỏ qua LICENSE trong plan này (internal tạm).
 
 | # | Phase | Status | Effort | Dependencies |
 |---|---|---|---|---|
-| 0 | [Bootstrap Foundation](./phase-00-bootstrap.md) | pending | 3h | — |
+| 0 | [Bootstrap Foundation](./phase-00-bootstrap.md) | completed | 3h | — |
 | 1 | [Core CLI Infrastructure](./phase-01-core-cli-infrastructure.md) | pending | 2h | 0 |
 | 2 | [Version Management Commands](./phase-02-version-management.md) | pending | 5h | 1 |
 | 3 | [Scaffold System](./phase-03-scaffold-system.md) | pending | 4h | 2 |
@@ -48,8 +48,8 @@ Theo yêu cầu: bỏ qua LICENSE trong plan này (internal tạm).
 
 Reference `/Users/tandm/Documents/jjuidev/npm/jss-cli` (cùng package name) — patterns đã adopt:
 
-- ✅ Adoptted: `citty`, `@clack/prompts`, `figlet`, `consola` (thay `picocolors`), `nypm`, `pathe`, `execa`, `rimraf`, `tsc-alias`, path alias `@/*` → `./src/*`.
-- ❌ Override: Bun runtime → pnpm; ESLint+Prettier → Biome; Husky → skip (YAGNI cho MVP).
+- ✅ Adoptted: `citty`, `@clack/prompts`, `figlet`, `consola` (thay `picocolors`), `nypm`, `pathe`, `execa`, `rimraf`, `tsc-alias`, `husky` + `lint-staged` + `prettier-package-json` (revised từ skip → adopt), path alias `@/*` → `./src/*`.
+- ❌ Override: Bun runtime → pnpm; ESLint+Prettier → Biome (nhưng giữ `prettier-package-json` cho package.json vì Biome không sort keys).
 - 🤔 Cân nhắc: Custom `build.ts` (Bun.build API) → educational alternative cho tsup.
 
 ## Knowledge Notes — `package.json` fields chuẩn npm publishing

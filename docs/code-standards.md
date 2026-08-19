@@ -68,8 +68,10 @@ jss-cli/
 
 ## Linting & Formatting
 
-- TBD: ESLint + Prettier **or** Biome
-- Decision deferred until build tool research concludes (Biome pairs well with TS-only projects; ESLint is the conservative default)
+- **Biome** (basic config) cho TS lint + format. Single binary, ~10x ESLint speed.
+- **prettier-package-json** riêng cho `package.json` (Biome không sort keys).
+- **husky** + **lint-staged** pre-commit hook: chạy `biome check --write` trên staged TS files và `prettier-package-json --write` trên `package.json`.
+- ESLint + Prettier đã bị loại vì Biome cover được phần lớn use case, chỉ prettier-package-json còn giữ cho key sorting.
 
 ## Git & Commits
 

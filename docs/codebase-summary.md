@@ -27,12 +27,16 @@ jss-cli/
 
 | Concern | Status |
 |---|---|
-| `package.json` | missing — to be created |
-| `tsconfig.json` | missing — to be created |
-| `vitest.config.ts` | missing — to be created |
-| `pnpm-lock.yaml` | missing — to be created after init |
-| CI config | missing |
-| Source code | missing |
+| `package.json` | ✅ created (Phase 0) |
+| `tsconfig.json` | ✅ created (Phase 0) |
+| `vitest.config.ts` | ✅ created (Phase 0) |
+| `biome.json` | ✅ created (Phase 0) |
+| `tsup.config.ts` | ✅ created (Phase 0) |
+| `.husky/pre-commit` | ✅ created (Phase 0) |
+| `lint-staged` config | ✅ in `package.json` (Phase 0) |
+| `pnpm-lock.yaml` | ✅ generated after `pnpm install` |
+| CI config | ✅ `.github/workflows/ci.yml` (Phase 0) |
+| Source code | ✅ stub (`src/cli.ts`, `src/cli/router.ts`) |
 
 ## Open Source Files (none yet)
 
@@ -51,10 +55,17 @@ jss-cli/
 
 ## Next-Implementation-Ready State
 
-Before Phase 1 of the roadmap can start, the following must be created:
+**Phase 0 complete.** Foundation đã có:
 
-1. `package.json` (with `name: "jss-devtools"`, `bin`, `engines.node: ">=24.0.0"`, scripts)
-2. `tsconfig.json` (strict + ESM + Node 24 lib)
-3. `vitest.config.ts`
-4. `.gitignore`, `.npmignore` (or `files` field)
-5. `.editorconfig`, `.nvmrc`
+1. ✅ `package.json` (name `jss-devtools`, bin `./dist/cli/cli.js`, `engines.node: ">=24.0.0"`, scripts, lint-staged config, prepare:husky)
+2. ✅ `tsconfig.json` (strict + ESM + Node 24 lib + path alias `@/*` → `./src/*`)
+3. ✅ `tsup.config.ts` (ESM + Node 24 + shebang banner + externals)
+4. ✅ `vitest.config.ts` (Node env + esbuild target override)
+5. ✅ `biome.json` (basic config)
+6. ✅ `.gitignore`, `.npmignore`, `.editorconfig`, `.nvmrc`, `.npmrc`
+7. ✅ `.husky/pre-commit` chạy `pnpm dlx lint-staged`
+8. ✅ `src/cli.ts` (bin entry) + `src/cli/router.ts` (citty router)
+9. ✅ `tests/smoke.test.ts` (3 tests covering --version/--help/no-args)
+10. ✅ `.github/workflows/ci.yml` (lint + typecheck + build + test on Node 24)
+
+**Phase 1+ ready to start.**

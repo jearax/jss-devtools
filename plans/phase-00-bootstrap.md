@@ -1,7 +1,7 @@
 ---
 phase: 0
 title: "Bootstrap Foundation"
-status: pending
+status: completed
 priority: P1
 effort: "3h"
 dependencies: []
@@ -51,7 +51,8 @@ configs at repo root:
 - `vitest.config.ts`
 - `biome.json`
 - `.npmrc`, `.gitignore`, `.npmignore`, `.editorconfig`, `.nvmrc`
-- `src/bin/jss-devtools.ts`
+- `.husky/pre-commit`
+- `src/cli.ts`
 - `src/cli/router.ts`
 - `tests/smoke.test.ts`
 - `.github/workflows/ci.yml`
@@ -62,17 +63,18 @@ configs at repo root:
 
 ## Implementation Steps
 
-1. **Tạo `package.json`** với name `jss-devtools`, bin `./dist/cli/cli.js`, engines `>=24.0.0`, type `module`, scripts (`dev`, `build`, `test`, `lint`, `typecheck`, `release`).
+1. **Tạo `package.json`** với name `jss-devtools`, bin `./dist/cli/cli.js`, engines `>=24.0.0`, type `module`, scripts (`dev`, `build`, `test`, `lint`, `typecheck`, `release`, `prepare: "husky"`), `lint-staged` config (biome cho TS, prettier-package-json cho package.json).
 2. **Tạo `tsconfig.json`** với strict + ESM + `target: ES2024` + `module: NodeNext` + `moduleResolution: NodeNext` + path alias `@/*` → `./src/*`.
 3. **Tạo `tsup.config.ts`** theo snippet trong `plan.md` §2 — output `dist/cli/cli.js`, banner shebang, external tất cả runtime deps.
 4. **Tạo `vitest.config.ts`** với Node env, single-thread cho MVP.
 5. **Tạo `biome.json`** basic config (indent 2 spaces, lineWidth 120, semi true, singleQuote true).
 6. **Tạo dotfiles**: `.npmrc` (engine-strict + strict-peer-deps + auto-install-peers=false), `.gitignore` (Node + dist + .env), `.npmignore` (src/ tests/ docs/), `.editorconfig`, `.nvmrc` (`24`).
-7. **Tạo bin entry** `src/bin/jss-devtools.ts` import router và gọi `runMain`.
-8. **Tạo router** `src/cli/router.ts` với citty `defineCommand` cho version + default help.
-9. **Tạo smoke test** `tests/smoke.test.ts` exec bin và assert version output.
-10. **Tạo CI workflow** `.github/workflows/ci.yml` với jobs: lint → typecheck → test → build, chạy trên Node 24.
-11. **Install + verify**: `pnpm install`, `pnpm build`, `pnpm test`, smoke exec `node dist/cli/cli.js --help`.
+7. **Tạo `.husky/pre-commit`** với `pnpm dlx lint-staged`.
+8. **Tạo bin entry** `src/cli.ts` import router và gọi `runMain`.
+9. **Tạo router** `src/cli/router.ts` với citty `defineCommand` cho version + default help.
+10. **Tạo smoke test** `tests/smoke.test.ts` exec bin và assert version output.
+11. **Tạo CI workflow** `.github/workflows/ci.yml` với jobs: lint → typecheck → build → test, chạy trên Node 24.
+12. **Install + verify**: `pnpm install` (triggers `husky` prepare hook), `pnpm build`, `pnpm test`, smoke exec `node dist/cli/cli.js --help`.
 
 ## Success Criteria
 

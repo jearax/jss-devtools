@@ -1,0 +1,21 @@
+// Top-level citty router for `jss-devtools` CLI.
+// Defines meta (name/version/description) and a default `run` handler that prints
+// a hint to use `--help`. Subcommands will be added in Phase 1+.
+import { defineCommand } from 'citty';
+
+export const mainCommand = defineCommand({
+  meta: {
+    name: 'jss-devtools',
+    version: '0.1.0',
+    description: 'JavaScript stack dev tools CLI - inspired by Docker command-tree UX',
+  },
+  subCommands: {
+    // Phase 1+: add `version`, `help`, `ls`, `update`, `upgrade`, `downgrade`, `scaffold`.
+  },
+  run() {
+    // Default behavior when no subcommand provided: show usage hint.
+    console.log('jss-devtools — JavaScript stack dev tools CLI');
+    console.log('');
+    console.log('Run `jss-devtools --help` for available commands.');
+  },
+});

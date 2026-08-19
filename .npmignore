@@ -1,0 +1,40 @@
+# Source files (built dist/ is what gets shipped)
+src/
+tests/
+docs/
+
+# Config files (not needed at runtime)
+biome.json
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+.github/
+.eslintrc*
+.prettierrc*
+
+# Dev tooling
+.husky/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI
+.travis.yml
+.circleci/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage
+coverage/
