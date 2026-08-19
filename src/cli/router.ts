@@ -1,8 +1,6 @@
 import { defineCommand } from 'citty';
 
-import { displayBanner } from '@/utils/banner.js';
 import { CLI_META } from '@/utils/constants.js';
-import { logger } from '@/utils/logger.js';
 
 const routerCommand = defineCommand({
   meta: {
@@ -15,11 +13,9 @@ const routerCommand = defineCommand({
     version: () => import('@/commands/version.js').then((m) => m.default),
     help: () => import('@/commands/help.js').then((m) => m.default),
   },
-  run() {
-    displayBanner();
-    logger.muted('');
-    logger.muted(`Run \`${CLI_META.name} --help\` for available commands.`);
-  },
+  // No-op: parent run only fires when no subcommand matches AND no args parsed.
+  // We handle banner/hint at top level (src/cli.ts) for predictable behavior.
+  run() {},
 });
 
 export default routerCommand;

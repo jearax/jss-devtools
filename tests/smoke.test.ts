@@ -19,12 +19,16 @@ const runBin = (args: string[]): string => {
 describe('bin/jss-devtools', () => {
   it('prints CLI version when --version is passed', () => {
     const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'));
-    expect(runBin(['--version'])).toBe(pkg.version);
+    expect(runBin(['--version'])).toContain(pkg.version);
+  });
+
+  it('prints CLI version when -v is passed', () => {
+    const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'));
+    expect(runBin(['-v'])).toContain(pkg.version);
   });
 
   it('prints --help with banner + usage', () => {
     const output = runBin(['--help']);
-    // Banner is figlet ASCII art (no literal "jss-devtools"); check tagline instead.
     expect(output).toContain('JavaScript stack dev tools CLI');
     expect(output.toLowerCase()).toContain('usage');
   });

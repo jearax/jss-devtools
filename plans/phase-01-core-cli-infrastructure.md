@@ -54,14 +54,14 @@ tests/
 ## Related Code Files
 
 **Create:**
-- `src/cli/help.ts` (custom help command — citty 0.2.x has no custom help render, so we still intercept at top level in cli.ts)
+- `src/cli/help.ts` (`renderHelp()` shared helper for --help intercept)
 - `src/commands/version.ts`
 - `src/commands/help.ts`
 
 **Modify:**
-- `src/cli/router.ts` (add version + help subcommands via lazy import)
-- `src/cli.ts` (use `renderHelp` helper from `src/cli/help.ts`)
-- `tests/smoke.test.ts` (add tests for version + help subcommands)
+- `src/cli/router.ts` (add version + help subcommands via lazy import; parent `run()` is no-op)
+- `src/cli.ts` (intercept --help/-h and --version/-v before runMain; use `renderHelp` helper)
+- `tests/smoke.test.ts` (tests for --version, -v, --help, version, help)
 
 **Modify:**
 - `src/cli/router.ts` (add version + help subcommands)
