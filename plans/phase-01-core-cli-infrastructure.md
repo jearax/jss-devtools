@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Core CLI Infrastructure"
-status: pending
+status: completed
 priority: P2
 effort: "2h"
 dependencies: [0]
@@ -57,22 +57,26 @@ tests/
 - `src/cli/help.ts` (custom help command — citty 0.2.x has no custom help render, so we still intercept at top level in cli.ts)
 - `src/commands/version.ts`
 - `src/commands/help.ts`
-- `tests/unit/help.test.ts`
-- `tests/integration/cli-help.test.ts`
+
+**Modify:**
+- `src/cli/router.ts` (add version + help subcommands via lazy import)
+- `src/cli.ts` (use `renderHelp` helper from `src/cli/help.ts`)
+- `tests/smoke.test.ts` (add tests for version + help subcommands)
 
 **Modify:**
 - `src/cli/router.ts` (add version + help subcommands)
 
 ## Implementation Steps
 
-1. **Logger wrapper** (`src/utils/logger.ts`) — wrap consola với API: `info`, `warn`, `error`, `success`, `box`, `start`, `ready`, `raw` (cho ASCII art).
-2. **Banner utility** (`src/utils/banner.ts`) — figlet textSync với caching + fallback nếu font fail.
-3. **CLI_META constants** (`src/utils/constants.ts`) — name, version, tagline, banner options.
+1. **Logger wrapper** (`src/utils/logger.ts`) — wrap consola với API: `info`, `warn`, `error`, `success`, `box`, `start`, `ready`, `raw` (cho ASCII art). ✅ Done in Phase 0.
+2. **Banner utility** (`src/utils/banner.ts`) — figlet textSync với caching + fallback nếu font fail. ✅ Done in Phase 0.
+3. **CLI_META constants** (`src/utils/constants.ts`) — name, version, tagline, banner options. ✅ Done in Phase 0.
 4. **Router update** (`src/cli/router.ts`) — add `version` + `help` subcommands, lazy import cho future commands.
 5. **Help command** (`src/commands/help.ts`) — citty built-in hoặc custom rendering.
 6. **Version command** (`src/commands/version.ts`) — print version + optional figlet banner.
-7. **Unit tests** cho logger, banner, help.
-8. **Snapshot test** cho `--help` output stability.
+7. **Smoke test extension** — extend `tests/smoke.test.ts` với version + help subcommands.
+
+**Note on testing:** Phase 1 chỉ extend smoke tests. Unit/snapshot tests sẽ add ở pre-release phase (xem `docs/code-standards.md` § Testing).
 
 ## Success Criteria
 

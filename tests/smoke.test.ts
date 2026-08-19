@@ -1,6 +1,4 @@
-// Smoke test cho Phase 0: verify built binary runs và in version.
-// Requires `pnpm build` to have run first (CI workflow handles this).
-import { spawnSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,16 +8,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
 const binPath = join(repoRoot, 'dist', 'cli', 'cli.js');
 
-// Run bin and wait for async stdio (consola) to flush before exit detection.
-// `stdio: 'inherit'` would skip capture entirely; `pipe` + small delay ensures
-// async writes complete before we read.
 const runBin = (args: string[]): string => {
-  const result = spawnSync('node', [binPath, ...args], {
+  const argList = args.map((a) => `'${a}'`).join(' ');
+  return execSync(`node '${binPath}' ${argList} 2>&1`, {
     encoding: 'utf-8',
     cwd: repoRoot,
-  });
-  // Merge stdout + stderr for output assertions.
-  return (result.stdout + result.stderr).trim();
+  }).trim();
 };
 
 describe('bin/jss-devtools', () => {
@@ -28,13 +22,27 @@ describe('bin/jss-devtools', () => {
     expect(runBin(['--version'])).toBe(pkg.version);
   });
 
-  it('prints --help without error', () => {
+  it('prints --help with banner + usage', () => {
     const output = runBin(['--help']);
-    // citty auto-generated help includes usage info
+    // Banner is figlet ASCII art (no literal "jss-devtools"); check tagline instead.
+    expect(output).toContain('JavaScript stack dev tools CLI');
     expect(output.toLowerCase()).toContain('usage');
   });
 
   // Note: testing the no-subcommand default hint is skipped because consola's
-  // async stdout writes get truncated when vitest's forks pool kills the child
-  // process before stdio drains. Verified manually via `node dist/cli/cli.js`.
+  // async stdout writes get truncated when execSync returns before buffer drains.
+  // Verified manually via `node dist/cli/cli.js`.
+
+  it('runs version subcommand with banner', () => {
+    const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'));
+    const output = runBin(['version']);
+    expect(output).toContain('JavaScript stack dev tools CLI');
+    expect(output).toContain(pkg.version);
+  });
+
+  it('runs help subcommand with banner + usage', () => {
+    const output = runBin(['help']);
+    expect(output).toContain('JavaScript stack dev tools CLI');
+    expect(output.toLowerCase()).toContain('usage');
+  });
 });

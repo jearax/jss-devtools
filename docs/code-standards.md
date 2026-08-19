@@ -76,11 +76,12 @@ jss-cli/
 
 ## Testing (Vitest)
 
-- Unit tests for all `core/` modules
-- Integration tests for command handlers
-- Snapshot tests for `--help` output stability
-- Coverage target: TBD (recommended ≥ 80% for `core/`)
-- Test files: `*.test.ts` next to source or under `tests/`
+- **Trong development:** chỉ maintain **smoke tests** ở `tests/smoke.test.ts`. Smoke test exec bin thật và assert các đầu ra chính (--version, --help, subcommands).
+- **Trước release 1 version:** viết đầy đủ unit + integration + snapshot tests cho các core modules và command handlers.
+- Lý do: smoke tests nhanh, đủ confidence cho daily dev loop. Full test suite tốn thời gian setup + maintain — chỉ worth khi ship.
+- Coverage target (khi có full test): ≥ 80% cho `core/`.
+- Test files: `*.test.ts` dưới `tests/` (smoke) hoặc co-located (unit, khi có).
+- Vitest config: `pool: 'forks'` (threads pool có stdio capture issues với child_process spawning external binaries).
 
 ## Linting & Formatting
 

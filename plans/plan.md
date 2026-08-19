@@ -21,7 +21,7 @@ Theo yêu cầu: bỏ qua LICENSE trong plan này (internal tạm).
 | # | Phase | Status | Effort | Dependencies |
 |---|---|---|---|---|
 | 0 | [Bootstrap Foundation](./phase-00-bootstrap.md) | completed | 3h | — |
-| 1 | [Core CLI Infrastructure](./phase-01-core-cli-infrastructure.md) | pending | 2h | 0 |
+| 1 | [Core CLI Infrastructure](./phase-01-core-cli-infrastructure.md) | completed | 2h | 0 |
 | 2 | [Version Management Commands](./phase-02-version-management.md) | pending | 5h | 1 |
 | 3 | [Scaffold System](./phase-03-scaffold-system.md) | pending | 4h | 2 |
 | 4 | [Polish + CI/CD Pipeline](./phase-04-polish-publish.md) | pending | 3h | 3 |

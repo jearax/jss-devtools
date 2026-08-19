@@ -11,7 +11,9 @@ const routerCommand = defineCommand({
     description: CLI_META.tagline,
   },
   subCommands: {
-    // Phase 1+: add `version`, `help`, `ls`, `update`, `upgrade`, `downgrade`, `scaffold`.
+    // Phase 2+: add `ls`, `update`, `upgrade`, `downgrade`, `scaffold`.
+    version: () => import('@/commands/version.js').then((m) => m.default),
+    help: () => import('@/commands/help.js').then((m) => m.default),
   },
   run() {
     displayBanner();
