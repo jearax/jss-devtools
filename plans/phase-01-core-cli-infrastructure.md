@@ -54,12 +54,9 @@ tests/
 ## Related Code Files
 
 **Create:**
-- `src/utils/banner.ts` (moved from Phase 0 — `logger.ts` already in Phase 0)
-- `src/utils/constants.ts`
-- `src/cli/help.ts`
+- `src/cli/help.ts` (custom help command — citty 0.2.x has no custom help render, so we still intercept at top level in cli.ts)
 - `src/commands/version.ts`
 - `src/commands/help.ts`
-- `tests/unit/banner.test.ts`
 - `tests/unit/help.test.ts`
 - `tests/integration/cli-help.test.ts`
 

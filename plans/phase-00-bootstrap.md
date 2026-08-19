@@ -54,6 +54,8 @@ configs at repo root:
 - `.husky/pre-commit`
 - `src/cli.ts`
 - `src/cli/router.ts`
+- `src/utils/banner.ts` (figlet banner — adopted from reference repo)
+- `src/utils/constants.ts` (CLI_META shared metadata)
 - `src/utils/logger.ts` (consola wrapper — adopted from reference repo)
 - `tests/smoke.test.ts`
 - `.github/workflows/ci.yml`
