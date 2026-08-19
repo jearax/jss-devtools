@@ -3,7 +3,9 @@
 // a hint to use `--help`. Subcommands will be added in Phase 1+.
 import { defineCommand } from 'citty';
 
-export const mainCommand = defineCommand({
+import { logger } from '@/utils/logger.js';
+
+const routerCommand = defineCommand({
   meta: {
     name: 'jss-devtools',
     version: '0.1.0',
@@ -14,8 +16,10 @@ export const mainCommand = defineCommand({
   },
   run() {
     // Default behavior when no subcommand provided: show usage hint.
-    console.log('jss-devtools — JavaScript stack dev tools CLI');
-    console.log('');
-    console.log('Run `jss-devtools --help` for available commands.');
+    logger.info('jss-devtools — JavaScript stack dev tools CLI');
+    logger.muted('');
+    logger.muted('Run `jss-devtools --help` for available commands.');
   },
 });
+
+export default routerCommand;

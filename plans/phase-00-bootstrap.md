@@ -54,6 +54,7 @@ configs at repo root:
 - `.husky/pre-commit`
 - `src/cli.ts`
 - `src/cli/router.ts`
+- `src/utils/logger.ts` (consola wrapper — adopted from reference repo)
 - `tests/smoke.test.ts`
 - `.github/workflows/ci.yml`
 
@@ -71,10 +72,11 @@ configs at repo root:
 6. **Tạo dotfiles**: `.npmrc` (engine-strict + strict-peer-deps + auto-install-peers=false), `.gitignore` (Node + dist + .env), `.npmignore` (src/ tests/ docs/), `.editorconfig`, `.nvmrc` (`24`).
 7. **Tạo `.husky/pre-commit`** với `pnpm dlx lint-staged`.
 8. **Tạo bin entry** `src/cli.ts` import router và gọi `runMain`.
-9. **Tạo router** `src/cli/router.ts` với citty `defineCommand` cho version + default help.
-10. **Tạo smoke test** `tests/smoke.test.ts` exec bin và assert version output.
-11. **Tạo CI workflow** `.github/workflows/ci.yml` với jobs: lint → typecheck → build → test, chạy trên Node 24.
-12. **Install + verify**: `pnpm install` (triggers `husky` prepare hook), `pnpm build`, `pnpm test`, smoke exec `node dist/cli/cli.js --help`.
+9. **Tạo router** `src/cli/router.ts` với citty `defineCommand` cho version + default help, dùng `@/utils/logger` thay vì `console.log`.
+10. **Tạo logger wrapper** `src/utils/logger.ts` — consola API wrapper (info/warn/error/success/box/start/ready/raw). Pattern adopted từ reference repo.
+11. **Tạo smoke test** `tests/smoke.test.ts` exec bin và assert version output. Skip test cho no-args default hint (consola async stdout race với vitest forks pool).
+12. **Tạo CI workflow** `.github/workflows/ci.yml` với jobs: lint → typecheck → build → test, chạy trên Node 24.
+13. **Install + verify**: `pnpm install` (triggers `husky` prepare hook), `pnpm build`, `pnpm test`, smoke exec `node dist/cli/cli.js --help`.
 
 ## Success Criteria
 

@@ -13,6 +13,8 @@ dependencies: [0]
 
 Hoàn thiện command router, theme helpers, help system, và `version` command với figlet banner.
 
+**Import rule:** Phase 1+ source code phải dùng `@/` alias cho mọi project import (xem plan.md § Import Convention).
+
 ## Requirements
 
 - **Functional:**
@@ -52,13 +54,11 @@ tests/
 ## Related Code Files
 
 **Create:**
-- `src/utils/logger.ts`
-- `src/utils/banner.ts`
+- `src/utils/banner.ts` (moved from Phase 0 — `logger.ts` already in Phase 0)
 - `src/utils/constants.ts`
 - `src/cli/help.ts`
 - `src/commands/version.ts`
 - `src/commands/help.ts`
-- `tests/unit/logger.test.ts`
 - `tests/unit/banner.test.ts`
 - `tests/unit/help.test.ts`
 - `tests/integration/cli-help.test.ts`

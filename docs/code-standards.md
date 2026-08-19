@@ -49,6 +49,22 @@ jss-cli/
 - Public types live in `src/types/`
 - Use `readonly` for immutable structures
 
+## Import Conventions
+
+- **Always use `@/` alias for project imports** (resolves to `./src/*` via `tsconfig.json#paths`).
+- **Examples:**
+  - ✅ `import { foo } from '@/utils/logger.js'`
+  - ❌ `import { foo } from '../../utils/logger.js'`
+  - ✅ `import { execa } from '@/core/execa.js'`
+  - ❌ `import { execa } from '../core/execa.js'`
+- **Node built-ins** (`node:fs`, `node:path`, etc.) — import trực tiếp không alias.
+- **npm packages** (`citty`, `consola`, etc.) — import trực tiếp không alias.
+- **TS extension `.js`** trong import path (required cho `NodeNext` + `verbatimModuleSyntax`).
+- **Tools auto-handle alias:**
+  - `tsup` đọc `tsconfig.json#paths` ở bundle time → output có path resolved.
+  - `vitest` đọc `tsconfig.json#paths` ở test time (via vite).
+  - `tsc --noEmit` resolve từ `tsconfig.json#paths`.
+
 ## CLI Conventions
 
 - Every subcommand + every leaf node MUST accept `--help` / `-h`

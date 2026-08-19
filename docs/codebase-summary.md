@@ -55,7 +55,7 @@ jss-cli/
 
 ## Next-Implementation-Ready State
 
-**Phase 0 complete.** Foundation đã có:
+**Phase 0 complete.** Foundation đã có (với logger từ reference repo, dùng `@/` alias convention):
 
 1. ✅ `package.json` (name `jss-devtools`, bin `./dist/cli/cli.js`, `engines.node: ">=24.0.0"`, scripts, lint-staged config, prepare:husky)
 2. ✅ `tsconfig.json` (strict + ESM + Node 24 lib + path alias `@/*` → `./src/*`)
@@ -65,7 +65,8 @@ jss-cli/
 6. ✅ `.gitignore`, `.npmignore`, `.editorconfig`, `.nvmrc`, `.npmrc`
 7. ✅ `.husky/pre-commit` chạy `pnpm dlx lint-staged`
 8. ✅ `src/cli.ts` (bin entry) + `src/cli/router.ts` (citty router)
-9. ✅ `tests/smoke.test.ts` (3 tests covering --version/--help/no-args)
-10. ✅ `.github/workflows/ci.yml` (lint + typecheck + build + test on Node 24)
+9. ✅ `src/utils/logger.ts` (consola wrapper — adopted from reference)
+10. ✅ `tests/smoke.test.ts` (2 tests: --version, --help; no-args hint skipped do consola async vs vitest forks pool race)
+11. ✅ `.github/workflows/ci.yml` (lint + typecheck + build + test on Node 24)
 
 **Phase 1+ ready to start.**

@@ -10,7 +10,9 @@ const vitestConfig = defineConfig({
   },
   test: {
     environment: 'node',
-    pool: 'threads',
+    // Use 'forks' pool — `threads` pool has stdio capture issues with child_process
+    // spawning external binaries (output written via async consola gets dropped).
+    pool: 'forks',
     include: ['tests/**/*.test.ts'],
   },
 });
