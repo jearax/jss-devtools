@@ -22,9 +22,21 @@ Theo yêu cầu: bỏ qua LICENSE trong plan này (internal tạm).
 |---|---|---|---|---|
 | 0 | [Bootstrap Foundation](./phase-00-bootstrap.md) | completed | 3h | — |
 | 1 | [Core CLI Infrastructure](./phase-01-core-cli-infrastructure.md) | completed | 2h | 0 |
-| 2 | [Version Management Commands](./phase-02-version-management.md) | pending | 5h | 1 |
+| 2 | [CLI Self-Management](./phase-02-cli-self-management.md) | pending | 4h | 1 |
 | 3 | [Scaffold System](./phase-03-scaffold-system.md) | pending | 4h | 2 |
 | 4 | [Polish + CI/CD Pipeline](./phase-04-polish-publish.md) | pending | 3h | 3 |
+
+## Phase 2 Pivot (architectural note)
+
+Phase 2 redesigned từ "manage project's deps" sang **CLI self-management** (4 commands: `update`/`upgrade`/`downgrade`/`uninstall` của chính CLI itself).
+
+Lý do pivot:
+- PM là source of truth cho install/uninstall — CLI không nên bypass bằng cách modify `package.json` trực tiếp
+- Self-management qua PM commands: `pnpm add -g`, `npm install -g`, etc.
+- Project deps management vẫn useful (npm-check, lerna exist) nhưng là use case khác, không phải MVP scope
+- Có thể revisit Phase 7+ nếu sau này muốn thêm
+
+Pattern: detect PM → query registry → propose → confirm → exec PM command.
 
 ## Subcommand Depth Strategy
 
