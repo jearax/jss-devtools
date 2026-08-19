@@ -26,6 +26,16 @@ Theo yêu cầu: bỏ qua LICENSE trong plan này (internal tạm).
 | 3 | [Scaffold System](./phase-03-scaffold-system.md) | pending | 4h | 2 |
 | 4 | [Polish + CI/CD Pipeline](./phase-04-polish-publish.md) | pending | 3h | 3 |
 
+## Subcommand Depth Strategy
+
+- **Citty** hỗ trợ recursive `subCommands` → multi-level (1+ levels) tự nhiên.
+- **Hiện tại (Phase 1+2):** flat commands (`version`, `help`, `ls`, `update`, `upgrade`, `downgrade`). Đơn giản, không cần group.
+- **Phase 3:** `scaffold init` (2-level) — chỉ chỗ cần depth > 1.
+- **Phase 5+:** Plugin system (nếu có) có thể cần `plugin <name> <action>` (3-level).
+- **Reference:** Docker CLI dùng pattern `<object> <action>` (2-level). Không cần copy y nguyên — chỉ inspiration. Nếu sau này commands nhiều, có thể refactor sang grouped style.
+
+Best practice: dùng depth tối thiểu cần thiết. Don't nest unless it improves UX.
+
 ## Stack Decisions (chốt)
 
 | Concern | Choice | Source |
