@@ -19,13 +19,15 @@ CLI quản lý chính nó qua 4 commands: `update`, `upgrade`, `downgrade`, `uni
 
 #### `jss-devtools update`
 
-- **`jss-devtools update`** → alias của `jss-devtools upgrade` (nhận toàn bộ flags từ upgrade)
+**Restricted semantics (intentional):**
+- **`jss-devtools update`** (no args) → alias của `jss-devtools upgrade` (auto-pick latest version)
 - **`jss-devtools update check`** → read-only inspection:
   - Call `npm view <pkg>` (hoặc registry HTTP equivalent)
   - Show 5 latest versions grouped by major (e.g., `1.5.0, 1.4.0, 0.9.0, 0.5.0, 0.1.0`)
   - No install, no prompt, no side effects
+- **`jss-devtools update <spec>`** → ERROR (use `upgrade <spec>` instead)
 
-**Implementation:** `update` command = thin wrapper around `upgrade`. Có thể dùng citty `subCommands: { check: ... }` hoặc arg flag.
+**Rationale:** giới hạn `update` để không overlap với `upgrade`. `update` = simple shortcut (latest). `upgrade` = powerful control (spec, validations).
 
 #### `jss-devtools upgrade`
 
