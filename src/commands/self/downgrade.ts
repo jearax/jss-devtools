@@ -4,9 +4,9 @@
 import { defineCommand } from 'citty';
 
 import { detectGlobalPM } from '@/core/global-pm-detector/index.js';
-import { fetchPackageMetadata } from '@/core/registry-client/index.js';
+import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.js';
 import { execOrDryRunInstall } from '@/core/self-installer/index.js';
-import { parseSpec, resolveTarget } from '@/core/version-resolver/index.js';
+import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target.js';
 import { logger } from '@/utils/logger.js';
 import { confirmOrThrow, isTTY } from '@/utils/prompts.js';
 

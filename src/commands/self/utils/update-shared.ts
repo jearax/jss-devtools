@@ -1,9 +1,9 @@
 // Shared upgrade flow used by `update` (no-args) and `upgrade` (no-args / <spec>).
 // Handles detection, registry fetch, spec resolution, confirm, exec/dry-run.
 import { detectGlobalPM } from '@/core/global-pm-detector/index.js';
-import { fetchPackageMetadata } from '@/core/registry-client/index.js';
+import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.js';
 import { execOrDryRunInstall } from '@/core/self-installer/index.js';
-import { parseSpec, resolveTarget } from '@/core/version-resolver/index.js';
+import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target.js';
 import { logger } from '@/utils/logger.js';
 import { confirmOrThrow, isTTY } from '@/utils/prompts.js';
 

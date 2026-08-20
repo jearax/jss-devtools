@@ -5,7 +5,7 @@
 import { defineCommand } from 'citty';
 import semver from 'semver';
 
-import { fetchPackageMetadata } from '@/core/registry-client/index.js';
+import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.js';
 import { logger } from '@/utils/logger.js';
 
 import { runUpgradeFlow } from './utils/update-shared.js';
@@ -29,7 +29,7 @@ const updateCommand = defineCommand({
 // Helper for `update check` — exported for testing
 export const fetchAndDisplayUpdates = async (pkg: string, currentVersion: string, jsonMode: boolean): Promise<void> => {
   const meta = await fetchPackageMetadata(pkg);
-  const all = meta.versions.filter((v) => semver.valid(v) && !semver.prerelease(v));
+  const all = meta.versions.filter((v: string): v is string => semver.valid(v) !== null && !semver.prerelease(v));
   const byMajor = new Map<number, string>();
   for (const v of all) {
     const major = semver.major(v);
