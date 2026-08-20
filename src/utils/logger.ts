@@ -21,4 +21,6 @@ export const logger = {
   raw: (message: string) => console.log(message),
   banner: (message: string) => console.log(colors.cyan(message)),
   tagline: (message: string) => console.log(colors.gray(message)),
+
+  json: (result: object) => consola.log(JSON.stringify(result, null, 2)),
 };

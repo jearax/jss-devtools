@@ -8,7 +8,6 @@ import { logger } from '@/utils/logger';
 
 import { extractSelfArgs } from '@/commands/self/utils/args';
 import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
-import { printJson } from '@/commands/self/utils/output';
 import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
 
 const PKG = 'jss-devtools';
@@ -59,7 +58,7 @@ const downgradeCommand = defineCommand({
         error: { code: 'SPEC_INVALID', message: resolved.message },
       };
       if (jsonMode) {
-        printJson(result);
+        logger.json(result);
       } else {
         logger.error(resolved.message);
       }
@@ -77,7 +76,7 @@ const downgradeCommand = defineCommand({
         message: resolved.message,
       };
       if (jsonMode) {
-        printJson(result);
+        logger.json(result);
       } else {
         logger.info(resolved.message);
       }
@@ -101,7 +100,7 @@ const downgradeCommand = defineCommand({
     const result = await execOrDryRunInstall(detected.pm, PKG, resolved.target, dryRun);
 
     if (jsonMode) {
-      printJson({
+      logger.json({
         ...baseResult(detected.pm, PKG, dryRun),
         command: 'downgrade',
         result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,

@@ -2,9 +2,9 @@ import { defineCommand } from 'citty';
 
 import { extractSelfArgs } from '@/commands/self/utils/args';
 import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
-import { printJson } from '@/commands/self/utils/output';
 import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
 import { execOrDryRunRemove } from '@/core/self-installer/exec';
+import { logger } from '@/utils/logger';
 import { PKG_INFO } from '@/utils/pkg';
 
 const uninstallCommand = defineCommand({
@@ -47,7 +47,7 @@ const uninstallCommand = defineCommand({
     const result = await execOrDryRunRemove(detected.pm, PKG_INFO.name, dryRun);
 
     if (jsonMode) {
-      printJson({
+      logger.json({
         ...baseResult(detected.pm, PKG_INFO.name, dryRun),
         command: 'uninstall',
         result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,

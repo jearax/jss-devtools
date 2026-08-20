@@ -1,6 +1,3 @@
-// Shared flow helpers for self commands:
-// - requireGlobalPM: detect + handle "not found" with json/text output + exit
-// - confirmOrCancel: confirm prompt + handle user cancel with json/text output + exit
 import consola from 'consola';
 
 import { detectGlobalPM } from '@/core/detector/global-pm';
@@ -8,7 +5,6 @@ import { logger } from '@/utils/logger';
 import { PKG_INFO } from '@/utils/pkg';
 import { confirmOrThrow, isTTY } from '@/utils/prompts';
 
-import { printJson } from '@/commands/self/utils/output';
 import type { DetectedPM } from '@/core/detector/types';
 
 interface CommonOptions {
@@ -21,9 +17,10 @@ export const requireGlobalPM = async (options: CommonOptions): Promise<DetectedP
   if (detected) {
     return detected;
   }
+
   const msg = `${PKG_INFO.name} not installed via any known package manager. Install via npm/pnpm/yarn/bun.`;
   if (options.json) {
-    printJson({
+    logger.json({
       schemaVersion: '1.0',
       result: 'error',
       error: { code: 'PM_NOT_DETECTED', message: msg },
@@ -31,6 +28,7 @@ export const requireGlobalPM = async (options: CommonOptions): Promise<DetectedP
   } else {
     logger.error(msg);
   }
+
   process.exit(1);
 };
 
@@ -43,7 +41,7 @@ export const confirmOrCancel = async (options: CommonOptions, prompt: string, js
   } catch (err) {
     if (String(err).includes('USER_CANCELLED')) {
       if (options.json) {
-        printJson(jsonResult);
+        logger.json(jsonResult);
       } else {
         consola.info('Cancelled by user.');
       }

@@ -8,7 +8,6 @@ import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target
 import { logger } from '@/utils/logger';
 
 import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
-import { printJson } from '@/commands/self/utils/output';
 import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
 
 import type { DetectedPM } from '@/core/detector/types';
@@ -42,7 +41,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       error: { code: 'SPEC_INVALID', message: resolved.message },
     };
     if (jsonMode) {
-      printJson(result);
+      logger.json(result);
     } else {
       logger.error(resolved.message);
     }
@@ -61,7 +60,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       message: resolved.message,
     };
     if (jsonMode) {
-      printJson(result);
+      logger.json(result);
     } else {
       logger.info(resolved.message);
     }
@@ -87,7 +86,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
   const result = await execOrDryRunInstall(detected.pm, PKG, resolved.target, dryRun);
 
   if (jsonMode) {
-    printJson({
+    logger.json({
       ...baseResult(detected.pm, PKG, dryRun),
       command,
       result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,

@@ -82,11 +82,13 @@ export const detectGlobalPM = async (pkg: string): Promise<DetectedPM | null> =>
   if (cached !== null) {
     return cached;
   }
+
   for (const pm of PROBE_ORDER) {
     const args = LIST_GLOBAL_COMMANDS[pm];
     if (args.length === 0) {
       continue;
     }
+
     try {
       const { stdout, exitCode } = await execa(pm, args, { reject: false });
       if (exitCode !== 0) {
@@ -102,6 +104,7 @@ export const detectGlobalPM = async (pkg: string): Promise<DetectedPM | null> =>
       // PM not installed or other error — try next
     }
   }
+
   cached = null;
   return null;
 };
