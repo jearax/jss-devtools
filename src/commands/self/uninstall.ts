@@ -4,9 +4,10 @@ import { defineCommand } from 'citty';
 import { execOrDryRunRemove } from '@/core/self-installer/exec.js';
 import { CLI_META } from '@/utils/constants.js';
 
-import { confirmOrCancel, requireGlobalPM } from './utils/flow.js';
-import { printJson } from './utils/output.js';
-import { type CommandResultStatus, baseResult, printSuccess } from './utils/result.js';
+import { extractSelfArgs } from '@/commands/self/utils/args.js';
+import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow.js';
+import { printJson } from '@/commands/self/utils/output.js';
+import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result.js';
 
 const uninstallCommand = defineCommand({
   meta: {
@@ -18,6 +19,7 @@ const uninstallCommand = defineCommand({
       type: 'boolean',
       description: 'Skip confirmation prompt',
       default: false,
+      alias: 'y',
     },
     'dry-run': {
       type: 'boolean',
@@ -27,13 +29,12 @@ const uninstallCommand = defineCommand({
     json: {
       type: 'boolean',
       description: 'Output structured JSON',
-      default: false,
+      default: true,
     },
   },
   async run({ args }) {
-    const dryRun = args['dry-run'] === true;
-    const jsonMode = args.json === true;
-    const options = { json: jsonMode, yes: args.yes === true };
+    const { dryRun, json: jsonMode, yes } = extractSelfArgs(args);
+    const options = { json: jsonMode, yes };
 
     const detected = await requireGlobalPM(CLI_META.name, options);
 

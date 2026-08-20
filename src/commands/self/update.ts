@@ -8,7 +8,7 @@ import semver from 'semver';
 import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.js';
 import { logger } from '@/utils/logger.js';
 
-import { runUpgradeFlow } from './utils/update-shared.js';
+import { runUpgradeFlow } from '@/commands/self/utils/update-shared.js';
 
 // Helper for `update check` — exported for cross-file use.
 export const fetchAndDisplayUpdates = async (pkg: string, currentVersion: string, jsonMode: boolean): Promise<void> => {

@@ -6,9 +6,10 @@ import { execOrDryRunInstall } from '@/core/self-installer/exec.js';
 import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target.js';
 import { logger } from '@/utils/logger.js';
 
-import { confirmOrCancel, requireGlobalPM } from './utils/flow.js';
-import { printJson } from './utils/output.js';
-import { type CommandResultStatus, baseResult, printSuccess } from './utils/result.js';
+import { extractSelfArgs } from '@/commands/self/utils/args.js';
+import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow.js';
+import { printJson } from '@/commands/self/utils/output.js';
+import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result.js';
 
 const PKG = 'jss-devtools';
 
@@ -40,13 +41,12 @@ const downgradeCommand = defineCommand({
     },
   },
   async run({ args }) {
-    const dryRun = args['dry-run'] === true;
-    const jsonMode = args.json === true;
-    const options = { json: jsonMode, yes: args.yes === true };
+    const { dryRun, json: jsonMode, yes, spec: rawSpec } = extractSelfArgs(args);
+    const options = { json: jsonMode, yes };
 
     const detected = await requireGlobalPM(PKG, options);
     const meta = await fetchPackageMetadata(PKG);
-    const spec = typeof args.spec === 'string' ? parseSpec(args.spec) : undefined;
+    const spec = rawSpec ? parseSpec(rawSpec) : undefined;
     const resolved = resolveTarget(spec, detected.version, meta, 'downgrade');
 
     if (resolved.direction === 'invalid') {

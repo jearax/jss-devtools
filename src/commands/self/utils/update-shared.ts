@@ -7,9 +7,9 @@ import { execOrDryRunInstall } from '@/core/self-installer/exec.js';
 import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target.js';
 import { logger } from '@/utils/logger.js';
 
-import { confirmOrCancel, requireGlobalPM } from './flow.js';
-import { printJson } from './output.js';
-import { type CommandResultStatus, baseResult, printSuccess } from './result.js';
+import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow.js';
+import { printJson } from '@/commands/self/utils/output.js';
+import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result.js';
 
 import type { DetectedPM } from '@/core/detector/types.js';
 import type { ParsedSpec, ResolveResult } from '@/core/version-resolver/resolve-target.js';
@@ -26,7 +26,6 @@ export interface UpgradeOptions {
 export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' | 'upgrade'): Promise<void> => {
   const dryRun = options.dryRun === true;
   const jsonMode = options.json === true;
-  const yes = options.yes === true;
 
   const detected = await requireGlobalPM(PKG, options);
   const meta = await fetchPackageMetadata(PKG);

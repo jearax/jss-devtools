@@ -7,8 +7,8 @@ import { detectGlobalPM } from '@/core/detector/global-pm.js';
 import { logger } from '@/utils/logger.js';
 import { confirmOrThrow, isTTY } from '@/utils/prompts.js';
 
+import { printJson } from '@/commands/self/utils/output.js';
 import type { DetectedPM } from '@/core/detector/types.js';
-import { printJson } from './output.js';
 
 interface CommonOptions {
   json?: boolean;

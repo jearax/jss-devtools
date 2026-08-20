@@ -8,7 +8,7 @@ import { logger } from '@/utils/logger.js';
 
 import type { AgentName } from 'package-manager-detector';
 
-import type { DetectedPM } from './types.js';
+import type { DetectedPM } from '@/core/detector/types.js';
 
 // Per-PM list-global command (no equivalent in package-manager-detector).
 const LIST_GLOBAL_COMMANDS: Record<AgentName, string[]> = {

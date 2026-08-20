@@ -5,9 +5,9 @@ import semver from 'semver';
 
 import type { PackageMetadata } from '@/core/registry-client/types.js';
 
-import type { ParsedSpec, ResolveResult } from './types.js';
+import type { ParsedSpec, ResolveResult } from '@/core/version-resolver/types.js';
 
-export type { ParsedSpec, ResolveResult } from './types.js';
+export type { ParsedSpec, ResolveResult } from '@/core/version-resolver/types.js';
 
 export const parseSpec = (raw: string): ParsedSpec => {
   const trimmed = raw.trim();
