@@ -2,7 +2,7 @@
 import { defineCommand } from 'citty';
 
 import { execOrDryRunRemove } from '@/core/self-installer/exec';
-import { CLI_META } from '@/utils/constants';
+import { PKG_INFO } from '@/utils/pkgInfo';
 
 import { extractSelfArgs } from '@/commands/self/utils/args';
 import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
@@ -36,31 +36,31 @@ const uninstallCommand = defineCommand({
     const { dryRun, json: jsonMode, yes } = extractSelfArgs(args);
     const options = { json: jsonMode, yes };
 
-    const detected = await requireGlobalPM(CLI_META.name, options);
+    const detected = await requireGlobalPM(PKG_INFO.name, options);
 
-    await confirmOrCancel(options, `Uninstall ${CLI_META.name}@${detected.version} from ${detected.pm}?`, {
-      ...baseResult(detected.pm, CLI_META.name, false),
+    await confirmOrCancel(options, `Uninstall ${PKG_INFO.name}@${detected.version} from ${detected.pm}?`, {
+      ...baseResult(detected.pm, PKG_INFO.name, false),
       command: 'uninstall',
       result: 'cancelled' as CommandResultStatus,
       current: detected.version,
       message: 'Cancelled by user',
     });
 
-    const result = await execOrDryRunRemove(detected.pm, CLI_META.name, dryRun);
+    const result = await execOrDryRunRemove(detected.pm, PKG_INFO.name, dryRun);
 
     if (jsonMode) {
       printJson({
-        ...baseResult(detected.pm, CLI_META.name, dryRun),
+        ...baseResult(detected.pm, PKG_INFO.name, dryRun),
         command: 'uninstall',
         result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,
         current: detected.version,
         cmdStr: result.cmdStr,
         message: dryRun
-          ? `[dry-run] Would uninstall ${CLI_META.name}@${detected.version}`
-          : `Uninstalled ${CLI_META.name}@${detected.version}`,
+          ? `[dry-run] Would uninstall ${PKG_INFO.name}@${detected.version}`
+          : `Uninstalled ${PKG_INFO.name}@${detected.version}`,
       });
     } else {
-      printSuccess(`Uninstall ${CLI_META.name}@${detected.version}`, dryRun);
+      printSuccess(`Uninstall ${PKG_INFO.name}@${detected.version}`, dryRun);
     }
   },
 });

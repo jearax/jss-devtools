@@ -1,7 +1,7 @@
 import { defineCommand } from 'citty';
 
 import { displayBanner } from '@/utils/banner';
-import { CLI_META } from '@/utils/constants';
+import { PKG_INFO } from '@/utils/pkgInfo';
 
 const versionCommand = defineCommand({
   meta: {
@@ -11,7 +11,7 @@ const versionCommand = defineCommand({
 
   run() {
     displayBanner();
-    console.log(CLI_META.version);
+    console.log(PKG_INFO.version);
   },
 });
 

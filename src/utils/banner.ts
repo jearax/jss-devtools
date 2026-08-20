@@ -1,7 +1,9 @@
+// Banner module — figlet-rendered CLI name with caching.
+// `bannerDisplayed` flag prevents re-render across the same process (cheap optimization).
 import figlet from 'figlet';
 
-import { CLI_META } from '@/utils/constants';
 import { logger } from '@/utils/logger';
+import { PKG_INFO } from '@/utils/pkgInfo';
 
 let cachedBanner: string | null = null;
 let bannerDisplayed = false;
@@ -11,11 +13,11 @@ export const getBanner = (): string => {
     return cachedBanner;
   }
 
-  const fallback = (): string => CLI_META.name;
+  const fallback = (): string => PKG_INFO.name;
   try {
     cachedBanner =
-      figlet.textSync(CLI_META.name, {
-        font: CLI_META.bannerFont,
+      figlet.textSync(PKG_INFO.name, {
+        font: PKG_INFO.bannerFont,
         horizontalLayout: 'default',
         verticalLayout: 'default',
       }) ?? fallback();
@@ -32,5 +34,5 @@ export const displayBanner = (): void => {
   }
   bannerDisplayed = true;
   logger.raw(getBanner());
-  logger.tagline(CLI_META.description);
+  logger.tagline(PKG_INFO.description);
 };

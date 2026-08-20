@@ -1,12 +1,12 @@
 import { defineCommand } from 'citty';
 
-import { CLI_META } from '@/utils/constants';
+import { PKG_INFO } from '@/utils/pkgInfo';
 
 const routerCommand = defineCommand({
   meta: {
-    name: CLI_META.name,
-    version: CLI_META.version,
-    description: CLI_META.description,
+    name: PKG_INFO.name,
+    version: PKG_INFO.version,
+    description: PKG_INFO.description,
   },
 
   subCommands: {

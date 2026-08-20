@@ -7,8 +7,8 @@ import { renderUsage, runMain } from 'citty';
 
 import routerCommand from '@/cli/router';
 import { getBanner } from '@/utils/banner';
-import { CLI_META } from '@/utils/constants';
 import { logger } from '@/utils/logger';
+import { PKG_INFO } from '@/utils/pkgInfo';
 
 process.on('uncaughtException', (err) => logger.error(String(err)));
 process.on('unhandledRejection', (err) => logger.error(String(err)));
@@ -39,7 +39,7 @@ if (isHelp) {
 
 if (isVersion) {
   // Direct sync write for the same reason.
-  process.stdout.write(`${getBanner()}\n${CLI_META.version}\n`);
+  process.stdout.write(`${getBanner()}\n${PKG_INFO.version}\n`);
   process.exit(0);
 }
 
