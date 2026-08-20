@@ -7,7 +7,9 @@ let cachedBanner: string | null = null;
 let bannerDisplayed = false;
 
 export const getBanner = (): string => {
-  if (cachedBanner !== null) return cachedBanner;
+  if (cachedBanner !== null) {
+    return cachedBanner;
+  }
 
   const fallback = (): string => CLI_META.name;
   try {
@@ -25,7 +27,9 @@ export const getBanner = (): string => {
 };
 
 export const displayBanner = (): void => {
-  if (bannerDisplayed) return;
+  if (bannerDisplayed) {
+    return;
+  }
   bannerDisplayed = true;
   logger.raw(getBanner());
   logger.tagline(CLI_META.description);

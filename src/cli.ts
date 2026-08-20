@@ -29,7 +29,9 @@ if (isHelp) {
       usage = await renderUsage(resolved as Parameters<typeof renderUsage>[0]);
     }
   }
-  if (!usage) usage = await renderUsage(routerCommand);
+  if (!usage) {
+    usage = await renderUsage(routerCommand);
+  }
   // Direct sync write — consola's async reporter truncates when execSync returns.
   process.stdout.write(`${getBanner()}\n\n${usage}\n`);
   process.exit(0);

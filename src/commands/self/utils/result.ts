@@ -23,5 +23,7 @@ export const baseResult = (pm: AgentName | null, pkg: string, dryRun: boolean): 
 
 export const printSuccess = (msg: string, dryRun: boolean): void => {
   consola.success(dryRun ? `[dry-run] ${msg}` : msg);
-  if (!dryRun) consola.info('💡 Restart your shell to refresh PATH cache.');
+  if (!dryRun) {
+    consola.info('💡 Restart your shell to refresh PATH cache.');
+  }
 };

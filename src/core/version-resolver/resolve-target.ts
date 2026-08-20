@@ -11,9 +11,15 @@ export type { ParsedSpec, ResolveResult } from '@/core/version-resolver/types';
 
 export const parseSpec = (raw: string): ParsedSpec => {
   const trimmed = raw.trim();
-  if (!trimmed) return { raw, kind: 'unknown', value: '' };
-  if (semver.valid(trimmed)) return { raw, kind: 'exact', value: trimmed };
-  if (semver.validRange(trimmed)) return { raw, kind: 'range', value: trimmed };
+  if (!trimmed) {
+    return { raw, kind: 'unknown', value: '' };
+  }
+  if (semver.valid(trimmed)) {
+    return { raw, kind: 'exact', value: trimmed };
+  }
+  if (semver.validRange(trimmed)) {
+    return { raw, kind: 'range', value: trimmed };
+  }
   // Could be a dist-tag — caller verifies against metadata
   return { raw, kind: 'dist-tag', value: trimmed };
 };

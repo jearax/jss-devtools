@@ -41,8 +41,11 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       current: detected.version,
       error: { code: 'SPEC_INVALID', message: resolved.message },
     };
-    if (jsonMode) printJson(result);
-    else logger.error(resolved.message);
+    if (jsonMode) {
+      printJson(result);
+    } else {
+      logger.error(resolved.message);
+    }
     process.exit(1);
   }
 
@@ -57,8 +60,11 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       majorBump: resolved.majorBump,
       message: resolved.message,
     };
-    if (jsonMode) printJson(result);
-    else logger.info(resolved.message);
+    if (jsonMode) {
+      printJson(result);
+    } else {
+      logger.info(resolved.message);
+    }
     process.exit(0);
   }
 

@@ -34,7 +34,9 @@ export const fetchPackageMetadata = async (pkg: string, signal?: AbortSignal): P
       }
     } catch (err) {
       lastError = err;
-      if (attempt < MAX_RETRIES) await sleep(500);
+      if (attempt < MAX_RETRIES) {
+        await sleep(500);
+      }
     }
   }
 

@@ -17,7 +17,9 @@ interface CommonOptions {
 
 export const requireGlobalPM = async (pkg: string, options: CommonOptions): Promise<DetectedPM> => {
   const detected = await detectGlobalPM(pkg);
-  if (detected) return detected;
+  if (detected) {
+    return detected;
+  }
   const msg = `${pkg} not installed via any known package manager. Install via npm/pnpm/yarn/bun.`;
   if (options.json) {
     printJson({
@@ -32,13 +34,18 @@ export const requireGlobalPM = async (pkg: string, options: CommonOptions): Prom
 };
 
 export const confirmOrCancel = async (options: CommonOptions, prompt: string, jsonResult: object): Promise<void> => {
-  if (options.yes || !isTTY()) return;
+  if (options.yes || !isTTY()) {
+    return;
+  }
   try {
     await confirmOrThrow(prompt);
   } catch (err) {
     if (String(err).includes('USER_CANCELLED')) {
-      if (options.json) printJson(jsonResult);
-      else consola.info('Cancelled by user.');
+      if (options.json) {
+        printJson(jsonResult);
+      } else {
+        consola.info('Cancelled by user.');
+      }
       process.exit(0);
     }
     throw err;

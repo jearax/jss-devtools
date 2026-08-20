@@ -58,8 +58,11 @@ const downgradeCommand = defineCommand({
         current: detected.version,
         error: { code: 'SPEC_INVALID', message: resolved.message },
       };
-      if (jsonMode) printJson(result);
-      else logger.error(resolved.message);
+      if (jsonMode) {
+        printJson(result);
+      } else {
+        logger.error(resolved.message);
+      }
       process.exit(1);
     }
 
@@ -73,8 +76,11 @@ const downgradeCommand = defineCommand({
         majorBump: resolved.majorBump,
         message: resolved.message,
       };
-      if (jsonMode) printJson(result);
-      else logger.info(resolved.message);
+      if (jsonMode) {
+        printJson(result);
+      } else {
+        logger.info(resolved.message);
+      }
       process.exit(0);
     }
 

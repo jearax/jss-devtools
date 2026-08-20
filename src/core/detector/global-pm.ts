@@ -52,30 +52,46 @@ const parseVersionFromList = (pm: AgentName, stdout: string, pkg: string): strin
       const parsed: { data?: unknown[] } = JSON.parse(stdout);
       const data = Array.isArray(parsed.data) ? parsed.data : [];
       const found = data.find((row: unknown) => {
-        if (!Array.isArray(row)) return false;
+        if (!Array.isArray(row)) {
+          return false;
+        }
         const name = row[0];
-        if (typeof name !== 'string') return false;
+        if (typeof name !== 'string') {
+          return false;
+        }
         return name === pkg || name.startsWith(`${pkg}@`);
       });
-      if (!Array.isArray(found) || typeof found[0] !== 'string') return null;
+      if (!Array.isArray(found) || typeof found[0] !== 'string') {
+        return null;
+      }
       return found[0].slice(`${pkg}@`.length);
     }
     // bun: parse name@version strings
     const line = stdout.split('\n').find((l) => l.includes(`${pkg}@`));
-    return line ? (line.match(new RegExp(`${pkg}@(\\d+\\.\\d+\\.\\d+.*?)`))?.[1] ?? null) : null;
+    if (!line) {
+      return null;
+    }
+    const match = line.match(new RegExp(`${pkg}@(\\d+\\.\\d+\\.\\d+.*?)`));
+    return match?.[1] ?? null;
   } catch {
     return null;
   }
 };
 
 export const detectGlobalPM = async (pkg: string): Promise<DetectedPM | null> => {
-  if (cached !== null) return cached;
+  if (cached !== null) {
+    return cached;
+  }
   for (const pm of PROBE_ORDER) {
     const args = LIST_GLOBAL_COMMANDS[pm];
-    if (args.length === 0) continue;
+    if (args.length === 0) {
+      continue;
+    }
     try {
       const { stdout, exitCode } = await execa(pm, args, { reject: false });
-      if (exitCode !== 0) continue;
+      if (exitCode !== 0) {
+        continue;
+      }
       const version = parseVersionFromList(pm, stdout, pkg);
       if (version) {
         cached = { pm, version };

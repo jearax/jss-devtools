@@ -26,7 +26,9 @@ export const execOrDryRunInstall = async (
   dryRun: boolean
 ): Promise<ExecResult> => {
   const resolved = resolveCommand(pm, 'global', [`${pkg}@${version}`]);
-  if (!resolved) throw new Error(`No install command for ${pm}`);
+  if (!resolved) {
+    throw new Error(`No install command for ${pm}`);
+  }
   const cmdStr = fmt(pm, resolved.args);
   if (dryRun) {
     logger.info(`[dry-run] Would execute: ${cmdStr}`);
@@ -39,7 +41,9 @@ export const execOrDryRunInstall = async (
 
 export const execOrDryRunRemove = async (pm: AgentName, pkg: string, dryRun: boolean): Promise<ExecResult> => {
   const resolved = resolveCommand(pm, 'global_uninstall', [pkg]);
-  if (!resolved) throw new Error(`No uninstall command for ${pm}`);
+  if (!resolved) {
+    throw new Error(`No uninstall command for ${pm}`);
+  }
   const cmdStr = fmt(pm, resolved.args);
   if (dryRun) {
     logger.info(`[dry-run] Would execute: ${cmdStr}`);
