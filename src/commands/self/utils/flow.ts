@@ -3,7 +3,7 @@ import consola from 'consola';
 import { detectGlobalPM } from '@/core/detector/global-pm';
 import { logger } from '@/utils/logger';
 import { PKG_INFO } from '@/utils/pkg';
-import { confirmOrThrow, isTTY } from '@/utils/prompts';
+import { confirmYes, isTTY } from '@/utils/prompts';
 
 import type { DetectedPM } from '@/core/detector/types';
 
@@ -36,8 +36,9 @@ export const confirmOrCancel = async (options: CommonOptions, prompt: string, js
   if (options.yes || !isTTY()) {
     return;
   }
+
   try {
-    await confirmOrThrow(prompt);
+    await confirmYes(prompt);
   } catch (err) {
     if (String(err).includes('USER_CANCELLED')) {
       if (options.json) {
