@@ -1,4 +1,3 @@
-// Package metadata sourced from package.json (single source of truth).
 import pkg from '../../package.json' with { type: 'json' };
 
 export interface PkgInfo {
@@ -8,15 +7,14 @@ export interface PkgInfo {
   bin: Record<string, string>;
   keywords: string[];
   engines: { node: string };
-  bannerFont: 'Standard';
 }
 
 export const PKG_INFO: PkgInfo = {
   name: pkg.name,
   version: pkg.version,
   description: pkg.description,
+
   bin: pkg.bin as Record<string, string>,
   keywords: pkg.keywords ?? [],
   engines: pkg.engines as { node: string },
-  bannerFont: 'Standard',
 };

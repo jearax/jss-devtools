@@ -3,7 +3,9 @@
 import figlet from 'figlet';
 
 import { logger } from '@/utils/logger';
-import { PKG_INFO } from '@/utils/pkgInfo';
+import { PKG_INFO } from '@/utils/pkg';
+
+const BANNER_FONT = 'Standard';
 
 let cachedBanner: string | null = null;
 let bannerDisplayed = false;
@@ -17,7 +19,7 @@ export const getBanner = (): string => {
   try {
     cachedBanner =
       figlet.textSync(PKG_INFO.name, {
-        font: PKG_INFO.bannerFont,
+        font: BANNER_FONT,
         horizontalLayout: 'default',
         verticalLayout: 'default',
       }) ?? fallback();

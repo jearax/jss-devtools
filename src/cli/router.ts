@@ -1,6 +1,6 @@
 import { defineCommand } from 'citty';
 
-import { PKG_INFO } from '@/utils/pkgInfo';
+import { PKG_INFO } from '@/utils/pkg';
 
 const routerCommand = defineCommand({
   meta: {

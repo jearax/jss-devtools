@@ -1,7 +1,7 @@
 import { defineCommand } from 'citty';
 
 import { displayBanner } from '@/utils/banner';
-import { PKG_INFO } from '@/utils/pkgInfo';
+import { PKG_INFO } from '@/utils/pkg';
 
 const versionCommand = defineCommand({
   meta: {

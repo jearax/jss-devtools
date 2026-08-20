@@ -8,7 +8,7 @@ import { renderUsage, runMain } from 'citty';
 import routerCommand from '@/cli/router';
 import { getBanner } from '@/utils/banner';
 import { logger } from '@/utils/logger';
-import { PKG_INFO } from '@/utils/pkgInfo';
+import { PKG_INFO } from '@/utils/pkg';
 
 process.on('uncaughtException', (err) => logger.error(String(err)));
 process.on('unhandledRejection', (err) => logger.error(String(err)));

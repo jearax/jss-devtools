@@ -2,7 +2,7 @@
 import { defineCommand } from 'citty';
 
 import { execOrDryRunRemove } from '@/core/self-installer/exec';
-import { PKG_INFO } from '@/utils/pkgInfo';
+import { PKG_INFO } from '@/utils/pkg';
 
 import { extractSelfArgs } from '@/commands/self/utils/args';
 import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
