@@ -3,12 +3,12 @@
 // - confirmOrCancel: confirm prompt + handle user cancel with json/text output + exit
 import consola from 'consola';
 
-import { detectGlobalPM } from '@/core/detector/global-pm.ts';
-import { logger } from '@/utils/logger.ts';
-import { confirmOrThrow, isTTY } from '@/utils/prompts.ts';
+import { detectGlobalPM } from '@/core/detector/global-pm';
+import { logger } from '@/utils/logger';
+import { confirmOrThrow, isTTY } from '@/utils/prompts';
 
-import { printJson } from '@/commands/self/utils/output.ts';
-import type { DetectedPM } from '@/core/detector/types.ts';
+import { printJson } from '@/commands/self/utils/output';
+import type { DetectedPM } from '@/core/detector/types';
 
 interface CommonOptions {
   json?: boolean;

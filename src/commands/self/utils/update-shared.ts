@@ -2,17 +2,17 @@
 import consola from 'consola';
 import semver from 'semver';
 
-import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.ts';
-import { execOrDryRunInstall } from '@/core/self-installer/exec.ts';
-import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target.ts';
-import { logger } from '@/utils/logger.ts';
+import { fetchPackageMetadata } from '@/core/registry-client/fetch-package';
+import { execOrDryRunInstall } from '@/core/self-installer/exec';
+import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target';
+import { logger } from '@/utils/logger';
 
-import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow.ts';
-import { printJson } from '@/commands/self/utils/output.ts';
-import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result.ts';
+import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
+import { printJson } from '@/commands/self/utils/output';
+import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
 
-import type { DetectedPM } from '@/core/detector/types.ts';
-import type { ParsedSpec, ResolveResult } from '@/core/version-resolver/resolve-target.ts';
+import type { DetectedPM } from '@/core/detector/types';
+import type { ParsedSpec, ResolveResult } from '@/core/version-resolver/resolve-target';
 
 const PKG = 'jss-devtools';
 

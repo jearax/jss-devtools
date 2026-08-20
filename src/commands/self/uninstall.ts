@@ -2,12 +2,12 @@
 import { defineCommand } from 'citty';
 
 import { execOrDryRunRemove } from '@/core/self-installer/exec';
-import { CLI_META } from '@/utils/constants.ts';
+import { CLI_META } from '@/utils/constants';
 
-import { extractSelfArgs } from '@/commands/self/utils/args.ts';
-import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow.ts';
-import { printJson } from '@/commands/self/utils/output.ts';
-import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result.ts';
+import { extractSelfArgs } from '@/commands/self/utils/args';
+import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
+import { printJson } from '@/commands/self/utils/output';
+import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
 
 const uninstallCommand = defineCommand({
   meta: {

@@ -1,24 +1,24 @@
 import figlet from 'figlet';
 
-import { CLI_META } from '@/utils/constants.ts';
-import { logger } from '@/utils/logger.ts';
+import { CLI_META } from '@/utils/constants';
+import { logger } from '@/utils/logger';
 
 let cachedBanner: string | null = null;
 let bannerDisplayed = false;
 
 export const getBanner = (): string => {
-  if (cachedBanner !== null) {
-    return cachedBanner;
-  }
+  if (cachedBanner !== null) return cachedBanner;
 
+  const fallback = (): string => CLI_META.name;
   try {
-    cachedBanner = figlet.textSync(CLI_META.name, {
-      font: CLI_META.bannerFont,
-      horizontalLayout: 'default',
-      verticalLayout: 'default',
-    });
+    cachedBanner =
+      figlet.textSync(CLI_META.name, {
+        font: CLI_META.bannerFont,
+        horizontalLayout: 'default',
+        verticalLayout: 'default',
+      }) ?? fallback();
   } catch {
-    cachedBanner = CLI_META.name;
+    cachedBanner = fallback();
   }
 
   return cachedBanner;

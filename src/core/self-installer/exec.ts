@@ -4,10 +4,10 @@
 import { execa } from 'execa';
 import { resolveCommand } from 'package-manager-detector';
 
-import { PM_DISPLAY_NAMES } from '@/core/detector/global-pm.ts';
-import { logger } from '@/utils/logger.ts';
+import { PM_DISPLAY_NAMES } from '@/core/detector/global-pm';
+import { logger } from '@/utils/logger';
 
-import type { DryRunResult } from '@/core/version-resolver/types.ts';
+import type { DryRunResult } from '@/core/version-resolver/types';
 import type { AgentName } from 'package-manager-detector';
 
 export interface ExecResult {

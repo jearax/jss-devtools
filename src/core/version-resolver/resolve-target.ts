@@ -3,11 +3,11 @@
 // relative to the user's current version.
 import semver from 'semver';
 
-import type { PackageMetadata } from '@/core/registry-client/types.ts';
+import type { PackageMetadata } from '@/core/registry-client/types';
 
-import type { ParsedSpec, ResolveResult } from '@/core/version-resolver/types.ts';
+import type { ParsedSpec, ResolveResult } from '@/core/version-resolver/types';
 
-export type { ParsedSpec, ResolveResult } from '@/core/version-resolver/types.ts';
+export type { ParsedSpec, ResolveResult } from '@/core/version-resolver/types';
 
 export const parseSpec = (raw: string): ParsedSpec => {
   const trimmed = raw.trim();

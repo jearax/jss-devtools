@@ -1,8 +1,8 @@
 import { defineCommand, renderUsage } from 'citty';
 
-import routerCommand from '@/cli/router.ts';
-import { getBanner } from '@/utils/banner.ts';
-import { logger } from '@/utils/logger.ts';
+import routerCommand from '@/cli/router';
+import { getBanner } from '@/utils/banner';
+import { logger } from '@/utils/logger';
 
 const helpCommand = defineCommand({
   meta: {
