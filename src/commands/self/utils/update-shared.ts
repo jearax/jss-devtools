@@ -27,7 +27,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
   const dryRun = options.dryRun === true;
   const jsonMode = options.json === true;
 
-  const detected = await requireGlobalPM(PKG, options);
+  const detected = await requireGlobalPM(options);
   const meta = await fetchPackageMetadata(PKG);
   const spec: ParsedSpec | undefined = options.specVer ? parseSpec(options.specVer) : undefined;
   const resolved = resolveTarget(spec, detected.version, meta, 'upgrade');

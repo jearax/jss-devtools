@@ -34,7 +34,7 @@ const uninstallCommand = defineCommand({
     const { dryRun, json: jsonMode, yes } = extractSelfArgs(args);
     const options = { json: jsonMode, yes };
 
-    const detected = await requireGlobalPM(PKG_INFO.name, options);
+    const detected = await requireGlobalPM(options);
 
     await confirmOrCancel(options, `Uninstall ${PKG_INFO.name}@${detected.version} from ${detected.pm}?`, {
       ...baseResult(detected.pm, PKG_INFO.name, false),

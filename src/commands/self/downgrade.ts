@@ -44,7 +44,7 @@ const downgradeCommand = defineCommand({
     const { dryRun, json: jsonMode, yes, specVer } = extractSelfArgs(args);
     const options = { json: jsonMode, yes };
 
-    const detected = await requireGlobalPM(PKG, options);
+    const detected = await requireGlobalPM(options);
     const meta = await fetchPackageMetadata(PKG);
     const spec = specVer ? parseSpec(specVer) : undefined;
     const resolved = resolveTarget(spec, detected.version, meta, 'downgrade');

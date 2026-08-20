@@ -5,6 +5,7 @@ import consola from 'consola';
 
 import { detectGlobalPM } from '@/core/detector/global-pm';
 import { logger } from '@/utils/logger';
+import { PKG_INFO } from '@/utils/pkg';
 import { confirmOrThrow, isTTY } from '@/utils/prompts';
 
 import { printJson } from '@/commands/self/utils/output';
@@ -15,12 +16,12 @@ interface CommonOptions {
   yes?: boolean;
 }
 
-export const requireGlobalPM = async (pkg: string, options: CommonOptions): Promise<DetectedPM> => {
-  const detected = await detectGlobalPM(pkg);
+export const requireGlobalPM = async (options: CommonOptions): Promise<DetectedPM> => {
+  const detected = await detectGlobalPM(PKG_INFO.name);
   if (detected) {
     return detected;
   }
-  const msg = `${pkg} not installed via any known package manager. Install via npm/pnpm/yarn/bun.`;
+  const msg = `${PKG_INFO.name} not installed via any known package manager. Install via npm/pnpm/yarn/bun.`;
   if (options.json) {
     printJson({
       schemaVersion: '1.0',
