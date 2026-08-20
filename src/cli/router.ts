@@ -6,7 +6,7 @@ const routerCommand = defineCommand({
   meta: {
     name: CLI_META.name,
     version: CLI_META.version,
-    description: CLI_META.tagline,
+    description: CLI_META.description,
   },
   subCommands: {
     version: () => import('@/commands/version.js').then((m) => m.default),

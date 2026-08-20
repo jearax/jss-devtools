@@ -27,5 +27,5 @@ export const displayBanner = (): void => {
   bannerDisplayed = true;
   // Raw output (not logger.banner) — consola breaks multiline chars from figlet.
   logger.raw(getBanner());
-  logger.tagline(CLI_META.tagline);
+  logger.tagline(CLI_META.description);
 };

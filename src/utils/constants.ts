@@ -1,7 +1,9 @@
-// Shared CLI metadata — name, tagline, banner font.
+// Shared CLI metadata — sourced from package.json so version stays in sync.
+import pkg from '../../package.json' with { type: 'json' };
+
 export const CLI_META = {
-  name: 'jss-devtools',
-  version: '0.1.0',
-  tagline: 'JavaScript stack dev tools CLI',
+  name: pkg.name,
+  version: pkg.version,
+  description: pkg.description,
   bannerFont: 'Standard' as const,
 };

@@ -37,7 +37,7 @@ src/
 ├── utils/
 │   ├── logger.ts               # consola wrappers
 │   ├── banner.ts               # figlet banner với cache
-│   └── constants.ts            # CLI_META (name, version, tagline)
+│   └── constants.ts            # CLI_META (name, version, description — sourced from package.json)
 └── commands/
     ├── version.ts              # jss-devtools version
     └── help.ts                 # pass-through citty help
@@ -70,7 +70,7 @@ tests/
 
 1. **Logger wrapper** (`src/utils/logger.ts`) — wrap consola với API: `info`, `warn`, `error`, `success`, `box`, `start`, `ready`, `raw` (cho ASCII art). ✅ Done in Phase 0.
 2. **Banner utility** (`src/utils/banner.ts`) — figlet textSync với caching + fallback nếu font fail. ✅ Done in Phase 0.
-3. **CLI_META constants** (`src/utils/constants.ts`) — name, version, tagline, banner options. ✅ Done in Phase 0.
+3. **CLI_META constants** (`src/utils/constants.ts`) — name, version, description (sourced from package.json via JSON import), banner font. ✅ Done in Phase 0.
 4. **Router update** (`src/cli/router.ts`) — add `version` + `help` subcommands, lazy import cho future commands.
 5. **Help command** (`src/commands/help.ts`) — citty built-in hoặc custom rendering.
 6. **Version command** (`src/commands/version.ts`) — print version + optional figlet banner.
