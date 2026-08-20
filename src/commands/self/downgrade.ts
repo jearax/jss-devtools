@@ -19,7 +19,7 @@ const downgradeCommand = defineCommand({
     description: 'Downgrade CLI to previous or specified version',
   },
   args: {
-    spec: {
+    specVer: {
       type: 'positional',
       description: 'Version spec (tag, exact, or semver range)',
       required: false,
@@ -41,12 +41,12 @@ const downgradeCommand = defineCommand({
     },
   },
   async run({ args }) {
-    const { dryRun, json: jsonMode, yes, spec: rawSpec } = extractSelfArgs(args);
+    const { dryRun, json: jsonMode, yes, specVer } = extractSelfArgs(args);
     const options = { json: jsonMode, yes };
 
     const detected = await requireGlobalPM(PKG, options);
     const meta = await fetchPackageMetadata(PKG);
-    const spec = rawSpec ? parseSpec(rawSpec) : undefined;
+    const spec = specVer ? parseSpec(specVer) : undefined;
     const resolved = resolveTarget(spec, detected.version, meta, 'downgrade');
 
     if (resolved.direction === 'invalid') {
@@ -54,7 +54,7 @@ const downgradeCommand = defineCommand({
         ...baseResult(detected.pm, PKG, false),
         command: 'downgrade',
         result: 'error' as CommandResultStatus,
-        spec: args.spec ?? null,
+        spec: args.specVer ?? null,
         current: detected.version,
         error: { code: 'SPEC_INVALID', message: resolved.message },
       };

@@ -9,7 +9,7 @@ const upgradeCommand = defineCommand({
     description: 'Upgrade CLI to latest or specified version',
   },
   args: {
-    spec: {
+    specVer: {
       type: 'positional',
       description: 'Version spec (tag, exact, or semver range)',
       required: false,

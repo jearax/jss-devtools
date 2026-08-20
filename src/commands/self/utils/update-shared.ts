@@ -17,7 +17,7 @@ import type { ParsedSpec, ResolveResult } from '@/core/version-resolver/resolve-
 const PKG = 'jss-devtools';
 
 export interface UpgradeOptions {
-  spec?: string;
+  specVer?: string;
   yes?: boolean;
   dryRun?: boolean;
   json?: boolean;
@@ -29,7 +29,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
 
   const detected = await requireGlobalPM(PKG, options);
   const meta = await fetchPackageMetadata(PKG);
-  const spec: ParsedSpec | undefined = options.spec ? parseSpec(options.spec) : undefined;
+  const spec: ParsedSpec | undefined = options.specVer ? parseSpec(options.specVer) : undefined;
   const resolved = resolveTarget(spec, detected.version, meta, 'upgrade');
 
   if (resolved.direction === 'invalid') {
@@ -37,7 +37,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       ...baseResult(detected.pm, PKG, false),
       command,
       result: 'error' as CommandResultStatus,
-      spec: options.spec ?? null,
+      spec: options.specVer ?? null,
       current: detected.version,
       error: { code: 'SPEC_INVALID', message: resolved.message },
     };
@@ -54,7 +54,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       ...baseResult(detected.pm, PKG, false),
       command,
       result: 'noop' as CommandResultStatus,
-      spec: options.spec ?? null,
+      spec: options.specVer ?? null,
       current: detected.version,
       target: null,
       majorBump: resolved.majorBump,
@@ -76,7 +76,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       ...baseResult(detected.pm, PKG, true),
       command,
       result: 'cancelled' as CommandResultStatus,
-      spec: options.spec ?? null,
+      spec: options.specVer ?? null,
       current: detected.version,
       target: resolved.target,
       majorBump: resolved.majorBump,
@@ -91,7 +91,7 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
       ...baseResult(detected.pm, PKG, dryRun),
       command,
       result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,
-      spec: options.spec ?? null,
+      spec: options.specVer ?? null,
       current: detected.version,
       target: resolved.target,
       majorBump: resolved.majorBump,
