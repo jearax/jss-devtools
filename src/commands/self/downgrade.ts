@@ -7,8 +7,9 @@ import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target
 import { logger } from '@/utils/logger';
 
 import { extractSelfArgs } from '@/commands/self/utils/args';
-import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
+import { requireGlobalPM } from '@/commands/self/utils/flow';
 import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
+import { confirmOrCancel } from '@/utils/prompts';
 
 const PKG = 'jss-devtools';
 

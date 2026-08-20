@@ -1,13 +1,13 @@
 // Shared upgrade flow: detect → fetch → resolve → confirm → exec (used by update + upgrade).
-import consola from 'consola';
 import semver from 'semver';
 
 import { fetchPackageMetadata } from '@/core/registry-client/fetch-package';
 import { execOrDryRunInstall } from '@/core/self-installer/exec';
 import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target';
 import { logger } from '@/utils/logger';
+import { confirmOrCancel } from '@/utils/prompts';
 
-import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
+import { requireGlobalPM } from '@/commands/self/utils/flow';
 import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
 
 import type { DetectedPM } from '@/core/detector/types';
@@ -106,5 +106,3 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
 
 // Re-export ResolveResult type for typecheck usage in other modules
 export type { ResolveResult, DetectedPM, ParsedSpec };
-// keep consola import alive (used elsewhere via flow.ts)
-void consola;
