@@ -1,5 +1,6 @@
 import { defineCommand } from 'citty';
 
+import { extractSelfArgs } from '@/commands/self/utils/args';
 import { runUpgradeFlow } from '@/commands/self/utils/update-shared';
 
 const upgradeCommand = defineCommand({
@@ -30,15 +31,7 @@ const upgradeCommand = defineCommand({
     },
   },
   async run({ args }) {
-    await runUpgradeFlow(
-      {
-        spec: typeof args.spec === 'string' ? args.spec : undefined,
-        yes: args.yes === true,
-        dryRun: args['dry-run'] === true,
-        json: args.json === true,
-      },
-      'upgrade'
-    );
+    await runUpgradeFlow(extractSelfArgs(args), 'upgrade');
   },
 });
 

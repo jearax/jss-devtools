@@ -1,4 +1,3 @@
-// `jss-devtools uninstall` — remove CLI from global.
 import { defineCommand } from 'citty';
 
 import { execOrDryRunRemove } from '@/core/self-installer/exec';
