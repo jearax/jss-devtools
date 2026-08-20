@@ -1,6 +1,3 @@
-// `jss-devtools upgrade`:
-//   - no args: auto-pick latest version
-//   - `<spec>`: validate spec, install matching version
 import { defineCommand } from 'citty';
 
 import { runUpgradeFlow } from './utils/update-shared.js';

@@ -1,4 +1,4 @@
-import type { PM } from '@/core/global-pm-detector/types.js';
+import type { AgentName } from 'package-manager-detector';
 
 export type SpecKind = 'dist-tag' | 'exact' | 'range' | 'unknown';
 
@@ -21,5 +21,5 @@ export interface DryRunResult {
   dryRun: boolean;
   cmdStr: string;
   args: string[];
-  pm: PM;
+  pm: AgentName;
 }

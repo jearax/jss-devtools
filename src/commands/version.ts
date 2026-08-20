@@ -8,6 +8,7 @@ const versionCommand = defineCommand({
     name: 'version',
     description: 'Print CLI version',
   },
+
   run() {
     displayBanner();
     console.log(CLI_META.version);

@@ -7,6 +7,8 @@ import type { PackageMetadata } from '@/core/registry-client/types.js';
 
 import type { ParsedSpec, ResolveResult } from './types.js';
 
+export type { ParsedSpec, ResolveResult } from './types.js';
+
 export const parseSpec = (raw: string): ParsedSpec => {
   const trimmed = raw.trim();
   if (!trimmed) return { raw, kind: 'unknown', value: '' };

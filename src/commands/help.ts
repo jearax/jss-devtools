@@ -9,6 +9,7 @@ const helpCommand = defineCommand({
     name: 'help',
     description: 'Print usage information',
   },
+
   async run() {
     logger.raw(getBanner());
     logger.raw(await renderUsage(routerCommand));

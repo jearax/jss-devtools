@@ -10,23 +10,7 @@ import { logger } from '@/utils/logger.js';
 
 import { runUpgradeFlow } from './utils/update-shared.js';
 
-const updateCommand = defineCommand({
-  meta: {
-    name: 'update',
-    description: 'Update CLI (alias of upgrade) or check available versions',
-  },
-  subCommands: {
-    check: () => import('./update-check.js').then((m) => m.default),
-  },
-  async run() {
-    // `update <spec>` rejected: spec must use `upgrade <spec>`.
-    // citty auto-rejects unknown subcommands; this run() fires only when no
-    // subcommand matches, so we just delegate to upgrade flow.
-    await runUpgradeFlow({}, 'update');
-  },
-});
-
-// Helper for `update check` — exported for testing
+// Helper for `update check` — exported for cross-file use.
 export const fetchAndDisplayUpdates = async (pkg: string, currentVersion: string, jsonMode: boolean): Promise<void> => {
   const meta = await fetchPackageMetadata(pkg);
   const all = meta.versions.filter((v: string): v is string => semver.valid(v) !== null && !semver.prerelease(v));
@@ -79,5 +63,18 @@ export const fetchAndDisplayUpdates = async (pkg: string, currentVersion: string
     logger.info('Already at latest.');
   }
 };
+
+const updateCommand = defineCommand({
+  meta: {
+    name: 'update',
+    description: 'Update CLI (alias of upgrade) or check available versions',
+  },
+  subCommands: {
+    check: () => import('./update-check.js').then((m) => m.default),
+  },
+  async run() {
+    await runUpgradeFlow({}, 'update');
+  },
+});
 
 export default updateCommand;

@@ -1,6 +1,6 @@
 import { defineCommand } from 'citty';
 
-import { detectGlobalPM } from '@/core/global-pm-detector/index.js';
+import { detectGlobalPM } from '@/core/detector/global-pm.js';
 import { logger } from '@/utils/logger.js';
 
 import { fetchAndDisplayUpdates } from './update.js';
