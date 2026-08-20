@@ -1,7 +1,7 @@
 // `jss-devtools uninstall` — remove CLI from global.
 import { defineCommand } from 'citty';
 
-import { execOrDryRunRemove } from '@/core/self-installer/exec.ts';
+import { execOrDryRunRemove } from '@/core/self-installer/exec';
 import { CLI_META } from '@/utils/constants.ts';
 
 import { extractSelfArgs } from '@/commands/self/utils/args.ts';

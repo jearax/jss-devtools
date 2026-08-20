@@ -9,7 +9,7 @@ const upgradeCommand = defineCommand({
   },
   args: {
     spec: {
-      type: 'string',
+      type: 'positional',
       description: 'Version spec (tag, exact, or semver range)',
       required: false,
     },
