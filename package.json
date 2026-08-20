@@ -31,13 +31,15 @@
     "execa": "^9.6.1",
     "figlet": "^1.10.0",
     "nypm": "^0.6.5",
-    "pathe": "^2.0.3"
+    "pathe": "^2.0.3",
+    "semver": "^7.6.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.29.8",
     "@types/figlet": "^1.7.0",
     "@types/node": "^22.10.5",
+    "@types/semver": "^7.5.8",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "prettier-package-json": "^2.1.4",

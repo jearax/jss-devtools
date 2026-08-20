@@ -1,0 +1,48 @@
+// `jss-devtools upgrade`:
+//   - no args: auto-pick latest version
+//   - `<spec>`: validate spec, install matching version
+import { defineCommand } from 'citty';
+
+import { runUpgradeFlow } from './self-update-shared.js';
+
+const upgradeCommand = defineCommand({
+  meta: {
+    name: 'upgrade',
+    description: 'Upgrade CLI to latest or specified version',
+  },
+  args: {
+    spec: {
+      type: 'string',
+      description: 'Version spec (tag, exact, or semver range)',
+      required: false,
+    },
+    yes: {
+      type: 'boolean',
+      description: 'Skip confirmation prompt',
+      default: false,
+    },
+    'dry-run': {
+      type: 'boolean',
+      description: 'Print command without executing',
+      default: false,
+    },
+    json: {
+      type: 'boolean',
+      description: 'Output structured JSON',
+      default: false,
+    },
+  },
+  async run({ args }) {
+    await runUpgradeFlow(
+      {
+        spec: typeof args.spec === 'string' ? args.spec : undefined,
+        yes: args.yes === true,
+        dryRun: args['dry-run'] === true,
+        json: args.json === true,
+      },
+      'upgrade'
+    );
+  },
+});
+
+export default upgradeCommand;

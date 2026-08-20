@@ -22,7 +22,7 @@ Theo yêu cầu: bỏ qua LICENSE trong plan này (internal tạm).
 |---|---|---|---|---|
 | 0 | [Bootstrap Foundation](./phase-00-bootstrap.md) | completed | 3h | — |
 | 1 | [Core CLI Infrastructure](./phase-01-core-cli-infrastructure.md) | completed | 2h | 0 |
-| 2 | [CLI Self-Management](./phase-02-cli-self-management.md) | pending | 5h | 1 |
+| 2 | [CLI Self-Management](./phase-02-cli-self-management.md) | completed | 5h | 1 |
 | 3 | [Scaffold System](./phase-03-scaffold-system.md) | pending | 4h | 2 |
 | 4 | [Polish + CI/CD Pipeline](./phase-04-polish-publish.md) | pending | 3h | 3 |
 

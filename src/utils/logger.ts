@@ -7,6 +7,7 @@ export const logger = {
   info: (message: string) => consola.info(message),
   warn: (message: string) => consola.warn(message),
   log: (message: string) => consola.log(message),
+  debug: (message: string) => consola.debug(message),
 
   primary: (message: string) => consola.log(colors.cyan(message)),
   secondary: (message: string) => consola.log(colors.magenta(message)),

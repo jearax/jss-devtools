@@ -49,4 +49,34 @@ describe('bin/jss-devtools', () => {
     expect(output).toContain('JavaScript stack dev tools CLI');
     expect(output.toLowerCase()).toContain('usage');
   });
+
+  it('runs upgrade --help with banner + subcommand name', () => {
+    const output = runBin(['upgrade', '--help']);
+    expect(output).toContain('Upgrade CLI'); // subcommand description
+    expect(output.toLowerCase()).toContain('upgrade');
+  });
+
+  it('runs downgrade --help with banner + subcommand name', () => {
+    const output = runBin(['downgrade', '--help']);
+    expect(output).toContain('Downgrade CLI'); // subcommand description
+    expect(output.toLowerCase()).toContain('downgrade');
+  });
+
+  it('runs uninstall --help with banner + subcommand name', () => {
+    const output = runBin(['uninstall', '--help']);
+    expect(output).toContain('Uninstall CLI'); // subcommand description
+    expect(output.toLowerCase()).toContain('uninstall');
+  });
+
+  it('runs update --help with banner + subcommand name', () => {
+    const output = runBin(['update', '--help']);
+    expect(output).toContain('Update CLI'); // subcommand description
+    expect(output.toLowerCase()).toContain('update');
+  });
+
+  it('runs update check --help with banner + subcommand name', () => {
+    const output = runBin(['update', 'check', '--help']);
+    expect(output).toContain('Show 5 latest'); // check subcommand description
+    expect(output.toLowerCase()).toContain('check');
+  });
 });

@@ -1,9 +1,9 @@
 ---
 phase: 2
 title: "CLI Self-Management"
-status: pending
+status: completed
 priority: P1
-effort: "4h"
+effort: "5h"
 dependencies: [1]
 ---
 
