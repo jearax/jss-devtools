@@ -1,4 +1,4 @@
-import type { PackageMetadata } from '@/core/registry-client/types.js';
+import type { PackageMetadata } from '@/core/registry-client/types.ts';
 
 const REGISTRY = 'https://registry.npmjs.org';
 const TIMEOUT_MS = 10_000;

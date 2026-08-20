@@ -5,10 +5,10 @@
 import { defineCommand } from 'citty';
 import semver from 'semver';
 
-import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.js';
-import { logger } from '@/utils/logger.js';
+import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.ts';
+import { logger } from '@/utils/logger.ts';
 
-import { runUpgradeFlow } from '@/commands/self/utils/update-shared.js';
+import { runUpgradeFlow } from '@/commands/self/utils/update-shared.ts';
 
 // Helper for `update check` — exported for cross-file use.
 export const fetchAndDisplayUpdates = async (pkg: string, currentVersion: string, jsonMode: boolean): Promise<void> => {

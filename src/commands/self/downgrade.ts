@@ -1,15 +1,15 @@
 // `jss-devtools downgrade` — mirror of upgrade with inverse direction.
 import { defineCommand } from 'citty';
 
-import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.js';
-import { execOrDryRunInstall } from '@/core/self-installer/exec.js';
-import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target.js';
-import { logger } from '@/utils/logger.js';
+import { fetchPackageMetadata } from '@/core/registry-client/fetch-package.ts';
+import { execOrDryRunInstall } from '@/core/self-installer/exec.ts';
+import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target.ts';
+import { logger } from '@/utils/logger.ts';
 
-import { extractSelfArgs } from '@/commands/self/utils/args.js';
-import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow.js';
-import { printJson } from '@/commands/self/utils/output.js';
-import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result.js';
+import { extractSelfArgs } from '@/commands/self/utils/args.ts';
+import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow.ts';
+import { printJson } from '@/commands/self/utils/output.ts';
+import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result.ts';
 
 const PKG = 'jss-devtools';
 

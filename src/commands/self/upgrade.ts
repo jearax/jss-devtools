@@ -1,6 +1,6 @@
 import { defineCommand } from 'citty';
 
-import { runUpgradeFlow } from '@/commands/self/utils/update-shared.js';
+import { runUpgradeFlow } from '@/commands/self/utils/update-shared.ts';
 
 const upgradeCommand = defineCommand({
   meta: {

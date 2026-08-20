@@ -1,7 +1,7 @@
 import figlet from 'figlet';
 
-import { CLI_META } from '@/utils/constants.js';
-import { logger } from '@/utils/logger.js';
+import { CLI_META } from '@/utils/constants.ts';
+import { logger } from '@/utils/logger.ts';
 
 let cachedBanner: string | null = null;
 let bannerDisplayed = false;

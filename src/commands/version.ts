@@ -1,7 +1,7 @@
 import { defineCommand } from 'citty';
 
-import { displayBanner } from '@/utils/banner.js';
-import { CLI_META } from '@/utils/constants.js';
+import { displayBanner } from '@/utils/banner.ts';
+import { CLI_META } from '@/utils/constants.ts';
 
 const versionCommand = defineCommand({
   meta: {

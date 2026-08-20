@@ -5,10 +5,10 @@
 // 2. Citty's auto --version just prints meta.version (no banner); we want branded.
 import { renderUsage, runMain } from 'citty';
 
-import routerCommand from '@/cli/router.js';
-import { getBanner } from '@/utils/banner.js';
-import { CLI_META } from '@/utils/constants.js';
-import { logger } from '@/utils/logger.js';
+import routerCommand from '@/cli/router.ts';
+import { getBanner } from '@/utils/banner.ts';
+import { CLI_META } from '@/utils/constants.ts';
+import { logger } from '@/utils/logger.ts';
 
 process.on('uncaughtException', (err) => logger.error(String(err)));
 process.on('unhandledRejection', (err) => logger.error(String(err)));

@@ -1,9 +1,9 @@
 import { defineCommand } from 'citty';
 
-import { detectGlobalPM } from '@/core/detector/global-pm.js';
-import { logger } from '@/utils/logger.js';
+import { detectGlobalPM } from '@/core/detector/global-pm.ts';
+import { logger } from '@/utils/logger.ts';
 
-import { fetchAndDisplayUpdates } from '@/commands/self/update.js';
+import { fetchAndDisplayUpdates } from '@/commands/self/update.ts';
 
 const updateCheckCommand = defineCommand({
   meta: {

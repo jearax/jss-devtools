@@ -4,11 +4,11 @@
 // Result cached per-process to avoid repeated subprocess calls.
 import { execa } from 'execa';
 
-import { logger } from '@/utils/logger.js';
+import { logger } from '@/utils/logger.ts';
 
 import type { AgentName } from 'package-manager-detector';
 
-import type { DetectedPM } from '@/core/detector/types.js';
+import type { DetectedPM } from '@/core/detector/types.ts';
 
 // Per-PM list-global command (no equivalent in package-manager-detector).
 const LIST_GLOBAL_COMMANDS: Record<AgentName, string[]> = {

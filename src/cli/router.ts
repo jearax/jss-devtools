@@ -1,6 +1,6 @@
 import { defineCommand } from 'citty';
 
-import { CLI_META } from '@/utils/constants.js';
+import { CLI_META } from '@/utils/constants.ts';
 
 const routerCommand = defineCommand({
   meta: {
