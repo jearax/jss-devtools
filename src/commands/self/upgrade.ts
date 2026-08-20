@@ -3,7 +3,7 @@
 //   - `<spec>`: validate spec, install matching version
 import { defineCommand } from 'citty';
 
-import { runUpgradeFlow } from './self-update-shared.js';
+import { runUpgradeFlow } from './utils/update-shared.js';
 
 const upgradeCommand = defineCommand({
   meta: {

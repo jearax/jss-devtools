@@ -8,7 +8,7 @@ import semver from 'semver';
 import { fetchPackageMetadata } from '@/core/registry-client/index.js';
 import { logger } from '@/utils/logger.js';
 
-import { runUpgradeFlow } from './self-update-shared.js';
+import { runUpgradeFlow } from './utils/update-shared.js';
 
 const updateCommand = defineCommand({
   meta: {
@@ -16,7 +16,7 @@ const updateCommand = defineCommand({
     description: 'Update CLI (alias of upgrade) or check available versions',
   },
   subCommands: {
-    check: () => import('./self-update-check.js').then((m) => m.default),
+    check: () => import('./update-check.js').then((m) => m.default),
   },
   async run() {
     // `update <spec>` rejected: spec must use `upgrade <spec>`.

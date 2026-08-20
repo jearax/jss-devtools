@@ -1,5 +1,5 @@
+import { PM_DISPLAY_NAMES, buildListGlobalCommand } from '@/commands/self/utils/pm-commands.js';
 import { logger } from '@/utils/logger.js';
-import { PM_DISPLAY_NAMES, buildListGlobalCommand } from '@/utils/pm-commands.js';
 // Detect which package manager installed the CLI globally.
 // Strategy: probe each PM sequentially (pnpm > npm > yarn classic > bun),
 // first one whose `list -g` mentions the package wins.

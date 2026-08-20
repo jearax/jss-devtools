@@ -2,8 +2,8 @@
 // `stdio: 'inherit'` so user sees PM's native output.
 import { execa } from 'execa';
 
+import { PM_DISPLAY_NAMES, buildRemoveCommand, buildUpgradeCommand } from '@/commands/self/utils/pm-commands.js';
 import { logger } from '@/utils/logger.js';
-import { PM_DISPLAY_NAMES, buildRemoveCommand, buildUpgradeCommand } from '@/utils/pm-commands.js';
 
 import type { PM } from '@/core/global-pm-detector/types.js';
 import type { DryRunResult } from '@/core/version-resolver/types.js';

@@ -3,7 +3,7 @@ import { defineCommand } from 'citty';
 import { detectGlobalPM } from '@/core/global-pm-detector/index.js';
 import { logger } from '@/utils/logger.js';
 
-import { fetchAndDisplayUpdates } from './self-update.js';
+import { fetchAndDisplayUpdates } from './update.js';
 
 const updateCheckCommand = defineCommand({
   meta: {

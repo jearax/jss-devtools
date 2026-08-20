@@ -130,18 +130,19 @@ src/
 │   │   ├── resolve-target.ts       # given spec + current → target version
 │   │   └── types.ts
 │   └── self-installer/             # execute PM commands
-│       ├── index.ts
-│       └── commands.ts             # per-PM command builders
-├── utils/
-│   └── prompts.ts                  # shared @clack/prompts wrappers (confirm, select, etc.)
-└── commands/
-    ├── self-update.ts              # alias wrapper + check subcommand
-    ├── self-upgrade.ts             # upgrade no-args + upgrade <spec>
-    ├── self-downgrade.ts           # downgrade no-args + downgrade <spec>
-    └── self-uninstall.ts
-
-utils/
-└── pm-commands.ts                 # INSTALL_COMMANDS map per PM
+│       └── index.ts
+├── commands/
+│   └── self/
+│       ├── update.ts               # alias wrapper + check subcommand
+│       ├── upgrade.ts              # upgrade no-args + upgrade <spec>
+│       ├── downgrade.ts            # downgrade no-args + downgrade <spec>
+│       ├── uninstall.ts
+│       ├── update-check.ts
+│       └── utils/
+│           ├── update-shared.ts    # shared upgrade flow (used by update + upgrade)
+│           └── pm-commands.ts      # INSTALL_COMMANDS map per PM (self-specific)
+└── utils/
+    └── prompts.ts                  # shared @clack/prompts wrappers (general, not self-specific)
 ```
 
 ## PM Detection Strategy
@@ -360,13 +361,14 @@ Print hint:
 - `src/core/version-resolver/resolve-target.ts`
 - `src/core/version-resolver/types.ts`
 - `src/core/self-installer/index.ts`
-- `src/core/self-installer/commands.ts`
-- `src/utils/prompts.ts`
-- `src/utils/pm-commands.ts`
-- `src/commands/self-update.ts`
-- `src/commands/self-upgrade.ts`
-- `src/commands/self-downgrade.ts`
-- `src/commands/self-uninstall.ts`
+- `src/commands/self/update.ts`
+- `src/commands/self/upgrade.ts`
+- `src/commands/self/downgrade.ts`
+- `src/commands/self/uninstall.ts`
+- `src/commands/self/update-check.ts`
+- `src/commands/self/utils/update-shared.ts`
+- `src/commands/self/utils/pm-commands.ts`
+- `src/utils/prompts.ts` (general, not self-specific)
 
 **Modify:**
 - `src/cli/router.ts` (add 4 subcommands, lazy import)
