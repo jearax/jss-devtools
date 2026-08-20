@@ -108,7 +108,3 @@ export const detectGlobalPM = async (pkg: string): Promise<DetectedPM | null> =>
   cached = null;
   return null;
 };
-
-export const resetDetectionCache = (): void => {
-  cached = null;
-};
