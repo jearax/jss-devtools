@@ -11,74 +11,103 @@ dependencies: [1]
 
 ## Overview
 
-Four commands cho phép `jss-devtools` quản lý chính nó (re-install/uninstall qua package manager đã detect): `update`, `upgrade`, `downgrade`, `uninstall`. Mọi write operation delegate to package manager (npm/pnpm/yarn/bun) — không modify files trực tiếp.
-
-**Architectural pivot (vs original Phase 2 plan):** không quản project's dependencies mà quản CLI itself. Lý do: package manager là source of truth cho install/update/uninstall, CLI không nên bypass.
+CLI quản lý chính nó qua 4 commands: `update`, `upgrade`, `downgrade`, `uninstall`. Mọi write operation delegate to package manager đã detect (npm/pnpm/yarn classic/bun). Không modify files trực tiếp.
 
 ## Requirements
 
-### Functional
+### Functional — 4 commands với semantics chốt
 
-| Command | Description | Behavior |
-|---|---|---|
-| `jss-devtools update` | Re-install CLI at latest matching version | Call `<pm> add -g jss-devtools@latest` |
-| `jss-devtools upgrade` | Re-install CLI at latest major version | Call `<pm> add -g jss-devtools@latest` (same as update unless we add `--no-major` flag) |
-| `jss-devtools downgrade` | Re-install CLI at previous published version | Query registry, find previous version, call `<pm> add -g jss-devtools@<prev>` |
-| `jss-devtools uninstall` | Remove CLI from global install | Call `<pm> remove -g jss-devtools` |
+#### `jss-devtools update`
 
-**All 4 commands require:**
-- Detect which PM installed the CLI globally
-- Confirm via `@clack/prompts` before applying changes (unless `--yes` flag)
-- Output result via `consola` (logger)
-- `--json` flag for scripting
+- **`jss-devtools update`** → alias của `jss-devtools upgrade` (nhận toàn bộ flags từ upgrade)
+- **`jss-devtools update check`** → read-only inspection:
+  - Call `npm view <pkg>` (hoặc registry HTTP equivalent)
+  - Show 5 latest versions grouped by major (e.g., `1.5.0, 1.4.0, 0.9.0, 0.5.0, 0.1.0`)
+  - No install, no prompt, no side effects
+
+**Implementation:** `update` command = thin wrapper around `upgrade`. Có thể dùng citty `subCommands: { check: ... }` hoặc arg flag.
+
+#### `jss-devtools upgrade`
+
+- **`jss-devtools upgrade`** (no args) → auto pick latest version, install via PM
+- **`jss-devtools upgrade <spec>`** → validate spec, install matching version
+  - Valid spec: `latest`, dist-tags (`next`, `beta`), semver (`^0.5`, `0.5.2`, `~1.0.0`)
+  - Validation: resolve spec via registry, compare with current
+    - target > current → upgrade (proceed)
+    - target < current → warn "you're downgrading, use `downgrade` instead"
+    - target === current → "already at this version, nothing to do"
+    - invalid spec / not found → error
+
+#### `jss-devtools downgrade`
+
+Mirror của `upgrade` với inverse logic:
+- **`jss-devtools downgrade`** (no args) → auto pick previous version (lowest stable OR version before current)
+- **`jss-devtools downgrade <spec>`** → validate spec, install matching version
+  - target < current → downgrade (proceed)
+  - target > current → warn "you're upgrading, use `upgrade` instead"
+  - target === current → noop
+  - invalid spec / not found → error
+
+#### `jss-devtools uninstall`
+
+- Remove CLI from global install via detected PM
+- Confirm before apply (TTY only)
+- `--yes` skip confirm
+
+### Common flags (all 4 commands)
+
+- `--yes` — skip confirm prompt (still apply)
+- `--dry-run` — print command that would run, exit 0, no execute (learning flag)
+- `--json` — output structured JSON instead of formatted
 
 ### Non-functional
 
 - Network calls có timeout + retry (npm registry query)
-- Detect PM works across npm/pnpm/yarn classic/bun
-- Test coverage: smoke tests only (per `docs/code-standards.md`); unit tests added pre-release
-- All commands work in non-TTY (skip confirm, use `--yes` default behavior or error)
+- Detect PM works across npm/pnpm/yarn classic/bun (Yarn Berry: show clear error)
+- TTY detection: skip prompts in non-TTY unless `--yes` provided
+- Smoke tests only (per `docs/code-standards.md`); unit tests added pre-release
+- Restart shell hint after successful update/upgrade/downgrade (PATH cache may be stale)
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│ User: jss-devtools update                                        │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────�
-│ Detect installed PM                                              │
-│ - exec each: npm ls -g jss-devtools, pnpm ls -g, yarn list,      │
-│   bun pm ls                                                      │
-│ - First PM that finds jss-devtools = owner                        │
-│ - Cache result for session (no repeated detection)                │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ Query registry for versions (downgrade only)                      │
-│ - GET https://registry.npmjs.org/jss-devtools                     │
-│ - Filter versions list, exclude prerelease + yanked               │
-│ - Return sorted latest + previous                                │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ Confirm via @clack/prompts (TTY only)                             │
-│ - Show current version + target version                          │
-│ - Show command that will run                                     │
-│ - require explicit confirmation                                  │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ Execute via execa (stdio: inherit)                                │
-│ - npm: `npm install -g jss-devtools@<version>`                    │
-│ - pnpm: `pnpm add -g jss-devtools@<version>`                      │
-│ - yarn classic: `yarn global add jss-devtools@<version>`          │
-│ - bun: `bun install -g jss-devtools@<version>`                    │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│ User: jss-devtools upgrade 0.5.2                     │
+└──────────────────────┬───────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│ Detect installed PM (cached per process)              │
+│ - probe pnpm → npm → yarn → bun (sequential)          │
+│ - first PM whose `ls -g jss-devtools` returns match    │
+│ - extract current version                            │
+│ - if none → error + suggest install command          │
+└──────────────────────┬───────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│ Resolve target version                               │
+│ - no args: fetch `dist-tags.latest` (or highest stable)│
+│ - <spec>: fetch `dist-tags[spec]` or versions matching│
+│ - compare target vs current → upgrade/downgrade/nowarn │
+└──────────────────────�───────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│ Confirm via @clack/prompts (TTY only, unless --yes)  │
+│ - show: current → target, PM, command preview         │
+│ - if major bump: show warning banner                 │
+│ - prompt: continue?                                  │
+└──────────────────────┬───────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│ Execute (or dry-run)                                 │
+│ - if --dry-run: print command + exit 0               │
+│ - else: execa(pm, [...args], { stdio: 'inherit' })   │
+│ - print result via consola                           │
+│ - if PM operation succeeded: print restart shell hint │
+└──────────────────────────────────────────────────────┘
 ```
 
 ### Module Layout
@@ -89,159 +118,232 @@ src/
 │   ├── global-pm-detector/        # detect which PM installed CLI globally
 │   │   ├── index.ts
 │   │   └── types.ts
-│   ├── registry-client/            # npm registry HTTP (existing concept, adapted)
+│   ├── registry-client/            # npm registry HTTP queries
 │   │   ├── index.ts
-│   │   ├── fetch-package.ts        # get versions list
+│   │   ├── fetch-package.ts        # GET /{pkg} → metadata + versions
+│   │   ├── fetch-versions.ts       # GET /{pkg} → versions list only
 │   │   └── types.ts
-│   └── self-installer/             # execute PM commands for install/remove
+│   ├── version-resolver/           # semver comparison, spec validation
+│   │   ├── index.ts
+│   │   ├── resolve-target.ts       # given spec + current → target version
+│   │   └── types.ts
+│   └── self-installer/             # execute PM commands
 │       ├── index.ts
 │       └── commands.ts             # per-PM command builders
+├── utils/
+│   └── prompts.ts                  # shared @clack/prompts wrappers (confirm, select, etc.)
 └── commands/
-    ├── self-update.ts
-    ├── self-upgrade.ts
-    ├── self-downgrade.ts
+    ├── self-update.ts              # alias wrapper + check subcommand
+    ├── self-upgrade.ts             # upgrade no-args + upgrade <spec>
+    ├── self-downgrade.ts           # downgrade no-args + downgrade <spec>
     └── self-uninstall.ts
 
 utils/
-└── prompts.ts                     # shared @clack/prompts wrappers (confirm, select, etc.)
-```
-
-### Data Flow per Command
-
-**`update`:**
-```
-1. global-pm-detector.detect() → { pm: 'pnpm', version: '0.1.0' }
-2. registry-client.fetchLatest('jss-devtools') → '0.5.2'
-3. prompts.confirm(`Update jss-devtools from 0.1.0 to 0.5.2 via pnpm?`)
-4. self-installer.installGlobal('pnpm', 'jss-devtools', '0.5.2')
-5. logger.success(`Updated jss-devtools to 0.5.2`)
-```
-
-**`downgrade`:**
-```
-1. detect() → { pm: 'pnpm', version: '0.5.2' }
-2. registry-client.fetchVersions('jss-devtools') → ['0.5.2', '0.5.1', '0.4.3', ...]
-3. find previous (semver < current)
-4. prompts.select({ message: 'Downgrade to which version?', options: [...] })
-5. self-installer.installGlobal(pm, pkg, targetVersion)
-```
-
-**`upgrade`:**
-- Same as `update` but query latest major instead of latest matching
-- (Or alias to `update` — MVP simplification: skip, treat as synonym)
-
-**`uninstall`:**
-```
-1. detect() → { pm: 'pnpm', version: '0.1.0' }
-2. prompts.confirm(`Uninstall jss-devtools from pnpm?`)
-3. self-installer.removeGlobal('pnpm', 'jss-devtools')
+└── pm-commands.ts                 # INSTALL_COMMANDS map per PM
 ```
 
 ## PM Detection Strategy
 
-**Approach: probe each PM's global list**
+**Approach:** probe each PM's global list sequentially.
 
-For each candidate PM (in priority order):
-1. Run `<pm> ls -g jss-devtools --json` (or equivalent)
-2. If exit 0 + output contains package → this is the owner
-3. If exit non-zero or not found → try next PM
+For each candidate (priority: pnpm > npm > yarn classic > bun):
+1. Run `<pm> <list-command> jss-devtools --json` (or similar)
+2. If exit 0 + output mentions package → this PM owns the CLI
+3. Parse version from JSON output (PM-specific shape)
 
-**Priority order:** pnpm → npm → yarn → bun
-(pnpm most likely for this CLI's audience; bun newer)
+**Probe table:**
 
-**Implementation:**
+| PM | Command | JSON output shape |
+|---|---|---|
+| pnpm | `pnpm list -g --depth=0 --json` | `{ dependencies: { "jss-devtools": { "version": "0.1.0" } } }` |
+| npm | `npm ls -g --depth=0 --json` | `{ dependencies: { "jss-devtools@0.1.0": { ... } } }` |
+| yarn classic | `yarn global list --json` | `{ data: [["jss-devtools@0.1.0", "info"]] }` |
+| bun | `bun pm ls -g --json` | varies; fallback parse name@version string |
+
+**Cache:** store detected PM in module-level variable after first successful detection (avoid 4 subprocess calls per command).
+
+## Spec Resolution
+
+Given `<spec>` argument + current version:
+
+1. Query registry for `<pkg>` metadata:
+   - `dist-tags` (latest, next, beta, etc.)
+   - `versions` array
+2. Resolve spec:
+   - If `spec` is a dist-tag → use that version
+   - If `spec` is semver range → find max version satisfying range (stable, non-prerelease)
+   - If `spec` is exact version → use it
+3. Validate target exists in versions list
+4. Compare with current:
+   - target > current → proceed (upgrade)
+   - target < current → warn + suggest inverse command
+   - target === current → "already at this version"
+   - target invalid → error
+
+**Implementation hint:**
 ```ts
-// src/core/global-pm-detector/index.ts
-import { execa } from 'execa';
+import semver from 'semver'
 
-const PROBES = [
-  { pm: 'pnpm', args: ['list', '-g', '--depth=0', '--json'] },
-  { pm: 'npm', args: ['ls', '-g', '--depth=0', '--json'] },
-  { pm: 'yarn', args: ['global', 'list', '--json'] },
-  { pm: 'bun', args: ['pm', 'ls', '-g'] },
-];
-
-export const detectGlobalPM = async (packageName: string): Promise<{ pm: string; version: string } | null> => {
-  for (const probe of PROBES) {
-    try {
-      const { stdout } = await execa(probe.pm, probe.args, { reject: false });
-      if (stdout.includes(`"${packageName}"`) || stdout.includes(packageName)) {
-        // Parse version from output (PM-specific JSON shapes)
-        const version = parseVersionFromOutput(probe.pm, stdout, packageName);
-        return { pm: probe.pm, version };
-      }
-    } catch { /* try next */ }
+export const resolveTarget = (
+  spec: string | undefined,
+  current: string,
+  metadata: RegistryMetadata
+): { target: string; action: 'upgrade' | 'downgrade' | 'noop' | 'warn-inverse' } => {
+  if (!spec) {
+    return { target: metadata['dist-tags'].latest, action: 'upgrade' }
   }
-  return null; // CLI not globally installed via any PM
-};
+  // dist-tag
+  if (metadata['dist-tags'][spec]) {
+    const target = metadata['dist-tags'][spec]
+    return compareVersions(target, current, spec)
+  }
+  // semver range
+  if (semver.validRange(spec)) {
+    const target = metadata.versions
+      .filter(v => semver.valid(v) && !semver.prerelease(v))
+      .filter(v => semver.satisfies(v, spec))
+      .sort(semver.rcompare)[0]
+    if (!target) throw new Error(`No version satisfies ${spec}`)
+    return compareVersions(target, current, spec)
+  }
+  // exact
+  if (semver.valid(spec)) {
+    return compareVersions(spec, current, spec)
+  }
+  throw new Error(`Invalid spec: ${spec}`)
+}
 ```
 
-**Alternative: nypm-based detection**
-- `nypm` already in deps; check if it has `detectGlobalPackageManager` API
-- Fall back to manual probe if not
-
-## Self-Install Commands per PM
+## Self-Install Command Builder
 
 ```ts
 // src/core/self-installer/commands.ts
 export const INSTALL_COMMANDS = {
-  npm:   { install: 'install', flag: '-g', pkg: '<pkg>@<version>', remove: 'uninstall' },
-  pnpm:  { install: 'add',     flag: '-g', pkg: '<pkg>@<version>', remove: 'remove' },
-  yarn:  { install: 'global',   flag: 'add', pkg: '<pkg>@<version>', remove: 'global remove' },
-  bun:   { install: 'install',  flag: '-g', pkg: '<pkg>@<version>', remove: 'remove' },
-} as const;
+  npm:  { install: 'install', flag: '-g',         remove: 'uninstall' },
+  pnpm: { install: 'add',    flag: '-g',          remove: 'remove'    },
+  yarn: { install: 'global', flag: 'add',         remove: 'global', suffix: 'remove' },
+  bun:  { install: 'install', flag: '-g',         remove: 'remove'    },
+} as const
 
-export const buildInstallCommand = (pm: string, pkg: string, version: string): string[] => {
-  const config = INSTALL_COMMANDS[pm];
-  if (!config) throw new Error(`Unknown PM: ${pm}`);
-  return config.flag === 'global'
-    ? ['global', 'add', `${pkg}@${version}`]
-    : [config.install, config.flag, `${pkg}@${version}`];
-};
+export const buildUpgradeCommand = (pm: string, pkg: string, version: string): string[] => {
+  const cfg = INSTALL_COMMANDS[pm]
+  if (!cfg) throw new Error(`Unknown PM: ${pm}`)
+  if (pm === 'yarn') return ['global', 'add', `${pkg}@${version}`]
+  return [cfg.install, cfg.flag, `${pkg}@${version}`]
+}
+
+export const buildRemoveCommand = (pm: string, pkg: string): string[] => {
+  const cfg = INSTALL_COMMANDS[pm]
+  if (!cfg) throw new Error(`Unknown PM: ${pm}`)
+  if (pm === 'yarn') return ['global', 'remove', pkg]
+  return [cfg.remove, cfg.flag, pkg]
+}
 ```
 
-**Note:** yarn classic only. Yarn Berry (PnP) doesn't have `global` command — out of scope.
+**Yarn Berry:** no `global` command → detection should detect yarn classic only. If user has yarn berry, show: "Yarn Berry has no global package support. Use npm/pnpm/bun instead."
 
-## UX Flow (clack prompts)
+## Dry-run Implementation
 
-### `jss-devtools update` (interactive)
-```
-┌─────────────────────────────────────────────────────┐
-│  Update jss-devtools                                 │
-│                                                     │
-│  Current: 0.1.0                                      │
-│  Latest:  0.5.2                                      │
-│  Package manager: pnpm v9.1.0                        │
-│                                                     │
-│  Will run: pnpm add -g jss-devtools@0.5.2            │
-│                                                     │
-│  ? Continue? (Y/n)                                  │
-└─────────────────────────────────────────────────────┘
-```
+Shared helper for all 4 commands:
 
-### `jss-devtools downgrade` (interactive)
-```
-┌─────────────────────────────────────────────────────┐
-│  Downgrade jss-devtools                              │
-│                                                     │
-│  Current: 0.5.2                                      │
-│  Available versions:                                 │
-│  ❯ 0.5.1                                            │
-│    0.4.3                                            │
-│    0.4.2                                            │
-│    0.4.0                                            │
-│                                                     │
-│  Package manager: pnpm v9.1.0                        │
-│  Will run: pnpm add -g jss-devtools@0.5.1            │
-│                                                     │
-│  ↑↓ navigate · ⏎ select                              │
-└─────────────────────────────────────────────────────┘
+```ts
+// src/core/self-installer/index.ts
+export const executeOrDryRun = async (
+  pm: string,
+  args: string[],
+  dryRun: boolean
+): Promise<{ ok: boolean; dryRun: boolean; cmdStr: string }> => {
+  const cmdStr = `${pm} ${args.join(' ')}`
+  if (dryRun) {
+    logger.info(`[dry-run] Would execute: ${cmdStr}`)
+    return { ok: true, dryRun: true, cmdStr }
+  }
+  logger.info(`Executing: ${cmdStr}`)
+  await execa(pm, args, { stdio: 'inherit' })
+  return { ok: true, dryRun: false, cmdStr }
+}
 ```
 
-### Non-TTY behavior (CI, scripts)
-- Skip confirm prompt
-- Use `--yes` flag explicitly OR fail with "TTY required"
-- MVP: require `--yes` flag in non-TTY; document in --help
+Behavior:
+- `--dry-run` → print `[dry-run]` prefix, exit 0, no exec
+- without `--dry-run` → exec via execa (real)
+
+## UX Flows (clack prompts)
+
+### `jss-devtools upgrade 0.5.2` (interactive)
+```
+┌─────────────────────────────────────────────┐
+│  Upgrade jss-devtools                        │
+│                                             │
+│  Current: 0.1.0                              │
+│  Target:  0.5.2                              │
+│  Package manager: pnpm v9.1.0                │
+│                                             │
+│  Will run: pnpm add -g jss-devtools@0.5.2    │
+│                                             │
+│  ? Continue? (Y/n)                          │
+└─────────────────────────────────────────────┘
+```
+
+### `jss-devtools upgrade` (no args)
+- Same as above, but target is auto-detected from `dist-tags.latest`
+
+### `jss-devtools upgrade 2.0.0` (major bump)
+```
+┌─────────────────────────────────────────────┐
+│  Upgrade jss-devtools                        │
+│                                             │
+│  ⚠️  Major version bump: 0.1.0 → 2.0.0      │
+│     Breaking changes likely.                 │
+│     Check CHANGELOG before proceeding.       │
+│                                             │
+│  Current: 0.1.0                              │
+│  Target:  2.0.0                              │
+│  Package manager: pnpm v9.1.0                │
+│  Will run: pnpm add -g jss-devtools@2.0.0    │
+│                                             │
+│  ? Continue? (Y/n)                          │
+└─────────────────────────────────────────────┘
+```
+
+### `jss-devtools update check`
+```
+┌─────────────────────────────────────────────┐
+│  Available versions of jss-devtools         │
+│                                             │
+│  1.5.2   2026-08-15                         │
+│  1.4.0   2026-07-20                         │
+│  0.9.0   2026-06-10                         │
+│  0.5.0   2026-05-01                         │
+│  0.1.0   2026-04-15  (current)              │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+### `jss-devtools downgrade`
+- Show select prompt with previous versions
+- Then confirm + exec
+
+### `jss-devtools uninstall`
+```
+┌─────────────────────────────────────────────┐
+│  Uninstall jss-devtools                      │
+│                                             │
+│  Current: 0.1.0                              │
+│  Package manager: pnpm v9.1.0                │
+│  Will run: pnpm remove -g jss-devtools       │
+│                                             │
+│  ? Continue? (Y/n)                          │
+└─────────────────────────────────────────────┘
+```
+
+### After successful update/upgrade/downgrade
+
+Print hint:
+```
+✅ jss-devtools updated to 0.5.2
+💡 Restart your shell to refresh PATH cache.
+```
 
 ## Related Code Files
 
@@ -250,10 +352,15 @@ export const buildInstallCommand = (pm: string, pkg: string, version: string): s
 - `src/core/global-pm-detector/types.ts`
 - `src/core/registry-client/index.ts`
 - `src/core/registry-client/fetch-package.ts`
+- `src/core/registry-client/fetch-versions.ts`
 - `src/core/registry-client/types.ts`
+- `src/core/version-resolver/index.ts`
+- `src/core/version-resolver/resolve-target.ts`
+- `src/core/version-resolver/types.ts`
 - `src/core/self-installer/index.ts`
 - `src/core/self-installer/commands.ts`
-- `src/utils/prompts.ts` (shared confirm/select wrappers)
+- `src/utils/prompts.ts`
+- `src/utils/pm-commands.ts`
 - `src/commands/self-update.ts`
 - `src/commands/self-upgrade.ts`
 - `src/commands/self-downgrade.ts`
@@ -261,46 +368,52 @@ export const buildInstallCommand = (pm: string, pkg: string, version: string): s
 
 **Modify:**
 - `src/cli/router.ts` (add 4 subcommands, lazy import)
-- `src/cli.ts` (intercept `--help`/`-v`/`--version` — unchanged)
-- `tests/smoke.test.ts` (smoke tests for 4 commands, mocked PM exec)
+- `package.json` (add `semver` runtime dep + `execa` already there)
 
 ## Implementation Steps
 
-1. **PM detection module** — probe each PM's global list, return first match.
-2. **Registry client** — npm registry fetch (latest + versions list) with timeout/retry.
-3. **Self-installer module** — build per-PM command arrays, execute via execa with `stdio: inherit`.
-4. **Prompts utility** — wrapper around @clack/prompts for confirm/select with TTY detection.
-5. **`self-update` command** — detect + fetch latest + confirm + install.
-6. **`self-upgrade` command** — alias to `self-update` (or implement separate major-bump logic).
-7. **`self-downgrade` command** — detect + fetch versions + select + install.
-8. **`self-uninstall` command** — detect + confirm + remove.
-9. **Router update** — lazy-import 4 subcommands.
-10. **Smoke tests** — mock execa calls, verify command builder logic.
+1. **PM detection module** (`src/core/global-pm-detector/`) — probe pnpm/npm/yarn/bun, return first match.
+2. **Registry client** (`src/core/registry-client/`) — npm registry fetch với Node `fetch` (built-in) + timeout 10s + 1 retry.
+3. **Version resolver** (`src/core/version-resolver/`) — semver spec resolution, target vs current comparison.
+4. **PM commands map** (`src/utils/pm-commands.ts`) — INSTALL_COMMANDS per PM.
+5. **Self-installer module** (`src/core/self-installer/`) — execute via execa with `stdio: inherit`.
+6. **Prompts utility** (`src/utils/prompts.ts`) — TTY-aware wrappers.
+7. **`self-update` command** — alias for upgrade + `check` subcommand.
+8. **`self-upgrade` command** — auto-pick latest OR upgrade `<spec>`.
+9. **`self-downgrade` command** — mirror upgrade logic.
+10. **`self-uninstall` command** — detect + confirm + remove.
+11. **Router update** — lazy-import 4 subcommands.
+12. **Smoke tests** — mock execa calls in `tests/smoke.test.ts`, verify command builders + spec resolution.
 
 ## Success Criteria
 
-- [ ] `jss-devtools update` installs latest version via detected PM
-- [ ] `jss-devtools upgrade` behaves same as update (or implements major-bump if scope allows)
-- [ ] `jss-devtools downgrade` shows previous version selector, installs chosen
+- [ ] `jss-devtools update` behaves same as `jss-devtools upgrade`
+- [ ] `jss-devtools update check` shows 5 latest versions grouped by major (no install, no prompt)
+- [ ] `jss-devtools upgrade` installs latest via detected PM
+- [ ] `jss-devtools upgrade <spec>` validates spec, upgrades to matching version
+- [ ] `jss-devtools upgrade` to lower version → warns + suggests `downgrade`
+- [ ] `jss-devtools downgrade` mirrors upgrade logic (inverse)
 - [ ] `jss-devtools uninstall` removes via detected PM
-- [ ] PM detection works for npm/pnpm/yarn/bun
-- [ ] `--yes` flag bypasses confirm prompts (CI/script use)
-- [ ] `--json` flag outputs structured result (no prompts)
-- [ ] TTY detection skips prompts in non-TTY (or requires `--yes`)
-- [ ] Errors handled gracefully (PM not installed, CLI not globally installed, network failure)
+- [ ] PM detection works for npm/pnpm/yarn classic/bun (probe sequential)
+- [ ] `--yes` skips confirm prompt, still applies
+- [ ] `--dry-run` prints command, doesn't execute, exit 0
+- [ ] `--json` outputs structured result
+- [ ] Restart shell hint after successful update/upgrade/downgrade
+- [ ] Major bump warning shown in confirm prompt
 
 ## Risk Assessment
 
 | Risk | Mitigation |
 |---|---|
-| PM not installed | Detect failure → clear error: "Cannot detect package manager. Run via npm/pnpm/yarn/bun." |
-| CLI not globally installed | Detect failure → clear error: "jss-devtools not found in global installs. Install with: <pm> add -g jss-devtools" |
-| Network failure (registry) | Timeout 10s + 1 retry, then fail with clear message |
+| PM not installed | Show: "Cannot detect package manager. Install via npm/pnpm/yarn/bun." |
+| CLI not globally installed | Show: "jss-devtools not found in global installs. Install with: <pm> add -g jss-devtools" |
+| Network failure (registry) | Timeout 10s + 1 retry, fail with clear message |
+| Spec not found in registry | Error: `No version satisfies '<spec>'` |
 | User cancels confirm | Exit 0 with no changes |
-| Wrong PM detected (rare) | Show detected PM in confirm prompt; user can abort |
-| Yarn Berry user (no `global` command) | Detect yarn classic only; show clear error for Yarn Berry |
-| Concurrent execution (race) | CLI is single-process, no risk |
-| PM upgrades CLI while running | Out of scope; document "Restart shell after upgrade" |
+| Major bump accidental | Warning banner in confirm prompt; user must explicitly confirm |
+| Wrong PM detected | Show detected PM in confirm prompt; user can abort |
+| Yarn Berry user (no `global` command) | Detect yarn classic only; show: "Yarn Berry has no global support" |
+| Restart shell forgotten | Hint after successful update |
 
 ## Out of Scope (Phase 5+)
 
@@ -309,3 +422,4 @@ export const buildInstallCommand = (pm: string, pkg: string, version: string): s
 - Auto-update on startup (background check + notify)
 - Plugin system that hooks into update notifications
 - Multi-package self-management (manage multiple globally-installed CLIs)
+- Custom registry support (private npm registry)
