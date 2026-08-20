@@ -1,5 +1,4 @@
 import { confirm } from '@clack/prompts';
-import consola from 'consola';
 
 import { logger } from '@/utils/logger';
 import { PKG_INFO } from '@/utils/pkg';
@@ -21,7 +20,7 @@ export const confirmOrCancel = async (options: ConfirmOptions, prompt: string, j
     if (options.json) {
       logger.json(jsonResult);
     } else {
-      consola.info(`Cancelled ${PKG_INFO.name} operation.`);
+      logger.info(`Cancelled ${PKG_INFO.name} operation.`);
     }
 
     process.exit(0);

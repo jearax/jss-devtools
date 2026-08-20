@@ -1,5 +1,5 @@
 // Common result shape for self commands + builder helpers.
-import consola from 'consola';
+import { logger } from '@/utils/logger';
 
 import type { AgentName } from 'package-manager-detector';
 
@@ -22,8 +22,8 @@ export const baseResult = (pm: AgentName | null, pkg: string, dryRun: boolean): 
 });
 
 export const printSuccess = (msg: string, dryRun: boolean): void => {
-  consola.success(dryRun ? `[dry-run] ${msg}` : msg);
+  logger.success(dryRun ? `[dry-run] ${msg}` : msg);
   if (!dryRun) {
-    consola.info('💡 Restart your shell to refresh PATH cache.');
+    logger.info('💡 Restart your shell to refresh PATH cache.');
   }
 };
