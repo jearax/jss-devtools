@@ -1,7 +1,6 @@
-// Shared argument extraction for self commands.
-// Centralizes the `args === true` pattern + type casts from citty's `args` record.
 export interface SelfArgs {
-  specVer?: string; // version spec (upgrade <spec>, downgrade <spec> only)
+  specVer?: string;
+
   yes: boolean;
   dryRun: boolean;
   json: boolean;

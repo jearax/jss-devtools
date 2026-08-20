@@ -1,12 +1,11 @@
 import { defineCommand } from 'citty';
 
-import { execOrDryRunRemove } from '@/core/self-installer/exec';
-import { PKG_INFO } from '@/utils/pkg';
-
 import { extractSelfArgs } from '@/commands/self/utils/args';
 import { confirmOrCancel, requireGlobalPM } from '@/commands/self/utils/flow';
 import { printJson } from '@/commands/self/utils/output';
 import { type CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result';
+import { execOrDryRunRemove } from '@/core/self-installer/exec';
+import { PKG_INFO } from '@/utils/pkg';
 
 const uninstallCommand = defineCommand({
   meta: {
