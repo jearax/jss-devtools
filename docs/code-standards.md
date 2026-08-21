@@ -38,6 +38,7 @@ jss-cli/
 ## File Naming
 
 - Files: `kebab-case.ts` (e.g. `version-resolver.ts`)
+- **No `index.ts` barrel files** — every file self-describing (e.g. `store/store.ts`, không phải `store/index.ts`). File names phải tự nói lên nội dung cho LLM tools (Grep/Glob) và người đọc
 - Modules: one responsibility per file
 - Tests: co-located or mirror `src/` layout in `tests/`
 
@@ -64,6 +65,12 @@ jss-cli/
   - `tsup` đọc `tsconfig.json#paths` ở bundle time → output có path resolved.
   - `vitest` đọc `tsconfig.json#paths` ở test time (via vite).
   - `tsc --noEmit` resolve từ `tsconfig.json#paths`.
+
+## Comments
+
+- **No comment** for logic a mid-level developer reads straight from the code: basic flow, obvious branches, self-evident names, "what" comments that restate the line below them
+- **Comment only genuinely hard logic**: business rules, algorithm reasoning, "magic" behavior (hidden state, non-obvious semantics like memo lifetimes), requirement-driven decisions, and external knowledge not derivable from the code (e.g. third-party tool output formats)
+- A comment must answer **why**, never what. If deleting it loses no information → delete it
 
 ## CLI Conventions
 

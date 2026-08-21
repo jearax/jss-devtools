@@ -6,7 +6,7 @@ import { CommandResultStatus, baseResult, printSuccess } from '@/commands/self/u
 import { detectGlobalPMs } from '@/core/detector/global-pm'
 import { PM_DISPLAY_NAMES } from '@/core/detector/pm'
 import { execOrDryRunRemove } from '@/core/self-installer/exec'
-import { getPmLedger } from '@/core/store'
+import { getPmLedger } from '@/core/store/store'
 import { logger } from '@/utils/logger'
 import { PKG_INFO } from '@/utils/pkg'
 import { confirmOrCancel } from '@/utils/prompts'

@@ -22,7 +22,7 @@ const loadStore = async (dir: string) => {
 	process.env.JSS_DEVTOOLS_STORE_DIR = dir
 	vi.resetModules()
 
-	return import('@/core/store')
+	return import('@/core/store/store')
 }
 
 afterAll(() => {
