@@ -2,7 +2,7 @@ import { AgentName } from 'package-manager-detector'
 
 import { logger } from '@/utils/logger'
 
-export type CommandResultStatus = 'success' | 'noop' | 'cancelled' | 'error'
+export type CommandResultStatus = 'success' | 'dry-run' | 'noop' | 'cancelled' | 'error'
 
 export interface BaseResult {
 	schemaVersion: '1.0'

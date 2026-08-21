@@ -1,7 +1,7 @@
 import { execa } from 'execa'
 import { resolveCommand, AgentName } from 'package-manager-detector'
 
-import { PM_DISPLAY_NAMES } from '@/core/detector/global-pm'
+import { PM_DISPLAY_NAMES } from '@/core/detector/pm'
 import { logger } from '@/utils/logger'
 
 export interface ExecResult {

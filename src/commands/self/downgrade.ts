@@ -48,6 +48,11 @@ const downgradeCommand = defineCommand({
 		}
 
 		const detected = await requireGlobalPM(options)
+
+		if (!detected) {
+			return
+		}
+
 		const meta = await fetchPackageMetadata(PKG)
 		const spec = specVer ? parseSpec(specVer) : undefined
 		const resolved = resolveTarget(spec, detected.version, meta, 'downgrade')
@@ -71,7 +76,9 @@ const downgradeCommand = defineCommand({
 				logger.error(resolved.message)
 			}
 
-			process.exit(1)
+			process.exitCode = 1
+
+			return
 		}
 
 		if (resolved.direction === 'noop') {
@@ -91,10 +98,12 @@ const downgradeCommand = defineCommand({
 				logger.info(resolved.message)
 			}
 
-			process.exit(0)
+			process.exitCode = 0
+
+			return
 		}
 
-		await confirmOrCancel(
+		const confirmed = await confirmOrCancel(
 			options,
 			`Downgrade ${PKG} from ${resolved.current} to ${resolved.target} via ${detected.pm}?\nWill run: ${detected.pm} add -g ${PKG}@${resolved.target}`,
 			{
@@ -108,13 +117,17 @@ const downgradeCommand = defineCommand({
 			}
 		)
 
+		if (!confirmed) {
+			return
+		}
+
 		const result = await execOrDryRunInstall(detected.pm, PKG, resolved.target, dryRun)
 
 		if (jsonMode) {
 			logger.json({
 				...baseResult(detected.pm, PKG, dryRun),
 				command: 'downgrade',
-				result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,
+				result: (dryRun ? 'dry-run' : 'success') as CommandResultStatus,
 				current: detected.version,
 				target: resolved.target,
 				majorBump: resolved.majorBump,

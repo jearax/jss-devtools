@@ -8,7 +8,7 @@ interface PromptOptions {
 	yes?: boolean
 }
 
-export const requireGlobalPM = async (options: PromptOptions): Promise<DetectedPM> => {
+export const requireGlobalPM = async (options: PromptOptions): Promise<DetectedPM | null> => {
 	const detected = await detectGlobalPM(PKG_INFO.name)
 
 	if (detected) {
@@ -30,5 +30,7 @@ export const requireGlobalPM = async (options: PromptOptions): Promise<DetectedP
 		logger.error(msg)
 	}
 
-	process.exit(1)
+	process.exitCode = 1
+
+	return null
 }

@@ -15,7 +15,7 @@ const tsupConfig = defineConfig({
 	minify: false,
 	splitting: false,
 	// External tất cả runtime deps để install size không bloat
-	external: ['@clack/prompts', 'citty', 'consola', 'execa', 'figlet', 'nypm', 'pathe']
+	external: ['@clack/prompts', 'citty', 'conf', 'consola', 'execa', 'figlet', 'nypm', 'pathe']
 })
 
 export default tsupConfig

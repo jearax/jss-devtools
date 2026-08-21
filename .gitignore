@@ -36,3 +36,6 @@ pnpm-debug.log*
 .eslintcache
 .cache/
 .turbo/
+
+# Claude Code local state
+.claude/

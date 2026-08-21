@@ -1,37 +1,25 @@
-// Detect which package manager installed the CLI globally.
-// Strategy: probe each PM sequentially (pnpm > npm > yarn classic > bun),
-// first one whose `list -g` mentions the package wins.
+// Detect which package manager(s) installed the CLI globally.
+// Strategy: probe all known PMs in parallel, rank matches by PROBE_ORDER
+// (pnpm > npm > yarn classic > bun). Collecting every match lets callers warn
+// about shadowed installs (same package via multiple PMs).
 // Result cached per-process to avoid repeated subprocess calls.
 import { execa } from 'execa'
 import { AgentName } from 'package-manager-detector'
 
+import { PM_DISPLAY_NAMES, PROBE_ORDER } from '@/core/detector/pm'
 import { DetectedPM } from '@/core/detector/types'
+import { recordPmSeen } from '@/core/store'
 import { logger } from '@/utils/logger'
 
 // Per-PM list-global command (no equivalent in package-manager-detector).
-const LIST_GLOBAL_COMMANDS: Record<AgentName, string[]> = {
+const LIST_GLOBAL_COMMANDS: Partial<Record<AgentName, string[]>> = {
 	npm: ['ls', '-g', '--depth=0', '--json'],
 	pnpm: ['list', '-g', '--depth=0', '--json'],
 	yarn: ['global', 'list', '--json'],
-	bun: ['pm', 'ls', '-g'],
-	deno: [], // deno not used
-	nub: [], // alias for pnpm
-	aube: [] // alias for npm
+	bun: ['pm', 'ls', '-g']
 }
 
-export const PM_DISPLAY_NAMES: Record<AgentName, string> = {
-	npm: 'npm',
-	pnpm: 'pnpm',
-	yarn: 'yarn (classic)',
-	bun: 'bun',
-	deno: 'deno',
-	nub: 'nub',
-	aube: 'aube'
-}
-
-const PROBE_ORDER: AgentName[] = ['pnpm', 'npm', 'yarn', 'bun']
-
-let cached: DetectedPM | null = null
+let cachedMatches: DetectedPM[] | null = null
 
 const parseVersionFromList = (pm: AgentName, stdout: string, pkg: string): string | null => {
 	try {
@@ -90,40 +78,65 @@ const parseVersionFromList = (pm: AgentName, stdout: string, pkg: string): strin
 	}
 }
 
-export const detectGlobalPM = async (pkg: string): Promise<DetectedPM | null> => {
-	if (cached !== null) {
-		return cached
+const probeOne = async (pm: AgentName, pkg: string): Promise<DetectedPM | null> => {
+	const args = LIST_GLOBAL_COMMANDS[pm]
+
+	if (!args) {
+		return null
 	}
 
-	for (const pm of PROBE_ORDER) {
-		const args = LIST_GLOBAL_COMMANDS[pm]
+	try {
+		const { stdout, exitCode } = await execa(pm, args, { reject: false })
 
-		if (args.length === 0) {
-			continue
+		if (exitCode !== 0) {
+			return null
 		}
 
-		try {
-			const { stdout, exitCode } = await execa(pm, args, { reject: false })
+		const version = parseVersionFromList(pm, stdout, pkg)
 
-			if (exitCode !== 0) {
-				continue
-			}
-
-			const version = parseVersionFromList(pm, stdout, pkg)
-
-			if (version) {
-				cached = {
+		return version
+			? {
 					pm,
 					version
 				}
-				logger.debug(`Detected ${PM_DISPLAY_NAMES[pm]} installed ${pkg}@${version}`)
-				return cached
-			}
+			: null
+	} catch {
+		// PM not installed or other error — no match from this probe
+		return null
+	}
+}
+
+/**
+ * All global installs of `pkg`, ranked by PROBE_ORDER (index 0 = winner).
+ * Empty array means the package is not globally installed via any known PM.
+ */
+export const detectGlobalPMs = async (pkg: string): Promise<DetectedPM[]> => {
+	if (cachedMatches !== null) {
+		return cachedMatches
+	}
+
+	const results = await Promise.all(PROBE_ORDER.map((pm) => probeOne(pm, pkg)))
+	const matches = results.filter((m): m is DetectedPM => m !== null)
+
+	cachedMatches = matches
+
+	if (matches.length > 0) {
+		logger.debug(`Detected global installs: ${matches.map((m) => `${PM_DISPLAY_NAMES[m.pm]}@${m.version}`).join(', ')}`)
+
+		// Fire-and-forget ledger write — detection never depends on persistence.
+		try {
+			recordPmSeen(matches[0].pm)
 		} catch {
-			// PM not installed or other error — try next
+			// stateless mode or write failure — ignore
 		}
 	}
 
-	cached = null
-	return null
+	return matches
+}
+
+/** Winner-only convenience wrapper (first match by probe priority). */
+export const detectGlobalPM = async (pkg: string): Promise<DetectedPM | null> => {
+	const matches = await detectGlobalPMs(pkg)
+
+	return matches[0] ?? null
 }

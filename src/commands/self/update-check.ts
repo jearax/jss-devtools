@@ -24,7 +24,9 @@ const updateCheckCommand = defineCommand({
 			await fetchAndDisplayUpdates('jss-devtools', current, args.json === true)
 		} catch (err) {
 			logger.error(`Failed to fetch versions: ${String(err)}`)
-			process.exit(2)
+			process.exitCode = 2
+
+			return
 		}
 	}
 })

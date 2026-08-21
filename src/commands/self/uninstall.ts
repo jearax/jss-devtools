@@ -3,7 +3,10 @@ import { defineCommand } from 'citty'
 import { extractSelfArgs } from '@/commands/self/utils/args'
 import { requireGlobalPM } from '@/commands/self/utils/flow'
 import { CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result'
+import { detectGlobalPMs } from '@/core/detector/global-pm'
+import { PM_DISPLAY_NAMES } from '@/core/detector/pm'
 import { execOrDryRunRemove } from '@/core/self-installer/exec'
+import { getPmLedger } from '@/core/store'
 import { logger } from '@/utils/logger'
 import { PKG_INFO } from '@/utils/pkg'
 import { confirmOrCancel } from '@/utils/prompts'
@@ -28,7 +31,7 @@ const uninstallCommand = defineCommand({
 		json: {
 			type: 'boolean',
 			description: 'Output structured JSON',
-			default: true
+			default: false
 		}
 	},
 	run: async ({ args }) => {
@@ -36,18 +39,56 @@ const uninstallCommand = defineCommand({
 
 		const promptOptions = {
 			json: jsonMode,
-			yes
+			yes,
+			destructive: true
 		}
 
 		const detected = await requireGlobalPM(promptOptions)
 
-		await confirmOrCancel(promptOptions, `Uninstall ${PKG_INFO.name}@${detected.version} from ${detected.pm}?`, {
-			...baseResult(detected.pm, PKG_INFO.name, false),
-			command: 'uninstall',
-			result: 'cancelled' as CommandResultStatus,
-			current: detected.version,
-			message: 'Cancelled by user'
-		})
+		if (!detected) {
+			return
+		}
+
+		// Shadowing awareness: every current global install + PMs from the ledger
+		// the user has installed with before (possible leftover copies).
+		const allMatches = await detectGlobalPMs(PKG_INFO.name)
+		const ledger = getPmLedger()
+		const shadowed = allMatches.filter((m) => m.pm !== detected.pm)
+		const previousPms = ledger.pmsSeen.filter((pm) => pm !== detected.pm)
+		const notes: string[] = []
+
+		if (shadowed.length > 0) {
+			notes.push(
+				`Multiple global installs detected: ${allMatches
+					.map((m) => `${PM_DISPLAY_NAMES[m.pm]}@${m.version}`)
+					.join(', ')} — this removes only the ${PM_DISPLAY_NAMES[detected.pm]} copy.`
+			)
+		}
+
+		if (previousPms.length > 0) {
+			notes.push(
+				`Previously installed via ${previousPms.map((pm) => PM_DISPLAY_NAMES[pm]).join(', ')} — leftover copies possible.`
+			)
+		}
+
+		const noteBlock = notes.length > 0 ? `${notes.join('\n')}\n\n` : ''
+
+		const confirmed = await confirmOrCancel(
+			promptOptions,
+			`${noteBlock}Uninstall ${PKG_INFO.name}@${detected.version} from ${detected.pm}?`,
+			{
+				...baseResult(detected.pm, PKG_INFO.name, false),
+				command: 'uninstall',
+				result: 'cancelled' as CommandResultStatus,
+				current: detected.version,
+				notes,
+				message: 'Cancelled by user'
+			}
+		)
+
+		if (!confirmed) {
+			return
+		}
 
 		const result = await execOrDryRunRemove(detected.pm, PKG_INFO.name, dryRun)
 
@@ -55,8 +96,9 @@ const uninstallCommand = defineCommand({
 			logger.json({
 				...baseResult(detected.pm, PKG_INFO.name, dryRun),
 				command: 'uninstall',
-				result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,
+				result: (dryRun ? 'dry-run' : 'success') as CommandResultStatus,
 				current: detected.version,
+				notes,
 				cmdStr: result.cmdStr,
 				message: dryRun
 					? `[dry-run] Would uninstall ${PKG_INFO.name}@${detected.version}`

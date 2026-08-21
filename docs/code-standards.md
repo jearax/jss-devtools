@@ -73,6 +73,7 @@ jss-cli/
 - Errors → stderr, results → stdout
 - `--json` flag for machine-readable output on every command
 - Exit codes: `0` ok, `1` user error, `2` internal/runtime error
+- Non-TTY semantics: reversible self-commands (upgrade/downgrade) auto-proceed (CI-friendly); destructive ones (`uninstall`) require explicit `--yes` — otherwise exit 1 with `REQUIRES_CONFIRMATION`
 
 ## Testing (Vitest)
 

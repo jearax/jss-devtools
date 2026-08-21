@@ -22,6 +22,11 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
 	const jsonMode = options.json === true
 
 	const detected = await requireGlobalPM(options)
+
+	if (!detected) {
+		return
+	}
+
 	const meta = await fetchPackageMetadata(PKG)
 	const spec: ParsedSpec | undefined = options.specVer ? parseSpec(options.specVer) : undefined
 	const resolved = resolveTarget(spec, detected.version, meta, 'upgrade')
@@ -45,7 +50,9 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
 			logger.error(resolved.message)
 		}
 
-		process.exit(1)
+		process.exitCode = 1
+
+		return
 	}
 
 	if (resolved.direction === 'noop') {
@@ -66,12 +73,14 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
 			logger.info(resolved.message)
 		}
 
-		process.exit(0)
+		process.exitCode = 0
+
+		return
 	}
 
 	const bumpNote = resolved.majorBump ? '⚠️  Major version bump. Breaking changes likely.\n' : ''
 
-	await confirmOrCancel(
+	const confirmed = await confirmOrCancel(
 		options,
 		`${bumpNote}Upgrade ${PKG} from ${resolved.current} to ${resolved.target} via ${detected.pm}?\nWill run: ${detected.pm} add -g ${PKG}@${resolved.target}`,
 		{
@@ -86,13 +95,17 @@ export const runUpgradeFlow = async (options: UpgradeOptions, command: 'update' 
 		}
 	)
 
+	if (!confirmed) {
+		return
+	}
+
 	const result = await execOrDryRunInstall(detected.pm, PKG, resolved.target, dryRun)
 
 	if (jsonMode) {
 		logger.json({
 			...baseResult(detected.pm, PKG, dryRun),
 			command,
-			result: (dryRun ? 'cancelled' : 'success') as CommandResultStatus,
+			result: (dryRun ? 'dry-run' : 'success') as CommandResultStatus,
 			spec: options.specVer ?? null,
 			current: detected.version,
 			target: resolved.target,

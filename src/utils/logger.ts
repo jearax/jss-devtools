@@ -22,5 +22,10 @@ export const logger = {
 	banner: (message: string) => console.log(colors.cyan(message)),
 	tagline: (message: string) => console.log(colors.gray(message)),
 
-	json: (result: object) => consola.log(JSON.stringify(result, null, 2))
+	// Machine-readable output — written raw to stdout so `| jq` pipelines (and
+	// any host process capturing pipes) always receive it deterministically,
+	// independent of consola's reporter/stream scheduling.
+	json: (result: object) => {
+		process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+	}
 }
