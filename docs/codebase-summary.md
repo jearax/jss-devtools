@@ -30,7 +30,7 @@ jss-cli/
 | `package.json` | ✅ created (Phase 0) |
 | `tsconfig.json` | ✅ created (Phase 0) |
 | `vitest.config.ts` | ✅ created (Phase 0) |
-| `biome.json` | ✅ created (Phase 0) |
+| `biome.json` | 🔄 replaced by `eslint.config.mjs` + `.prettierrc.json` (2026-08-21) |
 | `tsup.config.ts` | ✅ created (Phase 0) |
 | `.husky/pre-commit` | ✅ created (Phase 0) |
 | `lint-staged` config | ✅ in `package.json` (Phase 0) |
@@ -61,9 +61,9 @@ jss-cli/
 2. ✅ `tsconfig.json` (strict + ESM + Node 24 lib + path alias `@/*` → `./src/*`)
 3. ✅ `tsup.config.ts` (ESM + Node 24 + shebang banner + externals)
 4. ✅ `vitest.config.ts` (Node env + esbuild target override)
-5. ✅ `biome.json` (basic config)
+5. ✅ `biome.json` → replaced bằng `eslint.config.mjs` + `.prettierrc.json` (ESLint migration 2026-08-21)
 6. ✅ `.gitignore`, `.npmignore`, `.editorconfig`, `.nvmrc`, `.npmrc`
-7. ✅ `.husky/pre-commit` chạy `pnpm dlx lint-staged`
+7. ✅ `.husky/pre-commit` chạy `pnpm exec lint-staged` (revised từ `pnpm dlx` — lint-staged đã là devDep, 2026-08-21)
 8. ✅ `src/cli.ts` (bin entry) + `src/cli/router.ts` (citty router)
 9. ✅ `src/utils/logger.ts` (consola wrapper — adopted from reference)
 10. ✅ `tests/smoke.test.ts` (2 tests: --version, --help; no-args hint skipped do consola async vs vitest forks pool race)

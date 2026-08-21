@@ -4,11 +4,11 @@ tests/
 docs/
 
 # Config files (not needed at runtime)
-biome.json
 tsconfig.json
 tsup.config.ts
 vitest.config.ts
 .github/
+eslint.config.mjs
 .eslintrc*
 .prettierrc*
 

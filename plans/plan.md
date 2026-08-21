@@ -60,7 +60,7 @@ Best practice: dùng depth tối thiểu cần thiết. Don't nest unless it imp
 | Interactive prompts | **@clack/prompts** | Meta pick 2024-2026, opinionated components |
 | Logger / output | **consola** | Levels + scoped loggers + box built-in (Nuxt/Vite ecosystem) |
 | ASCII banner | **figlet** | Classic, lightweight, optional welcome |
-| Linter / formatter | **Biome** | Single binary, ~10x ESLint, basic config |
+| Linter / formatter | **ESLint + Prettier** | Revised từ Biome (2026-08-21) — align reference repo; ESLint latest không pin version |
 | Test framework | **Vitest** | [docs/code-standards.md](../docs/code-standards.md) |
 | CI provider | **GitHub Actions** | Standard for npm packages |
 | Release tooling | **changesets** | User prior knowledge, PR-based changelog |
@@ -71,7 +71,9 @@ Best practice: dùng depth tối thiểu cần thiết. Don't nest unless it imp
 Reference `/Users/tandm/Documents/jjuidev/npm/jss-cli` (cùng package name) — patterns đã adopt:
 
 - ✅ Adoptted: `citty`, `@clack/prompts`, `figlet`, `consola` (thay `picocolors`), `nypm`, `pathe`, `execa`, `rimraf`, `tsc-alias`, `husky` + `lint-staged` + `prettier-package-json` (revised từ skip → adopt), path alias `@/*` → `./src/*`.
-- ❌ Override: Bun runtime → pnpm; ESLint+Prettier → Biome (nhưng giữ `prettier-package-json` cho package.json vì Biome không sort keys).
+- ❌ Override: Bun runtime → pnpm.
+- 🔄 Revised 2026-08-21: linter Biome → **ESLint + Prettier** (align reference; dep names lấy từ reference, version latest). Giữ `prettier-package-json` cho package.json key sorting. Code style theo reference: tabs, no-semi, no-trailing-comma.
+- ➕ Cùng ngày: add 4 core plugins theo jss-cli history rules — `eslint-plugin-import-x` (thay `eslint-plugin-import` vì bản gốc không peer ESLint 10; fork giữ nguyên rules, prefix `import-x/`), `eslint-plugin-autofix`, `eslint-plugin-prefer-arrow-functions`, `eslint-plugin-prettier`. Rules port từ commit `89d4bf1` của jss-cli.
 - 🤔 Cân nhắc: Custom `build.ts` (Bun.build API) → educational alternative cho tsup.
 
 ## Knowledge Notes — `package.json` fields chuẩn npm publishing
@@ -137,7 +139,8 @@ jss-cli/
 │   ├── core/                        # Phase 2-3
 │   └── index.ts
 ├── tests/                           # all phases
-├── biome.json                       # Phase 0
+├── eslint.config.mjs                # Phase 0 (revised from biome.json, 2026-08-21)
+├── .prettierrc.json                 # Phase 0 (added with ESLint migration)
 ├── package.json                     # Phase 0+4
 ├── pnpm-lock.yaml
 ├── tsconfig.json                    # Phase 0
@@ -151,7 +154,7 @@ jss-cli/
 ## Verification Plan (sau mỗi phase)
 
 1. `pnpm install` không warning/l�i.
-2. `pnpm lint` (biome check) pass.
+2. `pnpm lint` (`eslint .`) pass.
 3. `pnpm typecheck` (tsc --noEmit) pass.
 4. `pnpm test` (vitest run) pass.
 5. `pnpm build` (tsup) tạo dist/ với shebang đúng.
@@ -174,5 +177,5 @@ Không có.
 - `@clack/prompts` cần TTY detection — không trigger trong CI.
 - consola: `import consola from 'consola'` default import. Wrap trong `src/utils/logger.ts`.
 - Vitest: `environment: 'node'`, `pool: 'threads'`.
-- Biome basic config: `indentStyle: "space"`, `indentWidth: 2`, `lineWidth: 120`.
+- ESLint flat config `eslint.config.mjs` + `.prettierrc.json` (tabs, `semi: false`, singleQuote, `trailingComma: none`, printWidth 120).
 - Changesets: `.changeset/config.json` với `changelog: "@changesets/cli/changelog"`, `baseBranch: "main"`.

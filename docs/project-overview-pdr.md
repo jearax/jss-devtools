@@ -51,7 +51,7 @@ JS developers juggle multiple one-off CLIs (version managers, scaffolders, updat
 | Topic | Decision | Status |
 |---|---|---|
 | Build/bundler | bun / esbuild / tsup / tsdown / rollup / vite | researching |
-| Linter / formatter | TBD (likely ESLint + Prettier or Biome) | open |
+| Linter / formatter | ESLint + Prettier (revised from Biome, 2026-08-21) | locked |
 | License | TBD (likely MIT) | open |
 | CI provider | TBD (GitHub Actions assumed) | open |
 | Release tooling | TBD (changesets / release-please) | open |

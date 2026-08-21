@@ -85,10 +85,20 @@ jss-cli/
 
 ## Linting & Formatting
 
-- **Biome** (basic config) cho TS lint + format. Single binary, ~10x ESLint speed.
-- **prettier-package-json** riêng cho `package.json` (Biome không sort keys).
-- **husky** + **lint-staged** pre-commit hook: chạy `biome check --write` trên staged TS files và `prettier-package-json --write` trên `package.json`.
-- ESLint + Prettier đã bị loại vì Biome cover được phần lớn use case, chỉ prettier-package-json còn giữ cho key sorting.
+- **ESLint** (flat config `eslint.config.mjs`) cho TS lint — `@eslint/js` recommended + `@typescript-eslint` recommended; `no-unused-vars` warn (ignore `^_`, args all, ignoreRestSiblings), `no-explicit-any` off, `consistent-type-imports: no-type-imports`, Node globals qua `globals` package. Version policy: latest, không pin theo reference repo.
+- **Core ESLint plugins** (rules port từ jss-cli history — "rules tôi theo đuổi"):
+  - `eslint-plugin-import-x` (fork của `eslint-plugin-import` — bản gốc không hỗ trợ ESLint 10; cùng rule names, prefix `import-x/`): `first`, `newline-after-import`, `no-duplicates`, `no-anonymous-default-export`, `order` (alphabetize asc, `@/**` → internal).
+  - `eslint-plugin-autofix`: `eol-last`, `curly`, `no-lonely-if`, `no-else-return`, `object-shorthand`, `object-curly-newline`.
+  - `eslint-plugin-prefer-arrow-functions`: `prefer-arrow-functions` error.
+  - `eslint-plugin-prettier`: `prettier/prettier` error (chạy Prettier như ESLint rule; song song với `prettier --write` trong lint-staged).
+  - Core rule `padding-line-between-statements` (blank line giữa statements).
+- **Prettier** (`.prettierrc.json`) cho format — `eslint-config-prettier` đặt TRƯỚC rule overrides để explicit rules luôn thắng.
+- Prettier style: tabs, `semi: false`, singleQuote, `trailingComma: none`, printWidth 120 (align reference repo `jss-cli`).
+- `unrs-resolver` (native binding của import-x, resolve `@/*` alias) — approved build qua `pnpm-workspace.yaml` `allowBuilds`.
+- **prettier-package-json** riêng cho `package.json` key sorting.
+- **husky** + **lint-staged** pre-commit: `eslint --fix` + `prettier --write` trên staged TS files, `prettier-package-json --write` trên `package.json`.
+- Scripts: `pnpm lint` (`eslint .`), `pnpm lint:fix`, `pnpm format`.
+- Revised 2026-08-21: migrated từ Biome sang ESLint + Prettier; cùng ngày add 4 core plugins trên.
 
 ## Git & Commits
 

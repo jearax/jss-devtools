@@ -1,19 +1,19 @@
-import { defineCommand, renderUsage } from 'citty';
+import { defineCommand, renderUsage } from 'citty'
 
-import routerCommand from '@/cli/router';
-import { getBanner } from '@/utils/banner';
-import { logger } from '@/utils/logger';
+import routerCommand from '@/cli/router'
+import { getBanner } from '@/utils/banner'
+import { logger } from '@/utils/logger'
 
 const helpCommand = defineCommand({
-  meta: {
-    name: 'help',
-    description: 'Print usage information',
-  },
+	meta: {
+		name: 'help',
+		description: 'Print usage information'
+	},
 
-  async run() {
-    logger.raw(getBanner());
-    logger.raw(await renderUsage(routerCommand));
-  },
-});
+	run: async () => {
+		logger.raw(getBanner())
+		logger.raw(await renderUsage(routerCommand))
+	}
+})
 
-export default helpCommand;
+export default helpCommand

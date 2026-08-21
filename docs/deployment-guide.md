@@ -40,7 +40,7 @@ Workflow jobs:
 
 | Job | Purpose |
 |---|---|
-| `lint` | ESLint / Biome |
+| `lint` | ESLint (`pnpm lint`) |
 | `typecheck` | `tsc --noEmit` |
 | `test` | Vitest on Node 24 LTS |
 | `build` | Produce dist artifacts |

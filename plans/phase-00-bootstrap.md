@@ -38,7 +38,8 @@ configs at repo root:
 - tsconfig.json    # strict + ESM + NodeNext + path alias
 - tsup.config.ts   # bundler với external runtime deps
 - vitest.config.ts # Node env
-- biome.json       # basic formatter + linter
+- eslint.config.mjs # flat config linter (revised from biome.json, 2026-08-21)
+- .prettierrc.json # formatter (added with ESLint migration)
 - .npmrc, .gitignore, .npmignore, .editorconfig, .nvmrc
 ```
 
@@ -49,7 +50,7 @@ configs at repo root:
 - `tsconfig.json`
 - `tsup.config.ts`
 - `vitest.config.ts`
-- `biome.json`
+- `eslint.config.mjs`, `.prettierrc.json` (revised from `biome.json`, 2026-08-21)
 - `.npmrc`, `.gitignore`, `.npmignore`, `.editorconfig`, `.nvmrc`
 - `.husky/pre-commit`
 - `src/cli.ts`
@@ -66,13 +67,13 @@ configs at repo root:
 
 ## Implementation Steps
 
-1. **Tạo `package.json`** với name `jss-devtools`, bin `./dist/cli/cli.js`, engines `>=24.0.0`, type `module`, scripts (`dev`, `build`, `test`, `lint`, `typecheck`, `release`, `prepare: "husky"`), `lint-staged` config (biome cho TS, prettier-package-json cho package.json).
+1. **Tạo `package.json`** với name `jss-devtools`, bin `./dist/cli/cli.js`, engines `>=24.0.0`, type `module`, scripts (`dev`, `build`, `test`, `lint`, `typecheck`, `release`, `prepare: "husky"`), `lint-staged` config (eslint --fix + prettier --write cho TS — revised 2026-08-21, prettier-package-json cho package.json).
 2. **Tạo `tsconfig.json`** với strict + ESM + `target: ES2024` + `module: NodeNext` + `moduleResolution: NodeNext` + path alias `@/*` → `./src/*`.
 3. **Tạo `tsup.config.ts`** theo snippet trong `plan.md` §2 — output `dist/cli/cli.js`, banner shebang, external tất cả runtime deps.
 4. **Tạo `vitest.config.ts`** với Node env, single-thread cho MVP.
-5. **Tạo `biome.json`** basic config (indent 2 spaces, lineWidth 120, semi true, singleQuote true).
+5. **Tạo linter/formatter configs** — revised 2026-08-21: `eslint.config.mjs` (flat config, `@eslint/js` + `@typescript-eslint` recommended, `eslint-config-prettier` cuối config) + `.prettierrc.json` (tabs, no-semi, singleQuote, no-trailing-comma, printWidth 120). Thay cho `biome.json` ban đầu.
 6. **Tạo dotfiles**: `.npmrc` (engine-strict + strict-peer-deps + auto-install-peers=false), `.gitignore` (Node + dist + .env), `.npmignore` (src/ tests/ docs/), `.editorconfig`, `.nvmrc` (`24`).
-7. **Tạo `.husky/pre-commit`** với `pnpm dlx lint-staged`.
+7. **Tạo `.husky/pre-commit`** với `pnpm exec lint-staged` (revised từ `pnpm dlx` — dùng local devDep, 2026-08-21).
 8. **Tạo bin entry** `src/cli.ts` import router và gọi `runMain`.
 9. **Tạo router** `src/cli/router.ts` với citty `defineCommand` cho version + default help, dùng `@/utils/logger` thay vì `console.log`.
 10. **Tạo logger wrapper** `src/utils/logger.ts` — consola API wrapper (info/warn/error/success/box/start/ready/raw). Pattern adopted từ reference repo.
@@ -87,7 +88,7 @@ configs at repo root:
 - [ ] `node dist/cli/cli.js --help` in citty-generated help.
 - [ ] `node dist/cli/cli.js --version` in version từ `package.json`.
 - [ ] `pnpm test` chạy smoke test pass.
-- [ ] `pnpm lint` (biome check) pass với zero errors.
+- [ ] `pnpm lint` (`eslint .`) pass với zero errors.
 - [ ] `pnpm typecheck` (tsc --noEmit) pass với zero errors.
 - [ ] CI workflow syntax valid (yaml + github actions schema).
 
@@ -97,6 +98,6 @@ configs at repo root:
 |---|---|
 | pnpm + tsup + TS NodeNext có edge case | Test build ngay sau khi setup; verify ESM resolution |
 | citty API mismatch version | Pin `citty ^0.2.1` và verify `--help` output format |
-| Biome config quá strict fail | Start với default recommended, iterate nếu cần |
+| Biome config quá strict fail | Đã migrate sang ESLint + Prettier (2026-08-21) — recommended rules + prettier owns format |
 | CI Node 24 chưa available | Pin `node-version: '24'`; fallback `'lts/*'` nếu fail |
 | Shebang bị mất khi bundle | `banner: { js: '#!/usr/bin/env node' }` trong tsup config — verified |
