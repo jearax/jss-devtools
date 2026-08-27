@@ -1,4 +1,3 @@
-// `jss-devtools downgrade` — mirror of upgrade with inverse direction.
 import { defineCommand } from 'citty'
 
 import { extractSelfArgs } from '@/commands/self/utils/args'
