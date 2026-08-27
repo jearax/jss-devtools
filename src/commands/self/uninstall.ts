@@ -5,11 +5,62 @@ import { requireGlobalPM } from '@/commands/self/utils/flow'
 import { CommandResultStatus, baseResult, printSuccess } from '@/commands/self/utils/result'
 import { detectGlobalPMs } from '@/core/detector/global-pm'
 import { PM_DISPLAY_NAMES } from '@/core/detector/pm'
-import { execOrDryRunRemove } from '@/core/self-installer/exec'
+import { DetectedPM } from '@/core/detector/types'
+import { execOrDryRunRemove, ExecResult } from '@/core/self-installer/exec'
 import { getPmLedger } from '@/core/store/store'
 import { logger } from '@/utils/logger'
 import { PKG_INFO } from '@/utils/pkg'
 import { confirmOrCancel } from '@/utils/prompts'
+
+// Execa failures carry a concise `shortMessage` (exit code + command line);
+// with captured stdio the buffered `stderr` adds the PM's own error detail.
+const failureReason = (err: unknown): string => {
+	if (err instanceof Error) {
+		const { shortMessage, stderr } = err as Error & { shortMessage?: string; stderr?: string }
+		const detail = typeof stderr === 'string' ? stderr.trim() : ''
+		const head = typeof shortMessage === 'string' ? shortMessage : err.message
+
+		return detail.length > 0 ? `${head}\n${detail}` : head
+	}
+
+	return String(err)
+}
+
+// Boundary guard for the PM remove step (core exec stays throw-y): converts
+// any failure into structured output + exit code 1 — never throws, never
+// surfaces a stack trace. Local to uninstall per phase-03 scope.
+const removeOrReport = async (
+	detected: DetectedPM,
+	options: { dryRun: boolean; jsonMode: boolean; notes: string[] }
+): Promise<ExecResult | null> => {
+	try {
+		return await execOrDryRunRemove(detected.pm, PKG_INFO.name, options.dryRun, {
+			capture: options.jsonMode && !options.dryRun
+		})
+	} catch (err) {
+		const message = `Failed to uninstall via package manager: ${failureReason(err)}`
+
+		if (options.jsonMode) {
+			logger.json({
+				...baseResult(detected.pm, PKG_INFO.name, options.dryRun),
+				command: 'uninstall',
+				result: 'error' as CommandResultStatus,
+				current: detected.version,
+				notes: options.notes,
+				error: {
+					code: 'PM_EXEC_FAILED',
+					message
+				}
+			})
+		} else {
+			logger.error(message)
+		}
+
+		process.exitCode = 1
+
+		return null
+	}
+}
 
 const uninstallCommand = defineCommand({
 	meta: {
@@ -71,13 +122,17 @@ const uninstallCommand = defineCommand({
 			)
 		}
 
-		const noteBlock = notes.length > 0 ? `${notes.join('\n')}\n\n` : ''
+		// Notes print standalone (not inside the prompt) so they surface in
+		// human mode even when --yes skips confirmation.
+		if (notes.length > 0 && !jsonMode) {
+			logger.warn(notes.join('\n'))
+		}
 
 		const confirmed = await confirmOrCancel(
 			promptOptions,
-			`${noteBlock}Uninstall ${PKG_INFO.name}@${detected.version} from ${detected.pm}?`,
+			`Uninstall ${PKG_INFO.name}@${detected.version} from ${PM_DISPLAY_NAMES[detected.pm]}?`,
 			{
-				...baseResult(detected.pm, PKG_INFO.name, false),
+				...baseResult(detected.pm, PKG_INFO.name, dryRun),
 				command: 'uninstall',
 				result: 'cancelled' as CommandResultStatus,
 				current: detected.version,
@@ -90,7 +145,15 @@ const uninstallCommand = defineCommand({
 			return
 		}
 
-		const result = await execOrDryRunRemove(detected.pm, PKG_INFO.name, dryRun)
+		const result = await removeOrReport(detected, {
+			dryRun,
+			jsonMode,
+			notes
+		})
+
+		if (!result) {
+			return
+		}
 
 		if (jsonMode) {
 			logger.json({

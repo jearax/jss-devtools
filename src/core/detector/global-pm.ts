@@ -17,13 +17,20 @@ const LIST_GLOBAL_COMMANDS: Partial<Record<AgentName, string[]>> = {
 const parseVersionFromList = (pm: AgentName, stdout: string, pkg: string): string | null => {
 	try {
 		switch (pm) {
-			// npm nests deps as keys "pkg@version"
+			// npm nests deps as keys "pkg@version" (npm ≤ 10); npm 11+ keys
+			// plain "pkg" names with the version nested as { version, ... }
 			case 'npm': {
 				const parsed: { dependencies?: Record<string, unknown> } = JSON.parse(stdout)
 				const deps = parsed.dependencies ?? {}
-				const key = Object.keys(deps).find((k) => k.startsWith(`${pkg}@`))
+				const legacy = Object.keys(deps).find((k) => k.startsWith(`${pkg}@`))
 
-				return key ? key.slice(`${pkg}@`.length) : null
+				if (legacy) {
+					return legacy.slice(`${pkg}@`.length)
+				}
+
+				const entry = deps[pkg] as { version?: unknown } | undefined
+
+				return typeof entry?.version === 'string' ? entry.version : null
 			}
 
 			// pnpm emits a top-level array of { name, version }
@@ -34,30 +41,28 @@ const parseVersionFromList = (pm: AgentName, stdout: string, pkg: string): strin
 				return found?.version ?? null
 			}
 
-			// yarn classic nests rows in data: [["pkg@version", "info"]]
+			// yarn classic emits NDJSON events; global packages surface as
+			// {"type":"info","data":"\"pkg@version\" has binaries:"} lines
+			// (v1 only lists bin-having packages — fine for a CLI detector)
 			case 'yarn': {
-				const parsed: { data?: unknown[] } = JSON.parse(stdout)
-				const data = Array.isArray(parsed.data) ? parsed.data : []
+				const event = stdout
+					.split('\n')
+					.map((line) => {
+						try {
+							return JSON.parse(line) as { type?: unknown; data?: unknown }
+						} catch {
+							return null
+						}
+					})
+					.find((e) => e?.type === 'info' && typeof e.data === 'string' && e.data.startsWith(`"${pkg}@`))
 
-				const found = data.find((row: unknown) => {
-					if (!Array.isArray(row)) {
-						return false
-					}
-
-					const name = row[0]
-
-					if (typeof name !== 'string') {
-						return false
-					}
-
-					return name === pkg || name.startsWith(`${pkg}@`)
-				})
-
-				if (!Array.isArray(found) || typeof found[0] !== 'string') {
+				if (!event || typeof event.data !== 'string') {
 					return null
 				}
 
-				return found[0].slice(`${pkg}@`.length)
+				const match = event.data.match(new RegExp(`${pkg}@(\\d+\\.\\d+\\.\\d+.*?)"`))
+
+				return match?.[1] ?? null
 			}
 
 			// bun (and any future PM): plain "pkg@version" lines
@@ -78,6 +83,10 @@ const parseVersionFromList = (pm: AgentName, stdout: string, pkg: string): strin
 	}
 }
 
+// A wedged package manager (network stall, lock wait) must never wedge the
+// CLI: probes time out and count as "no install via this PM".
+const PROBE_TIMEOUT_MS = 10_000
+
 const probeOne = async (pm: AgentName, pkg: string): Promise<DetectedPM | null> => {
 	const args = LIST_GLOBAL_COMMANDS[pm]
 
@@ -86,7 +95,10 @@ const probeOne = async (pm: AgentName, pkg: string): Promise<DetectedPM | null> 
 	}
 
 	try {
-		const { stdout, exitCode } = await execa(pm, args, { reject: false })
+		const { stdout, exitCode } = await execa(pm, args, {
+			reject: false,
+			timeout: PROBE_TIMEOUT_MS
+		})
 
 		if (exitCode !== 0) {
 			return null
