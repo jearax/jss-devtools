@@ -1,7 +1,7 @@
 ---
 title: "Uninstall Command Design"
 description: "Design doc + hardening plan cho self command `uninstall` — first trong bộ 4 self-command design docs. Mermaid-visualized. Kongming-reviewed (GO cả 3 fixes)."
-status: completed
+status: in-progress
 priority: P1
 effort: "2h"
 tags: [self-command, uninstall, design]
@@ -45,27 +45,119 @@ uninstall.ts → extractSelfArgs → requireGlobalPM (probe + cache)
 
 ## Target Design
 
-### Decision flow
+### Decision flow (as-built, post phase-03 — 2026-08-27)
 
 ```mermaid
 flowchart TD
-    A["jss-devtools uninstall [--yes] [--dry-run] [--json]"] --> B["extractSelfArgs"]
-    B --> C{"detectGlobalPM — probe pnpm → npm → yarn → bun"}
-    C -->|not found| C1["exit 1 · PM_NOT_DETECTED"]
-    C -->|"found pm + version"| D{"interactive TTY?"}
-    D -->|yes| E{"--yes flag?"}
-    E -->|no| F["@clack confirm"]
-    F -->|cancel| F1["exit 0 · result: cancelled"]
-    F -->|ok| G{"--dry-run?"}
-    E -->|yes| G
-    D -->|"no — non-TTY"| H{"--yes flag?"}
-    H -->|no| H1["exit 1 · REQUIRES_CONFIRMATION — NEW destructive guard"]
-    H -->|yes| G
-    G -->|yes| G1["print [dry-run] command · exit 0 · result: dry-run"]
-    G -->|no| I["execa resolveCommand global_uninstall — stdio inherit"]
-    I --> J{"--json?"}
-    J -->|yes| K["structured result — see schema"]
-    J -->|no| L["printSuccess + restart shell hint"]
+    CLI["jss-devtools uninstall [--yes] [--dry-run] [--json]"]
+
+    subgraph RUN["① uninstall.ts · run() — command layer"]
+        direction TB
+        R1["extractSelfArgs → yes · dryRun · json"]
+        R2["notes[] :=<br/>shadowed — copies ở PM khác (detectGlobalPMs)<br/>previousPms — ledger.pmsSeen − PM hiện tại"]
+        R3{"json mode?"}
+        R4["logger.warn(notes) → stderr<br/>kể cả khi --yes (R2)"]
+        R5["notes chỉ nằm trong JSON payload"]
+    end
+
+    subgraph GUARD1["② flow.ts · requireGlobalPM — boundary guard"]
+        direction TB
+        G1["detectGlobalPM(pkg)"]
+        G2{"PM nào đang giữ pkg?"}
+        G3["installHint() (R4)"]
+        G4["ledger.lastPm thuộc whitelist?<br/>dữ liệu rác → 'npm' (HIGH-fix)"]
+        G5["resolveCommand(pm, global)<br/>→ 'Install with: pnpm add -g jss-devtools'"]
+        G6["emit PM_NOT_DETECTED + error.hint"]
+    end
+
+    subgraph DET["③ global-pm.ts · detectGlobalPMs — core"]
+        direction TB
+        T1{"per-process cache?"}
+        T2["Promise.all — probe song song<br/>pnpm · npm · yarn · bun"]
+        T3["probeOne: execa(pm, list -g --json)<br/>timeout 10s · exit≠0 → null (finding #5)"]
+        T4["parseVersionFromList theo từng PM:<br/>npm≤10 — key 'pkg@ver' · npm11 — key thường + version nested<br/>pnpm — mảng name+version · yarn — NDJSON event info · bun — line scan"]
+        T5["matches xếp theo PROBE_ORDER<br/>recordPmSeen(winner) → ledger"]
+    end
+
+    subgraph CONF["④ prompts.ts · confirmOrCancel — shared util"]
+        direction TB
+        C1{"--yes?"}
+        C2{"stdout.isTTY?<br/>(stdin không quan trọng!)"}
+        C3["refuse — destructive guard"]
+        C4["@clack confirm<br/>'Uninstall … from npm?' (R3 display name)"]
+        C5["user chọn No → cancelled"]
+    end
+
+    subgraph GUARD2["⑤ uninstall.ts · removeOrReport — boundary guard (R1)"]
+        direction TB
+        M1["gọi execOrDryRunRemove<br/>capture = json && !dryRun"]
+        M2{"throw từ core?"}
+        M3["failureReason:<br/>shortMessage + captured stderr"]
+        M4["emit PM_EXEC_FAILED — rich form<br/>pm · current · notes"]
+    end
+
+    subgraph EXEC["⑥ exec.ts · execOrDryRun — CORE throw-y"]
+        direction TB
+        E1["resolveCommand(pm, global_uninstall)<br/>cmdStr = raw pm (runnable)"]
+        E2{"null?"}
+        E3["THROW 'No global_uninstall command'"]
+        E4{"--dry-run?"}
+        E5["logger.info '[dry-run] Would execute'"]
+        E6["logger.info 'Executing' → stderr"]
+        E7["execa · stdio = capture ? pipe : inherit"]
+        E8["success → DISCARD captured output"]
+        E9["THROW execa error<br/>shortMessage · stderr nếu capture"]
+    end
+
+    subgraph OUT["⑦ logger — stream contract"]
+        direction TB
+        O1["logger.json → stdout = DATA<br/>đúng 1 JSON doc ở MỌI outcome"]
+        O2["mọi log còn lại → stderr<br/>(human vẫn thấy trên terminal)"]
+        O3["EPIPE guard — pipe đóng sớm<br/>→ exit 0 im lặng"]
+    end
+
+    E_PM["⛔ exit 1 · PM_NOT_DETECTED + hint"]
+    E_CONF["⛔ exit 1 · REQUIRES_CONFIRMATION"]
+    E_EXEC["⛔ exit 1 · PM_EXEC_FAILED — không stack trace"]
+    E_CANCEL["⏹ exit 0 · cancelled"]
+    E_OK["✅ exit 0 · success hoặc dry-run"]
+
+    CLI --> R1 --> G1 --> T1
+    T1 -->|"miss"| T2 --> T3 --> T4 --> T5 --> G2
+    G2 -->|"không PM nào"| G3 --> G4 --> G5 --> G6 --> E_PM
+    G2 -->|"thấy pm + version"| R2 --> R3
+    R3 -->|"human"| R4 --> C1
+    R3 -->|"--json"| R5 --> C1
+    C1 -->|"có"| M1
+    C1 -->|"không"| C2
+    C2 -->|"pipe / file / | jq"| C3 --> E_CONF
+    C2 -->|"terminal"| C4
+    C4 -->|"No"| C5 --> E_CANCEL
+    C4 -->|"Yes"| M1
+    M1 --> E1 --> E2
+    E2 -->|"null"| E3
+    E2 -->|"resolved"| E4
+    E4 -->|"có"| E5 --> M2
+    E4 -->|"không"| E6 --> E7
+    E7 -->|"exit 0"| E8 --> M2
+    E7 -->|"exit ≠ 0"| E9
+    E3 -.->|"catch"| M2
+    E9 -.->|"catch"| M2
+    M2 -->|"có throw"| M3 --> M4 --> E_EXEC
+    M2 -->|"không — ExecResult"| O1 --> E_OK
+
+    class R1,R2,R3,R4,R5 cmdLayer
+    class G1,G2,G3,G4,G5,G6,M1,M2,M3,M4,C1,C2,C3,C4,C5 guardLayer
+    class T1,T2,T3,T4,T5,E1,E2,E3,E4,E5,E6,E7,E8,E9 coreLayer
+    class O1,O2,O3 ioLayer
+    class E_PM,E_CONF,E_EXEC exit1
+    class E_CANCEL,E_OK exit0
+    classDef cmdLayer fill:#dbeafe,stroke:#3b82f6,color:#1e3a8a
+    classDef guardLayer fill:#ffedd5,stroke:#f97316,color:#7c2d12
+    classDef coreLayer fill:#fee2e2,stroke:#ef4444,color:#7f1d1d
+    classDef ioLayer fill:#dcfce7,stroke:#22c55e,color:#14532d
+    classDef exit1 fill:#fef2f2,stroke:#dc2626,color:#b91c1c
+    classDef exit0 fill:#f0fdf4,stroke:#16a34a,color:#166534
 ```
 
 ### Runtime sequence
@@ -131,6 +223,7 @@ Implement qua option `destructive?: boolean` trong `ConfirmOptions` (single sour
 |---|-------|--------|
 | 1 | [Phase 1: Uninstall Hardening Implementation](./phase-01-start.md) | Completed |
 | 2 | [Phase 2: Detector Split + PM Ledger Store](./phase-02-detector-split-pm-ledger-store.md) | Completed |
+| 3 | [Phase 3: Review Cleanup — uninstall-scoped](./phase-03-review-cleanup.md) | Completed — local, chờ manual test + commit |
 
 ## Success Criteria
 
@@ -141,6 +234,10 @@ Implement qua option `destructive?: boolean` trong `ConfirmOptions` (single sour
 - [x] Non-TTY `upgrade`/`downgrade` vẫn auto-proceed (không regression)
 - [x] Parallel probe thay serial · ledger ghi được PM từng install · shadowing warn
 - [x] Smoke tests cover 3 fixes · `pnpm lint`/`typecheck`/`test`/`build` xanh
+- [x] PM exec fail ở uninstall (execa non-zero / resolveCommand null) → `result:"error"` + `error.code:"PM_EXEC_FAILED"` + exit 1, không raw stack trace — guard local trong uninstall.ts (shared 4 commands defer)
+- [x] Shadowing/ledger notes hiển thị ở human mode kể cả `--yes` — uninstall only, `prompts.ts` không đổi, strip noteBlock khỏi prompt
+- [x] Confirm prompt uninstall dùng `PM_DISPLAY_NAMES` thay raw `detected.pm`
+- [x] `PM_NOT_DETECTED` kèm install-hint trong `requireGlobalPM` — nguồn `lastPm ?? 'npm'` (không phải pmsSeen cuối cùng)
 
 ## Relations
 
@@ -160,4 +257,4 @@ Implement qua option `destructive?: boolean` trong `ConfirmOptions` (single sour
 
 ## Unresolved Questions
 
-Không có — kongming đã review GO, blast radius đã verify (cả 4 commands dùng `confirmOrCancel`, guard scope chốt per-destructive).
+Không có — kongming đã review GO (report: `plans/reports/kongming-260827-0016-uninstall-phase3-go-no-go.md`), 2 amendments đã hấp thụ. Phase 3 scope chốt 2026-08-27: ban đầu shared guard cả 4 commands, sau thu hẹp cùng ngày: **uninstall only** — không đụng commands khác/utils khác; `--dry-run` + TTY/non-TTY giữ nguyên. Deferred: shared guard, cleanup `ExecResult`, stdio-capture json (Phase 04 blocker), merge downgrade, simplify pass.
