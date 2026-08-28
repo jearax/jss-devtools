@@ -1,7 +1,7 @@
 ---
 title: "Uninstall Command Design"
 description: "Design doc + hardening plan cho self command `uninstall` — first trong bộ 4 self-command design docs. Mermaid-visualized. Kongming-reviewed (GO cả 3 fixes)."
-status: in-progress
+status: completed
 priority: P1
 effort: "2h"
 tags: [self-command, uninstall, design]
@@ -223,7 +223,7 @@ Implement qua option `destructive?: boolean` trong `ConfirmOptions` (single sour
 |---|-------|--------|
 | 1 | [Phase 1: Uninstall Hardening Implementation](./phase-01-start.md) | Completed |
 | 2 | [Phase 2: Detector Split + PM Ledger Store](./phase-02-detector-split-pm-ledger-store.md) | Completed |
-| 3 | [Phase 3: Review Cleanup — uninstall-scoped](./phase-03-review-cleanup.md) | Completed — local, chờ manual test + commit |
+| 3 | [Phase 3: Review Cleanup — uninstall-scoped](./phase-03-review-cleanup.md) | Completed |
 
 ## Success Criteria
 
