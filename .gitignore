@@ -39,3 +39,6 @@ pnpm-debug.log*
 
 # Claude Code local state
 .claude/
+
+# packed release artifacts
+*.tgz
