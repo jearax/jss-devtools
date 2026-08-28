@@ -1,85 +1,53 @@
-// `jss-devtools update` — restricted semantics:
-//   - no args: alias of upgrade (auto-pick latest)
-//   - `check`: read-only inspection (5 latest versions grouped by major)
-//   - `<spec>`: ERROR — use `upgrade <spec>` instead
+// `jss-devtools update` — full alias of upgrade (incl. spec positional), plus
+// the legacy `check` version list. citty subCommands cannot coexist with a
+// positional spec (they claim the first positional and reject unknown names
+// with a raw usage dump), and citty runs the parent run() after a subcommand
+// (double execution) — so dispatch manually on the positional instead.
 import { defineCommand } from 'citty'
-import semver from 'semver'
 
+import { extractSelfArgs } from '@/commands/self/utils/args'
 import { runUpgradeFlow } from '@/commands/self/utils/update-shared'
-import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
-import { logger } from '@/utils/logger'
-
-// Helper for `update check` — exported for cross-file use.
-export const fetchAndDisplayUpdates = async (pkg: string, currentVersion: string, jsonMode: boolean): Promise<void> => {
-	const meta = await fetchPackageMetadata(pkg)
-	const all = meta.versions.filter((v: string): v is string => semver.valid(v) !== null && !semver.prerelease(v))
-	const byMajor = new Map<number, string>()
-
-	for (const v of all) {
-		const major = semver.major(v)
-		const existing = byMajor.get(major)
-
-		if (!existing || semver.gt(v, existing)) {
-			byMajor.set(major, v)
-		}
-	}
-
-	const sorted = [...byMajor.values()].sort(semver.rcompare).slice(0, 5)
-	const latest = meta['dist-tags'].latest ?? sorted[0] ?? currentVersion
-	const hasUpdate = semver.gt(latest, currentVersion)
-
-	if (jsonMode) {
-		console.log(
-			JSON.stringify(
-				{
-					schemaVersion: '1.0',
-					command: 'update check',
-					result: 'noop',
-					package: pkg,
-					current: currentVersion,
-					latestStable: latest,
-					hasUpdate,
-					versions: sorted.map((v) => ({
-						version: v,
-						releasedAt: meta.time?.[v] ?? null,
-						current: v === currentVersion
-					}))
-				},
-				null,
-				2
-			)
-		)
-		return
-	}
-
-	logger.info(`Available versions of ${pkg} (latest stable per major):`)
-
-	for (const v of sorted) {
-		const date = meta.time?.[v]?.slice(0, 10) ?? 'unknown'
-		const marker = v === currentVersion ? ' ← current' : ''
-
-		console.log(`  ${v.padEnd(10)} ${date}${marker}`)
-	}
-
-	console.log('')
-
-	if (hasUpdate) {
-		logger.info(`Run \`jss-devtools upgrade\` to update to ${latest}.`)
-	} else {
-		logger.info('Already at latest.')
-	}
-}
 
 const updateCommand = defineCommand({
 	meta: {
 		name: 'update',
 		description: 'Update CLI (alias of upgrade) or check available versions'
 	},
-	subCommands: {
-		check: () => import('./update-check.js').then((m) => m.default)
+	args: {
+		specVer: {
+			type: 'positional',
+			description: 'Version spec (tag, exact, or semver range), or "check" to list versions',
+			required: false
+		},
+		yes: {
+			type: 'boolean',
+			description: 'Skip confirmation prompt',
+			default: false
+		},
+		'dry-run': {
+			type: 'boolean',
+			description: 'Print command without executing',
+			default: false
+		},
+		json: {
+			type: 'boolean',
+			description: 'Output structured JSON',
+			default: false
+		}
 	},
-	run: async () => {
-		await runUpgradeFlow({}, 'update')
+	run: async ({ args }) => {
+		if (args.specVer === 'check') {
+			const check = await import('./update-check.js')
+
+			await check.default.run?.({
+				args: { json: args.json === true },
+				rawArgs: []
+			} as never)
+
+			return
+		}
+
+		await runUpgradeFlow(extractSelfArgs(args), 'update')
 	}
 })
 

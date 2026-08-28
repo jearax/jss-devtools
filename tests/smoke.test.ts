@@ -133,11 +133,13 @@ describe('bin/jss-devtools', () => {
 		expect(output.toLowerCase()).toContain('update')
 	})
 
-	it('runs update check --help with banner + subcommand name', () => {
+	it('runs update check --help with banner + update help (manual dispatch)', () => {
 		const output = runBin(['update', 'check', '--help'])
 
-		expect(output).toContain('Show 5 latest') // check subcommand description
-		expect(output.toLowerCase()).toContain('check')
+		// citty renders the parent update help before run() — check is a
+		// manual dispatch target inside run(), not a citty subcommand.
+		expect(output).toContain('Update CLI') // update description
+		expect(output.toLowerCase()).toContain('check') // specVer arg description mentions check
 	})
 })
 
@@ -172,6 +174,20 @@ describe('self-command non-TTY behavior', () => {
 		// REQUIRES_CONFIRMATION — that proves the guard is uninstall-only.
 		if (exitCode !== 0) {
 			expect(output).not.toContain('REQUIRES_CONFIRMATION')
+		}
+	})
+
+	it('update check --json executes only the check handler', () => {
+		const { output, exitCode } = runBinAllowFail(['update', 'check', '--json'])
+
+		// Registry reachable: the version-list document is the ONLY stdout
+		// doc — the old citty double-exec (parent run after subcommand) is
+		// gone. Offline: the handler fails fast without any upgrade attempt.
+		if (exitCode === 0) {
+			expect(output).toContain('"command": "update check"')
+			expect(output).not.toContain('"command": "update"')
+		} else {
+			expect(output).toContain('Failed to fetch versions')
 		}
 	})
 })

@@ -1,8 +1,71 @@
 import { defineCommand } from 'citty'
+import semver from 'semver'
 
-import { fetchAndDisplayUpdates } from '@/commands/self/update'
 import { detectGlobalPM } from '@/core/detector/global-pm'
+import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { logger } from '@/utils/logger'
+
+// Version-list helper — lives here (not in update.ts) so the check handler
+// owns its display logic; update.ts stays a thin alias dispatcher.
+export const fetchAndDisplayUpdates = async (pkg: string, currentVersion: string, jsonMode: boolean): Promise<void> => {
+	const meta = await fetchPackageMetadata(pkg)
+	const all = meta.versions.filter((v: string): v is string => semver.valid(v) !== null && !semver.prerelease(v))
+	const byMajor = new Map<number, string>()
+
+	for (const v of all) {
+		const major = semver.major(v)
+		const existing = byMajor.get(major)
+
+		if (!existing || semver.gt(v, existing)) {
+			byMajor.set(major, v)
+		}
+	}
+
+	const sorted = [...byMajor.values()].sort(semver.rcompare).slice(0, 5)
+	const latest = meta['dist-tags'].latest ?? sorted[0] ?? currentVersion
+	const hasUpdate = semver.gt(latest, currentVersion)
+
+	if (jsonMode) {
+		console.log(
+			JSON.stringify(
+				{
+					schemaVersion: '1.0',
+					command: 'update check',
+					result: 'noop',
+					package: pkg,
+					current: currentVersion,
+					latestStable: latest,
+					hasUpdate,
+					versions: sorted.map((v) => ({
+						version: v,
+						releasedAt: meta.time?.[v] ?? null,
+						current: v === currentVersion
+					}))
+				},
+				null,
+				2
+			)
+		)
+		return
+	}
+
+	logger.info(`Available versions of ${pkg} (latest stable per major):`)
+
+	for (const v of sorted) {
+		const date = meta.time?.[v]?.slice(0, 10) ?? 'unknown'
+		const marker = v === currentVersion ? ' ← current' : ''
+
+		console.log(`  ${v.padEnd(10)} ${date}${marker}`)
+	}
+
+	console.log('')
+
+	if (hasUpdate) {
+		logger.info(`Run \`jss-devtools upgrade\` to update to ${latest}.`)
+	} else {
+		logger.info('Already at latest.')
+	}
+}
 
 const updateCheckCommand = defineCommand({
 	meta: {

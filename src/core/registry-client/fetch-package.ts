@@ -29,7 +29,22 @@ export const fetchPackageMetadata = async (pkg: string, signal?: AbortSignal): P
 					throw new Error(`Registry returned ${res.status}`)
 				}
 
-				return (await res.json()) as PackageMetadata
+				const parsed = (await res.json()) as Record<string, unknown>
+
+				// The npm registry sends `versions` as an object keyed by
+				// version — normalize to a string array so consumers see the
+				// PackageMetadata shape (a raw cast here used to leak the wire
+				// shape and crash version filters/includes downstream).
+				const rawVersions: unknown = parsed.versions
+
+				const versions = Array.isArray(rawVersions)
+					? (rawVersions as string[])
+					: Object.keys((rawVersions ?? {}) as Record<string, unknown>)
+
+				return {
+					...parsed,
+					versions
+				} as PackageMetadata
 			} finally {
 				clearTimeout(timer)
 			}
@@ -42,5 +57,9 @@ export const fetchPackageMetadata = async (pkg: string, signal?: AbortSignal): P
 		}
 	}
 
-	throw new Error(`Failed to fetch ${pkg} from registry: ${String(lastError)}`)
+	// Error message (not String(err)) keeps "fetch failed" / "Registry returned
+	// 404" readable without the "TypeError: " prefix noise.
+	throw new Error(
+		`Failed to fetch ${pkg} from registry: ${lastError instanceof Error ? lastError.message : String(lastError)}`
+	)
 }
