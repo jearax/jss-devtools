@@ -2,11 +2,11 @@
 
 > **JavaScript Stack Dev Tools CLI** — A complete SDK-style command-line interface inspired by Docker's command structure (subcommands + per-subcommand `--help`).
 
-- **Package name:** `jss-devtools` (npm public)
+- **Package name:** `@jjuidev/jss-devtools` (npm public)
 - **Bin:** `jss-devtools`
-- **Repo:** `jss-cli`
+- **Repo:** `jearax/jss-devtools`
 - **Audience:** JavaScript / TypeScript developers building with Node.js stacks
-- **Distribution:** Public open-source on npm + GitHub (`jearax/jss-cli`)
+- **Distribution:** Public open-source on npm + GitHub (`jearax/jss-devtools`)
 - **Owner:** jjuidev
 
 ## Why

@@ -7,9 +7,10 @@ import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { execOrDryRunInstall } from '@/core/self-installer/exec'
 import { parseSpec, resolveTarget } from '@/core/version-resolver/resolve-target'
 import { logger } from '@/utils/logger'
+import { PKG_INFO } from '@/utils/pkg'
 import { confirmOrCancel } from '@/utils/prompts'
 
-const PKG = 'jss-devtools'
+const PKG = PKG_INFO.name
 
 const downgradeCommand = defineCommand({
 	meta: {

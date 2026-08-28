@@ -14,6 +14,7 @@ import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { execOrDryRunInstall } from '@/core/self-installer/exec'
 import { getPmLedger } from '@/core/store/store'
 import { logger } from '@/utils/logger'
+import { PKG_INFO } from '@/utils/pkg'
 
 vi.mock('@/core/detector/global-pm', () => ({
 	detectGlobalPM: vi.fn(),
@@ -241,7 +242,7 @@ describe('stdio capture routing', () => {
 			json: true
 		})
 
-		expect(execOrDryRunInstall).toHaveBeenCalledWith('npm', 'jss-devtools', '2.0.0', false, {
+		expect(execOrDryRunInstall).toHaveBeenCalledWith('npm', PKG_INFO.name, '2.0.0', false, {
 			capture: true
 		})
 	})
@@ -259,7 +260,7 @@ describe('stdio capture routing', () => {
 			'dry-run': true
 		})
 
-		expect(execOrDryRunInstall).toHaveBeenCalledWith('npm', 'jss-devtools', '2.0.0', true, {
+		expect(execOrDryRunInstall).toHaveBeenCalledWith('npm', PKG_INFO.name, '2.0.0', true, {
 			capture: false
 		})
 	})
@@ -282,7 +283,7 @@ describe('prompt accuracy (display name + real command)', () => {
 		// @clack confirm receives an options object — the prompt text is .message
 		const call = confirmMock.mock.calls[0]?.[0] as { message?: string } | undefined
 		const prompt = String(call?.message ?? '')
-		const resolved = resolveCommand(pm, 'global', ['jss-devtools@2.0.0'])
+		const resolved = resolveCommand(pm, 'global', [`${PKG_INFO.name}@2.0.0`])
 
 		expect(resolved).not.toBeNull()
 		expect(prompt).toContain(PM_DISPLAY_NAMES[pm])

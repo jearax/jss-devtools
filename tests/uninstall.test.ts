@@ -9,6 +9,7 @@ import { detectGlobalPM, detectGlobalPMs } from '@/core/detector/global-pm'
 import { execOrDryRunRemove } from '@/core/self-installer/exec'
 import { getPmLedger } from '@/core/store/store'
 import { logger } from '@/utils/logger'
+import { PKG_INFO } from '@/utils/pkg'
 
 vi.mock('@/core/detector/global-pm', () => ({
 	detectGlobalPM: vi.fn(),
@@ -139,7 +140,7 @@ describe('uninstall exec-failure guard (R1)', () => {
 			json: true
 		})
 
-		expect(execOrDryRunRemove).toHaveBeenCalledWith('pnpm', 'jss-devtools', false, { capture: true })
+		expect(execOrDryRunRemove).toHaveBeenCalledWith('pnpm', PKG_INFO.name, false, { capture: true })
 	})
 
 	it('does not capture for dry-run even in json mode (no child runs)', async () => {
@@ -155,7 +156,7 @@ describe('uninstall exec-failure guard (R1)', () => {
 			'dry-run': true
 		})
 
-		expect(execOrDryRunRemove).toHaveBeenCalledWith('pnpm', 'jss-devtools', true, { capture: false })
+		expect(execOrDryRunRemove).toHaveBeenCalledWith('pnpm', PKG_INFO.name, true, { capture: false })
 	})
 })
 

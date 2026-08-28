@@ -4,6 +4,7 @@ import semver from 'semver'
 import { detectGlobalPM } from '@/core/detector/global-pm'
 import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { logger } from '@/utils/logger'
+import { PKG_INFO } from '@/utils/pkg'
 
 // Version-list helper — lives here (not in update.ts) so the check handler
 // owns its display logic; update.ts stays a thin alias dispatcher.
@@ -80,11 +81,11 @@ const updateCheckCommand = defineCommand({
 		}
 	},
 	run: async ({ args }) => {
-		const detected = await detectGlobalPM('jss-devtools')
+		const detected = await detectGlobalPM(PKG_INFO.name)
 		const current = detected?.version ?? '0.0.0'
 
 		try {
-			await fetchAndDisplayUpdates('jss-devtools', current, args.json === true)
+			await fetchAndDisplayUpdates(PKG_INFO.name, current, args.json === true)
 		} catch (err) {
 			logger.error(`Failed to fetch versions: ${String(err)}`)
 			process.exitCode = 2

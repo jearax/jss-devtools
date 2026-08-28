@@ -10,9 +10,10 @@ import { PackageMetadata } from '@/core/registry-client/types'
 import { execOrDryRunInstall, ExecResult } from '@/core/self-installer/exec'
 import { parseSpec, resolveTarget, ParsedSpec, ResolveResult } from '@/core/version-resolver/resolve-target'
 import { logger } from '@/utils/logger'
+import { PKG_INFO } from '@/utils/pkg'
 import { confirmOrCancel } from '@/utils/prompts'
 
-const PKG = 'jss-devtools'
+const PKG = PKG_INFO.name
 
 export interface UpgradeOptions {
 	specVer?: string

@@ -1,8 +1,16 @@
 {
-  "name": "jss-devtools",
-  "version": "0.1.0",
+  "name": "@jjuidev/jss-devtools",
+  "version": "0.4.0",
   "description": "JavaScript stack dev tools CLI - inspired by Docker's command-tree UX",
-  "license": "TBD",
+  "license": "MIT",
+  "homepage": "https://github.com/jearax/jss-devtools#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jearax/jss-devtools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jearax/jss-devtools/issues"
+  },
   "type": "module",
   "bin": {
     "jss-devtools": "./dist/cli/cli.js"
