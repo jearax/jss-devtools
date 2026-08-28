@@ -63,9 +63,10 @@ jobs:
       - name: Test
         run: pnpm test
 
-      # Tag checkouts are detached HEADs — skip git checks; --ignore-scripts
-      # keeps publish deterministic (prepare/husky already ran via install).
+      # npm-native publish: setup-node wrote the registry auth config; the
+      # token comes in via NODE_AUTH_TOKEN. --ignore-scripts keeps publish
+      # deterministic (prepare/husky already ran via install).
       - name: Publish to npm
-        run: pnpm publish --access public --no-git-checks --ignore-scripts
+        run: npm publish --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
