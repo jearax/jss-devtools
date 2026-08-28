@@ -13,7 +13,7 @@
   },
   "type": "module",
   "bin": {
-    "jss-devtools": "./dist/cli/cli.js"
+    "jss-devtools": "dist/cli/cli.js"
   },
   "files": [
     "dist"
