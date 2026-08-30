@@ -2,14 +2,17 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   release:
-    name: Verify + Publish
+    name: Release
     runs-on: ubuntu-latest
     environment: main
     timeout-minutes: 10
@@ -43,31 +46,27 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify tag matches package version
-        run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          PKG_VER=$(node -p "require('./package.json').version")
-          if [ "$TAG" != "$PKG_VER" ]; then
-            echo "tag v$TAG does not match package.json version $PKG_VER"
-            exit 1
-          fi
-
       - name: Lint
         run: pnpm lint
 
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Build
-        run: pnpm build
-
       - name: Test
         run: pnpm test
 
-      # npm-native publish: setup-node wrote the registry auth config; the
-      # token comes in via NODE_AUTH_TOKEN. --ignore-scripts keeps publish
-      # deterministic (prepare/husky already ran via install).
-      - name: Publish to npm
-        run: npm publish --access public --ignore-scripts
+      # With pending changesets: opens the "chore: version packages" PR
+      # (changeset version bumps package.json + writes CHANGELOG).
+      # When that PR merges: publish runs clean + build + changeset publish.
+      # pnpm gotcha: `pnpm version` is a builtin — must be `pnpm run version`.
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm run version
+          publish: pnpm run release
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
