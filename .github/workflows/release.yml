@@ -58,10 +58,6 @@ jobs:
       - name: Test
         run: pnpm test
 
-      # With pending changesets: opens the "chore: version packages" PR
-      # (changeset version bumps package.json + writes CHANGELOG).
-      # When that PR merges: publish runs clean + build + changeset publish.
-      # pnpm gotcha: `pnpm version` is a builtin — must be `pnpm run version`.
       - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@v1
