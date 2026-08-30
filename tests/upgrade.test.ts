@@ -107,6 +107,9 @@ beforeEach(() => {
 afterEach(() => {
 	delete (process.stdout as { isTTY?: boolean }).isTTY
 	process.exitCode = undefined
+	// restoreAllMocks only restores spies and does not clear mock history
+	// (vitest docs) — vi.fn() call counts accumulate across tests without this.
+	vi.clearAllMocks()
 	vi.restoreAllMocks()
 })
 
