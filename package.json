@@ -1,7 +1,7 @@
 {
   "name": "@jjuidev/jss-devtools",
   "version": "0.4.0",
-  "description": "JavaScript stack dev tools CLI - inspired by Docker's command-tree UX",
+  "description": "JavaScript stack dev tools CLI",
   "license": "MIT",
   "homepage": "https://github.com/jearax/jss-devtools#readme",
   "repository": {

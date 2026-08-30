@@ -1,6 +1,6 @@
 # `jss-devtools`
 
-> **JavaScript Stack Dev Tools CLI** — A complete SDK-style command-line interface inspired by Docker's command structure (subcommands + per-subcommand `--help`).
+> **JavaScript Stack Dev Tools CLI** — A complete SDK-style command-line interface (subcommands + per-subcommand `--help`).
 
 - **Package name:** `@jjuidev/jss-devtools` (npm public)
 - **Bin:** `jss-devtools`
