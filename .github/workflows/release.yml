@@ -11,6 +11,7 @@ jobs:
   release:
     name: Verify + Publish
     runs-on: ubuntu-latest
+    environment: main
     timeout-minutes: 10
     steps:
       - name: Checkout Repo
@@ -66,7 +67,8 @@ jobs:
       # Definitive auth signal: prints the token LENGTH only (never the
       # value) — 0 means the secret did not reach this workflow.
       - name: Auth sanity check
-        run: echo "NPM_TOKEN length: ${#NODE_AUTH_TOKEN}"
+        run: |
+          echo "NPM_TOKEN length: ${#NODE_AUTH_TOKEN}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
