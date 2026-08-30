@@ -64,14 +64,6 @@ jobs:
       - name: Test
         run: pnpm test
 
-      # Definitive auth signal: prints the token LENGTH only (never the
-      # value) — 0 means the secret did not reach this workflow.
-      - name: Auth sanity check
-        run: |
-          echo "NPM_TOKEN length: ${#NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       # npm-native publish: setup-node wrote the registry auth config; the
       # token comes in via NODE_AUTH_TOKEN. --ignore-scripts keeps publish
       # deterministic (prepare/husky already ran via install).
