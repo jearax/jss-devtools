@@ -13,6 +13,7 @@ const routerCommand = defineCommand({
 		version: () => import('@/commands/version.js').then((m) => m.default),
 		help: () => import('@/commands/help.js').then((m) => m.default),
 
+		init: () => import('@/commands/init.js').then((m) => m.default),
 		update: () => import('@/commands/self/update.js').then((m) => m.default),
 		upgrade: () => import('@/commands/self/upgrade.js').then((m) => m.default),
 		downgrade: () => import('@/commands/self/downgrade.js').then((m) => m.default),

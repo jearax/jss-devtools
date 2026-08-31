@@ -1,4 +1,4 @@
-import { PackageMetadata } from '@/core/registry-client/types'
+import { PackageMetadata, PackageVersionDoc } from '@/core/registry-client/types'
 
 const REGISTRY = 'https://registry.npmjs.org'
 const TIMEOUT_MS = 10_000
@@ -41,9 +41,27 @@ export const fetchPackageMetadata = async (pkg: string, signal?: AbortSignal): P
 					? (rawVersions as string[])
 					: Object.keys((rawVersions ?? {}) as Record<string, unknown>)
 
+				// Keep peer ranges from the raw version docs: the normalized
+				// versions array serves version pickers, but peer-aware
+				// resolvers need per-version peerDependencies.
+				const versionDocs: Record<string, PackageVersionDoc> = {}
+
+				if (typeof rawVersions === 'object' && rawVersions !== null && !Array.isArray(rawVersions)) {
+					for (const [version, doc] of Object.entries(rawVersions as Record<string, unknown>)) {
+						if (typeof doc === 'object' && doc !== null) {
+							const peers = (doc as Record<string, unknown>).peerDependencies
+
+							if (typeof peers === 'object' && peers !== null) {
+								versionDocs[version] = { peerDependencies: peers as Record<string, string> }
+							}
+						}
+					}
+				}
+
 				return {
 					...parsed,
-					versions
+					versions,
+					versionDocs
 				} as PackageMetadata
 			} finally {
 				clearTimeout(timer)
