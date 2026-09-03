@@ -239,6 +239,46 @@ describe('buildCommitlintConfigContent', () => {
 		expect(content).toContain('TICKET_REGEX.test(header) || CONVENTIONAL_REGEX.test(header)')
 	})
 
+	it('rule does NOT depend on a `when` helper (commitlint invokes rules with `when = "always"` config string)', async () => {
+		// Regression: commitlint calls rule.rule(parsed, when, value) where
+		// `when` is the config string ("always" / "never"), NOT a helper.
+		// See @commitlint/lint/src/lint.ts and @commitlint/types rule signature.
+		const content = buildCommitlintConfigContent()
+
+		// Strip `export default` so we can dynamic-eval the plugin const.
+		const evalSrc = content.replace(/^export default.*$/m, '') + '\nreturn headerTicketPlugin'
+
+		const headerTicketPlugin = new Function(evalSrc)() as {
+			rules: Record<
+				string,
+				(
+					parsed: { header?: string },
+					when: unknown,
+					value: unknown
+				) => Promise<boolean | [boolean] | [false, string]> | boolean | [boolean] | [false, string]
+			>
+		}
+
+		const rule = headerTicketPlugin.rules['header-ticket-or-conventional']
+
+		expect(typeof rule).toBe('function')
+
+		// commitlint's actual call shape: rule(parsed, when, value).
+		// Second arg is the config STRING 'always', not a function.
+		const okResult = await rule({ header: 'TICKET-127 - Add login form' }, 'always', undefined)
+
+		expect(okResult).toBe(true)
+
+		const okConventional = await rule({ header: 'feat(api): Handle timeout' }, 'always', undefined)
+
+		expect(okConventional).toBe(true)
+
+		const badResult = (await rule({ header: 'no prefix here' }, 'always', undefined)) as [false, string]
+
+		expect(badResult[0]).toBe(false)
+		expect(badResult[1]).toContain('TICKET-<num>')
+	})
+
 	it('extracts the plugin as a separate headerTicketPlugin const for clarity', () => {
 		const content = buildCommitlintConfigContent()
 

@@ -14,12 +14,14 @@ export const buildCommitlintConfigContent = (): string =>
 	`const CONVENTIONAL_REGEX = ${CONVENTIONAL_REGEX.toString()}\n\n` +
 	`const headerTicketPlugin = {\n` +
 	`\trules: {\n` +
-	`\t\t'header-ticket-or-conventional': ({ header }, when) => [\n` +
-	`\t\t\twhen(\n` +
-	`\t\t\t\tTICKET_REGEX.test(header) || CONVENTIONAL_REGEX.test(header),\n` +
-	`\t\t\t\t'Header must match either "TICKET-<num> - <desc>" or conventional "<type>[(<scope>)][:!]: <desc>"'\n` +
-	`\t\t\t)\n` +
-	`\t\t]\n` +
+	`\t\t'header-ticket-or-conventional': (parsed) => {\n` +
+	`\t\t\tconst header = parsed.header || ''\n` +
+	`\t\t\tconst ok =\n` +
+	`\t\t\t\tTICKET_REGEX.test(header) || CONVENTIONAL_REGEX.test(header)\n` +
+	`\t\t\treturn ok\n` +
+	`\t\t\t\t? true\n` +
+	`\t\t\t\t: [false, 'Header must match either "TICKET-<num> - <desc>" or conventional "<type>[(<scope>)][:!]: <desc>"']\n` +
+	`\t\t}\n` +
 	`\t}\n` +
 	`}\n\n` +
 	`const commitlintConfig = {\n` +
