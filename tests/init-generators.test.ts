@@ -58,6 +58,56 @@ describe('buildEslintConfigContent', () => {
 
 		expect(parenOpens).toBe(parenCloses)
 	})
+
+	it('all plugin entries in the plugins block share the same leading indent', () => {
+		const preset = getPreset('node')
+		const content = buildEslintConfigContent(preset)
+
+		// Slice the plugins: { ... }, block and collect each entry line.
+		const pluginsMatch = content.match(/plugins:\s*\{([\s\S]*?)\n\s*\}/)
+
+		expect(pluginsMatch, 'plugins block not found').not.toBeNull()
+
+		if (!pluginsMatch) {
+			return
+		}
+
+		const entries = pluginsMatch[1]
+			.split('\n')
+			.map((line) => line.trimEnd())
+			.filter((line) => line.includes(':') && /^\s*'/.test(line))
+
+		expect(entries.length).toBeGreaterThanOrEqual(2)
+
+		const leadingWs = entries.map((line) => line.match(/^\s*/)?.[0] ?? '')
+		const firstIndent = leadingWs[0]
+
+		for (const [i, ws] of leadingWs.entries()) {
+			expect(ws, `entry[${i}] indent differs from entry[0]`).toBe(firstIndent)
+		}
+	})
+
+	it('matches the house eslint.config.mjs plugins-block indent (3 tabs)', () => {
+		const preset = getPreset('node')
+		const content = buildEslintConfigContent(preset)
+
+		const pluginsMatch = content.match(/plugins:\s*\{([\s\S]*?)\n\s*\}/)
+
+		expect(pluginsMatch, 'plugins block not found').not.toBeNull()
+
+		if (!pluginsMatch) {
+			return
+		}
+
+		const firstEntry = pluginsMatch[1]
+			.split('\n')
+			.map((line) => line.trimEnd())
+			.find((line) => /^\s*'/.test(line))
+
+		expect(firstEntry).toBeDefined()
+		// House reference uses 3 tabs of indent inside plugins: { ... }
+		expect(firstEntry!.startsWith('\t\t\t')).toBe(true)
+	})
 })
 
 describe('buildPrettierConfigContent', () => {
@@ -84,6 +134,14 @@ describe('buildCommitlintConfigContent', () => {
 		const content = buildCommitlintConfigContent()
 
 		expect(content).toContain('@commitlint/config-conventional')
+	})
+
+	it('wraps config in a named const then exports it (mirrors eslint.config.mjs style)', () => {
+		const content = buildCommitlintConfigContent()
+
+		expect(content).toContain('const commitlintConfig = {')
+		expect(content).toMatch(/export\s+default\s+commitlintConfig/)
+		expect(content).not.toMatch(/^export\s+default\s+\{/m)
 	})
 })
 

@@ -3,4 +3,4 @@
 export const COMMITLINT_CONFIG_PATH = 'commitlint.config.mjs'
 
 export const buildCommitlintConfigContent = (): string =>
-	`export default {\n\textends: ['@commitlint/config-conventional']\n}\n`
+	`const commitlintConfig = {\n\textends: ['@commitlint/config-conventional']\n}\n\nexport default commitlintConfig\n`

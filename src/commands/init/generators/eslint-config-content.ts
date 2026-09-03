@@ -30,7 +30,7 @@ export const buildEslintConfigContent = (preset: FrameworkPreset): string => {
 		...preset.eslintFrameworkPlugins
 	})
 		.map(([key, ref]) => `'${key}': ${ref}`)
-		.join(',\n\t\t\t\t')
+		.join(',\n\t\t\t')
 
 	const frameworkRules = preset.eslintFrameworkRules.trim()
 
