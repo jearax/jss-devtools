@@ -107,7 +107,7 @@ ${rulesBlock}
 				'import-x/order': [
 					'error',
 					{
-						newlines-between: 'always',
+						'newlines-between': 'always',
 						alphabetize: {
 							order: 'asc',
 							caseInsensitive: true
@@ -159,8 +159,7 @@ ${rulesBlock}
 				]
 			}
 		}
-	}
-]
+	]
 
 export default eslintConfig
 `

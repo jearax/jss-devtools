@@ -6,7 +6,7 @@ export const nodePreset: FrameworkPreset = {
 	eslintFrameworkImports: [],
 	eslintFrameworkPlugins: {},
 	eslintFrameworkRules: '',
-	eslintGlobalsExpr: 'globals.node',
+	eslintGlobalsExpr: '...globals.node',
 	tsconfigCompilerOptions: {
 		target: 'ES2022',
 		lib: ['ES2024'],

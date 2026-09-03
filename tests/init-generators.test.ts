@@ -59,6 +59,23 @@ describe('buildEslintConfigContent', () => {
 		expect(parenOpens).toBe(parenCloses)
 	})
 
+	it('content is syntactically valid ESM (acorn parse, braces + brackets balanced)', () => {
+		const preset = getPreset('node')
+		const content = buildEslintConfigContent(preset)
+
+		// Brace balance — catches off-by-one close errors that bracket-only checks miss.
+		const openBraces = (content.match(/\{/g) || []).length
+		const closeBraces = (content.match(/\}/g) || []).length
+
+		expect(openBraces, 'unbalanced braces in generated eslint config').toBe(closeBraces)
+
+		// Strip top-level import/export to make the body parseable as a standalone module.
+		const body = content.replace(/^import .*$/gm, '').replace(/^export default eslintConfig$/m, 'export default []')
+
+		// Use Function ctor (Node) to parse — fails on syntax errors.
+		expect(() => new Function(body.replace(/^export default /m, 'return '))).not.toThrow()
+	})
+
 	it('all plugin entries in the plugins block share the same leading indent', () => {
 		const preset = getPreset('node')
 		const content = buildEslintConfigContent(preset)
@@ -107,6 +124,22 @@ describe('buildEslintConfigContent', () => {
 		expect(firstEntry).toBeDefined()
 		// House reference uses 3 tabs of indent inside plugins: { ... }
 		expect(firstEntry!.startsWith('\t\t\t')).toBe(true)
+	})
+
+	it('emits spread of globals.node (not bare identifier — bare would be a syntax error)', () => {
+		const preset = getPreset('node')
+		const content = buildEslintConfigContent(preset)
+
+		expect(content).toContain('...globals.node')
+		expect(content).not.toMatch(/^\s*globals\.node\s*$/m)
+	})
+
+	it('quotes hyphenated keys inside import-x/order (e.g. newlines-between)', () => {
+		const preset = getPreset('node')
+		const content = buildEslintConfigContent(preset)
+
+		expect(content).toContain("'newlines-between'")
+		expect(content).not.toMatch(/^\s*newlines-between\s*:/m)
 	})
 })
 
