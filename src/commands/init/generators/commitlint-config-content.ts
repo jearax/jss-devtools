@@ -12,7 +12,7 @@ const CONVENTIONAL_REGEX = /^(\w+)(\([^)]+\))?!?: .+$/
 export const buildCommitlintConfigContent = (): string =>
 	`const TICKET_REGEX = ${TICKET_REGEX.toString()}\n` +
 	`const CONVENTIONAL_REGEX = ${CONVENTIONAL_REGEX.toString()}\n\n` +
-	`const headerRegexPlugin = {\n` +
+	`const headerTicketPlugin = {\n` +
 	`\trules: {\n` +
 	`\t\t'header-ticket-or-conventional': ({ header }, when) => [\n` +
 	`\t\t\twhen(\n` +
@@ -24,7 +24,7 @@ export const buildCommitlintConfigContent = (): string =>
 	`}\n\n` +
 	`const commitlintConfig = {\n` +
 	`\textends: ['@commitlint/config-conventional'],\n` +
-	`\tplugins: [headerRegexPlugin],\n` +
+	`\tplugins: [headerTicketPlugin],\n` +
 	`\trules: {\n` +
 	`\t\t'header-ticket-or-conventional': [2, 'always']\n` +
 	`\t}\n` +

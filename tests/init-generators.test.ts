@@ -239,11 +239,11 @@ describe('buildCommitlintConfigContent', () => {
 		expect(content).toContain('TICKET_REGEX.test(header) || CONVENTIONAL_REGEX.test(header)')
 	})
 
-	it('extracts the plugin as a separate headerRegexPlugin const for clarity', () => {
+	it('extracts the plugin as a separate headerTicketPlugin const for clarity', () => {
 		const content = buildCommitlintConfigContent()
 
-		expect(content).toContain('const headerRegexPlugin = {')
-		expect(content).toContain('plugins: [headerRegexPlugin]')
+		expect(content).toContain('const headerTicketPlugin = {')
+		expect(content).toContain('plugins: [headerTicketPlugin]')
 	})
 
 	it('does NOT override subject-case or subject-full-stop (built-in rules stay active)', () => {
