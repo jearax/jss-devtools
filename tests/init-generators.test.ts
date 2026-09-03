@@ -183,6 +183,89 @@ describe('buildCommitlintConfigContent', () => {
 		expect(content).toMatch(/export\s+default\s+commitlintConfig/)
 		expect(content).not.toMatch(/^export\s+default\s+\{/m)
 	})
+
+	it('emits TICKET_REGEX with hard "TICKET" prefix and sentence-case subject ending in period', () => {
+		const content = buildCommitlintConfigContent()
+
+		expect(content).toContain('const TICKET_REGEX = ')
+		// Pull the regex literal out of the generated source so the test stays
+		// independent of how the source code embeds the regex.
+		const match = content.match(/const TICKET_REGEX = (\/.+\/)/)
+
+		expect(match, 'TICKET_REGEX literal not found').not.toBeNull()
+
+		if (match) {
+			const regex = new RegExp(match[1].slice(1, -1))
+
+			// Case-agnostic + no trailing-period required — subject after
+			// the TICKET prefix is just any non-empty description.
+			expect(regex.test('TICKET-127 - Add login form.')).toBe(true)
+			expect(regex.test('TICKET-1 - Fix.')).toBe(true)
+			expect(regex.test('TICKET-127 - abc def')).toBe(true)
+			expect(regex.test('TICKET-127 - add login form.')).toBe(true)
+			expect(regex.test('ABC-127 - Add login form.')).toBe(false)
+			expect(regex.test('TICKET-abc - Add login form.')).toBe(false)
+			expect(regex.test('TICKET-127')).toBe(false)
+		}
+	})
+
+	it('emits CONVENTIONAL_REGEX accepting all 11 conventional types with any non-empty description', () => {
+		const content = buildCommitlintConfigContent()
+
+		expect(content).toContain('const CONVENTIONAL_REGEX = ')
+		const match = content.match(/const CONVENTIONAL_REGEX = (\/.+\/)/)
+
+		expect(match, 'CONVENTIONAL_REGEX literal not found').not.toBeNull()
+
+		if (match) {
+			const regex = new RegExp(match[1].slice(1, -1))
+
+			// The regex only checks STRUCTURE; valid-type enforcement is
+			// delegated to the type-enum rule that comes from
+			// @commitlint/config-conventional (via `extends`).
+			expect(regex.test('feat: Add login form.')).toBe(true)
+			expect(regex.test('fix(api): Handle timeout.')).toBe(true)
+			expect(regex.test('revert!: Drop legacy.')).toBe(true)
+			expect(regex.test('feat: abc def')).toBe(true)
+			expect(regex.test('feat Add login form.')).toBe(false)
+			expect(regex.test('feat:')).toBe(false)
+		}
+	})
+
+	it('declares a custom plugin rule that accepts both header shapes', () => {
+		const content = buildCommitlintConfigContent()
+
+		expect(content).toContain("'header-ticket-or-conventional'")
+		expect(content).toContain('TICKET_REGEX.test(header) || CONVENTIONAL_REGEX.test(header)')
+	})
+
+	it('extracts the plugin as a separate headerRegexPlugin const for clarity', () => {
+		const content = buildCommitlintConfigContent()
+
+		expect(content).toContain('const headerRegexPlugin = {')
+		expect(content).toContain('plugins: [headerRegexPlugin]')
+	})
+
+	it('does NOT override subject-case or subject-full-stop (built-in rules stay active)', () => {
+		const content = buildCommitlintConfigContent()
+
+		expect(content).not.toMatch(/'subject-case':\s*\[0,\s*'never'\]/)
+		expect(content).not.toMatch(/'subject-full-stop':\s*\[0,\s*'never'\]/)
+	})
+
+	it('emits syntactically balanced ESM (braces + brackets all matched)', () => {
+		const content = buildCommitlintConfigContent()
+
+		const openBraces = (content.match(/\{/g) || []).length
+		const closeBraces = (content.match(/\}/g) || []).length
+
+		expect(openBraces, 'unbalanced braces in generated commitlint config').toBe(closeBraces)
+
+		const openBrackets = (content.match(/\[/g) || []).length
+		const closeBrackets = (content.match(/\]/g) || []).length
+
+		expect(openBrackets, 'unbalanced brackets in generated commitlint config').toBe(closeBrackets)
+	})
 })
 
 describe('buildLintStagedConfig', () => {
