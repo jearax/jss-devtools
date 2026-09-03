@@ -8,15 +8,59 @@ Distribution model: **public npm package** + **public GitHub repo**.
 - Bin: `jss-devtools`
 - Registry: `registry.npmjs.org` (default public)
 - Access: public
-- Provenance: enable npm provenance (OIDC) once CI is set up
 
-## Publish Workflow (target)
+## Release Flow (current — tag-based, NOT changesets)
 
-1. Bump version in `package.json` via release tooling (changesets / release-please — TBD)
-2. Build dist via chosen bundler
-3. CI runs tests + lint + typecheck
-4. CI publishes to npm with provenance on tag push
-5. GitHub Release created automatically (if release-please)
+We use a direct git-tag-push flow. No bot PRs, no manual merge step, no first-time approval gate.
+
+### Local workflow
+
+```bash
+# 1. Make sure tests/lint/typecheck pass + dist is current
+pnpm test
+pnpm lint
+pnpm typecheck
+pnpm build
+
+# 2. Bump version + create annotated tag in one step
+pnpm version patch     # or: minor / major
+# → updates package.json, commits "vX.Y.Z" + creates git tag vX.Y.Z
+
+# 3. Push the commit AND the tag
+git push --follow-tags
+# → tag push triggers .github/workflows/release.yml
+```
+
+### What CI does on tag push
+
+`.github/workflows/release.yml` runs (trigger: `push: tags: ['v*']`):
+
+1. Lint → Typecheck → Test → Build
+2. `pnpm publish --no-git-checks` (uses `NPM_TOKEN` repo secret)
+
+`ci.yml` also runs on the tag (trigger: `push: tags: ['v*']`) for a parallel validation pass with `cancel-in-progress` allowed.
+
+### Why we left changesets
+
+Old flow (changesets + bot) required:
+1. Bot opens a PR "Version Packages"
+2. GitHub first-time approval gate (`action_required`) on every bot PR
+3. Manual merge step (repo has `allow_auto_merge: false`)
+4. Then changesets bot publishes
+
+→ 2 manual steps per release. Tag-based flow: 0 manual steps after `git push --follow-tags`.
+
+Trade-offs we accept:
+- No auto-generated `CHANGELOG.md` — author writes the version notes into the commit message or PR description
+- No PR-based changelog review — release is fire-and-forget
+
+### What was removed in this refactor
+
+- `.changeset/` folder (was 2 pending changesets: `init-prettier-tabwidth-4.md`, `init-commitlint-ticket-or-conventional.md` — folded into next manual release's CHANGELOG)
+- `package.json` `"version"` script (`changeset version`) — use `pnpm version <bump>` directly
+- `package.json` `"release"` script — now `pnpm clean && pnpm build && pnpm publish --no-git-checks`
+- `@changesets/cli` from `devDependencies`
+- `.github/workflows/release.yml` — `changesets/action@v1` step removed; `environment: main` removed
 
 ## Pre-publish Checklist
 
@@ -27,25 +71,31 @@ Distribution model: **public npm package** + **public GitHub repo**.
 - [ ] README rendered correctly on npm page
 - [ ] `npm pack --dry-run` output reviewed
 - [ ] Version tag follows semver
+- [ ] `CHANGELOG.md` updated for the new version (manual, since no auto-generation)
+- [ ] `package.json` version bumped by `pnpm version` (creates tag)
+- [ ] Tag pushed via `git push --follow-tags`
 
 ## Versioning
 
 - SemVer: `MAJOR.MINOR.PATCH`
 - Pre-release tags: `1.0.0-rc.1`, etc.
 - Initial release target: `0.1.0` (MVP usable but pre-stable)
+- Tag format: `vX.Y.Z` (must match pattern for release.yml trigger)
 
-## CI (target — GitHub Actions assumed)
+## CI Workflows (current)
 
-Workflow jobs:
+| File | Trigger | Purpose |
+|---|---|---|
+| `.github/workflows/ci.yml` | `push: [main, tags: 'v*']` + `pull_request: [main]` | Lint + Typecheck + Test + Build (validation only) |
+| `.github/workflows/release.yml` | `push: tags: ['v*']` | Same validation + `pnpm publish` |
 
-| Job | Purpose |
-|---|---|
-| `lint` | ESLint (`pnpm lint`) |
-| `typecheck` | `tsc --noEmit` |
-| `test` | Vitest on Node 24 LTS |
-| `build` | Produce dist artifacts |
-| `publish` | `npm publish --provenance` on tag |
-| `release` | Create GitHub Release (optional) |
+Both run the same CI gate. Only `release.yml` publishes. `ci.yml` provides an extra safety pass for branches and PRs.
+
+## Required GitHub Secrets
+
+- `NPM_TOKEN` — npm automation token with publish scope; referenced by `release.yml` as `NODE_AUTH_TOKEN`
+
+Repo-level: `allow_auto_merge` stays `false` (irrelevant for tag-based flow; would matter only if we kept the changesets bot PRs).
 
 ## Local Install Test
 
@@ -58,6 +108,6 @@ jss-devtools --help
 
 ## Open Decisions
 
-- Release tooling: changesets vs release-please
-- CI runner: GitHub Actions (assumed) vs other
-- Signing / provenance scope
+- ~~Release tooling: changesets vs release-please~~ — **resolved**: tag-based manual, no bot
+- CI runner: GitHub Actions (current) vs other
+- Signing / provenance scope — currently no provenance flag; can add `--provenance` to `pnpm publish` for npm OIDC attestations later
