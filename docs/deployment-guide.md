@@ -38,7 +38,7 @@ git push --follow-tags
 1. Lint → Typecheck → Test → Build
 2. `pnpm publish --no-git-checks` (uses `NPM_TOKEN` repo secret)
 
-`ci.yml` also runs on the tag (trigger: `push: tags: ['v*']`) for a parallel validation pass with `cancel-in-progress` allowed.
+Tag push triggers **only** `release.yml`. PR and main pushes trigger **only** `ci.yml` — no overlap.
 
 ### Why we left changesets
 
@@ -86,10 +86,10 @@ Trade-offs we accept:
 
 | File | Trigger | Purpose |
 |---|---|---|
-| `.github/workflows/ci.yml` | `push: [main, tags: 'v*']` + `pull_request: [main]` | Lint + Typecheck + Test + Build (validation only) |
+| `.github/workflows/ci.yml` | `push: [main]` + `pull_request: [main]` | Lint + Typecheck + Test + Build (validation only) |
 | `.github/workflows/release.yml` | `push: tags: ['v*']` | Same validation + `pnpm publish` |
 
-Both run the same CI gate. Only `release.yml` publishes. `ci.yml` provides an extra safety pass for branches and PRs.
+Each push triggers exactly one workflow. `ci.yml` covers branches and PRs; `release.yml` covers tags.
 
 ## Required GitHub Secrets
 
