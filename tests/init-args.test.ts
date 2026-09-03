@@ -1,14 +1,15 @@
-// Surface tests: pure arg extraction plus a citty parse probe that pins the
-// `--no-<flag>` negation keying the whole flag design depends on.
+// Surface tests: pure arg extraction plus direct argv-scan tests for the
+// hidden `--no-<flag>` toggles (the flags themselves are intentionally
+// absent from --help, so they aren't parsed through citty).
 import { defineCommand, runCommand } from 'citty'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { FRAMEWORK_IDS } from '@/commands/init/types'
-import { extractInitArgs, InitArgsError } from '@/commands/init/utils/args'
+import { extractInitArgs, InitArgsError, parseNoFlags } from '@/commands/init/utils/args'
 
 describe('extractInitArgs (pure extraction)', () => {
-	it('defaults: absent feature flags stay on, mode flags off', () => {
-		const parsed = extractInitArgs({ framework: 'node' })
+	it('defaults: empty argv → all features on, mode flags off', () => {
+		const parsed = extractInitArgs({ framework: 'node' }, [])
 
 		expect(parsed).toEqual({
 			framework: 'node',
@@ -23,28 +24,16 @@ describe('extractInitArgs (pure extraction)', () => {
 		})
 	})
 
-	it('negated features parse as false', () => {
-		const parsed = extractInitArgs({
-			framework: 'next',
-			linter: false,
-			commitlint: false,
-			install: false
-		})
-
-		expect(parsed.features).toEqual({
-			linter: false,
-			commitlint: false,
-			install: false
-		})
-	})
-
 	it('mode flags extract from kebab-case keys', () => {
-		const parsed = extractInitArgs({
-			framework: 'react',
-			yes: true,
-			'dry-run': true,
-			json: true
-		})
+		const parsed = extractInitArgs(
+			{
+				framework: 'react',
+				yes: true,
+				'dry-run': true,
+				json: true
+			},
+			[]
+		)
 
 		expect(parsed.yes).toBe(true)
 		expect(parsed.dryRun).toBe(true)
@@ -52,10 +41,10 @@ describe('extractInitArgs (pure extraction)', () => {
 	})
 
 	it('missing framework throws FRAMEWORK_REQUIRED listing valid values', () => {
-		expect(() => extractInitArgs({})).toThrowError(InitArgsError)
+		expect(() => extractInitArgs({}, [])).toThrowError(InitArgsError)
 
 		try {
-			extractInitArgs({})
+			extractInitArgs({}, [])
 		} catch (error) {
 			const err = error as InitArgsError
 
@@ -66,10 +55,10 @@ describe('extractInitArgs (pure extraction)', () => {
 	})
 
 	it.each(['react-native', 'vue', 'nuxt', 42])('invalid framework %p throws FRAMEWORK_INVALID', (framework) => {
-		expect(() => extractInitArgs({ framework })).toThrowError(InitArgsError)
+		expect(() => extractInitArgs({ framework }, [])).toThrowError(InitArgsError)
 
 		try {
-			extractInitArgs({ framework })
+			extractInitArgs({ framework }, [])
 		} catch (error) {
 			expect((error as InitArgsError).code).toBe('FRAMEWORK_INVALID')
 		}
@@ -77,14 +66,75 @@ describe('extractInitArgs (pure extraction)', () => {
 
 	it('accepts every declared framework id', () => {
 		for (const framework of FRAMEWORK_IDS) {
-			expect(extractInitArgs({ framework }).framework).toBe(framework)
+			expect(extractInitArgs({ framework }, []).framework).toBe(framework)
 		}
 	})
 })
 
-// Probe command mirrors the real init args schema; runCommand feeds raw CLI
-// argv through citty's parser so the captured object is exactly what the
-// production run() receives.
+describe('parseNoFlags (argv scan for hidden --no-X toggles)', () => {
+	it('empty argv leaves every feature on', () => {
+		expect(parseNoFlags([])).toEqual({
+			linter: true,
+			commitlint: true,
+			install: true
+		})
+	})
+
+	it('each --no-X flips one feature off without touching the others', () => {
+		expect(parseNoFlags(['--no-linter'])).toEqual({
+			linter: false,
+			commitlint: true,
+			install: true
+		})
+		expect(parseNoFlags(['--no-commitlint'])).toEqual({
+			linter: true,
+			commitlint: false,
+			install: true
+		})
+		expect(parseNoFlags(['--no-install'])).toEqual({
+			linter: true,
+			commitlint: true,
+			install: false
+		})
+	})
+
+	it('all three negations in one argv', () => {
+		expect(parseNoFlags(['--no-linter', '--no-commitlint', '--no-install'])).toEqual({
+			linter: false,
+			commitlint: false,
+			install: false
+		})
+	})
+
+	it('stops scanning at the `--` separator', () => {
+		expect(parseNoFlags(['--no-linter', '--', '--no-install'])).toEqual({
+			linter: false,
+			commitlint: true,
+			install: true
+		})
+	})
+
+	it('unsupported flags are ignored (no error)', () => {
+		expect(parseNoFlags(['--framework', 'node', '--unknown', '--no-linter'])).toEqual({
+			linter: false,
+			commitlint: true,
+			install: true
+		})
+	})
+
+	it('extractInitArgs wires the scan: --no-linter flips features.linter off', () => {
+		const parsed = extractInitArgs({ framework: 'node' }, ['--no-linter'])
+
+		expect(parsed.features.linter).toBe(false)
+		expect(parsed.features.commitlint).toBe(true)
+		expect(parsed.features.install).toBe(true)
+	})
+})
+
+// Probe command mirrors the real init args schema (without the hidden
+// --no-* toggles — citty never sees them). runCommand feeds raw CLI argv
+// through citty's parser so the captured object is exactly what the
+// production run() receives from citty.
 const captured: Record<string, unknown> = {}
 
 const probeCommand = defineCommand({
@@ -109,21 +159,6 @@ const probeCommand = defineCommand({
 			type: 'boolean',
 			description: 'json',
 			default: false
-		},
-		linter: {
-			type: 'boolean',
-			description: 'linter',
-			default: true
-		},
-		commitlint: {
-			type: 'boolean',
-			description: 'commitlint',
-			default: true
-		},
-		install: {
-			type: 'boolean',
-			description: 'install',
-			default: true
 		}
 	},
 	run: ({ args }) => {
@@ -131,29 +166,22 @@ const probeCommand = defineCommand({
 	}
 })
 
-describe('citty parse probe (negation keying)', () => {
-	it('parses --no-linter into linter=false, other defaults intact', async () => {
-		await runCommand(probeCommand, {
-			rawArgs: ['--framework', 'node', '--no-linter']
-		})
-
-		expect(captured.framework).toBe('node')
-		expect(captured.linter).toBe(false)
-		expect(captured.commitlint).toBe(true)
-		expect(captured.install).toBe(true)
+describe('citty parse probe (declared mode flags only)', () => {
+	beforeEach(() => {
+		for (const key of Object.keys(captured)) {
+			delete captured[key]
+		}
 	})
 
-	it('parses all three negations plus mode flags at once', async () => {
+	it('framework + mode flags parse cleanly; citty does not see the hidden flag', async () => {
 		await runCommand(probeCommand, {
-			rawArgs: ['--framework', 'react', '--no-linter', '--no-commitlint', '--no-install', '--dry-run', '--json']
+			rawArgs: ['--framework', 'react', '--dry-run', '--json']
 		})
 
 		expect(captured.framework).toBe('react')
-		expect(captured.linter).toBe(false)
-		expect(captured.commitlint).toBe(false)
-		expect(captured.install).toBe(false)
 		expect(captured['dry-run']).toBe(true)
 		expect(captured.json).toBe(true)
+		expect(captured.yes).toBe(false)
 	})
 
 	it('kebab-case flag --dry-run lands under the dry-run key', async () => {

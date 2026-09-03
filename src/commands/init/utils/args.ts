@@ -14,16 +14,36 @@ export class InitArgsError extends Error {
 const isFrameworkId = (value: unknown): value is FrameworkId =>
 	typeof value === 'string' && (FRAMEWORK_IDS as readonly string[]).includes(value)
 
-// Default-on features stay on unless the parser delivered an explicit
-// negation (false). Checking `!== false` (instead of `=== true`) keeps the
-// extractor immune to key-order surprises when citty merges defaults.
-const extractFeatures = (raw: Record<string, unknown>): InitFeatures => ({
-	linter: raw.linter !== false,
-	commitlint: raw.commitlint !== false,
-	install: raw.install !== false
-})
+// `--no-linter` / `--no-commitlint` / `--no-install` are scanned off raw
+// argv rather than declared in citty — keeps them hidden from --help while
+// still letting users opt out of any always-on stage. Stops at `--` so any
+// `--no-install`-shaped token appearing as a positional after the separator
+// is not interpreted as a flag.
+export const parseNoFlags = (argv: readonly string[]): InitFeatures => {
+	const features: InitFeatures = {
+		linter: true,
+		commitlint: true,
+		install: true
+	}
 
-export const extractInitArgs = (raw: Record<string, unknown>): InitArgs => {
+	for (const arg of argv) {
+		if (arg === '--') {
+			break
+		}
+
+		if (arg === '--no-linter') {
+			features.linter = false
+		} else if (arg === '--no-commitlint') {
+			features.commitlint = false
+		} else if (arg === '--no-install') {
+			features.install = false
+		}
+	}
+
+	return features
+}
+
+export const extractInitArgs = (raw: Record<string, unknown>, argv: readonly string[]): InitArgs => {
 	const framework = raw.framework
 
 	if (framework === undefined) {
@@ -45,6 +65,6 @@ export const extractInitArgs = (raw: Record<string, unknown>): InitArgs => {
 		yes: raw.yes === true,
 		dryRun: raw['dry-run'] === true,
 		json: raw.json === true,
-		features: extractFeatures(raw)
+		features: parseNoFlags(argv)
 	}
 }

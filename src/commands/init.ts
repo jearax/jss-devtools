@@ -31,26 +31,14 @@ const initCommand = defineCommand({
 			type: 'boolean',
 			description: 'Output structured JSON result',
 			default: false
-		},
-		linter: {
-			type: 'boolean',
-			description: 'Skip eslint + prettier setup with --no-linter',
-			default: true
-		},
-		commitlint: {
-			type: 'boolean',
-			description: 'Skip commitlint (config-conventional) with --no-commitlint',
-			default: true
-		},
-		install: {
-			type: 'boolean',
-			description: 'Write configs but skip dependency installation with --no-install',
-			default: true
 		}
+		// `--no-linter` / `--no-commitlint` / `--no-install` are intentionally
+		// hidden from --help. Defaults are on; argv scan in extractInitArgs
+		// catches the negation flag without exposing a positive form to citty.
 	},
 	run: async ({ args }) => {
 		try {
-			await runInitFlow(extractInitArgs(args as Record<string, unknown>))
+			await runInitFlow(extractInitArgs(args as Record<string, unknown>, process.argv.slice(2)))
 		} catch (error) {
 			if (error instanceof InitArgsError) {
 				const message = `${error.code}: ${error.message}`
