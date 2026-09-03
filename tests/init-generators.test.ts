@@ -160,6 +160,13 @@ describe('buildPrettierConfigContent', () => {
 		expect(parsed).toHaveProperty('singleQuote')
 		expect(parsed).toHaveProperty('tabWidth')
 	})
+
+	it('emits tabWidth: 4', () => {
+		const content = buildPrettierConfigContent()
+		const parsed = JSON.parse(content)
+
+		expect(parsed.tabWidth).toBe(4)
+	})
 })
 
 describe('buildCommitlintConfigContent', () => {
