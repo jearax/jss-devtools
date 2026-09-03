@@ -253,18 +253,17 @@ describe('buildCommitlintConfigContent', () => {
 		expect(content).not.toMatch(/'subject-full-stop':\s*\[0,\s*'never'\]/)
 	})
 
-	it('emits syntactically balanced ESM (braces + brackets all matched)', () => {
+	it('emits syntactically valid JS (no TS annotations leak into the .mjs output)', () => {
+		// commitlint.config.mjs is loaded as plain JS — any TypeScript syntax
+		// (e.g. `: { header: string }`) would crash the parser.
 		const content = buildCommitlintConfigContent()
 
-		const openBraces = (content.match(/\{/g) || []).length
-		const closeBraces = (content.match(/\}/g) || []).length
+		expect(content).not.toMatch(/:\s*\{[^}]*:\s*\w+[^}]*\}/)
+		expect(content).not.toMatch(/:\s*\w+\[\]/)
+		expect(content).not.toMatch(/:\s*\[boolean, string\]/)
 
-		expect(openBraces, 'unbalanced braces in generated commitlint config').toBe(closeBraces)
-
-		const openBrackets = (content.match(/\[/g) || []).length
-		const closeBrackets = (content.match(/\]/g) || []).length
-
-		expect(openBrackets, 'unbalanced brackets in generated commitlint config').toBe(closeBrackets)
+		// node --check on the generated output must pass.
+		expect(() => new Function(content.replace(/^export default commitlintConfig$/m, '({})'))).not.toThrow()
 	})
 })
 

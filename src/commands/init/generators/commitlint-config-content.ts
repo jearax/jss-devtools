@@ -14,7 +14,7 @@ export const buildCommitlintConfigContent = (): string =>
 	`const CONVENTIONAL_REGEX = ${CONVENTIONAL_REGEX.toString()}\n\n` +
 	`const headerRegexPlugin = {\n` +
 	`\trules: {\n` +
-	`\t\t'header-ticket-or-conventional': ({ header }: { header: string }, when: (ok: boolean, msg: string) => [boolean, string]) => [\n` +
+	`\t\t'header-ticket-or-conventional': ({ header }, when) => [\n` +
 	`\t\t\twhen(\n` +
 	`\t\t\t\tTICKET_REGEX.test(header) || CONVENTIONAL_REGEX.test(header),\n` +
 	`\t\t\t\t'Header must match either "TICKET-<num> - <desc>" or conventional "<type>[(<scope>)][:!]: <desc>"'\n` +
