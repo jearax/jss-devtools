@@ -93,7 +93,11 @@ Each push triggers exactly one workflow. `ci.yml` covers branches and PRs; `rele
 
 ## Required GitHub Secrets
 
-- `NPM_TOKEN` — npm automation token with publish scope; referenced by `release.yml` as `NODE_AUTH_TOKEN`
+- `NPM_TOKEN` — npm automation token with publish scope. **Must be stored as an environment secret scoped to environment `main`** (Settings → Environments → main → Secrets), NOT as a repository secret. `release.yml` declares `environment: main` to gain access to this scope; without it, the env var resolves to empty and `pnpm publish` returns 404.
+
+The `main` environment is configured with **no required reviewers** (`protection_rules: []`), so declaring it on `release.yml` does NOT trigger an approval gate — it only grants access to the env-scoped secret.
+
+Why environment-scoped vs repo-scoped: env-scoped secrets can be rotated without affecting other workflows, and they surface as a single auditable binding tied to the publish job.
 
 Repo-level: `allow_auto_merge` stays `false` (irrelevant for tag-based flow; would matter only if we kept the changesets bot PRs).
 
