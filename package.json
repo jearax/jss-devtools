@@ -26,11 +26,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prepare": "husky",
-    "release": "pnpm clean && pnpm build && changeset publish",
+    "release": "pnpm clean && pnpm build && pnpm publish --no-git-checks",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
-    "version": "changeset version"
+    "typecheck": "tsc --noEmit"
   },
   "sideEffects": false,
   "dependencies": {
@@ -46,7 +45,6 @@
     "semver": "^7.8.5"
   },
   "devDependencies": {
-    "@changesets/cli": "^3.0.1",
     "@eslint/js": "^10.0.1",
     "@types/figlet": "^1.7.0",
     "@types/node": "^26.4.0",
