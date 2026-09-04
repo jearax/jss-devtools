@@ -8,6 +8,7 @@ import { join } from 'pathe'
 import { readManifest } from '@/commands/init/utils/manifest'
 import { detectMonorepo } from '@/core/detector/monorepo-signals'
 import { detectProjectPM, ProjectPM } from '@/core/detector/project-pm'
+import { startSpinner } from '@/utils/progress'
 import { isTTY } from '@/utils/prompts'
 
 export type PreflightFailureCode =
@@ -81,65 +82,114 @@ const promptForPM = async (): Promise<ProjectPM | null> => {
 	}
 }
 
-export const runPreflight = async (cwd: string): Promise<PreflightResult> => {
-	const manifestRead = readManifest(cwd)
+export const runPreflight = async (cwd: string, opts: { silent?: boolean } = {}): Promise<PreflightResult> => {
+	const sp = await startSpinner('Checking project', { silent: opts.silent })
+	let finalized = false
 
-	if (manifestRead === 'missing') {
-		return {
-			ok: false,
-			failure: {
-				code: 'NO_PACKAGE_JSON',
-				message: `No package.json found in ${cwd}.`,
-				hint: 'jss-devtools init bootstraps an existing JS/TS project — create one first.'
-			}
+	const finalizeFail = (): void => {
+		if (!finalized) {
+			sp.fail()
+			finalized = true
 		}
 	}
 
-	if (manifestRead === 'invalid') {
-		return {
-			ok: false,
-			failure: {
-				code: 'PACKAGE_JSON_INVALID',
-				message: 'package.json is not valid JSON.',
-				hint: 'Fix the parse error, then re-run init (completed parts are skipped).'
-			}
-		}
+	const finalizeDone = (text: string): void => {
+		sp.done(text)
+		finalized = true
 	}
 
-	const monorepo = detectMonorepo(cwd, manifestRead.manifest)
+	try {
+		const manifestRead = readManifest(cwd)
 
-	if (monorepo !== null) {
-		return {
-			ok: false,
-			failure: {
-				code: 'MONOREPO_UNSUPPORTED',
-				message: `Monorepo detected (${monorepo.evidence}).`,
-				hint: 'init operates on a single package — run it inside a workspace package.'
+		if (manifestRead === 'missing') {
+			finalizeFail()
+
+			return {
+				ok: false,
+				failure: {
+					code: 'NO_PACKAGE_JSON',
+					message: `No package.json found in ${cwd}.`,
+					hint: 'jss-devtools init bootstraps an existing JS/TS project — create one first.'
+				}
 			}
 		}
-	}
 
-	const foreignLinter = FOREIGN_LINTER_FILES.find((file) => existsSync(join(cwd, file)))
+		if (manifestRead === 'invalid') {
+			finalizeFail()
 
-	if (foreignLinter !== undefined) {
-		return {
-			ok: false,
-			failure: {
-				code: 'FOREIGN_LINTER',
-				message: `Foreign linter config found: ${foreignLinter}.`,
-				hint: 'init scaffolds the eslint + prettier stack — migrate off the other linter first.'
+			return {
+				ok: false,
+				failure: {
+					code: 'PACKAGE_JSON_INVALID',
+					message: 'package.json is not valid JSON.',
+					hint: 'Fix the parse error, then re-run init (completed parts are skipped).'
+				}
 			}
 		}
-	}
 
-	let pm = await detectProjectPM(cwd, () => nypmGuess(cwd))
+		const monorepo = detectMonorepo(cwd, manifestRead.manifest)
 
-	if (pm === null) {
-		if (isTTY()) {
-			pm = await promptForPM()
+		if (monorepo !== null) {
+			finalizeFail()
+
+			return {
+				ok: false,
+				failure: {
+					code: 'MONOREPO_UNSUPPORTED',
+					message: `Monorepo detected (${monorepo.evidence}).`,
+					hint: 'init operates on a single package — run it inside a workspace package.'
+				}
+			}
 		}
+
+		const foreignLinter = FOREIGN_LINTER_FILES.find((file) => existsSync(join(cwd, file)))
+
+		if (foreignLinter !== undefined) {
+			finalizeFail()
+
+			return {
+				ok: false,
+				failure: {
+					code: 'FOREIGN_LINTER',
+					message: `Foreign linter config found: ${foreignLinter}.`,
+					hint: 'init scaffolds the eslint + prettier stack — migrate off the other linter first.'
+				}
+			}
+		}
+
+		const pm = await detectProjectPM(cwd, () => nypmGuess(cwd))
 
 		if (pm === null) {
+			if (isTTY()) {
+				const answered = await promptForPM()
+
+				if (answered === null) {
+					finalizeFail()
+
+					return {
+						ok: false,
+						failure: {
+							code: 'PM_UNDETECTED',
+							message: 'Could not detect the project package manager.',
+							hint: 'Add a packageManager field or a lockfile to package.json, then re-run init.'
+						}
+					}
+				}
+
+				finalizeDone('Project check passed')
+
+				return {
+					ok: true,
+					value: {
+						manifest: manifestRead.manifest,
+						pm: answered,
+						hasGit: existsSync(join(cwd, '.git'))
+					}
+				}
+			}
+
+			finalizeFail()
+
 			return {
 				ok: false,
 				failure: {
@@ -149,14 +199,20 @@ export const runPreflight = async (cwd: string): Promise<PreflightResult> => {
 				}
 			}
 		}
-	}
 
-	return {
-		ok: true,
-		value: {
-			manifest: manifestRead.manifest,
-			pm,
-			hasGit: existsSync(join(cwd, '.git'))
+		finalizeDone('Project check passed')
+
+		return {
+			ok: true,
+			value: {
+				manifest: manifestRead.manifest,
+				pm,
+				hasGit: existsSync(join(cwd, '.git'))
+			}
+		}
+	} finally {
+		if (!finalized) {
+			sp.fail()
 		}
 	}
 }

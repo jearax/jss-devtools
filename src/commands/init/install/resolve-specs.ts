@@ -6,6 +6,7 @@ import { InitFeatures } from '@/commands/init/types'
 import { declaredDependency, isLibraryManifest } from '@/commands/init/utils/manifest'
 import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { PackageMetadata } from '@/core/registry-client/types'
+import { startSpinner } from '@/utils/progress'
 
 const PPJ_PKG = 'prettier-package-json'
 
@@ -106,7 +107,8 @@ const pickAnchorVersion = (metadata: PackageMetadata, name: string): string => {
 export const resolveSpecs = async (
 	preset: FrameworkPreset,
 	features: InitFeatures,
-	manifest: Record<string, unknown>
+	manifest: Record<string, unknown>,
+	opts: { silent?: boolean } = {}
 ): Promise<ResolvedSpecs> => {
 	const names: string[] = [...ALWAYS_PACKAGES]
 
@@ -150,8 +152,22 @@ export const resolveSpecs = async (
 
 	const dev: string[] = []
 
-	for (const name of ordered) {
-		dev.push(await resolveOne(name))
+	const spinner = await startSpinner(`Resolving ${ordered.length} dev package${ordered.length === 1 ? '' : 's'}`, {
+		silent: opts.silent
+	})
+
+	try {
+		for (let i = 0; i < ordered.length; i++) {
+			const name = ordered[i] ?? ''
+
+			spinner.update(`Resolving ${i + 1}/${ordered.length}: ${name}`)
+			dev.push(await resolveOne(name))
+		}
+
+		spinner.done(`Resolved ${ordered.length} dev package${ordered.length === 1 ? '' : 's'}`)
+	} catch (error) {
+		spinner.fail(`Failed to resolve dev packages`)
+		throw error
 	}
 
 	let ppjSpec = `${PPJ_PKG}@latest`
@@ -171,15 +187,33 @@ export const resolveSpecs = async (
 	const runtimeNames = preset.runtimeDeps.filter((name) => declaredDependency(manifest, name) === undefined)
 	const runtime: string[] = []
 
-	for (const name of runtimeNames) {
-		try {
-			const metadata = await fetchPackageMetadata(name)
-			const version = pickVersion(metadata, chosen)
+	if (runtimeNames.length > 0) {
+		const runtimeSpinner = await startSpinner(
+			`Resolving ${runtimeNames.length} runtime package${runtimeNames.length === 1 ? '' : 's'}`,
+			{ silent: opts.silent }
+		)
 
-			runtime.push(specFor(name, version))
-		} catch {
-			offlineFallback = true
-			runtime.push(`${name}@latest`)
+		try {
+			for (let i = 0; i < runtimeNames.length; i++) {
+				const name = runtimeNames[i] ?? ''
+
+				runtimeSpinner.update(`Resolving ${i + 1}/${runtimeNames.length}: ${name}`)
+
+				try {
+					const metadata = await fetchPackageMetadata(name)
+					const version = pickVersion(metadata, chosen)
+
+					runtime.push(specFor(name, version))
+				} catch {
+					offlineFallback = true
+					runtime.push(`${name}@latest`)
+				}
+			}
+
+			runtimeSpinner.done(`Resolved ${runtimeNames.length} runtime package${runtimeNames.length === 1 ? '' : 's'}`)
+		} catch (error) {
+			runtimeSpinner.fail(`Failed to resolve runtime packages`)
+			throw error
 		}
 	}
 

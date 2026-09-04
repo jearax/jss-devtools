@@ -82,8 +82,9 @@ const dropKeptTargets = (plan: InitPlan, keptTargets: string[]): InitPlan => {
 export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 	const startedAt = Date.now()
 	const cwd = process.cwd()
+	const silent = args.json === true
 
-	const preflight = await runPreflight(cwd)
+	const preflight = await runPreflight(cwd, { silent })
 
 	if (!preflight.ok) {
 		return abort(args, preflight.failure.code, preflight.failure.message, preflight.failure.hint)
@@ -91,7 +92,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 
 	const { manifest, pm, hasGit } = preflight.value
 	const preset = getPreset(args.framework)
-	const specs = await resolveSpecs(preset, args.features, manifest)
+	const specs = await resolveSpecs(preset, args.features, manifest, { silent })
 
 	if (specs.offlineFallback) {
 		logger.warn('Registry unreachable — some specs fell back to @latest.')
@@ -177,6 +178,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 		cwd,
 		pm: pm.pm,
 		capture: args.json,
+		silent,
 		isWindows: process.platform === 'win32'
 	})
 

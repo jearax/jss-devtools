@@ -8,7 +8,8 @@ import { runCommandSpec } from '@/commands/init/install/run-command'
 import { InitPlan, PlanAction } from '@/commands/init/plan/types'
 import { InitConflictEntry, InitSkippedEntry } from '@/commands/init/types'
 import { addScriptsWhenAbsent, serializeManifest, setLintStagedWhenAbsent } from '@/commands/init/utils/manifest'
-import { localBinCommand } from '@/core/runner/pm-commands'
+import { fmtCommand, localBinCommand } from '@/core/runner/pm-commands'
+import { startSpinner } from '@/utils/progress'
 
 export interface ApplyOutcome {
 	generated: string[]
@@ -28,6 +29,8 @@ export interface ApplyDeps {
 	pm: AgentName
 	/** Buffer child output (json mode). */
 	capture?: boolean
+	/** Suppress progress feedback — for --json output where any extra line corrupts the envelope. */
+	silent?: boolean
 	isWindows: boolean
 }
 
@@ -149,6 +152,53 @@ export const applyPlan = async (plan: InitPlan, deps: ApplyDeps): Promise<ApplyO
 		mutations: 0
 	}
 
+	const installAction = plan.actions.find((a) => a.kind === 'install')
+
+	const installTotal =
+		installAction && installAction.kind === 'install' ? installAction.devSpecs.length + installAction.specs.length : 0
+
+	const installSpinner = installAction
+		? await startSpinner(`Installing ${installTotal} package${installTotal === 1 ? '' : 's'} via ${deps.pm}`, {
+				silent: deps.silent
+			})
+		: null
+
+	let installFinalized = false
+
+	const finalizeInstall = (kind: 'done' | 'fail', text?: string): void => {
+		if (installFinalized) {
+			return
+		}
+
+		installFinalized = true
+
+		if (kind === 'done') {
+			installSpinner?.done(text)
+		} else {
+			installSpinner?.fail(text)
+		}
+	}
+
+	try {
+		await runPlan(plan, deps, outcome, installSpinner, finalizeInstall)
+
+		finalizeInstall('done', `Installed ${installTotal} package${installTotal === 1 ? '' : 's'}`)
+	} finally {
+		if (!installFinalized) {
+			installSpinner?.fail()
+		}
+	}
+
+	return outcome
+}
+
+const runPlan = async (
+	plan: InitPlan,
+	deps: ApplyDeps,
+	outcome: ApplyOutcome,
+	installSpinner: Awaited<ReturnType<typeof startSpinner>> | null,
+	finalizeInstall: (kind: 'done' | 'fail', text?: string) => void
+): Promise<void> => {
 	for (const action of plan.actions) {
 		switch (action.kind) {
 			case 'git-init': {
@@ -229,7 +279,14 @@ export const applyPlan = async (plan: InitPlan, deps: ApplyDeps): Promise<ApplyO
 
 				let allOk = true
 
-				for (const command of commands) {
+				for (let i = 0; i < commands.length; i++) {
+					const command = commands[i]
+
+					if (command === undefined) {
+						continue
+					}
+
+					installSpinner?.update(`Installing ${i + 1}/${commands.length}: ${fmtCommand(command)}`)
 					const result = await runCommandSpec(command, { capture: deps.capture })
 
 					allOk = allOk && result.ok
@@ -238,35 +295,50 @@ export const applyPlan = async (plan: InitPlan, deps: ApplyDeps): Promise<ApplyO
 				outcome.installOk = commands.length > 0 ? allOk : null
 				outcome.installed.push(...action.devSpecs, ...action.specs)
 				outcome.mutations += commands.length
+				finalizeInstall(
+					'done',
+					outcome.installOk
+						? `Installed ${action.devSpecs.length + action.specs.length} packages`
+						: 'Install step finished with errors'
+				)
 
 				break
 			}
 
 			case 'husky-activate': {
-				const result = await runCommandSpec(localBinCommand(deps.pm, 'husky'), {
-					capture: deps.capture
-				})
+				const huskySpinner = await startSpinner('Activating husky hooks', { silent: deps.silent })
+				let huskyFinalized = false
 
-				outcome.huskyOk = result.ok
-
-				// Surface a user-facing message whenever the activation fails —
-				// not only when the preceding install succeeded. Install may
-				// have failed too, and the user still needs to know the hooks
-				// were never wired up.
-				if (!result.ok) {
-					outcome.skipped.push({
-						feature: 'husky',
-						reason:
-							outcome.installOk === true
-								? 'husky activation failed — run your PM install manually'
-								: 'husky activation skipped — install failed; hooks not wired'
+				try {
+					const result = await runCommandSpec(localBinCommand(deps.pm, 'husky'), {
+						capture: deps.capture
 					})
+
+					outcome.huskyOk = result.ok
+					huskySpinner.done(result.ok ? 'Husky hooks activated' : 'Husky activation failed')
+					huskyFinalized = true
+
+					// Surface a user-facing message whenever the activation fails —
+					// not only when the preceding install succeeded. Install may
+					// have failed too, and the user still needs to know the hooks
+					// were never wired up.
+					if (!result.ok) {
+						outcome.skipped.push({
+							feature: 'husky',
+							reason:
+								outcome.installOk === true
+									? 'husky activation failed — run your PM install manually'
+									: 'husky activation skipped — install failed; hooks not wired'
+						})
+					}
+				} finally {
+					if (!huskyFinalized) {
+						huskySpinner.fail()
+					}
 				}
 
 				break
 			}
 		}
 	}
-
-	return outcome
 }
