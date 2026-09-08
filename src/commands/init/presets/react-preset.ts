@@ -10,7 +10,7 @@ const reactRules = `
 
 				// eslint-plugin-react-hooks
 				'react-hooks/rules-of-hooks': 'error',
-				'react-hooks/exhaustive-deps': 'warn'
+				'react-hooks/exhaustive-deps': 'warn',
 `
 
 export const reactPreset: FrameworkPreset = {

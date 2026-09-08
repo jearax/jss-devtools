@@ -114,10 +114,11 @@ describe('resolveSpecs', () => {
 		const preset = getPreset('react')
 		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
 
-		// eslint@^11.0.0 should be chosen over 10.0.0 (newer peer-satisfying version)
+		// eslint@^11.0.0 would be chosen without cap, but eslint is capped at 9
+		// due to eslint-plugin-react peer requirement (supports eslint ^3-^9.7)
 		const eslintSpec = specs.dev.find((s) => s.startsWith('eslint@'))
 
-		expect(eslintSpec).toBe('eslint@^11.0.0')
+		expect(eslintSpec).toBe('eslint@^9.0.0')
 	})
 
 	it('user-declared pkg filtered out in runtime', async () => {
@@ -374,15 +375,17 @@ describe('resolveSpecs', () => {
 		const preset = getPreset('react')
 		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
 
-		// TypeScript >=5.0.0 not yet chosen, so eslint should pick 12.0.0 (highest satisfying)
+		// TypeScript >=5.0.0 not yet chosen, so eslint would pick 12.0.0 without cap,
+		// but eslint is capped at 9 due to eslint-plugin-react peer requirement
 		const eslintSpec = specs.dev.find((s) => s.startsWith('eslint@'))
 
-		expect(eslintSpec).toBe('eslint@^12.0.0')
+		expect(eslintSpec).toBe('eslint@^9.0.0')
 
-		// Parser should pick 11.0.0 (highest satisfying eslint ^12.0.0)
+		// Parser peer requirement is eslint ^12.0.0, but eslint is capped at 9.
+		// No parser version satisfies this, so parser gets @latest
 		const parserSpec = specs.dev.find((s) => s.startsWith('@typescript-eslint/parser@'))
 
-		expect(parserSpec).toBe('@typescript-eslint/parser@^11.0.0')
+		expect(parserSpec).toBe('@typescript-eslint/parser@latest')
 	})
 
 	it('excludes from dev when linter feature off', async () => {

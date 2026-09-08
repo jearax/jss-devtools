@@ -47,15 +47,18 @@ const specFor = (name: string, version: string): string =>
 // legacy 1.x stream satisfies modern peer ranges by accident, which would
 // silently downgrade the dev stack.
 //
-// Anchor packages (typescript) are additionally constrained to a known-safe
-// major range below — the eslint-ecosystem typescript plugin majors trail TS
-// itself by one or two majors, and the latest TS would break install at
-// `npm install` time (peer conflict), no matter how the picker orders the
-// dependents.
+// Anchor packages (typescript, eslint) are additionally constrained to a
+// known-safe major range below — the eslint-ecosystem plugin majors trail the
+// runtime itself by one or two majors, and the latest major would break
+// install at `npm install` time (peer conflict), no matter how the picker
+// orders the dependents.
 const ANCHOR_MAX_MAJOR: Record<string, number> = {
 	// @typescript-eslint/parser 8.x peers typescript <6.1.0; cap typescript at
 	// the 5.x line until the eslint ecosystem catches up.
-	typescript: 5
+	typescript: 5,
+	// eslint-plugin-react@latest (7.x) only peers eslint ^3-^9.7; cap eslint
+	// at 9.x until the eslint ecosystem catches up with eslint 10.
+	eslint: 9
 }
 
 const pickVersion = (metadata: PackageMetadata, chosen: Record<string, string>): string => {
