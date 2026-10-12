@@ -385,7 +385,7 @@ describe('runInitFlow', () => {
 		expect(process.exitCode).toBe(1)
 	})
 
-	it('PM_UNDETECTED exit 1 (package.json but no lockfile, no packageManager, no TTY)', async () => {
+	it('defaults to npm when no lockfile or packageManager field exists', async () => {
 		const dir = newDir()
 
 		writePkgJson(dir, { packageManager: undefined })
@@ -401,7 +401,7 @@ describe('runInitFlow', () => {
 		const args: InitArgs = {
 			framework: 'node' as const,
 			yes: false,
-			dryRun: false,
+			dryRun: true,
 			json: true,
 			features: {
 				linter: true,
@@ -412,9 +412,8 @@ describe('runInitFlow', () => {
 
 		const result = await initModule.runInitFlow(args)
 
-		expect(result.status).toBe('error')
-		expect(result.message).toContain('package manager')
-		expect(process.exitCode).toBe(1)
+		expect(result.status).toBe('dry-run')
+		expect(result.pm).toBe('npm')
 	})
 
 	it('conflict + non-TTY (no --yes) → REQUIRES_CONFIRMATION exit 1', async () => {

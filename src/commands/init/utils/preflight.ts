@@ -1,17 +1,15 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { select } from '@clack/prompts'
 import { Agent } from 'package-manager-detector'
 
 import { readManifest } from '@/commands/init/utils/manifest'
 import { detectMonorepo } from '@/core/detector/monorepo-signals'
 import { detectProjectAgent } from '@/core/detector/project-pm'
 import { startSpinner } from '@/utils/progress'
-import { isInteractive } from '@/utils/prompts'
 
 export type PreflightFailureCode =
-	'NO_PACKAGE_JSON' | 'PACKAGE_JSON_INVALID' | 'MONOREPO_UNSUPPORTED' | 'FOREIGN_LINTER' | 'PM_UNDETECTED'
+	'NO_PACKAGE_JSON' | 'PACKAGE_JSON_INVALID' | 'MONOREPO_UNSUPPORTED' | 'FOREIGN_LINTER'
 
 export interface PreflightFailure {
 	code: PreflightFailureCode
@@ -29,33 +27,8 @@ export type PreflightResult = { ok: true; value: PreflightOk } | { ok: false; fa
 
 const FOREIGN_LINTER_FILES = ['biome.json', 'biome.jsonc', '.oxlintrc.json'] as const
 
-const PM_CHOICES: Array<{ value: Agent; label: string }> = [
-	{
-		value: 'npm',
-		label: 'npm'
-	},
-	{
-		value: 'pnpm',
-		label: 'pnpm'
-	},
-	{
-		value: 'yarn@berry',
-		label: 'yarn'
-	},
-	{
-		value: 'bun',
-		label: 'bun'
-	}
-]
-
-const promptForPM = async (): Promise<Agent | null> => {
-	const answer = await select({
-		message: 'Which package manager does this project use?',
-		options: PM_CHOICES
-	})
-
-	return typeof answer === 'string' ? (answer as Agent) : null
-}
+// No lockfile and no packageManager field: npm is what Node ships with.
+const DEFAULT_AGENT: Agent = 'npm'
 
 export const runPreflight = async (cwd: string, opts: { silent?: boolean } = {}): Promise<PreflightResult> => {
 	const sp = startSpinner('Checking project', { silent: opts.silent })
@@ -132,48 +105,7 @@ export const runPreflight = async (cwd: string, opts: { silent?: boolean } = {})
 			}
 		}
 
-		const pm = await detectProjectAgent(cwd)
-
-		if (pm === null) {
-			if (isInteractive()) {
-				const answered = await promptForPM()
-
-				if (answered === null) {
-					finalizeFail()
-
-					return {
-						ok: false,
-						failure: {
-							code: 'PM_UNDETECTED',
-							message: 'Could not detect the project package manager.',
-							hint: 'Add a packageManager field or a lockfile to package.json, then re-run init.'
-						}
-					}
-				}
-
-				finalizeDone('Project check passed')
-
-				return {
-					ok: true,
-					value: {
-						manifest: manifestRead.manifest,
-						pm: answered,
-						hasGit: existsSync(join(cwd, '.git'))
-					}
-				}
-			}
-
-			finalizeFail()
-
-			return {
-				ok: false,
-				failure: {
-					code: 'PM_UNDETECTED',
-					message: 'Could not detect the project package manager.',
-					hint: 'Add a packageManager field or a lockfile to package.json, then re-run init.'
-				}
-			}
-		}
+		const pm = (await detectProjectAgent(cwd)) ?? DEFAULT_AGENT
 
 		finalizeDone('Project check passed')
 

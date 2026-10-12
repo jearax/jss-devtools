@@ -11,6 +11,7 @@
   - Uninstall: `npm rm -g @jjuidev/jss-devtools` (or `pnpm remove -g` / `bun remove -g` / `yarn global remove`)
 
 - `init --framework` is optional and defaults to `node`.
+- `init` no longer asks which package manager to use: without a lockfile or `packageManager` field it uses npm. This also removes the spinner/prompt flicker during "Checking project".
 - `init` creates `.vscode/settings.json` and `.vscode/extensions.json` when missing (format on save via Prettier, eslint fixes on save, EditorConfig extension recommended); the generated `.gitignore` no longer ignores `.vscode/`.
 - `init` creates `.editorconfig` when missing and makes it the single whitespace source (tabs width 2, LF, print width 120); `.prettierrc.json` holds only JS syntax rules (`semi`, `singleQuote`, `jsxSingleQuote`, `quoteProps`, `trailingComma: none`, `bracketSpacing`, `bracketSameLine`, `arrowParens`). Generated JSON (tsconfig, VS Code files) now matches Prettier's layout.
 - lint-staged formats `package.json` with `prettier --write` instead of `prettier-package-json --use-tabs`, so it follows `.editorconfig` (keys are no longer sorted).

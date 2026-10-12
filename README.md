@@ -49,7 +49,7 @@ jss-devtools --help | --version
 | `pnpm-workspace.yaml` | pnpm only: `allowBuilds: { unrs-resolver: true }` for pnpm 11 |
 | `.gitignore` | Only when missing |
 
-The package manager (npm, pnpm, yarn classic, yarn berry, bun) is detected from the lockfile or the `packageManager` field; every command is mapped through [`package-manager-detector`](https://github.com/antfu-collective/package-manager-detector). Re-running is idempotent; differing config files are listed for confirmation before they are replaced.
+The package manager (npm, pnpm, yarn classic, yarn berry, bun) is detected from the lockfile or the `packageManager` field, falling back to npm when neither exists; every command is mapped through [`package-manager-detector`](https://github.com/antfu-collective/package-manager-detector). Re-running is idempotent; differing config files are listed for confirmation before they are replaced.
 
 ## Tech Stack
 
