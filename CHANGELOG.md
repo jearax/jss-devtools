@@ -12,7 +12,7 @@
 
 - `init --framework` is optional and defaults to `node`.
 - `init` scripts are `lint: eslint .` and `format: eslint --fix .`; scope comes from `eslint.config.mjs` (which now ignores `build/` and, for next, `.next/`), and formatting runs through `prettier/prettier`.
-- `init` no longer generates `.gitignore`.
+- `init` creates `.gitignore` only when missing, containing just `node_modules/`.
 - `init` no longer asks which package manager to use: without a lockfile or `packageManager` field it uses npm. This also removes the spinner/prompt flicker during "Checking project".
 - `init` creates `.vscode/settings.json` and `.vscode/extensions.json` when missing (format on save via Prettier, eslint fixes on save, `source.organizeImports: never`, EditorConfig extension recommended).
 - `init` creates `.editorconfig` when missing and makes it the single whitespace source (tabs width 2, print width 120, LF line endings); `.prettierrc.json` holds only JS syntax rules (`semi`, `singleQuote`, `jsxSingleQuote`, `quoteProps`, `trailingComma: none`, `bracketSpacing`, `bracketSameLine`, `arrowParens`). Generated JSON (tsconfig, VS Code files) now matches Prettier's layout.

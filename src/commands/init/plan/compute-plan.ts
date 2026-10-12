@@ -4,6 +4,7 @@ import {
 } from '@/commands/init/generators/commitlint-config-content'
 import { buildEditorconfigContent, EDITORCONFIG_PATH } from '@/commands/init/generators/editorconfig-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
+import { buildGitignoreContent, GITIGNORE_PATH } from '@/commands/init/generators/gitignore-content'
 import { buildHookContent, mergeHookContent, HuskyHookName } from '@/commands/init/generators/husky-hooks-content'
 import { buildLintStagedConfig } from '@/commands/init/generators/lint-staged-content'
 import { mergePnpmAllowBuilds, PNPM_WORKSPACE_PATH } from '@/commands/init/generators/pnpm-workspace-content'
@@ -98,6 +99,11 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 				reason: `${PNPM_WORKSPACE_PATH}: ${outcome.reason}`
 			})
 		}
+	}
+
+	// Created only when missing; an existing ignore list is the user's own.
+	if (ctx.readFile(GITIGNORE_PATH) === null) {
+		pushWrite(GITIGNORE_PATH, buildGitignoreContent())
 	}
 
 	const existingTsconfig = ctx.readFile(TSCONFIG_PATH)

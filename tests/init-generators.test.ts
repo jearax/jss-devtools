@@ -9,6 +9,7 @@ import { buildCommitlintConfigContent } from '@/commands/init/generators/commitl
 import { buildEditorconfigContent } from '@/commands/init/generators/editorconfig-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
 import { formatJson } from '@/commands/init/generators/format-json'
+import { buildGitignoreContent } from '@/commands/init/generators/gitignore-content'
 import { buildHookContent, mergeHookContent } from '@/commands/init/generators/husky-hooks-content'
 import { buildLintStagedConfig } from '@/commands/init/generators/lint-staged-content'
 import { mergePnpmAllowBuilds } from '@/commands/init/generators/pnpm-workspace-content'
@@ -127,6 +128,12 @@ describe('buildLintStagedConfig', () => {
 			'*.{ts,mjs}': ['eslint --fix', 'prettier --write'],
 			'package.json': ['prettier --write']
 		})
+	})
+})
+
+describe('buildGitignoreContent', () => {
+	it('ignores only the dependency tree', () => {
+		expect(buildGitignoreContent()).toBe('node_modules/\n')
 	})
 })
 

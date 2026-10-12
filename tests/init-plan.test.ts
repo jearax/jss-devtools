@@ -38,8 +38,8 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, ctx)
 
-		// git-init + 10 writes (editorconfig, eslint, prettier, 2 vscode, commitlint, pnpm-workspace, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
-		expect(plan.actions).toHaveLength(14)
+		// git-init + 11 writes (editorconfig, eslint, prettier, 2 vscode, commitlint, pnpm-workspace, gitignore, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
+		expect(plan.actions).toHaveLength(15)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.editorconfig')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/settings.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/extensions.json')).toBe(true)
@@ -48,7 +48,7 @@ describe('computePlan', () => {
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.prettierrc.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'commitlint.config.mjs')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'tsconfig.json')).toBe(true)
-		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.gitignore')).toBe(false)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.gitignore')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.husky/pre-commit')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.husky/commit-msg')).toBe(true)
 
@@ -311,7 +311,7 @@ describe('computePlan', () => {
 		expect(plan.actions.some((a) => a.kind === 'git-init')).toBe(false)
 	})
 
-	it('keeps existing .editorconfig and VS Code files untouched', () => {
+	it('keeps existing .editorconfig, .gitignore and VS Code files untouched', () => {
 		const ctx = {
 			pm: 'npm' as AgentName,
 			manifest: {
@@ -326,7 +326,9 @@ describe('computePlan', () => {
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) =>
-				path.startsWith('.vscode/') || path === '.editorconfig' ? '{ "editor.tabSize": 4 }\n' : null
+				path.startsWith('.vscode/') || path === '.editorconfig' || path === '.gitignore'
+					? '{ "editor.tabSize": 4 }\n'
+					: null
 			)
 		}
 
@@ -334,6 +336,7 @@ describe('computePlan', () => {
 
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path.startsWith('.vscode/'))).toBe(false)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.editorconfig')).toBe(false)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.gitignore')).toBe(false)
 	})
 
 	it('tsconfig existing no-paths → merge write', () => {
