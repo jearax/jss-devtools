@@ -136,6 +136,9 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 			logger.info('Cancelled jss-devtools init.')
 		}
 
+		// Nothing was set up, so scripts and CI must not read this as success.
+		process.exitCode = 1
+
 		return cancelled
 	}
 

@@ -478,7 +478,42 @@ describe('runInitFlow', () => {
 		expect(eslintrcConflict?.resolution).toBe('replaced')
 	})
 
-	it('cancelled decision → cancelled status with no mutations', async () => {
+	it('cancel at the conflict prompt → cancelled status, exit 1, no mutations', async () => {
+		const dir = newDir()
+
+		writePkgJson(dir)
+		process.chdir(dir)
+		writeFileSync(join(dir, '.eslintrc'), 'module.exports = {}')
+
+		vi.resetModules()
+		vi.doMock('@/commands/init/utils/confirm-plan', async (importOriginal) => ({
+			...(await importOriginal<Record<string, unknown>>()),
+			confirmPlan: vi.fn(async () => ({ kind: 'cancelled' }))
+		}))
+
+		const { runInitFlow } = await import('@/commands/init/run-init-flow')
+
+		const result = await runInitFlow({
+			framework: 'node',
+			yes: false,
+			dryRun: false,
+			json: false,
+			features: {
+				linter: true,
+				commitlint: true,
+				install: true
+			}
+		})
+
+		vi.doUnmock('@/commands/init/utils/confirm-plan')
+
+		expect(result.status).toBe('cancelled')
+		expect(result.generated).toHaveLength(0)
+		expect(readFileSync(join(dir, '.eslintrc'), 'utf-8')).toBe('module.exports = {}')
+		expect(process.exitCode).toBe(1)
+	})
+
+	it('conflict without a TTY → REQUIRES_CONFIRMATION abort with no mutations', async () => {
 		const dir = newDir()
 
 		writePkgJson(dir)

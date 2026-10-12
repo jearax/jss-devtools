@@ -16,6 +16,7 @@
 - `init --no-install` writes valid devDependency ranges (`^9.39.5`, previously `@^9.39.5`).
 - `init` treats the array form of `package.json#workspaces` (npm/yarn/bun) as a monorepo.
 - `init` pins `@eslint/js` to the same major as `eslint`, so npm no longer reports `ERESOLVE` (a warning on install, a hard failure on a later `npm install`).
+- `init` exits with code 1 when the conflict prompt is cancelled, so scripts and CI do not treat it as success.
 - `init` no longer asks which package manager to use: without a lockfile or `packageManager` field it uses npm. This also removes the spinner/prompt flicker during "Checking project".
 - `init` creates `.vscode/settings.json` and `.vscode/extensions.json` when missing (format on save via Prettier, eslint fixes on save, `source.organizeImports: never`, EditorConfig extension recommended).
 - `init` creates `.editorconfig` when missing and makes it the single whitespace source (tabs width 2, print width 120, LF line endings); `.prettierrc.json` holds only JS syntax rules (`semi`, `singleQuote`, `jsxSingleQuote`, `quoteProps`, `trailingComma: none`, `bracketSpacing`, `bracketSameLine`, `arrowParens`). Generated JSON (tsconfig, VS Code files) now matches Prettier's layout.
