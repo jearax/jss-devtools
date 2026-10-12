@@ -1,549 +1,171 @@
 // Unit tests for init generator content builders — pure content checks.
+import { check } from 'prettier'
 import { describe, expect, it } from 'vitest'
 
 import { buildCommitlintConfigContent } from '@/commands/init/generators/commitlint-config-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
 import { buildHookContent, mergeHookContent } from '@/commands/init/generators/husky-hooks-content'
 import { buildLintStagedConfig } from '@/commands/init/generators/lint-staged-content'
+import { mergePnpmAllowBuilds } from '@/commands/init/generators/pnpm-workspace-content'
 import { buildPrettierConfigContent } from '@/commands/init/generators/prettier-config-content'
 import { buildScripts } from '@/commands/init/generators/scripts-content'
 import { buildFreshTsconfig, mergeTsconfigAlias } from '@/commands/init/generators/tsconfig-content'
 import { getPreset } from '@/commands/init/presets/get-preset'
-import { addSpecsCommand, fmtCommand, localBinCommand, oneOffRunnerCommand } from '@/core/runner/pm-commands'
+import { FRAMEWORK_IDS } from '@/commands/init/types'
+import { addCommand, fmtCommand, localBinCommand, oneOffCommand } from '@/core/runner/pm-commands'
+
+const prettierOptions = JSON.parse(buildPrettierConfigContent()) as Record<string, unknown>
+
+// Generated files must already satisfy the generated prettier config, or the
+// first `lint` run in a fresh project fails on prettier/prettier.
+const isPrettierClean = (content: string, filepath: string): Promise<boolean> =>
+	check(content, {
+		...prettierOptions,
+		filepath
+	})
 
 describe('buildEslintConfigContent', () => {
-	it('node preset contains base imports and no framework plugins', () => {
-		const preset = getPreset('node')
-		const content = buildEslintConfigContent(preset)
-
-		expect(content).toContain("import js from '@eslint/js'")
-		expect(content).toContain("import tsParser from '@typescript-eslint/parser'")
-		expect(content).toContain("import tsPlugin from '@typescript-eslint/eslint-plugin'")
-		expect(content).toContain("import eslintConfigPrettier from 'eslint-config-prettier'")
-		expect(content).toContain("import pluginImportX from 'eslint-plugin-import-x'")
-		expect(content).toContain("import pluginAutofix from 'eslint-plugin-autofix'")
-		expect(content).toContain("import globals from 'globals'")
-		expect(content).not.toContain('eslint-plugin-react')
-		expect(content).toContain('globals.node')
+	it.each(FRAMEWORK_IDS)('%s config is valid, prettier-clean ESM', async (framework) => {
+		expect(await isPrettierClean(buildEslintConfigContent(getPreset(framework)), 'eslint.config.mjs')).toBe(true)
 	})
 
-	it('react preset contains react imports and plugins', () => {
-		const preset = getPreset('react')
-		const content = buildEslintConfigContent(preset)
+	it('node lints ts/js/mjs with node globals and a strict @/ alias rule', () => {
+		const content = buildEslintConfigContent(getPreset('node'))
 
-		expect(content).toContain('eslint-plugin-react')
-		expect(content).toContain('eslint-plugin-react-hooks')
-		expect(content).toContain('globals.browser')
-	})
-
-	it('next preset extends react with same react plugin pair', () => {
-		const preset = getPreset('next')
-		const content = buildEslintConfigContent(preset)
-
-		expect(content).toContain('eslint-plugin-react')
-		expect(content).toContain('eslint-plugin-react-hooks')
-	})
-
-	it('content is parseable as ESM module (parens balanced)', () => {
-		const preset = getPreset('node')
-		const content = buildEslintConfigContent(preset)
-
-		const opens = (content.match(/\[/g) || []).length
-		const closes = (content.match(/\]/g) || []).length
-
-		expect(opens).toBe(closes)
-
-		const parenOpens = (content.match(/\(/g) || []).length
-		const parenCloses = (content.match(/\)/g) || []).length
-
-		expect(parenOpens).toBe(parenCloses)
-	})
-
-	it('content is syntactically valid ESM (acorn parse, braces + brackets balanced)', () => {
-		const preset = getPreset('node')
-		const content = buildEslintConfigContent(preset)
-
-		// Brace balance — catches off-by-one close errors that bracket-only checks miss.
-		const openBraces = (content.match(/\{/g) || []).length
-		const closeBraces = (content.match(/\}/g) || []).length
-
-		expect(openBraces, 'unbalanced braces in generated eslint config').toBe(closeBraces)
-
-		// Strip top-level import/export to make the body parseable as a standalone module.
-		const body = content.replace(/^import .*$/gm, '').replace(/^export default eslintConfig$/m, 'export default []')
-
-		// Use Function ctor (Node) to parse — fails on syntax errors.
-		expect(() => new Function(body.replace(/^export default /m, 'return '))).not.toThrow()
-	})
-
-	it('all plugin entries in the plugins block share the same leading indent', () => {
-		const preset = getPreset('node')
-		const content = buildEslintConfigContent(preset)
-
-		// Slice the plugins: { ... }, block and collect each entry line.
-		const pluginsMatch = content.match(/plugins:\s*\{([\s\S]*?)\n\s*\}/)
-
-		expect(pluginsMatch, 'plugins block not found').not.toBeNull()
-
-		if (!pluginsMatch) {
-			return
-		}
-
-		const entries = pluginsMatch[1]
-			.split('\n')
-			.map((line) => line.trimEnd())
-			.filter((line) => line.includes(':') && /^\s*'/.test(line))
-
-		expect(entries.length).toBeGreaterThanOrEqual(2)
-
-		const leadingWs = entries.map((line) => line.match(/^\s*/)?.[0] ?? '')
-		const firstIndent = leadingWs[0]
-
-		for (const [i, ws] of leadingWs.entries()) {
-			expect(ws, `entry[${i}] indent differs from entry[0]`).toBe(firstIndent)
-		}
-	})
-
-	it('matches the house eslint.config.mjs plugins-block indent (3 tabs)', () => {
-		const preset = getPreset('node')
-		const content = buildEslintConfigContent(preset)
-
-		const pluginsMatch = content.match(/plugins:\s*\{([\s\S]*?)\n\s*\}/)
-
-		expect(pluginsMatch, 'plugins block not found').not.toBeNull()
-
-		if (!pluginsMatch) {
-			return
-		}
-
-		const firstEntry = pluginsMatch[1]
-			.split('\n')
-			.map((line) => line.trimEnd())
-			.find((line) => /^\s*'/.test(line))
-
-		expect(firstEntry).toBeDefined()
-		// House reference uses 3 tabs of indent inside plugins: { ... }
-		expect(firstEntry!.startsWith('\t\t\t')).toBe(true)
-	})
-
-	it('emits spread of globals.node (not bare identifier — bare would be a syntax error)', () => {
-		const preset = getPreset('node')
-		const content = buildEslintConfigContent(preset)
-
+		expect(content).toContain("files: ['**/*.{ts,js,mjs}']")
 		expect(content).toContain('...globals.node')
-		expect(content).not.toMatch(/^\s*globals\.node\s*$/m)
+		expect(content).toContain("regex: '^\\\\.{1,2}/'")
+		expect(content).not.toContain('pluginReact')
 	})
 
-	it('quotes hyphenated keys inside import-x/order (e.g. newlines-between)', () => {
-		const preset = getPreset('node')
-		const content = buildEslintConfigContent(preset)
+	it('react/next add the react plugin pair, jsx parsing and a CSS exception to the alias rule', () => {
+		for (const framework of ['react', 'next'] as const) {
+			const content = buildEslintConfigContent(getPreset(framework))
 
-		expect(content).toContain("'newlines-between'")
-		expect(content).not.toMatch(/^\s*newlines-between\s*:/m)
+			expect(content).toContain("import pluginReactHooks from 'eslint-plugin-react-hooks';")
+			expect(content).toContain("'react-hooks': pluginReactHooks")
+			expect(content).toContain("...pluginReactHooks.configs['recommended-latest'].rules,")
+			expect(content).toContain('jsx: true')
+			expect(content).toContain('...globals.browser')
+			expect(content).toContain('(?!.*\\\\.css$)')
+		}
+	})
+
+	it('enables type-aware promise rules through the project service', () => {
+		const content = buildEslintConfigContent(getPreset('node'))
+
+		expect(content).toContain('projectService: true')
+		expect(content).toContain("'@typescript-eslint/no-floating-promises': 'error'")
 	})
 })
 
 describe('buildPrettierConfigContent', () => {
-	it('returns valid JSON parseable as object', () => {
-		const content = buildPrettierConfigContent()
-		const parsed = JSON.parse(content)
-
-		expect(parsed).toBeTypeOf('object')
-		expect(parsed).not.toBeNull()
-	})
-
-	it('includes expected formatting keys', () => {
-		const content = buildPrettierConfigContent()
-		const parsed = JSON.parse(content)
-
-		expect(parsed).toHaveProperty('semi')
-		expect(parsed).toHaveProperty('singleQuote')
-		expect(parsed).toHaveProperty('tabWidth')
-	})
-
-	it('emits tabWidth: 4', () => {
-		const content = buildPrettierConfigContent()
-		const parsed = JSON.parse(content)
-
-		expect(parsed.tabWidth).toBe(4)
+	it('emits the house style', () => {
+		expect(prettierOptions).toMatchObject({
+			useTabs: true,
+			tabWidth: 2,
+			printWidth: 120,
+			semi: true,
+			singleQuote: true,
+			trailingComma: 'none'
+		})
 	})
 })
 
 describe('buildCommitlintConfigContent', () => {
-	it('contains extends conventional and formatter', () => {
+	it('extends config-conventional and is prettier-clean', async () => {
 		const content = buildCommitlintConfigContent()
 
-		expect(content).toContain('@commitlint/config-conventional')
-	})
-
-	it('wraps config in a named const then exports it (mirrors eslint.config.mjs style)', () => {
-		const content = buildCommitlintConfigContent()
-
-		expect(content).toContain('const commitlintConfig = {')
-		expect(content).toMatch(/export\s+default\s+commitlintConfig/)
-		expect(content).not.toMatch(/^export\s+default\s+\{/m)
-	})
-
-	it('emits TICKET_REGEX with hard "TICKET" prefix and sentence-case subject ending in period', () => {
-		const content = buildCommitlintConfigContent()
-
-		expect(content).toContain('const TICKET_REGEX = ')
-		// Pull the regex literal out of the generated source so the test stays
-		// independent of how the source code embeds the regex.
-		const match = content.match(/const TICKET_REGEX = (\/.+\/)/)
-
-		expect(match, 'TICKET_REGEX literal not found').not.toBeNull()
-
-		if (match) {
-			const regex = new RegExp(match[1].slice(1, -1))
-
-			// Case-agnostic + no trailing-period required — subject after
-			// the TICKET prefix is just any non-empty description.
-			expect(regex.test('TICKET-127 - Add login form.')).toBe(true)
-			expect(regex.test('TICKET-1 - Fix.')).toBe(true)
-			expect(regex.test('TICKET-127 - abc def')).toBe(true)
-			expect(regex.test('TICKET-127 - add login form.')).toBe(true)
-			expect(regex.test('ABC-127 - Add login form.')).toBe(false)
-			expect(regex.test('TICKET-abc - Add login form.')).toBe(false)
-			expect(regex.test('TICKET-127')).toBe(false)
-		}
-	})
-
-	it('emits CONVENTIONAL_REGEX accepting all 11 conventional types with any non-empty description', () => {
-		const content = buildCommitlintConfigContent()
-
-		expect(content).toContain('const CONVENTIONAL_REGEX = ')
-		const match = content.match(/const CONVENTIONAL_REGEX = (\/.+\/)/)
-
-		expect(match, 'CONVENTIONAL_REGEX literal not found').not.toBeNull()
-
-		if (match) {
-			const regex = new RegExp(match[1].slice(1, -1))
-
-			// The regex only checks STRUCTURE; valid-type enforcement is
-			// delegated to the type-enum rule that comes from
-			// @commitlint/config-conventional (via `extends`).
-			expect(regex.test('feat: Add login form.')).toBe(true)
-			expect(regex.test('fix(api): Handle timeout.')).toBe(true)
-			expect(regex.test('revert!: Drop legacy.')).toBe(true)
-			expect(regex.test('feat: abc def')).toBe(true)
-			expect(regex.test('feat Add login form.')).toBe(false)
-			expect(regex.test('feat:')).toBe(false)
-		}
-	})
-
-	it('declares a custom plugin rule that accepts both header shapes', () => {
-		const content = buildCommitlintConfigContent()
-
-		expect(content).toContain("'header-ticket-or-conventional'")
-		expect(content).toContain('TICKET_REGEX.test(header) || CONVENTIONAL_REGEX.test(header)')
-	})
-
-	it('rule does NOT depend on a `when` helper (commitlint invokes rules with `when = "always"` config string)', async () => {
-		// Regression: commitlint calls rule.rule(parsed, when, value) where
-		// `when` is the config string ("always" / "never"), NOT a helper.
-		// See @commitlint/lint/src/lint.ts and @commitlint/types rule signature.
-		const content = buildCommitlintConfigContent()
-
-		// Strip `export default` so we can dynamic-eval the plugin const.
-		const evalSrc = content.replace(/^export default.*$/m, '') + '\nreturn headerTicketPlugin'
-
-		const headerTicketPlugin = new Function(evalSrc)() as {
-			rules: Record<
-				string,
-				(
-					parsed: { header?: string },
-					when: unknown,
-					value: unknown
-				) => Promise<boolean | [boolean] | [false, string]> | boolean | [boolean] | [false, string]
-			>
-		}
-
-		const rule = headerTicketPlugin.rules['header-ticket-or-conventional']
-
-		expect(typeof rule).toBe('function')
-
-		// commitlint's actual call shape: rule(parsed, when, value).
-		// Second arg is the config STRING 'always', not a function.
-		const okResult = await rule({ header: 'TICKET-127 - Add login form' }, 'always', undefined)
-
-		expect(okResult).toBe(true)
-
-		const okConventional = await rule({ header: 'feat(api): Handle timeout' }, 'always', undefined)
-
-		expect(okConventional).toBe(true)
-
-		const badResult = (await rule({ header: 'no prefix here' }, 'always', undefined)) as [false, string]
-
-		expect(badResult[0]).toBe(false)
-		expect(badResult[1]).toContain('TICKET-<num>')
-	})
-
-	it('extracts the plugin as a separate headerTicketPlugin const for clarity', () => {
-		const content = buildCommitlintConfigContent()
-
-		expect(content).toContain('const headerTicketPlugin = {')
-		expect(content).toContain('plugins: [headerTicketPlugin]')
-	})
-
-	it('does NOT override subject-case or subject-full-stop (built-in rules stay active)', () => {
-		const content = buildCommitlintConfigContent()
-
-		expect(content).not.toMatch(/'subject-case':\s*\[0,\s*'never'\]/)
-		expect(content).not.toMatch(/'subject-full-stop':\s*\[0,\s*'never'\]/)
-	})
-
-	it('emits syntactically valid JS (no TS annotations leak into the .mjs output)', () => {
-		// commitlint.config.mjs is loaded as plain JS — any TypeScript syntax
-		// (e.g. `: { header: string }`) would crash the parser.
-		const content = buildCommitlintConfigContent()
-
-		expect(content).not.toMatch(/:\s*\{[^}]*:\s*\w+[^}]*\}/)
-		expect(content).not.toMatch(/:\s*\w+\[\]/)
-		expect(content).not.toMatch(/:\s*\[boolean, string\]/)
-
-		// node --check on the generated output must pass.
-		expect(() => new Function(content.replace(/^export default commitlintConfig$/m, '({})'))).not.toThrow()
+		expect(content).toContain("extends: ['@commitlint/config-conventional']")
+		expect(await isPrettierClean(content, 'commitlint.config.mjs')).toBe(true)
 	})
 })
 
 describe('buildLintStagedConfig', () => {
-	it('contains eslint and prettier commands on the preset glob', () => {
-		const preset = getPreset('node')
-		const config = buildLintStagedConfig(preset, 'pnpm', false, 'prettier-package-json@1.0.0')
+	it('lints the preset glob and root configs, formats package.json through the PM one-off runner', () => {
+		const config = buildLintStagedConfig(getPreset('node'), 'pnpm', 'prettier-package-json@^2.8.0')
 
-		const json = JSON.stringify(config)
-
-		expect(json).toContain('prettier')
-		expect(json).toContain('eslint')
-		expect(json).toContain(preset.lintStagedGlob)
-	})
-
-	it('includes package.json entry for prettier-package-json by default', () => {
-		const preset = getPreset('node')
-		const config = buildLintStagedConfig(preset, 'pnpm', false, 'prettier-package-json@1.0.0')
-
-		expect(config).toHaveProperty('package.json')
-		const pkgJsonCmds = config['package.json'] ?? []
-
-		expect(pkgJsonCmds.join(' ')).toContain('prettier-package-json')
-	})
-
-	it('omits package.json entry when includePpj: false', () => {
-		const preset = getPreset('node')
-
-		const config = buildLintStagedConfig(preset, 'pnpm', false, 'prettier-package-json@1.0.0', { includePpj: false })
-
-		expect(config).not.toHaveProperty('package.json')
+		expect(config).toEqual({
+			'{src,test}/**/*.ts': ['eslint --fix', 'prettier --write'],
+			'*.{ts,mjs}': ['eslint --fix', 'prettier --write'],
+			'package.json': ['pnpm dlx prettier-package-json@^2.8.0 --use-tabs --write']
+		})
 	})
 })
 
 describe('buildScripts', () => {
-	it('contains prepare and format keys by default', () => {
-		const preset = getPreset('node')
-		const scripts = buildScripts(preset)
-
-		expect(scripts).toHaveProperty('prepare')
-		expect(scripts).toHaveProperty('format')
-	})
-
-	it('prepare is husky', () => {
-		const preset = getPreset('node')
-		const scripts = buildScripts(preset)
+	it('adds prepare, typecheck, lint and format over the preset globs', () => {
+		const scripts = buildScripts(getPreset('node'))
 
 		expect(scripts.prepare).toBe('husky')
+		expect(scripts.typecheck).toBe('tsc --noEmit')
+		expect(scripts.lint).toBe('eslint --no-error-on-unmatched-pattern "{src,test}/**/*.ts" "*.{ts,mjs}"')
+		expect(scripts.format).toContain('prettier --write --no-error-on-unmatched-pattern')
 	})
 
-	it('format runs eslint --fix and prettier --write', () => {
-		const preset = getPreset('node')
-		const scripts = buildScripts(preset)
+	it('drops lint and format when the linter feature is off', () => {
+		const scripts = buildScripts(getPreset('node'), { includeLinter: false })
 
-		expect(scripts.format).toContain('eslint --fix')
-		expect(scripts.format).toContain('prettier --write')
-	})
-
-	it('includeFormat: false omits format script', () => {
-		const preset = getPreset('node')
-		const scripts = buildScripts(preset, { includeFormat: false })
-
-		expect(scripts).not.toHaveProperty('format')
-		expect(scripts).toHaveProperty('prepare')
-	})
-
-	it('uses preset formatGlobs in format command', () => {
-		const preset = getPreset('react')
-		const scripts = buildScripts(preset)
-
-		for (const glob of preset.formatGlobs) {
-			expect(scripts.format).toContain(glob)
-		}
+		expect(Object.keys(scripts)).toEqual(['prepare', 'typecheck'])
 	})
 })
 
 describe('buildHookContent', () => {
-	it('pre-commit contains lint-staged', () => {
-		const content = buildHookContent('pre-commit', 'pnpm')
-
-		expect(content).toContain('lint-staged')
-		expect(content.startsWith('#!/usr/bin/env sh')).toBe(true)
-	})
-
-	it('commit-msg contains commitlint --edit', () => {
-		const content = buildHookContent('commit-msg', 'pnpm')
-
-		expect(content).toContain('commitlint')
-		expect(content).toContain('--edit')
-		expect(content.startsWith('#!/usr/bin/env sh')).toBe(true)
-	})
-
-	it('uses yarn-specific exec for yarn PM', () => {
-		const content = buildHookContent('pre-commit', 'yarn')
-
-		expect(content).toContain('lint-staged')
+	it('runs lint-staged and commitlint through the PM local runner', () => {
+		expect(buildHookContent('pre-commit', 'pnpm')).toBe('#!/usr/bin/env sh\npnpm exec lint-staged\n')
+		expect(buildHookContent('commit-msg', 'npm')).toBe('#!/usr/bin/env sh\nnpx commitlint --edit "$1"\n')
 	})
 })
 
-describe('localBinCommand', () => {
-	it('pnpm uses "pnpm exec" prefix', () => {
-		const cmd = localBinCommand('pnpm', 'lint-staged')
-
-		expect(cmd.command).toBe('pnpm')
-		expect(cmd.args[0]).toBe('exec')
-		expect(cmd.args).toContain('lint-staged')
-	})
-
-	it('npm uses "npx" prefix', () => {
-		const cmd = localBinCommand('npm', 'lint-staged')
-
-		expect(cmd.command).toBe('npx')
-		expect(cmd.args).toContain('lint-staged')
-	})
-
-	it('yarn uses "yarn" prefix (run-style invocation)', () => {
-		const cmd = localBinCommand('yarn', 'lint-staged')
-
-		expect(cmd.command).toBe('yarn')
-		expect(cmd.args).toContain('lint-staged')
-	})
-
-	it('bun uses "bunx" prefix', () => {
-		const cmd = localBinCommand('bun', 'lint-staged')
-
-		expect(cmd.command).toBe('bunx')
-		expect(cmd.args).toContain('lint-staged')
-	})
-
-	it('passes extra args through', () => {
-		const cmd = localBinCommand('pnpm', 'commitlint', ['--edit', '"$1"'])
-
-		expect(cmd.args).toContain('--edit')
-		expect(cmd.args).toContain('"$1"')
+describe('PM command mapping', () => {
+	it.each([
+		['npm', 'npx husky', 'npm i -D a@1', 'npx ppj@1 --write'],
+		['pnpm', 'pnpm exec husky', 'pnpm add -D a@1', 'pnpm dlx ppj@1 --write'],
+		['yarn', 'yarn exec husky', 'yarn add -D a@1', 'npx ppj@1 --write'],
+		['yarn@berry', 'yarn exec husky', 'yarn add -D a@1', 'yarn dlx ppj@1 --write'],
+		['bun', 'bun x husky', 'bun add -D a@1', 'bun x ppj@1 --write']
+	] as const)('%s', (agent, localBin, add, oneOff) => {
+		expect(fmtCommand(localBinCommand(agent, 'husky'))).toBe(localBin)
+		expect(fmtCommand(addCommand(agent, ['a@1'], { dev: true }))).toBe(add)
+		expect(fmtCommand(oneOffCommand(agent, 'ppj@1', ['--write']))).toBe(oneOff)
 	})
 })
 
-describe('addSpecsCommand', () => {
-	it('pnpm addSpecs uses "add -D" with dev=true', () => {
-		const cmd = addSpecsCommand('pnpm', ['eslint'], { dev: true })
-
-		expect(cmd.command).toBe('pnpm')
-		expect(cmd.args).toContain('add')
-		expect(cmd.args).toContain('-D')
-		expect(cmd.args).toContain('eslint')
+describe('mergePnpmAllowBuilds', () => {
+	it('creates the file when missing', () => {
+		expect(mergePnpmAllowBuilds(null)).toEqual({
+			kind: 'write',
+			content: 'allowBuilds:\n  unrs-resolver: true\n'
+		})
 	})
 
-	it('npm addSpecs uses "npm i" (or install) with -D', () => {
-		const cmd = addSpecsCommand('npm', ['eslint'], { dev: true })
+	it('keeps an existing entry untouched', () => {
+		const existing = 'allowBuilds:\n  esbuild: true\n  unrs-resolver: true\n'
 
-		expect(cmd.command).toBe('npm')
-		// nypm's resolveCommand returns 'i' shortcut
-		expect(['i', 'install']).toContain(cmd.args[0])
-		expect(cmd.args).toContain('-D')
-		expect(cmd.args).toContain('eslint')
+		expect(mergePnpmAllowBuilds(existing)).toEqual({
+			kind: 'write',
+			content: existing
+		})
 	})
 
-	it('yarn addSpecs uses "yarn add -D" (no --dev)', () => {
-		const cmd = addSpecsCommand('yarn', ['eslint'], { dev: true })
+	it('inserts under an existing block map, preserving other settings', () => {
+		const existing = 'allowBuilds:\n  esbuild: true\nminimumReleaseAgeExclude:\n  - vitest@5.0.3\n'
 
-		expect(cmd.command).toBe('yarn')
-		expect(cmd.args).toContain('add')
-		expect(cmd.args).toContain('-D')
-		expect(cmd.args).toContain('eslint')
+		expect(mergePnpmAllowBuilds(existing)).toEqual({
+			kind: 'write',
+			content: 'allowBuilds:\n  unrs-resolver: true\n  esbuild: true\nminimumReleaseAgeExclude:\n  - vitest@5.0.3\n'
+		})
 	})
 
-	it('omits -D when dev=false', () => {
-		const cmd = addSpecsCommand('pnpm', ['react'], { dev: false })
-
-		expect(cmd.args).not.toContain('-D')
-		expect(cmd.args).toContain('react')
+	it('appends a block when allowBuilds is absent', () => {
+		expect(mergePnpmAllowBuilds('packages:\n  - apps/*')).toEqual({
+			kind: 'write',
+			content: 'packages:\n  - apps/*\nallowBuilds:\n  unrs-resolver: true\n'
+		})
 	})
 
-	it('bun uses lowercase -d for dev flag', () => {
-		const cmd = addSpecsCommand('bun', ['eslint'], { dev: true })
-
-		expect(cmd.args).toContain('-d')
-		expect(cmd.args).not.toContain('-D')
-	})
-})
-
-describe('oneOffRunnerCommand', () => {
-	it('pnpm returns pnpm dlx <pkg> <args>', () => {
-		const cmd = oneOffRunnerCommand('pnpm', 'eslint', ['--fix'], false)
-
-		expect(cmd.command).toBe('pnpm')
-		expect(cmd.args[0]).toBe('dlx')
-		expect(cmd.args).toContain('eslint')
-		expect(cmd.args).toContain('--fix')
-	})
-
-	it('bun returns bunx <pkg> <args>', () => {
-		const cmd = oneOffRunnerCommand('bun', 'eslint', [], false)
-
-		expect(cmd.command).toBe('bunx')
-		expect(cmd.args).toContain('eslint')
-	})
-
-	it('yarn berry uses yarn dlx <pkg>', () => {
-		const cmd = oneOffRunnerCommand('yarn', 'eslint', ['--fix'], true)
-
-		expect(cmd.command).toBe('yarn')
-		expect(cmd.args[0]).toBe('dlx')
-		expect(cmd.args).toContain('eslint')
-	})
-
-	it('yarn classic falls back to npx --yes', () => {
-		const cmd = oneOffRunnerCommand('yarn', 'eslint', [], false)
-
-		expect(cmd.command).toBe('npx')
-		expect(cmd.args).toContain('--yes')
-		expect(cmd.args).toContain('eslint')
-	})
-
-	it('npm falls back to npx --yes', () => {
-		const cmd = oneOffRunnerCommand('npm', 'eslint', [], false)
-
-		expect(cmd.command).toBe('npx')
-		expect(cmd.args).toContain('--yes')
-		expect(cmd.args).toContain('eslint')
-	})
-})
-
-describe('fmtCommand', () => {
-	it('joins command and args with space', () => {
-		const cmd = {
-			command: 'pnpm',
-			args: ['add', 'eslint']
-		}
-
-		expect(fmtCommand(cmd)).toBe('pnpm add eslint')
-	})
-
-	it('handles multi-arg commands', () => {
-		const cmd = {
-			command: 'yarn',
-			args: ['add', '-D', 'eslint', 'prettier']
-		}
-
-		expect(fmtCommand(cmd)).toBe('yarn add -D eslint prettier')
+	it('skips an inline allowBuilds value', () => {
+		expect(mergePnpmAllowBuilds('allowBuilds: {}\n').kind).toBe('skip')
 	})
 })
 

@@ -1,20 +1,22 @@
 import { FrameworkPreset } from '@/commands/init/presets/types'
 
-// Default scripts (user-approved set): prepare wires husky into every future
-// install; format runs the linter pair over the preset globs. Both are only
-// added when absent — an existing user script is never clobbered.
+export const ROOT_CODE_GLOB = '*.{ts,mjs}'
+
+// Added only when absent — an existing user script is never clobbered.
 export const buildScripts = (
 	preset: FrameworkPreset,
-	options?: { includeFormat?: boolean }
+	options?: { includeLinter?: boolean }
 ): Record<string, string> => {
 	const scripts: Record<string, string> = {
-		prepare: 'husky'
+		prepare: 'husky',
+		typecheck: 'tsc --noEmit'
 	}
 
-	if (options?.includeFormat !== false) {
-		const globs = preset.formatGlobs.join(' ')
+	if (options?.includeLinter !== false) {
+		const globs = `"${preset.codeGlob}" "${ROOT_CODE_GLOB}"`
 
-		scripts.format = `eslint --fix ${globs} && prettier --write ${globs}`
+		scripts.lint = `eslint --no-error-on-unmatched-pattern ${globs}`
+		scripts.format = `eslint --fix --no-error-on-unmatched-pattern ${globs} && prettier --write --no-error-on-unmatched-pattern ${globs}`
 	}
 
 	return scripts

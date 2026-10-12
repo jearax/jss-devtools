@@ -1,45 +1,77 @@
 import { FrameworkPreset } from '@/commands/init/presets/types'
 
-// Mirrors the jss-devtools house eslint.config.mjs so generated projects get
-// the same opinionated rule set (autofix, import-x ordering, prettier plugin),
-// parameterized per framework: extra plugin imports/entries/rules + globals.
+const BASE_IMPORTS: Array<[string, string]> = [
+	['js', '@eslint/js'],
+	['tsPlugin', '@typescript-eslint/eslint-plugin'],
+	['tsParser', '@typescript-eslint/parser'],
+	['eslintConfigPrettier', 'eslint-config-prettier'],
+	['pluginAutofix', 'eslint-plugin-autofix'],
+	['pluginImportX', 'eslint-plugin-import-x'],
+	['pluginPreferArrowFunctions', 'eslint-plugin-prefer-arrow-functions'],
+	['pluginPrettier', 'eslint-plugin-prettier'],
+	['globals', 'globals']
+]
+
+const BASE_PLUGINS: Record<string, string> = {
+	'@typescript-eslint': 'tsPlugin',
+	'import-x': 'pluginImportX',
+	autofix: 'pluginAutofix',
+	'prefer-arrow-functions': 'pluginPreferArrowFunctions',
+	prettier: 'pluginPrettier'
+}
+
+const indentLines = (lines: string[], tabs: number): string =>
+	lines.map((line) => (line.length === 0 ? '' : `${'\t'.repeat(tabs)}${line}`)).join('\n')
+
+const pluginKey = (key: string): string => (/^[a-z]\w*$/i.test(key) ? key : `'${key}'`)
+
+// House config from the reference repos (dokploy/auth for node,
+// dokploy/design-system for react): emitted already prettier-formatted with the
+// generated .prettierrc.json so a fresh `lint` run is clean.
 export const buildEslintConfigContent = (preset: FrameworkPreset): string => {
-	const frameworkImports = preset.eslintFrameworkImports.map(
-		(importSpec) => `import ${importSpec.localName} from '${importSpec.moduleName}'`
-	)
+	const ts = preset.jsx ? '{ts,tsx}' : 'ts'
 
-	const importBlock = [
-		"import js from '@eslint/js'",
-		"import tsParser from '@typescript-eslint/parser'",
-		"import tsPlugin from '@typescript-eslint/eslint-plugin'",
-		"import eslintConfigPrettier from 'eslint-config-prettier'",
-		"import pluginImportX from 'eslint-plugin-import-x'",
-		"import pluginAutofix from 'eslint-plugin-autofix'",
-		"import pluginPreferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'",
-		"import pluginPrettier from 'eslint-plugin-prettier'",
-		"import globals from 'globals'",
-		...frameworkImports
-	].join('\n')
+	const imports = [
+		...BASE_IMPORTS,
+		...preset.eslintFrameworkImports.map((spec): [string, string] => [spec.localName, spec.moduleName])
+	]
+		.map(([local, module]) => `import ${local} from '${module}';`)
+		.join('\n')
 
-	const pluginEntries = Object.entries({
-		'@typescript-eslint': 'tsPlugin',
-		'import-x': 'pluginImportX',
-		autofix: 'pluginAutofix',
-		'prefer-arrow-functions': 'pluginPreferArrowFunctions',
-		prettier: 'pluginPrettier',
+	const plugins = Object.entries({
+		...BASE_PLUGINS,
 		...preset.eslintFrameworkPlugins
 	})
-		.map(([key, ref]) => `'${key}': ${ref}`)
-		.join(',\n\t\t\t')
+		.map(([key, ref]) => `\t\t\t${pluginKey(key)}: ${ref}`)
+		.join(',\n')
 
-	const frameworkRules = preset.eslintFrameworkRules.trim()
+	const frameworkRules =
+		preset.eslintFrameworkRules.length > 0 ? `${indentLines(preset.eslintFrameworkRules, 3)}\n\n` : ''
 
-	const rulesBlock =
-		frameworkRules.length > 0
-			? `\t\t\t\t...tsPlugin.configs.recommended.rules,\n\n${frameworkRules}\n\n\t\t\t\t// autofix`
-			: '\t\t\t\t...tsPlugin.configs.recommended.rules,\n\n\t\t\t\t// autofix'
+	const parserOptions = preset.jsx
+		? `{
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+				ecmaFeatures: {
+					jsx: true
+				}
+			}`
+		: `{
+				ecmaVersion: 'latest',
+				sourceType: 'module'
+			}`
 
-	return `${importBlock}
+	const relativeImport = preset.jsx
+		? {
+				regex: "'^\\\\.{1,2}/(?!.*\\\\.css$)'",
+				message: "'Import through the @/ alias; only CSS files are imported relatively.'"
+			}
+		: {
+				regex: "'^\\\\.{1,2}/'",
+				message: "'Import through the @/ alias.'"
+			}
+
+	return `${imports}
 
 const eslintConfig = [
 	{
@@ -48,119 +80,157 @@ const eslintConfig = [
 	js.configs.recommended,
 	eslintConfigPrettier,
 	{
-		files: ['**/*.ts', '**/*.tsx'],
+		files: ['**/*.${preset.jsx ? '{ts,tsx,js,jsx}' : '{ts,js,mjs}'}'],
 		languageOptions: {
 			parser: tsParser,
-			parserOptions: {
-				ecmaVersion: 'latest',
-				sourceType: 'module'
-			},
+			parserOptions: ${parserOptions},
 			globals: {
-				${preset.eslintGlobalsExpr}
+				...globals.${preset.eslintGlobals}
 			}
 		},
 		plugins: {
-			${pluginEntries}
+${plugins}
 		},
 		rules: {
-${rulesBlock}
-				'autofix/eol-last': 'error',
-				'autofix/curly': 'error',
-				'autofix/no-lonely-if': 'error',
-				'autofix/no-else-return': 'error',
-				'autofix/object-shorthand': 'error',
-				'autofix/object-curly-newline': [
-					'error',
-					{
-						ObjectExpression: {
-							multiline: true,
-							minProperties: 2,
-							consistent: true
+			...tsPlugin.configs.recommended.rules,
+
+${frameworkRules}			// autofix
+			'autofix/eol-last': 'error',
+			'autofix/curly': 'error',
+			'autofix/no-lonely-if': 'error',
+			'autofix/no-else-return': 'error',
+			'autofix/object-shorthand': 'error',
+			'autofix/object-curly-newline': [
+				'error',
+				{
+					ObjectExpression: {
+						multiline: true,
+						minProperties: 2,
+						consistent: true
+					}
+				}
+			],
+
+			// @typescript-eslint
+			'@typescript-eslint/no-unused-vars': [
+				'warn',
+				{
+					args: 'all',
+					argsIgnorePattern: '^_',
+					varsIgnorePattern: '^_',
+					caughtErrorsIgnorePattern: '^_',
+					destructuredArrayIgnorePattern: '^_',
+					ignoreRestSiblings: true
+				}
+			],
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-empty-object-type': 'off',
+			'@typescript-eslint/consistent-type-imports': ['error', { prefer: 'no-type-imports' }],
+
+			// eslint-plugin-prefer-arrow-functions
+			'prefer-arrow-functions/prefer-arrow-functions': ['error', { returnStyle: 'explicit' }],
+			'arrow-body-style': ['error', 'always'],
+
+			// eslint-plugin-import-x
+			'import-x/first': 'error',
+			'import-x/newline-after-import': 'error',
+			'import-x/no-duplicates': 'error',
+			'import-x/no-anonymous-default-export': 'error',
+			'import-x/order': [
+				'error',
+				{
+					'newlines-between': 'always',
+					alphabetize: {
+						order: 'asc',
+						caseInsensitive: true
+					},
+					pathGroups: [
+						{
+							pattern: '@/**',
+							group: 'internal'
 						}
-					}
-				],
+					],
+					groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index'], ['object', 'unknown', 'type']]
+				}
+			],
 
-				// @typescript-eslint
-				'@typescript-eslint/no-unused-vars': [
-					'warn',
-					{
-						args: 'all',
-						argsIgnorePattern: '^_',
-						varsIgnorePattern: '^_',
-						caughtErrorsIgnorePattern: '^_',
-						destructuredArrayIgnorePattern: '^_',
-						ignoreRestSiblings: true
-					}
-				],
-				'@typescript-eslint/no-explicit-any': 'off',
-				'@typescript-eslint/no-empty-object-type': 'off',
-				'@typescript-eslint/consistent-type-imports': ['error', { prefer: 'no-type-imports' }],
+			// eslint-plugin-prettier
+			'prettier/prettier': 'error',
 
-				// eslint-plugin-prefer-arrow-functions
-				'prefer-arrow-functions/prefer-arrow-functions': 'error',
-
-				// eslint-plugin-import-x
-				'import-x/first': 'error',
-				'import-x/newline-after-import': 'error',
-				'import-x/no-duplicates': 'error',
-				'import-x/no-anonymous-default-export': 'error',
-				'import-x/order': [
-					'error',
-					{
-						'newlines-between': 'always',
-						alphabetize: {
-							order: 'asc',
-							caseInsensitive: true
-						},
-						pathGroups: [
-							{
-								pattern: '@/**',
-								group: 'internal'
-							}
-						],
-						groups: ['builtin', 'external', ['internal', 'parent', 'sibling', 'index'], ['object', 'unknown', 'type']]
-					}
-				],
-
-				// eslint-plugin-prettier
-				'prettier/prettier': 'error',
-
-				// Others rules
-				'no-undef': 'off',
-				'no-redeclare': 'off',
-				'no-import-assign': 'off',
-				'padding-line-between-statements': [
-					'error',
-					{
-						blankLine: 'any',
-						prev: 'export',
-						next: 'export'
-					},
-					{
-						blankLine: 'always',
-						prev: ['const', 'let', 'var'],
-						next: '*'
-					},
-					{
-						blankLine: 'any',
-						prev: ['const', 'let', 'var'],
-						next: ['const', 'let', 'var']
-					},
-					{
-						blankLine: 'always',
-						prev: '*',
-						next: ['function', 'multiline-const', 'multiline-block-like']
-					},
-					{
-						blankLine: 'always',
-						prev: ['function', 'multiline-const', 'multiline-block-like'],
-						next: '*'
-					}
-				]
-			}
+			// Others rules
+			'no-undef': 'off',
+			'no-redeclare': 'off',
+			'no-import-assign': 'off',
+			'no-restricted-syntax': [
+				'error',
+				{
+					selector: 'TSEnumDeclaration',
+					message: 'Use an \`as const\` object and a derived union type instead of \`enum\`.'
+				}
+			],
+			'padding-line-between-statements': [
+				'error',
+				{
+					blankLine: 'any',
+					prev: 'export',
+					next: 'export'
+				},
+				{
+					blankLine: 'always',
+					prev: ['const', 'let', 'var'],
+					next: '*'
+				},
+				{
+					blankLine: 'any',
+					prev: ['const', 'let', 'var'],
+					next: ['const', 'let', 'var']
+				},
+				{
+					blankLine: 'always',
+					prev: '*',
+					next: ['function', 'multiline-const', 'multiline-block-like']
+				},
+				{
+					blankLine: 'always',
+					prev: ['function', 'multiline-const', 'multiline-block-like'],
+					next: '*'
+				}
+			]
 		}
-	]
+	},
+	{
+		// Type-aware rules for promises; *.mjs files are outside tsconfig.json, so they stay untyped.
+		files: ['**/*.${ts}'],
+		languageOptions: {
+			parserOptions: {
+				projectService: true,
+				tsconfigRootDir: import.meta.dirname
+			}
+		},
+		rules: {
+			'@typescript-eslint/no-floating-promises': 'error',
+			'@typescript-eslint/no-misused-promises': 'error'
+		}
+	},
+	{
+		files: ['src/**/*.${ts}'],
+		ignores: ['src/**/*.{spec,test}.${ts}'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							regex: ${relativeImport.regex},
+							message: ${relativeImport.message}
+						}
+					]
+				}
+			]
+		}
+	}
+];
 
-export default eslintConfig
+export default eslintConfig;
 `
 }

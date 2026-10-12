@@ -9,21 +9,21 @@ export interface EslintPluginImport {
 
 export interface FrameworkPreset {
 	id: FrameworkId
+	/** JSX projects lint .tsx/.jsx and may import CSS files relatively. */
+	jsx: boolean
 	/** eslint plugins beyond the shared house set (devDep names). */
 	extraEslintPlugins: string[]
-	/** framework imports + flat `plugins` entries + rules appended to the base config. */
 	eslintFrameworkImports: EslintPluginImport[]
 	eslintFrameworkPlugins: Record<string, string>
-	eslintFrameworkRules: string
-	/** globals expression for languageOptions (`globals.node` / spread browser). */
-	eslintGlobalsExpr: string
+	/** rule lines (already indented) inserted at the top of the shared rules block. */
+	eslintFrameworkRules: string[]
+	/** globals spread for languageOptions (`globals.node` / `globals.browser`). */
+	eslintGlobals: 'node' | 'browser'
 	/** tsconfig compilerOptions for a fresh generate (merge path adds only paths). */
 	tsconfigCompilerOptions: Record<string, unknown>
 	tsconfigInclude: string[]
-	/** quoted globs joined into the format script. */
-	formatGlobs: string[]
-	/** glob key for the lint-staged code entry. */
-	lintStagedGlob: string
+	/** source glob shared by the format/lint scripts and lint-staged. */
+	codeGlob: string
 	/** framework runtime deps ensured per deps-placement rules. */
 	runtimeDeps: string[]
 	extraAtTypes: string[]

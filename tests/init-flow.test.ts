@@ -1,7 +1,7 @@
 // Integration tests for init flow via runInitFlow.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'path'
+import { join } from 'node:path'
 
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -31,6 +31,7 @@ const writePkgJson = (cwd: string, extra: Record<string, unknown> = {}): void =>
 	const pkg = {
 		name: 'test',
 		version: '1.0.0',
+		packageManager: 'pnpm@11.24.0',
 		...extra
 	}
 
@@ -384,14 +385,10 @@ describe('runInitFlow', () => {
 		expect(process.exitCode).toBe(1)
 	})
 
-	it.skip('PM_UNDETECTED exit 1 (package.json but no lockfile, no packageManager, no TTY)', async () => {
-		// PM_UNDETECTED is environment-dependent: nypm walks up parent dirs and may find a
-		// PM from the surrounding test runner. Reliable reproduction requires mocking nypm,
-		// which would require changes to preflight.ts. Skipped — covered conceptually by
-		// the abort-path tests above (NO_PACKAGE_JSON, PACKAGE_JSON_INVALID, etc.).
+	it('PM_UNDETECTED exit 1 (package.json but no lockfile, no packageManager, no TTY)', async () => {
 		const dir = newDir()
 
-		writePkgJson(dir) // Package.json without lockfile or packageManager field
+		writePkgJson(dir, { packageManager: undefined })
 		process.chdir(dir)
 
 		Object.defineProperty(process.stdout, 'isTTY', {
@@ -540,7 +537,8 @@ describe('runInitFlow', () => {
 			join(dir, 'package.json'),
 			JSON.stringify({
 				name: 'test',
-				version: '1.0.0'
+				version: '1.0.0',
+				packageManager: 'pnpm@11.24.0'
 			})
 		)
 

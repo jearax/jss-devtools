@@ -1,4 +1,4 @@
-import { AgentName } from 'package-manager-detector'
+import { Agent } from 'package-manager-detector'
 
 export type CommandResultStatus = 'success' | 'dry-run' | 'noop' | 'cancelled' | 'error'
 
@@ -42,7 +42,7 @@ export interface InitResult {
 	command: 'init'
 	status: CommandResultStatus
 	framework: FrameworkId
-	pm: AgentName | null
+	pm: Agent | null
 	generated: string[]
 	modified: string[]
 	installed: string[]

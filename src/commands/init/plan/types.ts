@@ -1,6 +1,6 @@
-import { AgentName } from 'package-manager-detector'
+import { Agent } from 'package-manager-detector'
 
-import { InitArgs, InitConflictEntry, InitSkippedEntry } from '@/commands/init/types'
+import { InitConflictEntry, InitSkippedEntry } from '@/commands/init/types'
 
 export type PlanAction =
 	| { kind: 'git-init' }
@@ -33,8 +33,7 @@ export interface ResolvedSpecs {
 }
 
 export interface PlanContext {
-	pm: AgentName
-	isYarnBerry: boolean
+	pm: Agent
 	manifest: Record<string, unknown>
 	hasGit: boolean
 	specs: ResolvedSpecs
@@ -47,5 +46,3 @@ export interface InitPlan {
 	skipped: InitSkippedEntry[]
 	pendingConflicts: Array<{ target: string; existing: string[] }>
 }
-
-export type PlanComputeInput = InitArgs

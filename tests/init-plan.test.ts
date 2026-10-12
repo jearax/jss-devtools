@@ -23,7 +23,6 @@ describe('computePlan', () => {
 	it('node full features: writes all config files and adds scripts', () => {
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -41,8 +40,9 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, ctx)
 
-		// git-init + 6 writes (eslint, prettier, commitlint, tsconfig, gitignore, pre-commit, commit-msg) + manifest-edit + install + husky-activate = 11
-		expect(plan.actions).toHaveLength(11)
+		// git-init + 8 writes (eslint, prettier, commitlint, pnpm-workspace, gitignore, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
+		expect(plan.actions).toHaveLength(12)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'pnpm-workspace.yaml')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'eslint.config.mjs')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.prettierrc.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'commitlint.config.mjs')).toBe(true)
@@ -78,7 +78,6 @@ describe('computePlan', () => {
 	it('react full features: writes react plugins', () => {
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -112,7 +111,6 @@ describe('computePlan', () => {
 	it('next full features: tsconfig with jsx preserve, next plugin', () => {
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -152,7 +150,6 @@ describe('computePlan', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -176,7 +173,10 @@ describe('computePlan', () => {
 
 		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')!
 
-		expect(manifestEdit.scripts).toEqual({ prepare: 'husky' })
+		expect(manifestEdit.scripts).toEqual({
+			prepare: 'husky',
+			typecheck: 'tsc --noEmit'
+		})
 		expect(manifestEdit.lintStaged).toBeUndefined()
 
 		const skipped = plan.skipped.find((s) => s.feature === 'lint-staged')
@@ -197,7 +197,6 @@ describe('computePlan', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -236,7 +235,6 @@ describe('computePlan', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -275,7 +273,6 @@ describe('computePlan', () => {
 		// First call to get the generated content
 		const initialCtx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -305,7 +302,6 @@ describe('computePlan', () => {
 		// Now second call with those as existing files
 		const secondCtx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -342,7 +338,6 @@ describe('computePlan', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -388,7 +383,6 @@ describe('computePlan', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -421,7 +415,6 @@ describe('computePlan', () => {
 	it('conflicts: existing .eslintrc → pendingConflicts includes target with existing', () => {
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -459,7 +452,6 @@ describe('computePlan', () => {
 	it('no existing files → no pending conflicts', () => {
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -487,7 +479,6 @@ describe('planDisplayLines', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -535,7 +526,6 @@ describe('planDisplayLines', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -578,7 +568,6 @@ describe('planDisplayLines', () => {
 	it('git-init shows as silent', () => {
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -632,7 +621,6 @@ describe('planDisplayLines', () => {
 
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'
@@ -660,7 +648,6 @@ describe('planDisplayLines', () => {
 	it('conflict shown in display', () => {
 		const ctx = {
 			pm: 'pnpm' as AgentName,
-			isYarnBerry: false,
 			manifest: {
 				name: 'test',
 				version: '1.0.0'

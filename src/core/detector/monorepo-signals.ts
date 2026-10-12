@@ -1,6 +1,5 @@
-import { existsSync } from 'node:fs'
-
-import { join } from 'pathe'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 export interface MonorepoSignals {
 	/** Artifact that triggered detection, named for the abort hint. */
@@ -22,8 +21,16 @@ const hasWorkspaceProtoDep = (manifest: Record<string, unknown>): boolean =>
 		)
 	})
 
+// pnpm 10+ single-package projects keep settings (allowBuilds, …) in
+// pnpm-workspace.yaml; only a `packages` key makes it a workspace.
+const declaresPnpmPackages = (cwd: string): boolean => {
+	const path = join(cwd, 'pnpm-workspace.yaml')
+
+	return existsSync(path) && /^packages\s*:/m.test(readFileSync(path, 'utf8'))
+}
+
 export const detectMonorepo = (cwd: string, manifest: Record<string, unknown>): MonorepoSignals | null => {
-	if (existsSync(join(cwd, 'pnpm-workspace.yaml'))) {
+	if (declaresPnpmPackages(cwd)) {
 		return { evidence: 'pnpm-workspace.yaml' }
 	}
 

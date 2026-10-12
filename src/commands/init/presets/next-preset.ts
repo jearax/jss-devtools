@@ -15,7 +15,8 @@ export const nextPreset: FrameworkPreset = {
 			}
 		]
 	},
-	tsconfigInclude: ['next-env.d.ts', 'src/**/*'],
+	tsconfigInclude: ['next-env.d.ts', '**/*.ts', '**/*.tsx', '.next/types/**/*.ts'],
+	codeGlob: '{src,app,components,lib,test}/**/*.{js,jsx,mjs,ts,tsx}',
 	runtimeDeps: ['next', 'react', 'react-dom'],
 	needsTscAlias: false
 }

@@ -3,7 +3,7 @@ import { select } from '@clack/prompts'
 import { InitPlan } from '@/commands/init/plan/types'
 import { InitArgs } from '@/commands/init/types'
 import { logger } from '@/utils/logger'
-import { isTTY } from '@/utils/prompts'
+import { isInteractive } from '@/utils/prompts'
 
 export type ConfirmDecision =
 	| { kind: 'proceed' }
@@ -23,7 +23,7 @@ export const confirmPlan = async (args: InitArgs, plan: InitPlan, displayLines: 
 		return { kind: 'proceed' }
 	}
 
-	if (!isTTY()) {
+	if (!isInteractive()) {
 		return { kind: 'requires-confirmation' }
 	}
 

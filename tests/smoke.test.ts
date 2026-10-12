@@ -53,57 +53,31 @@ const runBinAllowFail = (args: string[]): { output: string; exitCode: number } =
 }
 
 describe('bin/jss-devtools', () => {
-	it('prints CLI version when --version is passed', () => {
+	it.each(['--version', '-v'])('prints the CLI version for %s', (flag) => {
 		const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'))
 
-		expect(runBin(['--version'])).toContain(pkg.version)
+		expect(runBin([flag])).toBe(pkg.version)
 	})
 
-	it('prints CLI version when -v is passed', () => {
-		const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'))
-
-		expect(runBin(['-v'])).toContain(pkg.version)
-	})
-
-	it('prints --help with banner + usage', () => {
+	it('lists init as the only command in --help', () => {
 		const output = runBin(['--help'])
 
-		expect(output).toContain('JavaScript stack dev tools CLI')
 		expect(output.toLowerCase()).toContain('usage')
-	})
-
-	// Note: testing the no-subcommand default hint is skipped because consola's
-	// async stdout writes get truncated when execSync returns before buffer drains.
-	// Verified manually via `node dist/cli/cli.js`.
-
-	it('runs version subcommand with banner', () => {
-		const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'))
-		const output = runBin(['version'])
-
-		expect(output).toContain('JavaScript stack dev tools CLI')
-		expect(output).toContain(pkg.version)
-	})
-
-	it('runs help subcommand with banner + usage', () => {
-		const output = runBin(['help'])
-
-		expect(output).toContain('JavaScript stack dev tools CLI')
-		expect(output.toLowerCase()).toContain('usage')
-	})
-
-	it('lists only version, help and init in --help', () => {
-		const output = runBin(['--help'])
-
 		expect(output).toMatch(/^\s+init\b/m)
 
-		for (const removed of ['update', 'upgrade', 'downgrade', 'uninstall']) {
+		for (const removed of ['version', 'help', 'update', 'upgrade', 'downgrade', 'uninstall']) {
 			expect(output).not.toMatch(new RegExp(`^\\s+${removed}\\b`, 'm'))
 		}
 	})
 
-	it.each(['update', 'upgrade', 'downgrade', 'uninstall'])('rejects removed self command %s', (cmd) => {
-		const { exitCode } = runBinAllowFail([cmd])
+	it('prints init options for init --help', () => {
+		const output = runBin(['init', '--help'])
 
-		expect(exitCode).not.toBe(0)
+		expect(output).toContain('--framework')
+		expect(output).toContain('--dry-run')
+	})
+
+	it.each(['version', 'help', 'update', 'upgrade', 'downgrade', 'uninstall'])('rejects removed command %s', (cmd) => {
+		expect(runBinAllowFail([cmd]).exitCode).not.toBe(0)
 	})
 })

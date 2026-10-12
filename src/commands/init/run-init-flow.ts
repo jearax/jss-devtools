@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs'
-
-import { join } from 'pathe'
+import { join } from 'node:path'
 
 import { resolveSpecs } from '@/commands/init/install/resolve-specs'
 import { computePlan } from '@/commands/init/plan/compute-plan'
@@ -99,15 +98,14 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 	}
 
 	const plan = computePlan(args, {
-		pm: pm.pm,
-		isYarnBerry: pm.isYarnBerry,
+		pm,
 		manifest,
 		hasGit,
 		specs,
 		readFile: readerFor(cwd)
 	})
 
-	const displayLines = planDisplayLines(plan, pm.pm)
+	const displayLines = planDisplayLines(plan, pm)
 	const decision = await confirmPlan(args, plan, displayLines)
 
 	if (decision.kind === 'requires-confirmation') {
@@ -122,7 +120,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 			command: 'init',
 			status: 'cancelled',
 			framework: args.framework,
-			pm: pm.pm,
+			pm,
 			generated: [],
 			modified: [],
 			installed: [],
@@ -145,7 +143,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 		decision.kind === 'proceed-keeping' ? dropKeptTargets(plan, decision.keptTargets) : withLegacyRemovals(plan)
 
 	if (args.dryRun) {
-		for (const line of planDisplayLines(effectivePlan, pm.pm)) {
+		for (const line of planDisplayLines(effectivePlan, pm)) {
 			logger.info(`[dry-run] ${line}`)
 		}
 
@@ -154,7 +152,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 			command: 'init',
 			status: 'dry-run',
 			framework: args.framework,
-			pm: pm.pm,
+			pm,
 			generated: effectivePlan.actions
 				.filter((action) => action.kind === 'write-file')
 				.map((action) => (action.kind === 'write-file' ? action.path : '')),
@@ -176,7 +174,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 
 	const outcome = await applyPlan(effectivePlan, {
 		cwd,
-		pm: pm.pm,
+		pm,
 		capture: args.json,
 		silent,
 		isWindows: process.platform === 'win32'
@@ -190,7 +188,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 		command: 'init',
 		status,
 		framework: args.framework,
-		pm: pm.pm,
+		pm,
 		generated: outcome.generated,
 		modified: outcome.modified,
 		installed: outcome.installed,

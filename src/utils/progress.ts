@@ -1,21 +1,7 @@
-// TTY-aware spinner helper. Wraps `ora` so the rest of the code never
-// imports it directly and we can suppress consistently in --json / CI /
-// piped contexts.
-//
-// Two layers:
-//   startSpinner()            → returns a SpinnerHandle whose update/done/fail
-//                                forward to ora (TTY) or become no-ops.
-//   withSpinner(label, fn)    → wraps an async fn with start + done/fail.
-//
-// Both accept { silent?: boolean }. silent: true means "don't print anything"
-// (used in --json mode so the spinner cannot corrupt the JSON envelope).
-// When TTY is unavailable but silent is false, falls back to a plain text
-// line so log-file captures still see the step boundary.
-//
-// `ora` is lazy-loaded via `await import('ora')` inside the interactive
-// branch only — keeps the module's `sideEffects: false` (package.json)
-// honest so tree-shaking continues to drop this helper from any consumer
-// that never reaches the interactive path.
+import { spinner } from '@clack/prompts'
+
+import { logger } from '@/utils/logger'
+import { isInteractive } from '@/utils/prompts'
 
 export interface SpinnerHandle {
 	update(text: string): void
@@ -23,16 +9,13 @@ export interface SpinnerHandle {
 	fail(text?: string): void
 }
 
-interface StartOpts {
-	silent?: boolean
-}
+const noop = (): void => undefined
 
-export const isInteractive = (): boolean => Boolean(process.stdout.isTTY) && process.env['CI'] === undefined
-
-export const startSpinner = async (label: string, opts: StartOpts = {}): Promise<SpinnerHandle> => {
-	const silent = opts.silent ?? false
-
-	if (silent) {
+// silent: --json mode, where any extra line would corrupt the JSON document.
+// Non-interactive (pipe/CI) degrades to plain step lines so captured logs
+// still show the step boundaries.
+export const startSpinner = (label: string, opts: { silent?: boolean } = {}): SpinnerHandle => {
+	if (opts.silent === true) {
 		return {
 			update: noop,
 			done: noop,
@@ -41,58 +24,25 @@ export const startSpinner = async (label: string, opts: StartOpts = {}): Promise
 	}
 
 	if (!isInteractive()) {
-		process.stdout.write(`⧉ ${label}\n`)
+		logger.log(`⧉ ${label}`)
 
 		return {
-			update: (text) => process.stdout.write(`⧉ ${text}\n`),
-			done: (text) => process.stdout.write(`✓ ${text ?? label}\n`),
-			fail: (text) => process.stderr.write(`✗ ${text ?? label}\n`)
+			update: (text) => logger.log(`⧉ ${text}`),
+			done: (text) => logger.success(text ?? label),
+			fail: (text) => logger.error(text ?? label)
 		}
 	}
 
-	// Interactive branch: ora is only loaded when the terminal can render
-	// animation. Any other path (silent, non-TTY, CI) keeps the import out.
-	const { default: ora } = await import('ora')
-	const spinner = ora(label).start()
+	const sp = spinner({
+		output: process.stderr,
+		withGuide: false
+	})
+
+	sp.start(label)
 
 	return {
-		update: (text) => {
-			spinner.text = text
-		},
-		done: (text) => {
-			if (text !== undefined) {
-				spinner.succeed(text)
-			} else {
-				spinner.succeed()
-			}
-		},
-		fail: (text) => {
-			if (text !== undefined) {
-				spinner.fail(text)
-			} else {
-				spinner.fail()
-			}
-		}
+		update: (text) => sp.message(text),
+		done: (text) => sp.stop(text ?? label),
+		fail: (text) => sp.error(text ?? label)
 	}
 }
-
-export const withSpinner = async <T>(
-	label: string,
-	fn: (handle: SpinnerHandle) => Promise<T>,
-	opts: StartOpts = {}
-): Promise<T> => {
-	const handle = await startSpinner(label, opts)
-
-	try {
-		const result = await fn(handle)
-
-		handle.done()
-
-		return result
-	} catch (error) {
-		handle.fail()
-		throw error
-	}
-}
-
-const noop = (): void => undefined

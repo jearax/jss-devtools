@@ -4,19 +4,14 @@ import { PKG_INFO } from '@/utils/pkg'
 
 const routerCommand = defineCommand({
 	meta: {
-		name: PKG_INFO.name,
+		name: PKG_INFO.bin,
 		version: PKG_INFO.version,
 		description: PKG_INFO.description
 	},
 
 	subCommands: {
-		version: () => import('@/commands/version.js').then((m) => m.default),
-		help: () => import('@/commands/help.js').then((m) => m.default),
-
 		init: () => import('@/commands/init.js').then((m) => m.default)
-	},
-
-	run: () => {}
+	}
 })
 
 export default routerCommand

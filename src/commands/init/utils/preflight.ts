@@ -1,15 +1,14 @@
 import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { select } from '@clack/prompts'
-import { detectPackageManager } from 'nypm'
-import { AgentName } from 'package-manager-detector'
-import { join } from 'pathe'
+import { Agent } from 'package-manager-detector'
 
 import { readManifest } from '@/commands/init/utils/manifest'
 import { detectMonorepo } from '@/core/detector/monorepo-signals'
-import { detectProjectPM, ProjectPM } from '@/core/detector/project-pm'
+import { detectProjectAgent } from '@/core/detector/project-pm'
 import { startSpinner } from '@/utils/progress'
-import { isTTY } from '@/utils/prompts'
+import { isInteractive } from '@/utils/prompts'
 
 export type PreflightFailureCode =
 	'NO_PACKAGE_JSON' | 'PACKAGE_JSON_INVALID' | 'MONOREPO_UNSUPPORTED' | 'FOREIGN_LINTER' | 'PM_UNDETECTED'
@@ -22,7 +21,7 @@ export interface PreflightFailure {
 
 export interface PreflightOk {
 	manifest: Record<string, unknown>
-	pm: ProjectPM
+	pm: Agent
 	hasGit: boolean
 }
 
@@ -30,7 +29,7 @@ export type PreflightResult = { ok: true; value: PreflightOk } | { ok: false; fa
 
 const FOREIGN_LINTER_FILES = ['biome.json', 'biome.jsonc', '.oxlintrc.json'] as const
 
-const PM_CHOICES: Array<{ value: AgentName; label: string }> = [
+const PM_CHOICES: Array<{ value: Agent; label: string }> = [
 	{
 		value: 'npm',
 		label: 'npm'
@@ -40,7 +39,7 @@ const PM_CHOICES: Array<{ value: AgentName; label: string }> = [
 		label: 'pnpm'
 	},
 	{
-		value: 'yarn',
+		value: 'yarn@berry',
 		label: 'yarn'
 	},
 	{
@@ -49,41 +48,17 @@ const PM_CHOICES: Array<{ value: AgentName; label: string }> = [
 	}
 ]
 
-const nypmGuess = async (cwd: string): Promise<AgentName | null> => {
-	try {
-		const detected = await detectPackageManager(cwd)
-
-		if (detected === undefined) {
-			return null
-		}
-
-		const name: string = detected.name
-
-		return PM_CHOICES.some((choice) => choice.value === name) ? (name as AgentName) : null
-	} catch {
-		return null
-	}
-}
-
-const promptForPM = async (): Promise<ProjectPM | null> => {
+const promptForPM = async (): Promise<Agent | null> => {
 	const answer = await select({
 		message: 'Which package manager does this project use?',
 		options: PM_CHOICES
 	})
 
-	if (answer === undefined || typeof answer !== 'string') {
-		return null
-	}
-
-	return {
-		pm: answer as AgentName,
-		source: 'nypm-guess',
-		isYarnBerry: answer === 'yarn'
-	}
+	return typeof answer === 'string' ? (answer as Agent) : null
 }
 
 export const runPreflight = async (cwd: string, opts: { silent?: boolean } = {}): Promise<PreflightResult> => {
-	const sp = await startSpinner('Checking project', { silent: opts.silent })
+	const sp = startSpinner('Checking project', { silent: opts.silent })
 	let finalized = false
 
 	const finalizeFail = (): void => {
@@ -157,10 +132,10 @@ export const runPreflight = async (cwd: string, opts: { silent?: boolean } = {})
 			}
 		}
 
-		const pm = await detectProjectPM(cwd, () => nypmGuess(cwd))
+		const pm = await detectProjectAgent(cwd)
 
 		if (pm === null) {
-			if (isTTY()) {
+			if (isInteractive()) {
 				const answered = await promptForPM()
 
 				if (answered === null) {

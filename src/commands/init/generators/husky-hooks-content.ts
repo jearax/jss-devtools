@@ -1,4 +1,4 @@
-import { AgentName } from 'package-manager-detector'
+import { Agent } from 'package-manager-detector'
 
 import { fmtCommand, localBinCommand } from '@/core/runner/pm-commands'
 
@@ -6,7 +6,7 @@ export type HuskyHookName = 'pre-commit' | 'commit-msg'
 
 // Hooks call locally installed bins through the PM so they work in every
 // project layout (matches this repo's own .husky/pre-commit: pnpm exec).
-export const buildHookContent = (hook: HuskyHookName, pm: AgentName): string => {
+export const buildHookContent = (hook: HuskyHookName, pm: Agent): string => {
 	const body =
 		hook === 'pre-commit'
 			? fmtCommand(localBinCommand(pm, 'lint-staged'))

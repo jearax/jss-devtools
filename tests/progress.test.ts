@@ -1,13 +1,7 @@
-// Unit tests for the progress helper. The actual ora instance is wrapped
-// behind a SpinnerHandle; we exercise the TTY/silent gating and the
-// no-op fallbacks rather than asserting on rendered ANSI which is
-// environment-fragile.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { isInteractive, startSpinner, withSpinner } from '@/utils/progress'
-
-const originalIsTTY = process.stdout.isTTY
-const originalCI = process.env['CI']
+import { startSpinner } from '@/utils/progress'
+import { isInteractive } from '@/utils/prompts'
 
 describe('isInteractive', () => {
 	let savedIsTTY: boolean | undefined
@@ -31,31 +25,29 @@ describe('isInteractive', () => {
 		}
 	})
 
-	it('returns true on TTY without CI env', () => {
+	const setTTY = (value: boolean): void => {
 		Object.defineProperty(process.stdout, 'isTTY', {
-			value: true,
+			value,
 			configurable: true
 		})
+	}
+
+	it('is true on a TTY outside CI', () => {
+		setTTY(true)
 		delete process.env['CI']
 
 		expect(isInteractive()).toBe(true)
 	})
 
-	it('returns false without TTY', () => {
-		Object.defineProperty(process.stdout, 'isTTY', {
-			value: false,
-			configurable: true
-		})
+	it('is false without a TTY', () => {
+		setTTY(false)
 		delete process.env['CI']
 
 		expect(isInteractive()).toBe(false)
 	})
 
-	it('returns false in CI even with TTY', () => {
-		Object.defineProperty(process.stdout, 'isTTY', {
-			value: true,
-			configurable: true
-		})
+	it('is false in CI even with a TTY', () => {
+		setTTY(true)
 		process.env['CI'] = 'true'
 
 		expect(isInteractive()).toBe(false)
@@ -63,77 +55,31 @@ describe('isInteractive', () => {
 })
 
 describe('startSpinner', () => {
-	it('silent mode produces no stdout output', async () => {
-		const writeSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
-
-		const sp = await startSpinner('should be silent', { silent: true })
-
-		sp.update('mid')
-		sp.done('finished')
-		sp.fail('failed')
-
-		expect(writeSpy).not.toHaveBeenCalled()
-		writeSpy.mockRestore()
+	afterEach(() => {
+		vi.restoreAllMocks()
 	})
 
-	it('updates label via handle in silent mode without throwing', async () => {
-		const sp = await startSpinner('init', { silent: true })
+	it('writes nothing in silent mode', () => {
+		const out = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+		const err = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+		const sp = startSpinner('Resolving', { silent: true })
 
-		expect(() => {
-			sp.update('hello')
-			sp.done('done')
-		}).not.toThrow()
-	})
-})
+		sp.update('Resolving 1/2')
+		sp.done('Resolved')
+		sp.fail('Failed')
 
-describe('withSpinner', () => {
-	it('runs the fn and returns its value', async () => {
-		const result = await withSpinner(
-			'task',
-			async () => {
-				return 42
-			},
-			{ silent: true }
-		)
-
-		expect(result).toBe(42)
+		expect(out).not.toHaveBeenCalled()
+		expect(err).not.toHaveBeenCalled()
 	})
 
-	it('re-throws errors from fn after failing the spinner', async () => {
-		await expect(
-			withSpinner(
-				'task',
-				async () => {
-					throw new Error('boom')
-				},
-				{ silent: true }
-			)
-		).rejects.toThrow('boom')
-	})
+	it('falls back to plain stderr lines when not interactive, keeping stdout clean', () => {
+		const out = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+		const err = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+		const sp = startSpinner('Resolving')
 
-	it('passes a SpinnerHandle into the fn so per-step updates are possible', async () => {
-		const received: { hasUpdate: boolean; hasDone: boolean; hasFail: boolean } = {
-			hasUpdate: false,
-			hasDone: false,
-			hasFail: false
-		}
+		sp.done('Resolved')
 
-		await withSpinner(
-			'task',
-			async (handle) => {
-				received.hasUpdate = typeof handle.update === 'function'
-				received.hasDone = typeof handle.done === 'function'
-				received.hasFail = typeof handle.fail === 'function'
-
-				return 'ok'
-			},
-			{ silent: true }
-		)
-
-		expect(received).toEqual({
-			hasUpdate: true,
-			hasDone: true,
-			hasFail: true
-		})
+		expect(out).not.toHaveBeenCalled()
+		expect(err.mock.calls.map((call) => String(call[0])).join('')).toContain('Resolved')
 	})
 })

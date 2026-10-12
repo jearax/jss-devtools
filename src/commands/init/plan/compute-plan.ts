@@ -6,6 +6,7 @@ import { buildEslintConfigContent } from '@/commands/init/generators/eslint-conf
 import { buildGitignoreContent, GITIGNORE_PATH } from '@/commands/init/generators/gitignore-content'
 import { buildHookContent, mergeHookContent, HuskyHookName } from '@/commands/init/generators/husky-hooks-content'
 import { buildLintStagedConfig } from '@/commands/init/generators/lint-staged-content'
+import { mergePnpmAllowBuilds, PNPM_WORKSPACE_PATH } from '@/commands/init/generators/pnpm-workspace-content'
 import { buildPrettierConfigContent, PRETTIER_CONFIG_PATH } from '@/commands/init/generators/prettier-config-content'
 import { buildScripts } from '@/commands/init/generators/scripts-content'
 import { buildFreshTsconfig, mergeTsconfigAlias, TSCONFIG_PATH } from '@/commands/init/generators/tsconfig-content'
@@ -63,6 +64,19 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 			feature: 'commitlint',
 			reason: '--no-commitlint: commitlint setup skipped'
 		})
+	}
+
+	if (ctx.pm === 'pnpm' && args.features.linter) {
+		const outcome = mergePnpmAllowBuilds(ctx.readFile(PNPM_WORKSPACE_PATH))
+
+		if (outcome.kind === 'write') {
+			pushWrite(PNPM_WORKSPACE_PATH, outcome.content)
+		} else {
+			skipped.push({
+				feature: 'linter',
+				reason: `${PNPM_WORKSPACE_PATH}: ${outcome.reason}`
+			})
+		}
 	}
 
 	const existingGitignore = ctx.readFile(GITIGNORE_PATH)
@@ -136,7 +150,7 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 	// unless it copies the map — pin any new field in this order.
 	const manifestEdit: Extract<PlanAction, { kind: 'manifest-edit' }> = {
 		kind: 'manifest-edit',
-		scripts: buildScripts(preset, { includeFormat: args.features.linter })
+		scripts: buildScripts(preset, { includeLinter: args.features.linter })
 	}
 
 	if (!args.features.linter) {
@@ -150,7 +164,7 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 			reason: 'package.json already has a lint-staged field'
 		})
 	} else {
-		manifestEdit.lintStaged = buildLintStagedConfig(preset, ctx.pm, ctx.isYarnBerry, ctx.specs.ppjSpec)
+		manifestEdit.lintStaged = buildLintStagedConfig(preset, ctx.pm, ctx.specs.ppjSpec)
 	}
 
 	if (!args.features.install) {
@@ -192,7 +206,7 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 		actions,
 		conflicts: [],
 		skipped,
-		pendingConflicts: scanVariantConflicts(ctx)
+		pendingConflicts: scanVariantConflicts(ctx, actions)
 	}
 }
 
@@ -226,9 +240,14 @@ const VARIANT_MAP: Array<{ target: string; variants: readonly string[] }> = [
 
 // Any existing config variant — including the target file itself when it
 // differs — is a conflict the confirm stage must resolve before any write.
-const scanVariantConflicts = (ctx: PlanContext): InitPlan['pendingConflicts'] =>
+// An identical target produced no write action, so it is not a conflict.
+const scanVariantConflicts = (ctx: PlanContext, actions: PlanAction[]): InitPlan['pendingConflicts'] =>
 	VARIANT_MAP.flatMap(({ target, variants }) => {
-		const existing = variants.filter((variant) => ctx.readFile(variant) !== null)
+		const writesTarget = actions.some((action) => action.kind === 'write-file' && action.path === target)
+
+		const existing = variants.filter(
+			(variant) => ctx.readFile(variant) !== null && (variant !== target || writesTarget)
+		)
 
 		return existing.length > 0
 			? [

@@ -2,11 +2,12 @@ import { FrameworkPreset } from '@/commands/init/presets/types'
 
 export const nodePreset: FrameworkPreset = {
 	id: 'node',
+	jsx: false,
 	extraEslintPlugins: [],
 	eslintFrameworkImports: [],
 	eslintFrameworkPlugins: {},
-	eslintFrameworkRules: '',
-	eslintGlobalsExpr: '...globals.node',
+	eslintFrameworkRules: [],
+	eslintGlobals: 'node',
 	tsconfigCompilerOptions: {
 		target: 'ES2022',
 		lib: ['ES2024'],
@@ -26,9 +27,8 @@ export const nodePreset: FrameworkPreset = {
 		},
 		types: ['node']
 	},
-	tsconfigInclude: ['src/**/*', 'tests/**/*'],
-	formatGlobs: ['"{src,tests}/**/*.{js,ts,jsx,tsx}"', '"*.ts"'],
-	lintStagedGlob: '{src,tests}/**/*.{ts,tsx,js,jsx}',
+	tsconfigInclude: ['src/**/*.ts', 'test/**/*.ts', '*.ts'],
+	codeGlob: '{src,test}/**/*.ts',
 	runtimeDeps: [],
 	extraAtTypes: ['@types/node'],
 	needsTscAlias: true

@@ -1,7 +1,6 @@
 import { defineConfig } from 'tsup'
 
-// Naming convention: define biến với suffix `Config`, sau đó export default.
-// Tsup cần `export default` để auto-discover config.
+// tsup externalizes package.json dependencies on its own; only the CLI entry is bundled.
 const tsupConfig = defineConfig({
 	entry: ['src/cli.ts'],
 	outDir: 'dist/cli',
@@ -11,11 +10,9 @@ const tsupConfig = defineConfig({
 	clean: true,
 	banner: { js: '#!/usr/bin/env node' },
 	dts: false,
-	sourcemap: true,
+	sourcemap: false,
 	minify: false,
-	splitting: false,
-	// External tất cả runtime deps để install size không bloat
-	external: ['@clack/prompts', 'citty', 'conf', 'consola', 'execa', 'figlet', 'nypm', 'pathe']
+	splitting: false
 })
 
 export default tsupConfig

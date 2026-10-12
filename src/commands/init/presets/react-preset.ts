@@ -1,20 +1,8 @@
 import { FrameworkPreset } from '@/commands/init/presets/types'
 
-// react/next share the same plugin pair; next keeps bundler-native alias
-// resolution (no tsc-alias) and its own jsx preserve mode.
-const reactRules = `
-				// eslint-plugin-react
-				'react/jsx-uses-react': 'off',
-				'react/react-in-jsx-scope': 'off',
-				'react/prop-types': 'off',
-
-				// eslint-plugin-react-hooks
-				'react-hooks/rules-of-hooks': 'error',
-				'react-hooks/exhaustive-deps': 'warn',
-`
-
 export const reactPreset: FrameworkPreset = {
 	id: 'react',
+	jsx: true,
 	extraEslintPlugins: ['eslint-plugin-react', 'eslint-plugin-react-hooks'],
 	eslintFrameworkImports: [
 		{
@@ -30,8 +18,14 @@ export const reactPreset: FrameworkPreset = {
 		react: 'pluginReact',
 		'react-hooks': 'pluginReactHooks'
 	},
-	eslintFrameworkRules: reactRules,
-	eslintGlobalsExpr: '...globals.browser',
+	eslintFrameworkRules: [
+		"'react/jsx-uses-react': 'off',",
+		"'react/react-in-jsx-scope': 'off',",
+		"'react/prop-types': 'off',",
+		'',
+		"...pluginReactHooks.configs['recommended-latest'].rules,"
+	],
+	eslintGlobals: 'browser',
 	tsconfigCompilerOptions: {
 		target: 'ES2022',
 		lib: ['ES2024', 'DOM', 'DOM.Iterable'],
@@ -51,9 +45,8 @@ export const reactPreset: FrameworkPreset = {
 			'@/*': ['./src/*']
 		}
 	},
-	tsconfigInclude: ['src/**/*'],
-	formatGlobs: ['"{src,app,components,lib}/**/*.{js,jsx,ts,tsx}"', '"*.{ts,tsx}"'],
-	lintStagedGlob: '{src,app,components,lib}/**/*.{ts,tsx,js,jsx}',
+	tsconfigInclude: ['src/**/*', '**/*.ts', '**/*.tsx'],
+	codeGlob: '{src,test}/**/*.{js,jsx,mjs,ts,tsx}',
 	runtimeDeps: ['react', 'react-dom'],
 	extraAtTypes: ['@types/react', '@types/react-dom'],
 	needsTscAlias: false

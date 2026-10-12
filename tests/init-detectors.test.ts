@@ -1,12 +1,12 @@
 // Unit tests for init detector modules — pure filesystem fixtures.
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'path'
+import { join } from 'node:path'
 
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
 
 import { detectMonorepo } from '@/core/detector/monorepo-signals'
-import { detectProjectPM, ProjectPM } from '@/core/detector/project-pm'
+import { detectProjectAgent } from '@/core/detector/project-pm'
 
 const testDirs: string[] = []
 
@@ -37,254 +37,37 @@ afterAll(() => {
 	testDirs.length = 0
 })
 
-describe('detectProjectPM', () => {
-	it('packageManager field npm@8 → isYarnBerry false', async () => {
+describe('detectProjectAgent', () => {
+	it.each([
+		['pnpm-lock.yaml', 'pnpm'],
+		['package-lock.json', 'npm'],
+		['bun.lock', 'bun']
+	] as const)('%s → %s', async (lockfile, agent) => {
 		const cwd = newDir()
 
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0',
-			packageManager: 'npm@8.19.0'
-		})
+		writePkgJson(cwd, { name: 'x' })
+		writeFileSync(join(cwd, lockfile), '')
 
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'npm',
-			source: 'packageManager-field',
-			isYarnBerry: false
-		})
+		expect(await detectProjectAgent(cwd)).toBe(agent)
 	})
 
-	it('packageManager field yarn@2 → isYarnBerry true', async () => {
-		const cwd = newDir()
+	it('packageManager field distinguishes yarn classic from berry', async () => {
+		const classic = newDir()
+		const berry = newDir()
 
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0',
-			packageManager: 'yarn@2.5.0'
-		})
+		writePkgJson(classic, { packageManager: 'yarn@1.22.22' })
+		writePkgJson(berry, { packageManager: 'yarn@4.9.0' })
 
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'yarn',
-			source: 'packageManager-field',
-			isYarnBerry: true
-		})
+		expect(await detectProjectAgent(classic)).toBe('yarn')
+		expect(await detectProjectAgent(berry)).toBe('yarn@berry')
 	})
 
-	it('packageManager field yarn@1 → isYarnBerry false', async () => {
+	it('unsupported agent (deno) → null', async () => {
 		const cwd = newDir()
 
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0',
-			packageManager: 'yarn@1.22.0'
-		})
+		writePkgJson(cwd, { packageManager: 'deno@2.0.0' })
 
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'yarn',
-			source: 'packageManager-field',
-			isYarnBerry: false
-		})
-	})
-
-	it('packageManager field bun → isYarnBerry false', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0',
-			packageManager: 'bun@1.0.0'
-		})
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'bun',
-			source: 'packageManager-field',
-			isYarnBerry: false
-		})
-	})
-
-	it('pnpm-lock.yaml → source lockfile, isYarnBerry false', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-		writeFileSync(join(cwd, 'pnpm-lock.yaml'), 'lockfile content')
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'pnpm',
-			source: 'lockfile',
-			isYarnBerry: false
-		})
-	})
-
-	it('package-lock.json → source lockfile, isYarnBerry false', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-		writeFileSync(join(cwd, 'package-lock.json'), '{}')
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'npm',
-			source: 'lockfile',
-			isYarnBerry: false
-		})
-	})
-
-	it('yarn.lock → source lockfile, isYarnBerry false (no .yarnrc.yml)', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-		writeFileSync(join(cwd, 'yarn.lock'), 'lockfile content')
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'yarn',
-			source: 'lockfile',
-			isYarnBerry: false
-		})
-	})
-
-	it('bun.lockb → source lockfile, isYarnBerry false', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-		writeFileSync(join(cwd, 'bun.lockb'), Buffer.from('lockfile'))
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'bun',
-			source: 'lockfile',
-			isYarnBerry: false
-		})
-	})
-
-	it('fallbackGuess called and returns value', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-
-		const fallbackFn = vi.fn(async () => 'pnpm' as const)
-		const pm = await detectProjectPM(cwd, fallbackFn)
-
-		expect(fallbackFn).toHaveBeenCalled()
-		expect(pm).toEqual<ProjectPM>({
-			pm: 'pnpm',
-			source: 'nypm-guess',
-			isYarnBerry: false
-		})
-	})
-
-	it('no lockfile, no packageManager, fallbackGuess returns null → returns null', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toBeNull()
-	})
-
-	it('no package.json, no lockfile, fallbackGuess returns null → returns null', async () => {
-		const cwd = newDir()
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toBeNull()
-	})
-
-	it('.yarnrc.yml present with yarn lockfile → isYarnBerry true', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-		writeFileSync(join(cwd, 'yarn.lock'), 'lockfile content')
-		writeFileSync(join(cwd, '.yarnrc.yml'), 'nodeLinker: node-modules')
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm).toEqual<ProjectPM | null>({
-			pm: 'yarn',
-			source: 'lockfile',
-			isYarnBerry: true
-		})
-	})
-
-	it('fallbackGuess called for npm detection when only fallback returns', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0'
-		})
-
-		const fallbackFn = vi.fn(async () => 'npm' as const)
-		const pm = await detectProjectPM(cwd, fallbackFn)
-
-		expect(fallbackFn).toHaveBeenCalled()
-		expect(pm).toEqual<ProjectPM>({
-			pm: 'npm',
-			source: 'nypm-guess',
-			isYarnBerry: false
-		})
-	})
-
-	it('packageManager field has precedence over lockfile', async () => {
-		const cwd = newDir()
-
-		writePkgJson(cwd, {
-			name: 'test',
-			version: '1.0.0',
-			packageManager: 'pnpm@8.0.0'
-		})
-		writeFileSync(join(cwd, 'package-lock.json'), '{}')
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm?.source).toBe('packageManager-field')
-		expect(pm?.pm).toBe('pnpm')
-	})
-
-	it('invalid JSON in package.json falls through to lockfile detection', async () => {
-		const cwd = newDir()
-
-		writeFileSync(join(cwd, 'package.json'), '{ invalid json ')
-		writeFileSync(join(cwd, 'pnpm-lock.yaml'), 'lockfile')
-
-		const pm = await detectProjectPM(cwd, async () => null)
-
-		expect(pm?.source).toBe('lockfile')
-		expect(pm?.pm).toBe('pnpm')
+		expect(await detectProjectAgent(cwd)).toBeNull()
 	})
 })
 
@@ -299,6 +82,14 @@ describe('detectMonorepo', () => {
 		expect(monorepo).toEqual({
 			evidence: 'pnpm-workspace.yaml'
 		})
+	})
+
+	it('pnpm-workspace.yaml holding only settings (pnpm 11 single package) → null', () => {
+		const cwd = newDir()
+
+		writeFileSync(join(cwd, 'pnpm-workspace.yaml'), 'allowBuilds:\n  unrs-resolver: true\n')
+
+		expect(detectMonorepo(cwd, {})).toBeNull()
 	})
 
 	it('workspaces.packages array → returns evidence', () => {

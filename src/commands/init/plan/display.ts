@@ -1,12 +1,12 @@
-import { AgentName } from 'package-manager-detector'
+import { Agent } from 'package-manager-detector'
 
 import { buildInstallCommands } from '@/commands/init/install/build-install-commands'
 import { InitPlan } from '@/commands/init/plan/types'
-import { fmtCommand } from '@/core/runner/pm-commands'
+import { fmtCommand, localBinCommand } from '@/core/runner/pm-commands'
 
 // Human-facing plan lines — shared by --dry-run output and the confirm
 // summary so the user always previews the exact same execution list.
-export const planDisplayLines = (plan: InitPlan, pm: AgentName): string[] => {
+export const planDisplayLines = (plan: InitPlan, pm: Agent): string[] => {
 	const lines: string[] = []
 
 	for (const action of plan.actions) {
@@ -50,12 +50,7 @@ export const planDisplayLines = (plan: InitPlan, pm: AgentName): string[] => {
 			}
 
 			case 'husky-activate':
-				lines.push(
-					fmtCommand({
-						command: pm,
-						args: pm === 'pnpm' ? ['exec', 'husky'] : ['husky']
-					})
-				)
+				lines.push(fmtCommand(localBinCommand(pm, 'husky')))
 				break
 		}
 	}

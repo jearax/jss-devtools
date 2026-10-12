@@ -26,9 +26,7 @@ export const runCommandSpec = async (spec: CommandSpec, options?: RunCommandOpti
 		await execa(spec.command, spec.args, {
 			stdio: options?.capture === true ? 'pipe' : 'inherit'
 		})
-	} catch (error) {
-		logger.debug(`Command failed: ${cmdStr} — ${error instanceof Error ? error.message : String(error)}`)
-
+	} catch {
 		return {
 			ok: false,
 			cmdStr

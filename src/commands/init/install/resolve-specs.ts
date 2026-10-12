@@ -155,7 +155,7 @@ export const resolveSpecs = async (
 
 	const dev: string[] = []
 
-	const spinner = await startSpinner(`Resolving ${ordered.length} dev package${ordered.length === 1 ? '' : 's'}`, {
+	const spinner = startSpinner(`Resolving ${ordered.length} dev package${ordered.length === 1 ? '' : 's'}`, {
 		silent: opts.silent
 	})
 
@@ -191,7 +191,7 @@ export const resolveSpecs = async (
 	const runtime: string[] = []
 
 	if (runtimeNames.length > 0) {
-		const runtimeSpinner = await startSpinner(
+		const runtimeSpinner = startSpinner(
 			`Resolving ${runtimeNames.length} runtime package${runtimeNames.length === 1 ? '' : 's'}`,
 			{ silent: opts.silent }
 		)

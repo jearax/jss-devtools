@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs'
-
-import { join } from 'pathe'
+import { join } from 'node:path'
 
 export interface ManifestReadResult {
 	manifest: Record<string, unknown>
@@ -27,9 +26,10 @@ export const readManifest = (cwd: string): ManifestReadResult | 'missing' | 'inv
 }
 
 // JSON.stringify keeps insertion order, so unknown fields and their relative
-// positions survive; only whitespace normalizes (ppj reformats on next commit
-// via lint-staged anyway).
-export const serializeManifest = (manifest: Record<string, unknown>): string => `${JSON.stringify(manifest, null, 2)}\n`
+// positions survive; the existing indent style (tabs from ppj --use-tabs, or
+// spaces) is kept so a re-run does not churn the whole file.
+export const serializeManifest = (manifest: Record<string, unknown>, original = ''): string =>
+	`${JSON.stringify(manifest, null, /^\t/m.test(original) ? '\t' : 2)}\n`
 
 export interface ScriptsPatchResult {
 	manifest: Record<string, unknown>

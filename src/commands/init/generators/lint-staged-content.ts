@@ -1,25 +1,17 @@
-import { AgentName } from 'package-manager-detector'
+import { Agent } from 'package-manager-detector'
 
+import { ROOT_CODE_GLOB } from '@/commands/init/generators/scripts-content'
 import { FrameworkPreset } from '@/commands/init/presets/types'
-import { fmtCommand, oneOffRunnerCommand } from '@/core/runner/pm-commands'
+import { fmtCommand, oneOffCommand } from '@/core/runner/pm-commands'
 
-// prettier-package-json runs through the PM one-off runner (never installed),
-// so its pinned spec is resolved upstream and passed in — identical string is
-// reused for the hook, the lint-staged entry, and the plan display.
+// prettier-package-json runs through the PM one-off runner (never installed);
+// its pinned spec is resolved upstream so every run formats identically.
 export const buildLintStagedConfig = (
 	preset: FrameworkPreset,
-	pm: AgentName,
-	isYarnBerry: boolean,
-	ppjSpec: string,
-	options?: { includePpj?: boolean }
-): Record<string, string[]> => {
-	const config: Record<string, string[]> = {
-		[preset.lintStagedGlob]: ['eslint --fix', 'prettier --write']
-	}
-
-	if (options?.includePpj !== false) {
-		config['package.json'] = [fmtCommand(oneOffRunnerCommand(pm, ppjSpec, ['--write'], isYarnBerry))]
-	}
-
-	return config
-}
+	pm: Agent,
+	ppjSpec: string
+): Record<string, string[]> => ({
+	[preset.codeGlob]: ['eslint --fix', 'prettier --write'],
+	[ROOT_CODE_GLOB]: ['eslint --fix', 'prettier --write'],
+	'package.json': [fmtCommand(oneOffCommand(pm, ppjSpec, ['--use-tabs', '--write']))]
+})

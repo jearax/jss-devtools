@@ -1,7 +1,7 @@
 import { chmodSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 
-import { AgentName } from 'package-manager-detector'
-import { dirname, join } from 'pathe'
+import { Agent } from 'package-manager-detector'
 
 import { buildInstallCommands } from '@/commands/init/install/build-install-commands'
 import { runCommandSpec } from '@/commands/init/install/run-command'
@@ -26,7 +26,7 @@ export interface ApplyOutcome {
 
 export interface ApplyDeps {
 	cwd: string
-	pm: AgentName
+	pm: Agent
 	/** Buffer child output (json mode). */
 	capture?: boolean
 	/** Suppress progress feedback — for --json output where any extra line corrupts the envelope. */
@@ -100,38 +100,13 @@ const applyManifestEdit = (
 		manifest = applyRuntimePlacement(manifest, action.runtimePlacement.specs, action.runtimePlacement.as)
 	}
 
-	// pnpm 11+ blocks build scripts by default. Allow unrs-resolver (used by
-	// typescript-eslint) to run its postinstall script without requiring
-	// `pnpm approve-builds` from the user.
-	manifest = applyPnpmConfig(manifest)
+	if (JSON.stringify(manifest) === JSON.stringify(JSON.parse(raw))) {
+		return
+	}
 
-	writeFileSync(join(cwd, 'package.json'), serializeManifest(manifest))
+	writeFileSync(join(cwd, 'package.json'), serializeManifest(manifest, raw))
 	outcome.modified.push('package.json')
 	outcome.mutations += 1
-}
-
-const UNRS_RESOLVER = 'unrs-resolver'
-
-const applyPnpmConfig = (manifest: Record<string, unknown>): Record<string, unknown> => {
-	const KEY = 'pnpm'
-	const ALLOWED = 'onlyBuiltDependencies'
-
-	const current =
-		typeof manifest[KEY] === 'object' && manifest[KEY] !== null ? (manifest[KEY] as Record<string, unknown>) : {}
-
-	if (Array.isArray(current[ALLOWED]) && current[ALLOWED].includes(UNRS_RESOLVER)) {
-		return manifest
-	}
-
-	const allowed = [...new Set([UNRS_RESOLVER, ...((current[ALLOWED] as string[]) ?? [])])]
-
-	return {
-		...manifest,
-		[KEY]: {
-			...current,
-			[ALLOWED]: allowed
-		}
-	}
 }
 
 const applyRuntimePlacement = (
@@ -187,7 +162,7 @@ export const applyPlan = async (plan: InitPlan, deps: ApplyDeps): Promise<ApplyO
 		installAction && installAction.kind === 'install' ? installAction.devSpecs.length + installAction.specs.length : 0
 
 	const installSpinner = installAction
-		? await startSpinner(`Installing ${installTotal} package${installTotal === 1 ? '' : 's'} via ${deps.pm}`, {
+		? startSpinner(`Installing ${installTotal} package${installTotal === 1 ? '' : 's'} via ${deps.pm}`, {
 				silent: deps.silent
 			})
 		: null
@@ -225,7 +200,7 @@ const runPlan = async (
 	plan: InitPlan,
 	deps: ApplyDeps,
 	outcome: ApplyOutcome,
-	installSpinner: Awaited<ReturnType<typeof startSpinner>> | null,
+	installSpinner: ReturnType<typeof startSpinner> | null,
 	finalizeInstall: (kind: 'done' | 'fail', text?: string) => void
 ): Promise<void> => {
 	for (const action of plan.actions) {
@@ -335,7 +310,7 @@ const runPlan = async (
 			}
 
 			case 'husky-activate': {
-				const huskySpinner = await startSpinner('Activating husky hooks', { silent: deps.silent })
+				const huskySpinner = startSpinner('Activating husky hooks', { silent: deps.silent })
 				let huskyFinalized = false
 
 				try {
