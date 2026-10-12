@@ -1,7 +1,7 @@
 import { defineCommand, runCommand } from 'citty'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { FRAMEWORK_IDS } from '@/commands/init/types'
+import { PLANNED_FRAMEWORKS } from '@/commands/init/types'
 import { extractInitArgs, InitArgsError, parseNoFlags } from '@/commands/init/utils/args'
 
 describe('extractInitArgs (pure extraction)', () => {
@@ -24,7 +24,7 @@ describe('extractInitArgs (pure extraction)', () => {
 	it('mode flags extract from kebab-case keys', () => {
 		const parsed = extractInitArgs(
 			{
-				framework: 'react',
+				framework: 'node',
 				yes: true,
 				'dry-run': true,
 				json: true
@@ -51,10 +51,10 @@ describe('extractInitArgs (pure extraction)', () => {
 		}
 	})
 
-	it('accepts every declared framework id', () => {
-		for (const framework of FRAMEWORK_IDS) {
-			expect(extractInitArgs({ framework }, []).framework).toBe(framework)
-		}
+	it.each(PLANNED_FRAMEWORKS)('planned framework %s throws FRAMEWORK_NOT_SUPPORTED', (framework) => {
+		expect(() => extractInitArgs({ framework }, [])).toThrowError(
+			expect.objectContaining({ code: 'FRAMEWORK_NOT_SUPPORTED' })
+		)
 	})
 })
 

@@ -1,6 +1,6 @@
-import { DEFAULT_FRAMEWORK, FRAMEWORK_IDS, FrameworkId, InitArgs, InitFeatures } from '@/commands/init/types'
+import { DEFAULT_FRAMEWORK, InitArgs, InitFeatures, PLANNED_FRAMEWORKS } from '@/commands/init/types'
 
-export type InitArgsErrorCode = 'FRAMEWORK_INVALID'
+export type InitArgsErrorCode = 'FRAMEWORK_INVALID' | 'FRAMEWORK_NOT_SUPPORTED'
 
 export class InitArgsError extends Error {
 	constructor(
@@ -10,9 +10,6 @@ export class InitArgsError extends Error {
 		super(message)
 	}
 }
-
-const isFrameworkId = (value: unknown): value is FrameworkId =>
-	typeof value === 'string' && (FRAMEWORK_IDS as readonly string[]).includes(value)
 
 // `--no-linter` / `--no-commitlint` / `--no-install` are scanned off raw
 // argv rather than declared in citty — keeps them hidden from --help while
@@ -46,15 +43,22 @@ export const parseNoFlags = (argv: readonly string[]): InitFeatures => {
 export const extractInitArgs = (raw: Record<string, unknown>, argv: readonly string[]): InitArgs => {
 	const framework = raw.framework ?? DEFAULT_FRAMEWORK
 
-	if (!isFrameworkId(framework)) {
+	if (framework !== DEFAULT_FRAMEWORK) {
+		if ((PLANNED_FRAMEWORKS as readonly unknown[]).includes(framework)) {
+			throw new InitArgsError(
+				'FRAMEWORK_NOT_SUPPORTED',
+				`Framework "${String(framework)}" is planned but not supported yet. Use --framework ${DEFAULT_FRAMEWORK}.`
+			)
+		}
+
 		throw new InitArgsError(
 			'FRAMEWORK_INVALID',
-			`Unknown framework "${String(framework)}". Valid values: ${FRAMEWORK_IDS.join(' | ')}.`
+			`Unknown framework "${String(framework)}". Valid values: ${[DEFAULT_FRAMEWORK, ...PLANNED_FRAMEWORKS].join(' | ')}.`
 		)
 	}
 
 	return {
-		framework,
+		framework: DEFAULT_FRAMEWORK,
 		yes: raw.yes === true,
 		dryRun: raw['dry-run'] === true,
 		json: raw.json === true,

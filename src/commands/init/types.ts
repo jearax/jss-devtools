@@ -6,6 +6,10 @@ export const FRAMEWORK_IDS = ['node', 'react', 'next'] as const
 
 export type FrameworkId = (typeof FRAMEWORK_IDS)[number]
 
+// Accepted by --framework but rejected until their presets are reworked;
+// react/next keep their preset code as the starting point.
+export const PLANNED_FRAMEWORKS = ['react', 'next', 'nest', 'rn'] as const
+
 export const DEFAULT_FRAMEWORK: FrameworkId = 'node'
 
 export type InitFeatureKey = 'linter' | 'commitlint' | 'install'

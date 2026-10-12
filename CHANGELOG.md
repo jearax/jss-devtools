@@ -11,6 +11,7 @@
   - Uninstall: `npm rm -g @jjuidev/jss-devtools` (or `pnpm remove -g` / `bun remove -g` / `yarn global remove`)
 
 - `init --framework` is optional and defaults to `node`.
+- **BREAKING:** `init --framework react|next` now aborts with `FRAMEWORK_NOT_SUPPORTED` until those presets are reworked; `nest` and `rn` are reserved the same way. Only `node` is supported.
 - `init` scripts are `lint: eslint .` and `format: eslint --fix .`; scope comes from `eslint.config.mjs` (which now ignores `build/` and, for next, `.next/`), and formatting runs through `prettier/prettier`.
 - `init` creates `.gitignore` only when missing, containing just `node_modules/`.
 - `init --no-install` writes valid devDependency ranges (`^9.39.5`, previously `@^9.39.5`).

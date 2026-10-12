@@ -14,7 +14,7 @@ const initCommand = defineCommand({
 	args: {
 		framework: {
 			type: 'string',
-			description: 'Target framework: node | react | next (default: node)',
+			description: 'Target framework: node (default); react | next | nest | rn are planned',
 			required: false
 		},
 		yes: {
