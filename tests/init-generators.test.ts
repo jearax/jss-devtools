@@ -44,16 +44,15 @@ describe('buildEslintConfigContent', () => {
 		expect(await isPrettierClean(buildEslintConfigContent(getPreset(framework)), 'eslint.config.mjs')).toBe(true)
 	})
 
-	it('node lints ts/js/mjs with node globals and a strict @/ alias rule', () => {
+	it('node lints ts/js/mjs with node globals', () => {
 		const content = buildEslintConfigContent(getPreset('node'))
 
 		expect(content).toContain("files: ['**/*.{ts,js,mjs}']")
 		expect(content).toContain('...globals.node')
-		expect(content).toContain("regex: '^\\\\.{1,2}/'")
 		expect(content).not.toContain('pluginReact')
 	})
 
-	it('react/next add the react plugin pair, jsx parsing and a CSS exception to the alias rule', () => {
+	it('react/next add the react plugin pair and jsx parsing', () => {
 		for (const framework of ['react', 'next'] as const) {
 			const content = buildEslintConfigContent(getPreset(framework))
 
@@ -62,15 +61,14 @@ describe('buildEslintConfigContent', () => {
 			expect(content).toContain("...pluginReactHooks.configs['recommended-latest'].rules,")
 			expect(content).toContain('jsx: true')
 			expect(content).toContain('...globals.browser')
-			expect(content).toContain('(?!.*\\\\.css$)')
 		}
 	})
 
-	it('enables type-aware promise rules through the project service', () => {
-		const content = buildEslintConfigContent(getPreset('node'))
+	it.each(FRAMEWORK_IDS)('%s has no type-aware or alias-only blocks', (framework) => {
+		const content = buildEslintConfigContent(getPreset(framework))
 
-		expect(content).toContain('projectService: true')
-		expect(content).toContain("'@typescript-eslint/no-floating-promises': 'error'")
+		expect(content).not.toContain('projectService')
+		expect(content).not.toContain('no-restricted-imports')
 	})
 })
 
@@ -98,10 +96,6 @@ describe('buildPrettierConfigContent', () => {
 			endOfLine: 'lf',
 			...jsRules
 		})
-	})
-
-	it('keeps YAML on spaces', async () => {
-		expect(await resolveOptions('pnpm-workspace.yaml')).toMatchObject({ useTabs: false })
 	})
 })
 

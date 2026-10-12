@@ -29,8 +29,6 @@ const pluginKey = (key: string): string => (/^[a-z]\w*$/i.test(key) ? key : `'${
 // dokploy/design-system for react): emitted already prettier-formatted with the
 // generated .prettierrc.json so a fresh `lint` run is clean.
 export const buildEslintConfigContent = (preset: FrameworkPreset): string => {
-	const ts = preset.jsx ? '{ts,tsx}' : 'ts'
-
 	const imports = [
 		...BASE_IMPORTS,
 		...preset.eslintFrameworkImports.map((spec): [string, string] => [spec.localName, spec.moduleName])
@@ -60,16 +58,6 @@ export const buildEslintConfigContent = (preset: FrameworkPreset): string => {
 				ecmaVersion: 'latest',
 				sourceType: 'module'
 			}`
-
-	const relativeImport = preset.jsx
-		? {
-				regex: "'^\\\\.{1,2}/(?!.*\\\\.css$)'",
-				message: "'Import through the @/ alias; only CSS files are imported relatively.'"
-			}
-		: {
-				regex: "'^\\\\.{1,2}/'",
-				message: "'Import through the @/ alias.'"
-			}
 
 	return `${imports}
 
@@ -161,13 +149,6 @@ ${frameworkRules}			// autofix
 			'no-undef': 'off',
 			'no-redeclare': 'off',
 			'no-import-assign': 'off',
-			'no-restricted-syntax': [
-				'error',
-				{
-					selector: 'TSEnumDeclaration',
-					message: 'Use an \`as const\` object and a derived union type instead of \`enum\`.'
-				}
-			],
 			'padding-line-between-statements': [
 				'error',
 				{
@@ -194,37 +175,6 @@ ${frameworkRules}			// autofix
 					blankLine: 'always',
 					prev: ['function', 'multiline-const', 'multiline-block-like'],
 					next: '*'
-				}
-			]
-		}
-	},
-	{
-		// Type-aware rules for promises; *.mjs files are outside tsconfig.json, so they stay untyped.
-		files: ['**/*.${ts}'],
-		languageOptions: {
-			parserOptions: {
-				projectService: true,
-				tsconfigRootDir: import.meta.dirname
-			}
-		},
-		rules: {
-			'@typescript-eslint/no-floating-promises': 'error',
-			'@typescript-eslint/no-misused-promises': 'error'
-		}
-	},
-	{
-		files: ['src/**/*.${ts}'],
-		ignores: ['src/**/*.{spec,test}.${ts}'],
-		rules: {
-			'no-restricted-imports': [
-				'error',
-				{
-					patterns: [
-						{
-							regex: ${relativeImport.regex},
-							message: ${relativeImport.message}
-						}
-					]
 				}
 			]
 		}
