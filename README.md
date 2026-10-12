@@ -27,15 +27,27 @@ The CLI has no self-management commands; use your package manager.
 Pin a version (downgrade) with `@<version>`, e.g. `npm i -g @jjuidev/jss-devtools@0.5.10`.
 Run once without installing: `npx @jjuidev/jss-devtools`, `pnpm dlx @jjuidev/jss-devtools`, `bunx @jjuidev/jss-devtools`, or `yarn dlx @jjuidev/jss-devtools` (Yarn 2+).
 
-## Commands
+## Usage
 
 ```
-jss-devtools --help            # top-level help
-jss-devtools version           # show CLI version
-jss-devtools init              # set up dev tooling on an existing project
+jss-devtools init --framework <node|react|next> [--yes] [--dry-run] [--json]
+jss-devtools --help | --version
 ```
 
-Each subcommand supports `jss-devtools <subcommand> --help` for usage details.
+`init` overlays dev tooling on an existing single-package project:
+
+| Output | Content |
+|---|---|
+| `eslint.config.mjs` | Flat config: typescript-eslint, import-x ordering, prettier, autofix, arrow functions, type-aware promise rules, `@/` alias imports (react/next add react + react-hooks) |
+| `.prettierrc.json` | Tabs, width 2, semicolons, single quotes, print width 120 |
+| `commitlint.config.mjs` | `@commitlint/config-conventional` |
+| `.husky/pre-commit`, `.husky/commit-msg` | `lint-staged` and `commitlint --edit` through the project's package manager |
+| `package.json` | `prepare`, `typecheck`, `lint`, `format` scripts (only when absent) and a `lint-staged` block |
+| `tsconfig.json` | Fresh file, or the `@/*` path alias merged into an existing plain one |
+| `pnpm-workspace.yaml` | pnpm only: `allowBuilds: { unrs-resolver: true }` for pnpm 11 |
+| `.gitignore` | Only when missing |
+
+The package manager (npm, pnpm, yarn classic, yarn berry, bun) is detected from the lockfile or the `packageManager` field; every command is mapped through [`package-manager-detector`](https://github.com/antfu-collective/package-manager-detector). Re-running is idempotent; differing config files are listed for confirmation before they are replaced.
 
 ## Tech Stack
 

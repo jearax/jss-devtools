@@ -65,8 +65,8 @@ jss-cli/
 6. ✅ `.gitignore`, `.npmignore`, `.editorconfig`, `.nvmrc`, `.npmrc`
 7. ✅ `.husky/pre-commit` chạy `pnpm exec lint-staged` (revised từ `pnpm dlx` — lint-staged đã là devDep, 2026-08-21)
 8. ✅ `src/cli.ts` (bin entry) + `src/cli/router.ts` (citty router)
-9. ✅ `src/utils/logger.ts` (consola wrapper — adopted from reference)
-10. ✅ `tests/smoke.test.ts` (2 tests: --version, --help; no-args hint skipped do consola async vs vitest forks pool race)
+9. ✅ `src/utils/logger.ts` (stderr logger on `node:util` `styleText`; consola dropped 2026-10-12)
+10. ✅ `tests/smoke.test.ts` (--version, --help, init --help, removed commands exit non-zero)
 11. ✅ `.github/workflows/ci.yml` (lint + typecheck + build + test on Node 24)
 
 **Phase 1+ ready to start.**
