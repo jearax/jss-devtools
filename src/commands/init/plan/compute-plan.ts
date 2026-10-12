@@ -289,7 +289,7 @@ const specsToRecord = (specs: string[]): Record<string, string> => {
 			continue
 		}
 
-		record[spec.slice(0, at)] = spec.slice(at)
+		record[spec.slice(0, at)] = spec.slice(at + 1)
 	}
 
 	return record

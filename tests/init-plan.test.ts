@@ -244,11 +244,10 @@ describe('computePlan', () => {
 
 		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')!
 
-		// specsToRecord captures the @ separator into the value (current behavior — bug in src)
-		expect(manifestEdit.devDeps).toHaveProperty('eslint')
-		expect(manifestEdit.devDeps).toHaveProperty('prettier')
-		expect(manifestEdit.devDeps?.eslint).toContain('10.0.0')
-		expect(manifestEdit.devDeps?.prettier).toContain('3.0.0')
+		expect(manifestEdit.devDeps).toEqual({
+			eslint: '^10.0.0',
+			prettier: '^3.0.0'
+		})
 
 		expect(plan.actions.some((a) => a.kind === 'install')).toBe(false)
 		expect(plan.actions.some((a) => a.kind === 'husky-activate')).toBe(false)

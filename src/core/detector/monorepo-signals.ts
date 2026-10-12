@@ -29,19 +29,27 @@ const declaresPnpmPackages = (cwd: string): boolean => {
 	return existsSync(path) && /^packages\s*:/m.test(readFileSync(path, 'utf8'))
 }
 
+// npm/yarn/bun use an array; yarn classic's nohoist form nests it under `packages`.
+const workspacePatterns = (workspaces: unknown): unknown[] => {
+	if (Array.isArray(workspaces)) {
+		return workspaces
+	}
+
+	if (typeof workspaces === 'object' && workspaces !== null) {
+		const packages = (workspaces as Record<string, unknown>).packages
+
+		return Array.isArray(packages) ? packages : []
+	}
+
+	return []
+}
+
 export const detectMonorepo = (cwd: string, manifest: Record<string, unknown>): MonorepoSignals | null => {
 	if (declaresPnpmPackages(cwd)) {
 		return { evidence: 'pnpm-workspace.yaml' }
 	}
 
-	const workspaces = manifest.workspaces
-
-	if (
-		typeof workspaces === 'object' &&
-		workspaces !== null &&
-		Array.isArray((workspaces as Record<string, unknown>).packages) &&
-		(workspaces as { packages: unknown[] }).packages.length > 0
-	) {
+	if (workspacePatterns(manifest.workspaces).length > 0) {
 		return { evidence: 'package.json "workspaces" field' }
 	}
 

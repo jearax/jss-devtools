@@ -107,6 +107,16 @@ describe('detectMonorepo', () => {
 		})
 	})
 
+	it('workspaces array (npm/yarn/bun form) → returns evidence', () => {
+		expect(detectMonorepo(newDir(), { workspaces: ['packages/*'] })).toEqual({
+			evidence: 'package.json "workspaces" field'
+		})
+	})
+
+	it('empty workspaces array → null', () => {
+		expect(detectMonorepo(newDir(), { workspaces: [] })).toBeNull()
+	})
+
 	it('empty workspaces.packages array → null', () => {
 		const cwd = newDir()
 
