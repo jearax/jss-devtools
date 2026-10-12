@@ -9,6 +9,8 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: write
+  # OIDC for npm trusted publishing; NODE_AUTH_TOKEN stays as the fallback.
+  id-token: write
 
 jobs:
   release:
