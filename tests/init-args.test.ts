@@ -162,17 +162,17 @@ describe('citty parse probe (declared mode flags only)', () => {
 
 	it('framework + mode flags parse cleanly; citty does not see the hidden flag', async () => {
 		await runCommand(probeCommand, {
-			rawArgs: ['--framework', 'react', '--dry-run', '--json']
+			rawArgs: ['--framework', 'node', '--dry-run', '--json']
 		})
 
-		expect(captured.framework).toBe('react')
+		expect(captured.framework).toBe('node')
 		expect(captured['dry-run']).toBe(true)
 		expect(captured.json).toBe(true)
 		expect(captured.yes).toBe(false)
 	})
 
 	it('kebab-case flag --dry-run lands under the dry-run key', async () => {
-		await runCommand(probeCommand, { rawArgs: ['--framework', 'next', '--dry-run'] })
+		await runCommand(probeCommand, { rawArgs: ['--framework', 'node', '--dry-run'] })
 
 		expect(captured['dry-run']).toBe(true)
 	})

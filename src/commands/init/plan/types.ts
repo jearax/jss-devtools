@@ -11,21 +11,13 @@ export type PlanAction =
 			scripts: Record<string, string>
 			lintStaged?: Record<string, string[]>
 			devDeps?: Record<string, string>
-			runtimePlacement?: {
-				specs: Record<string, string>
-				as: 'dependencies' | 'peer+dev'
-			}
 	  }
-	| { kind: 'install'; devSpecs: string[]; specs: string[] }
+	| { kind: 'install'; devSpecs: string[] }
 	| { kind: 'husky-activate' }
 
 export interface ResolvedSpecs {
 	/** devDependency specs (`eslint@^10.9.1`) after filtering user-declared pkgs. */
 	dev: string[]
-	/** framework runtime specs, placed per app/library rules. */
-	runtime: string[]
-	/** library (non-private + exports/types) → peers; app → dependencies. */
-	runtimePlacement: 'dependencies' | 'peer+dev' | 'none'
 	/** true when registry was unreachable and specs fell back to `@latest`. */
 	offlineFallback: boolean
 }

@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { resolveSpecs } from '@/commands/init/install/resolve-specs'
-import { getPreset } from '@/commands/init/presets/get-preset'
 import { InitFeatures } from '@/commands/init/types'
 import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { PackageMetadata } from '@/core/registry-client/types'
@@ -32,8 +31,7 @@ describe('resolveSpecs', () => {
 			'dist-tags': { latest: '1.0.0' }
 		})
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
 		expect(specs.dev).toContain('eslint@^1.0.0')
 		expect(specs.dev).toContain('@eslint/js@^1.0.0')
@@ -49,6 +47,7 @@ describe('resolveSpecs', () => {
 		expect(specs.dev).toContain('husky@^1.0.0')
 		expect(specs.dev).toContain('lint-staged@^1.0.0')
 		expect(specs.dev).toContain('typescript@^1.0.0')
+		expect(specs.dev).toContain('@types/node@^1.0.0')
 	})
 
 	it('excludes user-declared packages', async () => {
@@ -68,8 +67,7 @@ describe('resolveSpecs', () => {
 			}
 		}
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, manifest)
+		const specs = await resolveSpecs(defaultFeatures, manifest)
 
 		expect(specs.dev).not.toContain('eslint@^10.0.0')
 		expect(specs.dev).not.toContain('prettier@^10.0.0')
@@ -110,17 +108,15 @@ describe('resolveSpecs', () => {
 
 		mockedFetch.mockImplementation(mockFetch)
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
-		// eslint@^11.0.0 would be chosen without cap, but eslint is capped at 9
-		// due to eslint-plugin-react peer requirement (supports eslint ^3-^9.7)
+		// eslint@^11.0.0 would be chosen without the cap at 10
 		const eslintSpec = specs.dev.find((s) => s.startsWith('eslint@'))
 
-		expect(eslintSpec).toBe('eslint@^9.0.0')
+		expect(eslintSpec).toBe('eslint@^10.0.0')
 	})
 
-	it('user-declared pkg filtered out in runtime', async () => {
+	it('always includes typescript', async () => {
 		const mockFetch = vi.fn(async (_name: string) => {
 			return {
 				name: 'test',
@@ -132,8 +128,7 @@ describe('resolveSpecs', () => {
 
 		mockedFetch.mockImplementation(mockFetch)
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
 		expect(specs.dev).toContain('typescript@^1.0.0')
 	})
@@ -141,8 +136,7 @@ describe('resolveSpecs', () => {
 	it('offline fallback: registry throws → uses @latest', async () => {
 		mockedFetch.mockRejectedValue(new Error('Network error'))
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
 		expect(specs.offlineFallback).toBe(true)
 		expect(specs.dev).toContain('eslint@latest')
@@ -161,8 +155,7 @@ describe('resolveSpecs', () => {
 
 		mockedFetch.mockImplementation(mockFetch)
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
 		expect(specs.offlineFallback).toBe(false)
 	})
@@ -179,8 +172,7 @@ describe('resolveSpecs', () => {
 
 		mockedFetch.mockImplementation(mockFetch)
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
 		expect(specs.dev).toContain('@commitlint/cli@^1.0.0')
 		expect(specs.dev).toContain('@commitlint/config-conventional@^1.0.0')
@@ -204,103 +196,10 @@ describe('resolveSpecs', () => {
 			install: true
 		}
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, features, defaultManifest)
+		const specs = await resolveSpecs(features, defaultManifest)
 
 		expect(specs.dev).not.toContain('@commitlint/cli@^1.0.0')
 		expect(specs.dev).not.toContain('@commitlint/config-conventional@^1.0.0')
-	})
-
-	it('runtime deps placement: app → dependencies', async () => {
-		const mockFetch = vi.fn(async (_name: string) => {
-			return {
-				name: 'test',
-				versions: ['1.0.0'],
-				versionDocs: { '1.0.0': { peerDependencies: {} } },
-				'dist-tags': { latest: '1.0.0' }
-			}
-		})
-
-		mockedFetch.mockImplementation(mockFetch)
-
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
-
-		expect(specs.runtimePlacement).toBe('dependencies')
-	})
-
-	it('runtime deps placement: library (private false, exports) → peer+dev', async () => {
-		const mockFetch = vi.fn(async (_name: string) => {
-			return {
-				name: 'test',
-				versions: ['1.0.0'],
-				versionDocs: { '1.0.0': { peerDependencies: {} } },
-				'dist-tags': { latest: '1.0.0' }
-			}
-		})
-
-		mockedFetch.mockImplementation(mockFetch)
-
-		const manifest = {
-			name: 'test',
-			version: '1.0.0',
-			exports: {
-				'.': './src/index.ts'
-			}
-		}
-
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, manifest)
-
-		expect(specs.runtimePlacement).toBe('peer+dev')
-	})
-
-	it('runtime deps placement: library (non-private, types) → peer+dev', async () => {
-		const mockFetch = vi.fn(async (_name: string) => {
-			return {
-				name: 'test',
-				versions: ['1.0.0'],
-				versionDocs: { '1.0.0': { peerDependencies: {} } },
-				'dist-tags': { latest: '1.0.0' }
-			}
-		})
-
-		mockedFetch.mockImplementation(mockFetch)
-
-		const manifest = {
-			name: 'test',
-			version: '1.0.0',
-			types: './src/index.d.ts'
-		}
-
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, manifest)
-
-		expect(specs.runtimePlacement).toBe('peer+dev')
-	})
-
-	it('runtime deps placement: private true → dependencies', async () => {
-		const mockFetch = vi.fn(async (_name: string) => {
-			return {
-				name: 'test',
-				versions: ['1.0.0'],
-				versionDocs: { '1.0.0': { peerDependencies: {} } },
-				'dist-tags': { latest: '1.0.0' }
-			}
-		})
-
-		mockedFetch.mockImplementation(mockFetch)
-
-		const manifest = {
-			name: 'test',
-			version: '1.0.0',
-			private: true
-		}
-
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, manifest)
-
-		expect(specs.runtimePlacement).toBe('dependencies')
 	})
 
 	it('eslint anchors plugin peer windows, picks compatible version', async () => {
@@ -371,16 +270,14 @@ describe('resolveSpecs', () => {
 
 		mockedFetch.mockImplementation(mockFetch)
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
-		// TypeScript >=5.0.0 not yet chosen, so eslint would pick 12.0.0 without cap,
-		// but eslint is capped at 9 due to eslint-plugin-react peer requirement
+		// eslint would pick 12.0.0 without the cap at 10
 		const eslintSpec = specs.dev.find((s) => s.startsWith('eslint@'))
 
-		expect(eslintSpec).toBe('eslint@^9.0.0')
+		expect(eslintSpec).toBe('eslint@^10.0.0')
 
-		// Parser peer requirement is eslint ^12.0.0, but eslint is capped at 9.
+		// Parser peer requirement is eslint ^12.0.0, but eslint is capped at 10.
 		// No parser version satisfies this, so parser gets @latest
 		const parserSpec = specs.dev.find((s) => s.startsWith('@typescript-eslint/parser@'))
 
@@ -405,12 +302,12 @@ describe('resolveSpecs', () => {
 			install: true
 		}
 
-		const preset = getPreset('react')
-		const specs = await resolveSpecs(preset, features, defaultManifest)
+		const specs = await resolveSpecs(features, defaultManifest)
 
 		expect(specs.dev).not.toContain('eslint@^1.0.0')
 		expect(specs.dev).not.toContain('@eslint/js@^1.0.0')
 		expect(specs.dev).not.toContain('prettier@^1.0.0')
+		expect(specs.dev).toContain('@types/node@^1.0.0')
 		expect(specs.dev).toContain('husky@^1.0.0')
 		expect(specs.dev).toContain('lint-staged@^1.0.0')
 		expect(specs.dev).toContain('typescript@^1.0.0')
@@ -449,15 +346,14 @@ describe('resolveSpecs', () => {
 
 		mockedFetch.mockImplementation(async (pkg: string) => fakeMetadata(pkg))
 
-		const preset = getPreset('node')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
 		expect(specs.dev).toContain('@typescript-eslint/parser@^8.68.0')
 		expect(specs.dev).not.toContain('@typescript-eslint/parser@^1.1.0')
 	})
 
 	it.each([
-		['the resolved eslint', defaultManifest, 'eslint@^9.39.5', '@eslint/js@^9.39.4'],
+		['the resolved eslint', defaultManifest, 'eslint@^10.2.0', '@eslint/js@^10.0.1'],
 		[
 			'a user-declared eslint',
 			{
@@ -471,20 +367,20 @@ describe('resolveSpecs', () => {
 		const metadata: Record<string, PackageMetadata> = {
 			eslint: {
 				name: 'eslint',
-				versions: ['10.0.0', '9.39.5'],
+				versions: ['11.0.0', '10.2.0'],
 				versionDocs: {
-					'10.0.0': {},
-					'9.39.5': {}
+					'11.0.0': {},
+					'10.2.0': {}
 				},
-				'dist-tags': { latest: '10.0.0' }
+				'dist-tags': { latest: '11.0.0' }
 			},
-			// Mirrors the registry: 10.0.0 has no peers, so a peer check alone accepts it.
+			// A major with no peers (like the real @eslint/js 10.0.0) passes a peer check alone.
 			'@eslint/js': {
 				name: '@eslint/js',
-				versions: ['10.0.1', '10.0.0', '9.39.4', '8.57.1'],
+				versions: ['11.0.0', '10.0.1', '9.39.4', '8.57.1'],
 				versionDocs: {
+					'11.0.0': {},
 					'10.0.1': { peerDependencies: { eslint: '^10.0.0' } },
-					'10.0.0': {},
 					'9.39.4': {},
 					'8.57.1': {}
 				},
@@ -502,7 +398,7 @@ describe('resolveSpecs', () => {
 				}
 		)
 
-		const specs = await resolveSpecs(getPreset('node'), defaultFeatures, manifest)
+		const specs = await resolveSpecs(defaultFeatures, manifest)
 
 		if (eslintSpec !== undefined) {
 			expect(specs.dev).toContain(eslintSpec)
@@ -542,8 +438,7 @@ describe('resolveSpecs', () => {
 
 		mockedFetch.mockImplementation(async (pkg: string) => fakeMetadata(pkg))
 
-		const preset = getPreset('node')
-		const specs = await resolveSpecs(preset, defaultFeatures, defaultManifest)
+		const specs = await resolveSpecs(defaultFeatures, defaultManifest)
 
 		expect(specs.dev).toContain('typescript@^5.9.3')
 		expect(specs.dev).not.toContain('typescript@^7.0.2')

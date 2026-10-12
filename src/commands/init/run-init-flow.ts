@@ -5,7 +5,6 @@ import { resolveSpecs } from '@/commands/init/install/resolve-specs'
 import { computePlan } from '@/commands/init/plan/compute-plan'
 import { planDisplayLines } from '@/commands/init/plan/display'
 import { InitPlan } from '@/commands/init/plan/types'
-import { getPreset } from '@/commands/init/presets/get-preset'
 import { InitArgs, InitResult } from '@/commands/init/types'
 import { applyPlan } from '@/commands/init/utils/apply-plan'
 import { confirmPlan, logRequiresConfirmation } from '@/commands/init/utils/confirm-plan'
@@ -58,8 +57,8 @@ const abort = (args: InitArgs, code: string, message: string, hint?: string): In
 	return errorResult(args, message)
 }
 
-// Keep resolution: drop writes for kept targets; the tied preset-specific
-// eslint plugins ride along (core linter deps stay — format still runs).
+// Keep resolution: drop writes for kept targets; linter deps stay installed
+// so format still runs.
 const dropKeptTargets = (plan: InitPlan, keptTargets: string[]): InitPlan => {
 	const actions = plan.actions.filter((action) => !(action.kind === 'write-file' && keptTargets.includes(action.path)))
 
@@ -90,8 +89,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 	}
 
 	const { manifest, pm, hasGit } = preflight.value
-	const preset = getPreset(args.framework)
-	const specs = await resolveSpecs(preset, args.features, manifest, { silent })
+	const specs = await resolveSpecs(args.features, manifest, { silent })
 
 	if (specs.offlineFallback) {
 		logger.warn('Registry unreachable — some specs fell back to @latest.')

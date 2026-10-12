@@ -32,17 +32,13 @@ export const planDisplayLines = (plan: InitPlan, pm: Agent): string[] => {
 					parts.push(`${Object.keys(action.devDeps).length} devDependencies`)
 				}
 
-				if (action.runtimePlacement !== undefined) {
-					parts.push(`runtime deps → ${action.runtimePlacement.as}`)
-				}
-
 				lines.push(parts.join(', '))
 
 				break
 			}
 
 			case 'install': {
-				for (const command of buildInstallCommands(pm, action.devSpecs, action.specs)) {
+				for (const command of buildInstallCommands(pm, action.devSpecs)) {
 					lines.push(fmtCommand(command))
 				}
 

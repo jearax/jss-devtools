@@ -17,8 +17,6 @@ import { buildPrettierConfigContent } from '@/commands/init/generators/prettier-
 import { buildScripts } from '@/commands/init/generators/scripts-content'
 import { buildFreshTsconfig, mergeTsconfigAlias } from '@/commands/init/generators/tsconfig-content'
 import { buildVscodeExtensionsContent, buildVscodeSettingsContent } from '@/commands/init/generators/vscode-content'
-import { getPreset } from '@/commands/init/presets/get-preset'
-import { FRAMEWORK_IDS } from '@/commands/init/types'
 import { addCommand, fmtCommand, localBinCommand } from '@/core/runner/pm-commands'
 
 // A scratch project holding only the generated .editorconfig + .prettierrc.json,
@@ -40,48 +38,31 @@ const isPrettierClean = async (content: string, filepath: string): Promise<boole
 	})
 
 describe('buildEslintConfigContent', () => {
-	it.each(FRAMEWORK_IDS)('%s config is valid, prettier-clean ESM', async (framework) => {
-		expect(await isPrettierClean(buildEslintConfigContent(getPreset(framework)), 'eslint.config.mjs')).toBe(true)
+	const content = buildEslintConfigContent()
+
+	it('is valid, prettier-clean ESM', async () => {
+		expect(await isPrettierClean(content, 'eslint.config.mjs')).toBe(true)
 	})
 
-	it.each(FRAMEWORK_IDS)('%s imports are alphabetized like import-x/order', (framework) => {
-		const modules = [...buildEslintConfigContent(getPreset(framework)).matchAll(/^import \w+ from '([^']+)';$/gm)].map(
-			(match) => match[1] ?? ''
-		)
+	it('alphabetizes imports like import-x/order', () => {
+		const modules = [...content.matchAll(/^import \w+ from '([^']+)';$/gm)].map((match) => match[1] ?? '')
 
 		expect(modules).toEqual([...modules].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })))
 	})
 
-	it('ignores build output; next also ignores .next', () => {
-		expect(buildEslintConfigContent(getPreset('node'))).toContain("ignores: ['dist/**', 'build/**', 'coverage/**']")
-		expect(buildEslintConfigContent(getPreset('next'))).toContain("'coverage/**', '.next/**']")
+	it('ignores build output', () => {
+		expect(content).toContain("ignores: ['dist/**', 'build/**', 'cov" + "erage/**']")
 	})
 
-	it('node lints ts/js/mjs with node globals', () => {
-		const content = buildEslintConfigContent(getPreset('node'))
-
+	it('lints ts/js/mjs with node globals', () => {
 		expect(content).toContain("files: ['**/*.{ts,js,mjs}']")
 		expect(content).toContain('...globals.node')
-		expect(content).not.toContain('pluginReact')
 	})
 
-	it('react/next add the react plugin pair and jsx parsing', () => {
-		for (const framework of ['react', 'next'] as const) {
-			const content = buildEslintConfigContent(getPreset(framework))
-
-			expect(content).toContain("import pluginReactHooks from 'eslint-plugin-react-hooks';")
-			expect(content).toContain("'react-hooks': pluginReactHooks")
-			expect(content).toContain("...pluginReactHooks.configs['recommended-latest'].rules,")
-			expect(content).toContain('jsx: true')
-			expect(content).toContain('...globals.browser')
-		}
-	})
-
-	it.each(FRAMEWORK_IDS)('%s has no type-aware or alias-only blocks', (framework) => {
-		const content = buildEslintConfigContent(getPreset(framework))
-
+	it('has no type-aware, alias-only or enum-ban blocks', () => {
 		expect(content).not.toContain('projectService')
 		expect(content).not.toContain('no-restricted-imports')
+		expect(content).not.toContain('TSEnumDeclaration')
 	})
 })
 
@@ -122,8 +103,8 @@ describe('buildCommitlintConfigContent', () => {
 })
 
 describe('buildLintStagedConfig', () => {
-	it('lints the preset glob and root configs, formats package.json with prettier', () => {
-		expect(buildLintStagedConfig(getPreset('node'))).toEqual({
+	it('lints src/test and root configs, formats package.json with prettier', () => {
+		expect(buildLintStagedConfig()).toEqual({
 			'{src,test}/**/*.ts': ['eslint --fix', 'prettier --write'],
 			'*.{ts,mjs}': ['eslint --fix', 'prettier --write'],
 			'package.json': ['prettier --write']
@@ -211,36 +192,19 @@ describe('mergePnpmAllowBuilds', () => {
 })
 
 describe('buildFreshTsconfig', () => {
-	it('node preset: parses, paths and target', () => {
-		const preset = getPreset('node')
-		const content = buildFreshTsconfig(preset)
+	const content = buildFreshTsconfig()
 
+	it('sets the alias, target and node types', () => {
 		const tsconfig = JSON.parse(content)
 
 		expect(tsconfig.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] })
 		expect(tsconfig.compilerOptions.target).toBe('ES2022')
-	})
-
-	it('excludes node_modules and dist', () => {
-		const preset = getPreset('node')
-		const content = buildFreshTsconfig(preset)
-
-		const tsconfig = JSON.parse(content)
-
+		expect(tsconfig.compilerOptions.types).toEqual(['node'])
 		expect(tsconfig.exclude).toEqual(['node_modules', 'dist'])
 	})
 
-	it('next preset: jsx preserve set in compilerOptions', () => {
-		const preset = getPreset('next')
-		const content = buildFreshTsconfig(preset)
-
-		const tsconfig = JSON.parse(content)
-
-		expect(tsconfig.compilerOptions).toHaveProperty('jsx', 'preserve')
-	})
-
-	it.each(FRAMEWORK_IDS)('%s preset output is prettier-clean', async (framework) => {
-		expect(await isPrettierClean(buildFreshTsconfig(getPreset(framework)), 'tsconfig.json')).toBe(true)
+	it('is prettier-clean', async () => {
+		expect(await isPrettierClean(content, 'tsconfig.json')).toBe(true)
 	})
 
 	it('merged alias output is prettier-clean', async () => {

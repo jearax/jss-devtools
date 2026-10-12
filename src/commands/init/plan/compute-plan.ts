@@ -23,7 +23,6 @@ import {
 	PRETTIER_CONFIG_VARIANTS
 } from '@/commands/init/plan/conflicts'
 import { InitPlan, PlanAction, PlanContext } from '@/commands/init/plan/types'
-import { getPreset } from '@/commands/init/presets/get-preset'
 import { InitArgs } from '@/commands/init/types'
 
 export const ESLINT_CONFIG_PATH = 'eslint.config.mjs'
@@ -31,7 +30,6 @@ export const ESLINT_CONFIG_PATH = 'eslint.config.mjs'
 // Pure builder: all fs state arrives through PlanContext so the whole
 // framework × flag matrix is unit-testable without touching disk.
 export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
-	const preset = getPreset(args.framework)
 	const actions: PlanAction[] = []
 	const skipped: InitPlan['skipped'] = []
 
@@ -60,7 +58,7 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 	}
 
 	if (args.features.linter) {
-		pushWrite(ESLINT_CONFIG_PATH, buildEslintConfigContent(preset))
+		pushWrite(ESLINT_CONFIG_PATH, buildEslintConfigContent())
 		pushWrite(PRETTIER_CONFIG_PATH, buildPrettierConfigContent())
 
 		// Editor files are personal territory: create them when missing, never
@@ -112,7 +110,7 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 		actions.push({
 			kind: 'write-file',
 			path: TSCONFIG_PATH,
-			content: buildFreshTsconfig(preset)
+			content: buildFreshTsconfig()
 		})
 	} else {
 		const outcome = mergeTsconfigAlias(existingTsconfig)
@@ -181,32 +179,19 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 			reason: 'package.json already has a lint-staged field'
 		})
 	} else {
-		manifestEdit.lintStaged = buildLintStagedConfig(preset)
+		manifestEdit.lintStaged = buildLintStagedConfig()
 	}
 
 	if (!args.features.install) {
 		manifestEdit.devDeps = specsToRecord(ctx.specs.dev)
-
-		if (ctx.specs.runtimePlacement !== 'none') {
-			manifestEdit.runtimePlacement = {
-				specs: specsToRecord(ctx.specs.runtime),
-				as: ctx.specs.runtimePlacement
-			}
-		}
 	}
 
 	actions.push(manifestEdit)
 
 	if (args.features.install && ctx.specs.dev.length > 0) {
-		// Library runtime peers: the dev copy installs, the peer range lands in
-		// the manifest at apply — still a single add invocation.
-		const peerDevCopies = ctx.specs.runtimePlacement === 'peer+dev' ? ctx.specs.runtime : []
-		const appRuntime = ctx.specs.runtimePlacement === 'dependencies' ? ctx.specs.runtime : []
-
 		actions.push({
 			kind: 'install',
-			devSpecs: [...ctx.specs.dev, ...peerDevCopies],
-			specs: appRuntime
+			devSpecs: ctx.specs.dev
 		})
 	}
 

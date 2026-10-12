@@ -9,7 +9,6 @@ import {
 	addScriptsWhenAbsent,
 	setLintStagedWhenAbsent,
 	declaredDependency,
-	isLibraryManifest,
 	serializeManifest
 } from '@/commands/init/utils/manifest'
 
@@ -263,72 +262,6 @@ describe('declaredDependency', () => {
 		const spec = declaredDependency(manifest, 'eslint')
 
 		expect(spec).toBeUndefined()
-	})
-})
-
-describe('isLibraryManifest', () => {
-	it('returns false when private is true', () => {
-		const manifest: Record<string, unknown> = {
-			name: 'test',
-			version: '1.0.0',
-			private: true
-		}
-
-		const isLibrary = isLibraryManifest(manifest)
-
-		expect(isLibrary).toBe(false)
-	})
-
-	it('returns true when exports is defined and private is false', () => {
-		const manifest: Record<string, unknown> = {
-			name: 'test',
-			version: '1.0.0',
-			exports: {
-				'.': './src/index.ts'
-			}
-		}
-
-		const isLibrary = isLibraryManifest(manifest)
-
-		expect(isLibrary).toBe(true)
-	})
-
-	it('returns true when types is defined and private is false', () => {
-		const manifest: Record<string, unknown> = {
-			name: 'test',
-			version: '1.0.0',
-			types: './src/index.d.ts'
-		}
-
-		const isLibrary = isLibraryManifest(manifest)
-
-		expect(isLibrary).toBe(true)
-	})
-
-	it('returns false when both exports and types are missing', () => {
-		const manifest: Record<string, unknown> = {
-			name: 'test',
-			version: '1.0.0'
-		}
-
-		const isLibrary = isLibraryManifest(manifest)
-
-		expect(isLibrary).toBe(false)
-	})
-
-	it('returns false when both exports and types exist but private is true', () => {
-		const manifest: Record<string, unknown> = {
-			name: 'test',
-			version: '1.0.0',
-			private: true,
-			exports: {
-				'.': './src/index.ts'
-			}
-		}
-
-		const isLibrary = isLibraryManifest(manifest)
-
-		expect(isLibrary).toBe(false)
 	})
 })
 

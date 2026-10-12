@@ -96,10 +96,6 @@ const applyManifestEdit = (
 		}
 	}
 
-	if (action.runtimePlacement !== undefined) {
-		manifest = applyRuntimePlacement(manifest, action.runtimePlacement.specs, action.runtimePlacement.as)
-	}
-
 	if (JSON.stringify(manifest) === JSON.stringify(JSON.parse(raw))) {
 		return
 	}
@@ -107,40 +103,6 @@ const applyManifestEdit = (
 	writeFileSync(join(cwd, 'package.json'), serializeManifest(manifest, raw))
 	outcome.modified.push('package.json')
 	outcome.mutations += 1
-}
-
-const applyRuntimePlacement = (
-	manifest: Record<string, unknown>,
-	specs: Record<string, string>,
-	as: 'dependencies' | 'peer+dev'
-): Record<string, unknown> => {
-	let next = manifest
-
-	const mergeField = (field: string, entries: Record<string, string>): void => {
-		const current =
-			typeof next[field] === 'object' && next[field] !== null ? (next[field] as Record<string, string>) : {}
-
-		next = {
-			...next,
-			[field]: {
-				...current,
-				...entries
-			}
-		}
-	}
-
-	if (as === 'dependencies') {
-		mergeField('dependencies', specs)
-
-		return next
-	}
-
-	mergeField('peerDependencies', specs)
-
-	// Dev copies let the library's own tooling resolve the peers locally.
-	mergeField('devDependencies', specs)
-
-	return next
 }
 
 export const applyPlan = async (plan: InitPlan, deps: ApplyDeps): Promise<ApplyOutcome> => {
@@ -158,8 +120,7 @@ export const applyPlan = async (plan: InitPlan, deps: ApplyDeps): Promise<ApplyO
 
 	const installAction = plan.actions.find((a) => a.kind === 'install')
 
-	const installTotal =
-		installAction && installAction.kind === 'install' ? installAction.devSpecs.length + installAction.specs.length : 0
+	const installTotal = installAction && installAction.kind === 'install' ? installAction.devSpecs.length : 0
 
 	const installSpinner = installAction
 		? startSpinner(`Installing ${installTotal} package${installTotal === 1 ? '' : 's'} via ${deps.pm}`, {
@@ -268,7 +229,7 @@ const runPlan = async (
 				let commands: ReturnType<typeof buildInstallCommands>
 
 				try {
-					commands = buildInstallCommands(deps.pm, action.devSpecs, action.specs)
+					commands = buildInstallCommands(deps.pm, action.devSpecs)
 				} catch (error) {
 					// Unsupported agent (e.g. a future PM without an `add` verb)
 					// — keep the result envelope intact instead of throwing.
@@ -297,13 +258,11 @@ const runPlan = async (
 				}
 
 				outcome.installOk = commands.length > 0 ? allOk : null
-				outcome.installed.push(...action.devSpecs, ...action.specs)
+				outcome.installed.push(...action.devSpecs)
 				outcome.mutations += commands.length
 				finalizeInstall(
 					'done',
-					outcome.installOk
-						? `Installed ${action.devSpecs.length + action.specs.length} packages`
-						: 'Install step finished with errors'
+					outcome.installOk ? `Installed ${action.devSpecs.length} packages` : 'Install step finished with errors'
 				)
 
 				break

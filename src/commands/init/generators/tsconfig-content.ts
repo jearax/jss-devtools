@@ -1,15 +1,32 @@
 import { formatJson } from '@/commands/init/generators/format-json'
-import { FrameworkPreset } from '@/commands/init/presets/types'
 
 export type TsconfigMergeOutcome =
 	{ kind: 'write'; content: string } | { kind: 'skip'; reason: 'paths-exists' | 'solution-style' | 'unparseable' }
 
 export const TSCONFIG_PATH = 'tsconfig.json'
 
-export const buildFreshTsconfig = (preset: FrameworkPreset): string =>
+export const buildFreshTsconfig = (): string =>
 	formatJson({
-		compilerOptions: preset.tsconfigCompilerOptions,
-		include: preset.tsconfigInclude,
+		compilerOptions: {
+			target: 'ES2022',
+			lib: ['ES2024'],
+			module: 'ESNext',
+			moduleResolution: 'Bundler',
+			resolveJsonModule: true,
+			allowSyntheticDefaultImports: true,
+			esModuleInterop: true,
+			strict: true,
+			skipLibCheck: true,
+			forceConsistentCasingInFileNames: true,
+			isolatedModules: true,
+			verbatimModuleSyntax: false,
+			noEmit: true,
+			paths: {
+				'@/*': ['./src/*']
+			},
+			types: ['node']
+		},
+		include: ['src/**/*.ts', 'test/**/*.ts', '*.ts'],
 		exclude: ['node_modules', 'dist']
 	})
 

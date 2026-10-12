@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { computePlan } from '@/commands/init/plan/compute-plan'
 import { planDisplayLines } from '@/commands/init/plan/display'
-import { getPreset } from '@/commands/init/presets/get-preset'
 import { InitArgs } from '@/commands/init/types'
 
 describe('computePlan', () => {
@@ -29,8 +28,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: ['eslint@^10.0.0'],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -71,65 +68,6 @@ describe('computePlan', () => {
 		expect(plan.skipped).toHaveLength(0)
 	})
 
-	it('react full features: writes react plugins', () => {
-		const ctx = {
-			pm: 'pnpm' as AgentName,
-			manifest: {
-				name: 'test',
-				version: '1.0.0'
-			},
-			hasGit: false,
-			specs: {
-				dev: ['eslint@^10.0.0'],
-				runtime: ['react@^18.0.0', 'react-dom@^18.0.0'],
-				runtimePlacement: 'peer+dev' as const,
-				offlineFallback: false
-			},
-			readFile: vi.fn((_path: string) => null)
-		}
-
-		const plan = computePlan(defaultArgs, ctx)
-
-		// With install on, devDeps go through the install action, not the manifest
-		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')!
-
-		expect(manifestEdit.devDeps).toBeUndefined()
-
-		const install = plan.actions.find((a) => a.kind === 'install')
-
-		expect(install).toBeDefined()
-		expect(install?.devSpecs).toContain('eslint@^10.0.0')
-		expect(install?.devSpecs.some((s) => s.startsWith('react@'))).toBe(true)
-	})
-
-	it('next full features: tsconfig with jsx preserve, next plugin', () => {
-		const ctx = {
-			pm: 'pnpm' as AgentName,
-			manifest: {
-				name: 'test',
-				version: '1.0.0'
-			},
-			hasGit: false,
-			specs: {
-				dev: ['eslint@^10.0.0'],
-				runtime: ['react@^18.0.0', 'react-dom@^18.0.0', 'next@^14.0.0'],
-				runtimePlacement: 'peer+dev' as const,
-				offlineFallback: false
-			},
-			readFile: vi.fn((_path: string) => null)
-		}
-
-		const plan = computePlan(defaultArgs, ctx)
-
-		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')!
-
-		expect(manifestEdit.devDeps).toBeUndefined()
-
-		const install = plan.actions.find((a) => a.kind === 'install')!
-
-		expect(install.devSpecs.some((s) => s.startsWith('next@'))).toBe(true)
-	})
-
 	it('--no-linter: no eslint/prettier/vscode writes, no pre-commit hook, no format script, lint-staged skipped', () => {
 		const args = {
 			...defaultArgs,
@@ -149,8 +87,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier'],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -196,8 +132,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier', '@commitlint/cli', '@commitlint/config-conventional'],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -233,8 +167,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier@^3.0.0'],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -268,8 +200,6 @@ describe('computePlan', () => {
 			hasGit: true,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -294,8 +224,6 @@ describe('computePlan', () => {
 			hasGit: true,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) => existingFiles[path] ?? null)
@@ -320,8 +248,6 @@ describe('computePlan', () => {
 			hasGit: true,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) =>
@@ -355,8 +281,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) => {
@@ -399,8 +323,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) => {
@@ -430,8 +352,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) => {
@@ -466,8 +386,6 @@ describe('computePlan', () => {
 			hasGit: false,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -481,8 +399,6 @@ describe('computePlan', () => {
 
 describe('planDisplayLines', () => {
 	it('node full features display includes all actions', () => {
-		getPreset('node')
-
 		const ctx = {
 			pm: 'pnpm' as AgentName,
 			manifest: {
@@ -492,8 +408,6 @@ describe('planDisplayLines', () => {
 			hasGit: false,
 			specs: {
 				dev: ['eslint@^10.0.0'],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -527,8 +441,6 @@ describe('planDisplayLines', () => {
 	})
 
 	it('writes show install command string', () => {
-		getPreset('node')
-
 		const ctx = {
 			pm: 'pnpm' as AgentName,
 			manifest: {
@@ -538,8 +450,6 @@ describe('planDisplayLines', () => {
 			hasGit: false,
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier'],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -579,8 +489,6 @@ describe('planDisplayLines', () => {
 			hasGit: false,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -631,8 +539,6 @@ describe('planDisplayLines', () => {
 			hasGit: false,
 			specs: {
 				dev: ['eslint@^10.0.0'],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((_path: string) => null)
@@ -656,8 +562,6 @@ describe('planDisplayLines', () => {
 			hasGit: false,
 			specs: {
 				dev: [],
-				runtime: [],
-				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) => {

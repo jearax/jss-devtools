@@ -107,6 +107,3 @@ export const declaredDependency = (manifest: Record<string, unknown>, pkgName: s
 
 	return undefined
 }
-
-export const isLibraryManifest = (manifest: Record<string, unknown>): boolean =>
-	manifest.private !== true && (manifest.exports !== undefined || manifest.types !== undefined)

@@ -38,7 +38,7 @@ jss-devtools --help | --version
 
 | Output | Content |
 |---|---|
-| `eslint.config.mjs` | Flat config: typescript-eslint, import-x ordering, prettier, autofix, arrow functions (react/next add react + react-hooks) |
+| `eslint.config.mjs` | Flat config: typescript-eslint, import-x ordering, prettier, autofix, arrow functions |
 | `.editorconfig` | Only when missing. The single whitespace source: tabs (width 2), print width 120, LF line endings. Prettier, eslint-plugin-prettier and editors all read it |
 | `.prettierrc.json` | JS syntax rules only: semicolons, single quotes (double in JSX), quote props as needed, no trailing commas, bracket spacing, arrow parens always |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Only when missing: format on save with Prettier, eslint fixes on save; recommend EditorConfig, eslint and Prettier extensions |

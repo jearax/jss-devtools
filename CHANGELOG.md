@@ -11,10 +11,12 @@
   - Uninstall: `npm rm -g @jjuidev/jss-devtools` (or `pnpm remove -g` / `bun remove -g` / `yarn global remove`)
 
 - `init --framework` is optional and defaults to `node`.
-- **BREAKING:** `init --framework react|next` now aborts with `FRAMEWORK_NOT_SUPPORTED` until those presets are reworked; `nest` and `rn` are reserved the same way. Only `node` is supported.
-- `init` scripts are `lint: eslint .` and `format: eslint --fix .`; scope comes from `eslint.config.mjs` (which now ignores `build/` and, for next, `.next/`), and formatting runs through `prettier/prettier`.
+- **BREAKING:** only `node` is supported. The `react` and `next` presets are removed and, like the reserved `nest` and `rn`, abort with `FRAMEWORK_NOT_SUPPORTED`. `init` no longer adds framework runtime dependencies.
+- `init` installs eslint 10 (was capped at 9 for `eslint-plugin-react`) and no longer installs the unused `tsc-alias`.
+- `@types/node` is always installed, so `typecheck` passes with `--no-linter` (the generated `tsconfig.json` sets `types: ['node']`).
+- `init` scripts are `lint: eslint .` and `format: eslint --fix .`; scope comes from `eslint.config.mjs` (which now ignores `build/`), and formatting runs through `prettier/prettier`.
 - `init` creates `.gitignore` only when missing, containing just `node_modules/`.
-- `init --no-install` writes valid devDependency ranges (`^9.39.5`, previously `@^9.39.5`).
+- `init --no-install` writes valid devDependency ranges (`^10.12.0`, previously `@^10.12.0`).
 - `init` treats the array form of `package.json#workspaces` (npm/yarn/bun) as a monorepo.
 - `init` pins `@eslint/js` to the same major as `eslint`, so npm no longer reports `ERESOLVE` (a warning on install, a hard failure on a later `npm install`).
 - `init` exits with code 1 when the conflict prompt is cancelled, so scripts and CI do not treat it as success.

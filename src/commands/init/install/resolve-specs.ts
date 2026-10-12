@@ -1,9 +1,8 @@
 import semver from 'semver'
 
 import { ResolvedSpecs } from '@/commands/init/plan/types'
-import { FrameworkPreset } from '@/commands/init/presets/types'
 import { InitFeatures } from '@/commands/init/types'
-import { declaredDependency, isLibraryManifest } from '@/commands/init/utils/manifest'
+import { declaredDependency } from '@/commands/init/utils/manifest'
 import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { PackageMetadata } from '@/core/registry-client/types'
 import { startSpinner } from '@/utils/progress'
@@ -26,7 +25,8 @@ const LINTER_PACKAGES = [
 
 const COMMITLINT_PACKAGES = ['@commitlint/cli', '@commitlint/config-conventional'] as const
 
-const ALWAYS_PACKAGES = ['husky', 'lint-staged', 'typescript'] as const
+// @types/node backs the generated tsconfig's `types: ['node']`.
+const ALWAYS_PACKAGES = ['husky', 'lint-staged', 'typescript', '@types/node'] as const
 
 const stableVersionsDesc = (versions: string[]): string[] =>
 	versions
@@ -53,9 +53,9 @@ const ANCHOR_MAX_MAJOR: Record<string, number> = {
 	// @typescript-eslint/parser 8.x peers typescript <6.1.0; cap typescript at
 	// the 5.x line until the eslint ecosystem catches up.
 	typescript: 5,
-	// eslint-plugin-react@latest (7.x) only peers eslint ^3-^9.7; cap eslint
-	// at 9.x until the eslint ecosystem catches up with eslint 10.
-	eslint: 9
+	// Highest major the whole house plugin set peers; raise only after the
+	// plugins declare support for the next one.
+	eslint: 10
 }
 
 // Packages released in lockstep with an anchor must share its major. Peer
@@ -129,7 +129,6 @@ const pickAnchorVersion = (metadata: PackageMetadata, name: string): string => {
 }
 
 export const resolveSpecs = async (
-	preset: FrameworkPreset,
 	features: InitFeatures,
 	manifest: Record<string, unknown>,
 	opts: { silent?: boolean } = {}
@@ -137,11 +136,7 @@ export const resolveSpecs = async (
 	const names: string[] = [...ALWAYS_PACKAGES]
 
 	if (features.linter) {
-		names.push(...LINTER_PACKAGES, ...preset.extraEslintPlugins, ...preset.extraAtTypes)
-
-		if (preset.needsTscAlias) {
-			names.push('tsc-alias')
-		}
+		names.push(...LINTER_PACKAGES)
 	}
 
 	if (features.commitlint) {
@@ -198,46 +193,8 @@ export const resolveSpecs = async (
 		throw error
 	}
 
-	const runtimeNames = preset.runtimeDeps.filter((name) => declaredDependency(manifest, name) === undefined)
-	const runtime: string[] = []
-
-	if (runtimeNames.length > 0) {
-		const runtimeSpinner = startSpinner(
-			`Resolving ${runtimeNames.length} runtime package${runtimeNames.length === 1 ? '' : 's'}`,
-			{ silent: opts.silent }
-		)
-
-		try {
-			for (let i = 0; i < runtimeNames.length; i++) {
-				const name = runtimeNames[i] ?? ''
-
-				runtimeSpinner.update(`Resolving ${i + 1}/${runtimeNames.length}: ${name}`)
-
-				try {
-					const metadata = await fetchPackageMetadata(name)
-					const version = pickVersion(metadata, chosen)
-
-					runtime.push(specFor(name, version))
-				} catch {
-					offlineFallback = true
-					runtime.push(`${name}@latest`)
-				}
-			}
-
-			runtimeSpinner.done(`Resolved ${runtimeNames.length} runtime package${runtimeNames.length === 1 ? '' : 's'}`)
-		} catch (error) {
-			runtimeSpinner.fail(`Failed to resolve runtime packages`)
-			throw error
-		}
-	}
-
-	const runtimePlacement: ResolvedSpecs['runtimePlacement'] =
-		runtime.length === 0 ? 'none' : isLibraryManifest(manifest) ? 'peer+dev' : 'dependencies'
-
 	return {
 		dev,
-		runtime,
-		runtimePlacement,
 		offlineFallback
 	}
 }

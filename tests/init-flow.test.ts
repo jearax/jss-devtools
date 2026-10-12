@@ -121,66 +121,6 @@ describe('runInitFlow', () => {
 		expect(() => readFileSync(join(dir, 'tsconfig.json'))).not.toThrow()
 	})
 
-	it('react mode: eslint config contains react plugins', async () => {
-		const dir = newDir()
-
-		writePkgJson(dir)
-		process.chdir(dir)
-
-		const initModule = await loadRunInitFlow()
-
-		const args: InitArgs = {
-			framework: 'react' as const,
-			yes: false,
-			dryRun: false,
-			json: false,
-			features: {
-				linter: true,
-				commitlint: true,
-				install: true
-			}
-		}
-
-		const result = await initModule.runInitFlow(args)
-
-		expect(result.status).toBe('success')
-		const content = readFileSync(join(dir, 'eslint.config.mjs'), 'utf8')
-
-		expect(content).toContain('eslint-plugin-react')
-		expect(content).toContain('eslint-plugin-react-hooks')
-	})
-
-	it('next mode: tsconfig jsx preserve + next plugin', async () => {
-		const dir = newDir()
-
-		writePkgJson(dir)
-		process.chdir(dir)
-
-		const initModule = await loadRunInitFlow()
-
-		const args: InitArgs = {
-			framework: 'next' as const,
-			yes: false,
-			dryRun: false,
-			json: false,
-			features: {
-				linter: true,
-				commitlint: true,
-				install: true
-			}
-		}
-
-		const result = await initModule.runInitFlow(args)
-
-		expect(result.status).toBe('success')
-		const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
-
-		expect(tsconfig.compilerOptions).toHaveProperty('jsx', 'preserve')
-		const content = readFileSync(join(dir, 'eslint.config.mjs'), 'utf8')
-
-		expect(content).toContain('eslint-plugin-react')
-	})
-
 	it('re-run same dir: noop (or success with zero generated)', async () => {
 		const dir = newDir()
 
