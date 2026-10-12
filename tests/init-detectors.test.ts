@@ -8,15 +8,6 @@ import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
 import { detectMonorepo } from '@/core/detector/monorepo-signals'
 import { detectProjectPM, ProjectPM } from '@/core/detector/project-pm'
 
-vi.mock('@/core/store', () => ({
-	recordPmSeen: vi.fn(),
-	getPmLedger: vi.fn(() => ({
-		pmsSeen: [],
-		lastPm: null,
-		lastSeenAt: null
-	}))
-}))
-
 const testDirs: string[] = []
 
 const newDir = (): string => {

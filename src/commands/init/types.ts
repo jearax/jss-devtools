@@ -1,6 +1,6 @@
 import { AgentName } from 'package-manager-detector'
 
-import { CommandResultStatus } from '@/commands/self/utils/result'
+export type CommandResultStatus = 'success' | 'dry-run' | 'noop' | 'cancelled' | 'error'
 
 export const FRAMEWORK_IDS = ['node', 'react', 'next'] as const
 
