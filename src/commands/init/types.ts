@@ -6,6 +6,8 @@ export const FRAMEWORK_IDS = ['node', 'react', 'next'] as const
 
 export type FrameworkId = (typeof FRAMEWORK_IDS)[number]
 
+export const DEFAULT_FRAMEWORK: FrameworkId = 'node'
+
 export type InitFeatureKey = 'linter' | 'commitlint' | 'install'
 
 export interface InitFeatures {

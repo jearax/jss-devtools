@@ -4,8 +4,8 @@ import { runInitFlow } from '@/commands/init/run-init-flow'
 import { extractInitArgs, InitArgsError } from '@/commands/init/utils/args'
 import { logger } from '@/utils/logger'
 
-// Framework is validated by extractInitArgs (not citty's required check) so
-// the FRAMEWORK_REQUIRED/INVALID contract and message stay under our control.
+// Framework is validated by extractInitArgs (not citty) so the
+// FRAMEWORK_INVALID contract and message stay under our control.
 const initCommand = defineCommand({
 	meta: {
 		name: 'init',
@@ -14,7 +14,7 @@ const initCommand = defineCommand({
 	args: {
 		framework: {
 			type: 'string',
-			description: 'Target framework: node | react | next (required)',
+			description: 'Target framework: node | react | next (default: node)',
 			required: false
 		},
 		yes: {

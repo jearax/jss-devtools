@@ -30,7 +30,7 @@ Run once without installing: `npx @jjuidev/jss-devtools`, `pnpm dlx @jjuidev/jss
 ## Usage
 
 ```
-jss-devtools init --framework <node|react|next> [--yes] [--dry-run] [--json]
+jss-devtools init [--framework <node|react|next>] [--yes] [--dry-run] [--json]   # framework defaults to node
 jss-devtools --help | --version
 ```
 

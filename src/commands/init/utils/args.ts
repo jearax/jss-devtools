@@ -1,6 +1,6 @@
-import { FRAMEWORK_IDS, FrameworkId, InitArgs, InitFeatures } from '@/commands/init/types'
+import { DEFAULT_FRAMEWORK, FRAMEWORK_IDS, FrameworkId, InitArgs, InitFeatures } from '@/commands/init/types'
 
-export type InitArgsErrorCode = 'FRAMEWORK_REQUIRED' | 'FRAMEWORK_INVALID'
+export type InitArgsErrorCode = 'FRAMEWORK_INVALID'
 
 export class InitArgsError extends Error {
 	constructor(
@@ -44,14 +44,7 @@ export const parseNoFlags = (argv: readonly string[]): InitFeatures => {
 }
 
 export const extractInitArgs = (raw: Record<string, unknown>, argv: readonly string[]): InitArgs => {
-	const framework = raw.framework
-
-	if (framework === undefined) {
-		throw new InitArgsError(
-			'FRAMEWORK_REQUIRED',
-			`Missing required flag --framework. Valid values: ${FRAMEWORK_IDS.join(' | ')}.`
-		)
-	}
+	const framework = raw.framework ?? DEFAULT_FRAMEWORK
 
 	if (!isFrameworkId(framework)) {
 		throw new InitArgsError(

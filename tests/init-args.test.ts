@@ -40,18 +40,8 @@ describe('extractInitArgs (pure extraction)', () => {
 		expect(parsed.json).toBe(true)
 	})
 
-	it('missing framework throws FRAMEWORK_REQUIRED listing valid values', () => {
-		expect(() => extractInitArgs({}, [])).toThrowError(InitArgsError)
-
-		try {
-			extractInitArgs({}, [])
-		} catch (error) {
-			const err = error as InitArgsError
-
-			expect(err.code).toBe('FRAMEWORK_REQUIRED')
-			expect(err.message).toContain('node')
-			expect(err.message).toContain('next')
-		}
+	it('defaults to node when --framework is omitted', () => {
+		expect(extractInitArgs({}, []).framework).toBe('node')
 	})
 
 	it.each(['react-native', 'vue', 'nuxt', 42])('invalid framework %p throws FRAMEWORK_INVALID', (framework) => {
