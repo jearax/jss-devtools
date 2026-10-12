@@ -8,8 +8,6 @@ import { fetchPackageMetadata } from '@/core/registry-client/fetch-package'
 import { PackageMetadata } from '@/core/registry-client/types'
 import { startSpinner } from '@/utils/progress'
 
-const PPJ_PKG = 'prettier-package-json'
-
 // Shared house linter set — mirrors this repo's own devDependencies so
 // generated projects lint with the same stack that generated them.
 const LINTER_PACKAGES = [
@@ -173,20 +171,6 @@ export const resolveSpecs = async (
 		throw error
 	}
 
-	let ppjSpec = `${PPJ_PKG}@latest`
-
-	if (features.linter) {
-		try {
-			const metadata = await fetchPackageMetadata(PPJ_PKG)
-			const latest = metadata['dist-tags'] as Record<string, string> | undefined
-			const version = latest?.latest ?? pickVersion(metadata, chosen)
-
-			ppjSpec = version === 'latest' ? ppjSpec : `${PPJ_PKG}@^${version}`
-		} catch {
-			offlineFallback = true
-		}
-	}
-
 	const runtimeNames = preset.runtimeDeps.filter((name) => declaredDependency(manifest, name) === undefined)
 	const runtime: string[] = []
 
@@ -226,7 +210,6 @@ export const resolveSpecs = async (
 	return {
 		dev,
 		runtime,
-		ppjSpec,
 		runtimePlacement,
 		offlineFallback
 	}

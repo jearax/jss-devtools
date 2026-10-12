@@ -1,8 +1,13 @@
 // Unit tests for init generator content builders — pure content checks.
-import { check } from 'prettier'
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+import { check, resolveConfig } from 'prettier'
 import { describe, expect, it } from 'vitest'
 
 import { buildCommitlintConfigContent } from '@/commands/init/generators/commitlint-config-content'
+import { buildEditorconfigContent } from '@/commands/init/generators/editorconfig-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
 import { formatJson } from '@/commands/init/generators/format-json'
 import { buildHookContent, mergeHookContent } from '@/commands/init/generators/husky-hooks-content'
@@ -14,15 +19,23 @@ import { buildFreshTsconfig, mergeTsconfigAlias } from '@/commands/init/generato
 import { buildVscodeExtensionsContent, buildVscodeSettingsContent } from '@/commands/init/generators/vscode-content'
 import { getPreset } from '@/commands/init/presets/get-preset'
 import { FRAMEWORK_IDS } from '@/commands/init/types'
-import { addCommand, fmtCommand, localBinCommand, oneOffCommand } from '@/core/runner/pm-commands'
+import { addCommand, fmtCommand, localBinCommand } from '@/core/runner/pm-commands'
 
-const prettierOptions = JSON.parse(buildPrettierConfigContent()) as Record<string, unknown>
+// A scratch project holding only the generated .editorconfig + .prettierrc.json,
+// so options resolve exactly as Prettier resolves them in a generated project.
+const projectDir = mkdtempSync(join(tmpdir(), 'jss-prettier-'))
 
-// Generated files must already satisfy the generated prettier config, or the
-// first `lint` run in a fresh project fails on prettier/prettier.
-const isPrettierClean = (content: string, filepath: string): Promise<boolean> =>
+writeFileSync(join(projectDir, '.editorconfig'), buildEditorconfigContent())
+writeFileSync(join(projectDir, '.prettierrc.json'), buildPrettierConfigContent())
+
+const resolveOptions = async (filepath: string) =>
+	(await resolveConfig(join(projectDir, filepath), { editorconfig: true })) ?? {}
+
+// Generated files must already satisfy the generated formatting sources, or
+// the first `lint` run in a fresh project fails on prettier/prettier.
+const isPrettierClean = async (content: string, filepath: string): Promise<boolean> =>
 	check(content, {
-		...prettierOptions,
+		...(await resolveOptions(filepath)),
 		filepath
 	})
 
@@ -62,14 +75,33 @@ describe('buildEslintConfigContent', () => {
 })
 
 describe('buildPrettierConfigContent', () => {
-	it('lists only the options that differ from Prettier defaults', () => {
-		expect(prettierOptions).toEqual({
+	const jsRules = {
+		semi: true,
+		singleQuote: true,
+		jsxSingleQuote: false,
+		quoteProps: 'as-needed',
+		trailingComma: 'none',
+		bracketSpacing: true,
+		bracketSameLine: false,
+		arrowParens: 'always'
+	}
+
+	it('holds JS syntax rules and no whitespace options', () => {
+		expect(JSON.parse(buildPrettierConfigContent())).toEqual(jsRules)
+	})
+
+	it('resolves whitespace from .editorconfig and syntax from .prettierrc.json', async () => {
+		expect(await resolveOptions('src/index.ts')).toEqual({
 			useTabs: true,
+			tabWidth: 2,
 			printWidth: 120,
-			singleQuote: true,
-			trailingComma: 'none',
-			endOfLine: 'auto'
+			endOfLine: 'lf',
+			...jsRules
 		})
+	})
+
+	it('keeps YAML on spaces', async () => {
+		expect(await resolveOptions('pnpm-workspace.yaml')).toMatchObject({ useTabs: false })
 	})
 })
 
@@ -83,13 +115,11 @@ describe('buildCommitlintConfigContent', () => {
 })
 
 describe('buildLintStagedConfig', () => {
-	it('lints the preset glob and root configs, formats package.json through the PM one-off runner', () => {
-		const config = buildLintStagedConfig(getPreset('node'), 'pnpm', 'prettier-package-json@^2.8.0')
-
-		expect(config).toEqual({
+	it('lints the preset glob and root configs, formats package.json with prettier', () => {
+		expect(buildLintStagedConfig(getPreset('node'))).toEqual({
 			'{src,test}/**/*.ts': ['eslint --fix', 'prettier --write'],
 			'*.{ts,mjs}': ['eslint --fix', 'prettier --write'],
-			'package.json': ['pnpm dlx prettier-package-json@^2.8.0 --use-tabs --write']
+			'package.json': ['prettier --write']
 		})
 	})
 })
@@ -120,15 +150,14 @@ describe('buildHookContent', () => {
 
 describe('PM command mapping', () => {
 	it.each([
-		['npm', 'npx husky', 'npm i -D a@1', 'npx ppj@1 --write'],
-		['pnpm', 'pnpm exec husky', 'pnpm add -D a@1', 'pnpm dlx ppj@1 --write'],
-		['yarn', 'yarn exec husky', 'yarn add -D a@1', 'npx ppj@1 --write'],
-		['yarn@berry', 'yarn exec husky', 'yarn add -D a@1', 'yarn dlx ppj@1 --write'],
-		['bun', 'bun x husky', 'bun add -D a@1', 'bun x ppj@1 --write']
-	] as const)('%s', (agent, localBin, add, oneOff) => {
+		['npm', 'npx husky', 'npm i -D a@1'],
+		['pnpm', 'pnpm exec husky', 'pnpm add -D a@1'],
+		['yarn', 'yarn exec husky', 'yarn add -D a@1'],
+		['yarn@berry', 'yarn exec husky', 'yarn add -D a@1'],
+		['bun', 'bun x husky', 'bun add -D a@1']
+	] as const)('%s', (agent, localBin, add) => {
 		expect(fmtCommand(localBinCommand(agent, 'husky'))).toBe(localBin)
 		expect(fmtCommand(addCommand(agent, ['a@1'], { dev: true }))).toBe(add)
-		expect(fmtCommand(oneOffCommand(agent, 'ppj@1', ['--write']))).toBe(oneOff)
 	})
 })
 
@@ -330,7 +359,7 @@ describe('VS Code files', () => {
 
 	it('recommends the eslint and prettier extensions', () => {
 		expect(JSON.parse(buildVscodeExtensionsContent())).toEqual({
-			recommendations: ['dbaeumer.vscode-eslint', 'esbenp.prettier-vscode']
+			recommendations: ['editorconfig.editorconfig', 'dbaeumer.vscode-eslint', 'esbenp.prettier-vscode']
 		})
 	})
 

@@ -24,7 +24,3 @@ export const addCommand = (agent: Agent, specs: string[], options?: { dev?: bool
 // Locally installed bins (husky, lint-staged, commitlint).
 export const localBinCommand = (agent: Agent, bin: string, args: string[] = []): CommandSpec =>
 	resolve(agent, 'execute-local', [bin, ...args])
-
-// One-off packages that are never installed (prettier-package-json).
-export const oneOffCommand = (agent: Agent, pkgSpec: string, args: string[]): CommandSpec =>
-	resolve(agent, 'execute', [pkgSpec, ...args])

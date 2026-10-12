@@ -1,4 +1,4 @@
-// Mirrors how Prettier lays out JSON under the generated .prettierrc.json
+// Mirrors how Prettier lays out JSON under the generated .editorconfig
 // (tabs, width 2, print width 120): objects stay expanded, arrays of
 // primitives collapse onto one line when they fit. Generated JSON is then
 // prettier-clean without bundling Prettier into the CLI.

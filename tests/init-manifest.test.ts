@@ -345,7 +345,7 @@ describe('serializeManifest', () => {
 		expect(serialized).toBe(JSON.stringify(manifest, null, 2) + '\n')
 	})
 
-	it('keeps tab indentation when the original file uses tabs (ppj --use-tabs)', () => {
+	it('keeps tab indentation when the original file uses tabs ', () => {
 		const serialized = serializeManifest({ name: 'test' }, '{\n\t"name": "old"\n}\n')
 
 		expect(serialized).toBe('{\n\t"name": "test"\n}\n')

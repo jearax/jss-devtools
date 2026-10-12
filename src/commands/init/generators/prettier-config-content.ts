@@ -2,13 +2,16 @@ import { formatJson } from '@/commands/init/generators/format-json'
 
 export const PRETTIER_CONFIG_PATH = '.prettierrc.json'
 
-// Single source of truth for formatting; only non-default options are listed
-// (tab width 2, semicolons and arrow parens are Prettier defaults).
+// JS syntax rules only, spelled out even where they match Prettier's defaults.
+// Whitespace stays in .editorconfig: a .prettierrc key would override it.
 export const buildPrettierConfigContent = (): string =>
 	formatJson({
-		useTabs: true,
-		printWidth: 120,
+		semi: true,
 		singleQuote: true,
+		jsxSingleQuote: false,
+		quoteProps: 'as-needed',
 		trailingComma: 'none',
-		endOfLine: 'auto'
+		bracketSpacing: true,
+		bracketSameLine: false,
+		arrowParens: 'always'
 	})

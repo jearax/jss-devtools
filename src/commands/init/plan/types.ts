@@ -25,7 +25,6 @@ export interface ResolvedSpecs {
 	/** framework runtime specs, placed per app/library rules. */
 	runtime: string[]
 	/** pinned one-off spec reused by hook + lint-staged entries. */
-	ppjSpec: string
 	/** library (non-private + exports/types) → peers; app → dependencies. */
 	runtimePlacement: 'dependencies' | 'peer+dev' | 'none'
 	/** true when registry was unreachable and specs fell back to `@latest`. */

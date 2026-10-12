@@ -2,6 +2,7 @@ import {
 	buildCommitlintConfigContent,
 	COMMITLINT_CONFIG_PATH
 } from '@/commands/init/generators/commitlint-config-content'
+import { buildEditorconfigContent, EDITORCONFIG_PATH } from '@/commands/init/generators/editorconfig-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
 import { buildGitignoreContent, GITIGNORE_PATH } from '@/commands/init/generators/gitignore-content'
 import { buildHookContent, mergeHookContent, HuskyHookName } from '@/commands/init/generators/husky-hooks-content'
@@ -51,6 +52,11 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 			path,
 			content
 		})
+	}
+
+	// An existing .editorconfig is the project's own source of truth.
+	if (ctx.readFile(EDITORCONFIG_PATH) === null) {
+		pushWrite(EDITORCONFIG_PATH, buildEditorconfigContent())
 	}
 
 	if (args.features.linter) {
@@ -180,7 +186,7 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 			reason: 'package.json already has a lint-staged field'
 		})
 	} else {
-		manifestEdit.lintStaged = buildLintStagedConfig(preset, ctx.pm, ctx.specs.ppjSpec)
+		manifestEdit.lintStaged = buildLintStagedConfig(preset)
 	}
 
 	if (!args.features.install) {

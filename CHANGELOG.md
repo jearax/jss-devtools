@@ -11,10 +11,11 @@
   - Uninstall: `npm rm -g @jjuidev/jss-devtools` (or `pnpm remove -g` / `bun remove -g` / `yarn global remove`)
 
 - `init --framework` is optional and defaults to `node`.
-- `init` creates `.vscode/settings.json` and `.vscode/extensions.json` when missing (format on save via Prettier, eslint fixes on save); the generated `.gitignore` no longer ignores `.vscode/`.
-- `.prettierrc.json` lists only non-default options and is the single formatting source; generated JSON (tsconfig, VS Code files) now matches Prettier's layout.
+- `init` creates `.vscode/settings.json` and `.vscode/extensions.json` when missing (format on save via Prettier, eslint fixes on save, EditorConfig extension recommended); the generated `.gitignore` no longer ignores `.vscode/`.
+- `init` creates `.editorconfig` when missing and makes it the single whitespace source (tabs width 2, LF, print width 120); `.prettierrc.json` holds only JS syntax rules (`semi`, `singleQuote`, `jsxSingleQuote`, `quoteProps`, `trailingComma: none`, `bracketSpacing`, `bracketSameLine`, `arrowParens`). Generated JSON (tsconfig, VS Code files) now matches Prettier's layout.
+- lint-staged formats `package.json` with `prettier --write` instead of `prettier-package-json --use-tabs`, so it follows `.editorconfig` (keys are no longer sorted).
 - **BREAKING:** remove the `version` and `help` subcommands; use `-v`/`--version` and `-h`/`--help` (both print the figlet banner). `init` is the only command.
-- `init` output now follows the house setup of the `dokploy/design-system` and `dokploy/auth` repos: prettier width 2 with semicolons, plain `@commitlint/config-conventional`, eslint with type-aware promise rules and `@/` alias imports, `lint`/`typecheck` scripts, and `prettier-package-json --use-tabs`.
+- `init` output now follows the house setup of the `dokploy/design-system` and `dokploy/auth` repos: plain `@commitlint/config-conventional`, eslint with type-aware promise rules and `@/` alias imports, and `lint`/`typecheck` scripts.
 - `init` on pnpm writes `allowBuilds: { unrs-resolver: true }` to `pnpm-workspace.yaml`. pnpm 11 removed `onlyBuiltDependencies`, so the previous `package.json#pnpm` entry had no effect (and was also written for npm/yarn/bun projects).
 - `init` no longer treats a `pnpm-workspace.yaml` without `packages` as a monorepo.
 - Package manager detection and command mapping use `package-manager-detector` only (yarn classic vs berry included).

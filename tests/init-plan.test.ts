@@ -31,7 +31,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: ['eslint@^10.0.0'],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -40,8 +39,9 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, ctx)
 
-		// git-init + 10 writes (eslint, prettier, 2 vscode, commitlint, pnpm-workspace, gitignore, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
-		expect(plan.actions).toHaveLength(14)
+		// git-init + 11 writes (editorconfig, eslint, prettier, 2 vscode, commitlint, pnpm-workspace, gitignore, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
+		expect(plan.actions).toHaveLength(15)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.editorconfig')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/settings.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/extensions.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'pnpm-workspace.yaml')).toBe(true)
@@ -88,7 +88,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: ['eslint@^10.0.0'],
 				runtime: ['react@^18.0.0', 'react-dom@^18.0.0'],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'peer+dev' as const,
 				offlineFallback: false
 			},
@@ -121,7 +120,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: ['eslint@^10.0.0'],
 				runtime: ['react@^18.0.0', 'react-dom@^18.0.0', 'next@^14.0.0'],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'peer+dev' as const,
 				offlineFallback: false
 			},
@@ -160,7 +158,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier'],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -208,7 +205,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier', '@commitlint/cli', '@commitlint/config-conventional'],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -246,7 +242,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier@^3.0.0'],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -284,7 +279,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -313,7 +307,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -331,7 +324,7 @@ describe('computePlan', () => {
 		expect(plan.actions.some((a) => a.kind === 'git-init')).toBe(false)
 	})
 
-	it('keeps existing VS Code files untouched', () => {
+	it('keeps existing .editorconfig and VS Code files untouched', () => {
 		const ctx = {
 			pm: 'npm' as AgentName,
 			manifest: {
@@ -342,16 +335,18 @@ describe('computePlan', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
-			readFile: vi.fn((path: string) => (path.startsWith('.vscode/') ? '{ "editor.tabSize": 4 }\n' : null))
+			readFile: vi.fn((path: string) =>
+				path.startsWith('.vscode/') || path === '.editorconfig' ? '{ "editor.tabSize": 4 }\n' : null
+			)
 		}
 
 		const plan = computePlan(defaultArgs, ctx)
 
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path.startsWith('.vscode/'))).toBe(false)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.editorconfig')).toBe(false)
 	})
 
 	it('tsconfig existing no-paths → merge write', () => {
@@ -372,7 +367,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -417,7 +411,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -449,7 +442,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -486,7 +478,6 @@ describe('computePlan', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -513,7 +504,6 @@ describe('planDisplayLines', () => {
 			specs: {
 				dev: ['eslint@^10.0.0'],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -560,7 +550,6 @@ describe('planDisplayLines', () => {
 			specs: {
 				dev: ['eslint@^10.0.0', 'prettier'],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -602,7 +591,6 @@ describe('planDisplayLines', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -655,7 +643,6 @@ describe('planDisplayLines', () => {
 			specs: {
 				dev: ['eslint@^10.0.0'],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
@@ -682,7 +669,6 @@ describe('planDisplayLines', () => {
 			specs: {
 				dev: [],
 				runtime: [],
-				ppjSpec: 'prettier-package-json@^2.8.0',
 				runtimePlacement: 'none' as const,
 				offlineFallback: false
 			},
