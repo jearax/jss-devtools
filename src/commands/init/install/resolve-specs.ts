@@ -39,9 +39,8 @@ const stableVersionsDesc = (versions: string[]): string[] =>
 const specFor = (name: string, version: string): string =>
 	version === 'latest' ? `${name}@latest` : `${name}@^${version}`
 
-// Two-way peer-aware pick: prefer the newest stable version whose peer ranges
-// are mutually compatible — anchors chosen earlier AND any packages the picked
-// version will pull in. Some scoped packages ship multiple active majors; the
+// Newest stable version whose peer ranges accept the anchors chosen earlier,
+// within one major: some scoped packages ship multiple active majors, and the
 // legacy 1.x stream satisfies modern peer ranges by accident, which would
 // silently downgrade the dev stack.
 //

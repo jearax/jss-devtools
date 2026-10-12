@@ -90,7 +90,7 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, ctx)
 
-		// When install is true, devDeps is NOT set on manifest-edit (handled by install action)
+		// With install on, devDeps go through the install action, not the manifest
 		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')!
 
 		expect(manifestEdit.devDeps).toBeUndefined()

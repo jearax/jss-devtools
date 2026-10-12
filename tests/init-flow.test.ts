@@ -414,7 +414,6 @@ describe('runInitFlow', () => {
 		writePkgJson(dir)
 		process.chdir(dir)
 
-		// An existing eslint.config.mjs creates the conflict
 		writeFileSync(join(dir, 'eslint.config.mjs'), 'module.exports = {}')
 
 		Object.defineProperty(process.stdout, 'isTTY', {
@@ -521,7 +520,6 @@ describe('runInitFlow', () => {
 
 		writeFileSync(join(dir, '.eslintrc'), 'module.exports = {}')
 
-		// Non-TTY triggers REQUIRES_CONFIRMATION
 		Object.defineProperty(process.stdout, 'isTTY', {
 			value: false,
 			configurable: true
@@ -543,7 +541,6 @@ describe('runInitFlow', () => {
 
 		const result = await initModule.runInitFlow(args)
 
-		// vitest pipes → non-TTY → REQUIRES_CONFIRMATION abort
 		expect(result.status).toBe('error')
 		expect(result.message).toMatch(/REQUIRES_CONFIRMATION|Conflicting configs/)
 		expect(result.generated).toHaveLength(0)
