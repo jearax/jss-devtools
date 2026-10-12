@@ -10,8 +10,8 @@ const repoRoot = join(__dirname, '..')
 const binPath = join(repoRoot, 'dist', 'cli', 'cli.js')
 
 // Vitest injects NODE_PATH / NODE_ENV=test / VITEST_* into the environment;
-// the CLI child must run with production-like env or module resolution and
-// consola behavior diverge from real usage.
+// the CLI child must run with production-like env or module resolution
+// diverges from real usage.
 const cleanEnv = (): NodeJS.ProcessEnv => {
 	const env = { ...process.env }
 
@@ -37,8 +37,7 @@ const runBin = (args: string[]): string => {
 	}).trim()
 }
 
-// Variant capturing exit code — needed for failure-path assertions.
-// Uses spawnSync (no throw, reliable pipe capture under vitest forks).
+// spawnSync: no throw on non-zero exit, reliable pipe capture under vitest forks.
 const runBinAllowFail = (args: string[]): { output: string; exitCode: number } => {
 	const res = spawnSync('node', [binPath, ...args], {
 		encoding: 'utf-8',

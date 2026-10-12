@@ -32,9 +32,7 @@ const initCommand = defineCommand({
 			description: 'Output structured JSON result',
 			default: false
 		}
-		// `--no-linter` / `--no-commitlint` / `--no-install` are intentionally
-		// hidden from --help. Defaults are on; argv scan in extractInitArgs
-		// catches the negation flag without exposing a positive form to citty.
+		// --no-* flags stay hidden from --help; extractInitArgs scans argv for them.
 	},
 	run: async ({ args }) => {
 		try {

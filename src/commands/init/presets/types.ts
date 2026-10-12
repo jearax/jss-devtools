@@ -1,15 +1,13 @@
 import { FrameworkId } from '@/commands/init/types'
 
 export interface EslintPluginImport {
-	/** npm module imported at the top of the generated config. */
 	moduleName: string
-	/** local variable the import binds to. */
 	localName: string
 }
 
 export interface FrameworkPreset {
 	id: FrameworkId
-	/** JSX projects lint .tsx/.jsx and may import CSS files relatively. */
+	/** JSX projects lint .tsx/.jsx. */
 	jsx: boolean
 	/** eslint plugins beyond the shared house set (devDep names). */
 	extraEslintPlugins: string[]

@@ -218,7 +218,7 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 }
 
 // Replace resolution: legacy variants are removed so two configs never fight
-// over one concern (jss-cli removeConfigFiles pattern).
+// over one concern.
 const withLegacyRemovals = (plan: InitPlan): InitPlan => {
 	const removals = plan.pendingConflicts.flatMap((conflict) =>
 		conflict.existing

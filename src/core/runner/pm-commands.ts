@@ -21,6 +21,5 @@ const resolve = (agent: Agent, command: Command, args: string[]): CommandSpec =>
 export const addCommand = (agent: Agent, specs: string[], options?: { dev?: boolean }): CommandSpec =>
 	resolve(agent, 'add', [...(options?.dev === true ? ['-D'] : []), ...specs])
 
-// Locally installed bins (husky, lint-staged, commitlint).
 export const localBinCommand = (agent: Agent, bin: string, args: string[] = []): CommandSpec =>
 	resolve(agent, 'execute-local', [bin, ...args])

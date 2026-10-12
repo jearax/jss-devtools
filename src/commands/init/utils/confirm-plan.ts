@@ -11,9 +11,9 @@ export type ConfirmDecision =
 	| { kind: 'cancelled' }
 	| { kind: 'requires-confirmation' }
 
-// Single summary gate (kongming): every overwrite and install command is
+// Single summary gate: every overwrite and install command is
 // visible in one prompt; per-file prompting would fragment the decision.
-// --json auto-defaults like --yes (confirmOrCancel convention).
+// --json auto-defaults like --yes.
 export const confirmPlan = async (args: InitArgs, plan: InitPlan, displayLines: string[]): Promise<ConfirmDecision> => {
 	if (plan.pendingConflicts.length === 0) {
 		return { kind: 'proceed' }

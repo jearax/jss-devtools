@@ -31,10 +31,8 @@ export const fetchPackageMetadata = async (pkg: string, signal?: AbortSignal): P
 
 				const parsed = (await res.json()) as Record<string, unknown>
 
-				// The npm registry sends `versions` as an object keyed by
-				// version — normalize to a string array so consumers see the
-				// PackageMetadata shape (a raw cast here used to leak the wire
-				// shape and crash version filters/includes downstream).
+				// The registry sends `versions` as an object keyed by version; normalize
+				// to the PackageMetadata string array.
 				const rawVersions: unknown = parsed.versions
 
 				const versions = Array.isArray(rawVersions)

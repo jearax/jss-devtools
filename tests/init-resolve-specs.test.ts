@@ -1,4 +1,3 @@
-// Unit tests for init spec resolution with mocked fetch-package.
 import { describe, expect, it, vi } from 'vitest'
 
 import { resolveSpecs } from '@/commands/init/install/resolve-specs'
@@ -461,7 +460,7 @@ describe('resolveSpecs', () => {
 		// typescript 7.x is real (current stable), but the eslint-ecosystem
 		// typescript plugin majors trail it. Anchoring typescript to a major
 		// the downstream @typescript-eslint/parser@8.x accepts avoids the
-		// `npm install` peer rejection the manual campaign surfaced.
+		// `npm install` peer rejection.
 		const tsMetadata = {
 			name: 'typescript',
 			versions: ['7.0.2', '6.0.3', '5.9.3'],

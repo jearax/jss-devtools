@@ -1,4 +1,3 @@
-// Unit tests for init generator content builders — pure content checks.
 import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'

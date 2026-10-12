@@ -1,6 +1,3 @@
-// Surface tests: pure arg extraction plus direct argv-scan tests for the
-// hidden `--no-<flag>` toggles (the flags themselves are intentionally
-// absent from --help, so they aren't parsed through citty).
 import { defineCommand, runCommand } from 'citty'
 import { beforeEach, describe, expect, it } from 'vitest'
 

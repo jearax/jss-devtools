@@ -1,4 +1,3 @@
-// Integration tests for init flow via runInitFlow.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -75,7 +74,6 @@ afterAll(() => {
 
 describe('runInitFlow', () => {
 	beforeEach(() => {
-		// Save the original cwd BEFORE chdir
 		if (originalCwd === '') {
 			originalCwd = process.cwd()
 		}
@@ -117,7 +115,6 @@ describe('runInitFlow', () => {
 		expect(result.skipped).toHaveLength(0)
 		expect(process.exitCode).toBeUndefined()
 
-		// Verify files exist
 		expect(() => readFileSync(join(dir, 'eslint.config.mjs'))).not.toThrow()
 		expect(() => readFileSync(join(dir, '.prettierrc.json'))).not.toThrow()
 		expect(() => readFileSync(join(dir, 'commitlint.config.mjs'))).not.toThrow()
@@ -208,7 +205,6 @@ describe('runInitFlow', () => {
 
 		const result2 = await initModule.runInitFlow(args)
 
-		// Second run should be noop or success with no new files
 		expect(result2.status === 'success' || result2.status === 'noop')
 		expect(result2.generated.length).toBeLessThanOrEqual(result1.generated.length)
 	})
@@ -238,7 +234,6 @@ describe('runInitFlow', () => {
 		expect(result.status).toBe('dry-run')
 		expect(result.dryRun).toBe(true)
 
-		// Verify no files written
 		expect(() => readFileSync(join(dir, 'eslint.config.mjs'))).toThrow()
 	})
 
@@ -301,7 +296,6 @@ describe('runInitFlow', () => {
 
 		process.chdir(dir)
 
-		// Write invalid package.json
 		writeFileSync(join(dir, 'package.json'), '{ invalid json ')
 
 		const initModule = await loadRunInitFlow()
@@ -331,7 +325,6 @@ describe('runInitFlow', () => {
 		writePkgJson(dir)
 		process.chdir(dir)
 
-		// Write workspace file
 		writeFileSync(join(dir, 'pnpm-workspace.yaml'), 'packages:\n  - apps/*\n  - packages/*')
 
 		const initModule = await loadRunInitFlow()
@@ -361,7 +354,6 @@ describe('runInitFlow', () => {
 		writePkgJson(dir)
 		process.chdir(dir)
 
-		// Write biome.json
 		writeFileSync(join(dir, 'biome.json'), JSON.stringify({ lint: { rules: { noConsole: 'off' } } }))
 
 		const initModule = await loadRunInitFlow()
@@ -422,10 +414,9 @@ describe('runInitFlow', () => {
 		writePkgJson(dir)
 		process.chdir(dir)
 
-		// Write existing eslint.config.mjs (creates conflict)
+		// An existing eslint.config.mjs creates the conflict
 		writeFileSync(join(dir, 'eslint.config.mjs'), 'module.exports = {}')
 
-		// Force non-TTY mode
 		Object.defineProperty(process.stdout, 'isTTY', {
 			value: false,
 			configurable: true
@@ -437,7 +428,7 @@ describe('runInitFlow', () => {
 			framework: 'node' as const,
 			yes: false,
 			dryRun: false,
-			json: false, // NOT json — otherwise json mode auto-proceeds
+			json: false, // not json: json mode auto-proceeds
 			features: {
 				linter: true,
 				commitlint: true,
@@ -458,7 +449,6 @@ describe('runInitFlow', () => {
 		writePkgJson(dir)
 		process.chdir(dir)
 
-		// Write existing files
 		writeFileSync(join(dir, '.eslintrc'), 'module.exports = {}')
 		writeFileSync(join(dir, 'eslint.config.mjs'), '// custom config')
 
@@ -494,10 +484,9 @@ describe('runInitFlow', () => {
 		writePkgJson(dir)
 		process.chdir(dir)
 
-		// Write existing files
 		writeFileSync(join(dir, '.eslintrc'), 'module.exports = {}')
 
-		// Force non-TTY to trigger REQUIRES_CONFIRMATION
+		// Non-TTY triggers REQUIRES_CONFIRMATION
 		Object.defineProperty(process.stdout, 'isTTY', {
 			value: false,
 			configurable: true
@@ -531,7 +520,6 @@ describe('runInitFlow', () => {
 
 		process.chdir(dir)
 
-		// Write package.json with no conflicts
 		writeFileSync(
 			join(dir, 'package.json'),
 			JSON.stringify({
@@ -593,9 +581,7 @@ describe('runInitFlow', () => {
 		expect(result.generated).toContain('.husky/pre-commit')
 		expect(result.generated).toContain('.husky/commit-msg')
 
-		// runCommandSpec is mocked → git not actually invoked → .git may not exist.
-		// The skipped git action would still be recorded in a non-mocked environment.
-		// Skipping .git/HEAD existence check — covered by compute-plan tests for the
-		// 'git-init' action being added to actions list when !hasGit.
+		// runCommandSpec is mocked, so .git may not exist; the git-init action is
+		// covered by compute-plan tests.
 	})
 })

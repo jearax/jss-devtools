@@ -1,6 +1,3 @@
-// Unit tests for registry-client metadata normalization: the npm registry
-// sends `versions` as an object keyed by version — the client must hand every
-// consumer the documented PackageMetadata shape (versions as string array).
 // Global fetch is stubbed — no network access.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 

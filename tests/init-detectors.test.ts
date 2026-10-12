@@ -1,4 +1,3 @@
-// Unit tests for init detector modules — pure filesystem fixtures.
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'

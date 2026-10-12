@@ -26,8 +26,8 @@ export const readManifest = (cwd: string): ManifestReadResult | 'missing' | 'inv
 }
 
 // JSON.stringify keeps insertion order, so unknown fields and their relative
-// positions survive; the existing indent style (tabs from ppj --use-tabs, or
-// spaces) is kept so a re-run does not churn the whole file.
+// positions survive; the existing indent style is kept so a re-run does not
+// churn the whole file.
 export const serializeManifest = (manifest: Record<string, unknown>, original = ''): string =>
 	`${JSON.stringify(manifest, null, /^\t/m.test(original) ? '\t' : 2)}\n`
 

@@ -322,9 +322,7 @@ const runPlan = async (
 					huskySpinner.done(result.ok ? 'Husky hooks activated' : 'Husky activation failed')
 					huskyFinalized = true
 
-					// Surface a user-facing message whenever the activation fails —
-					// not only when the preceding install succeeded. Install may
-					// have failed too, and the user still needs to know the hooks
+					// Report a failed activation even when install failed too: the hooks
 					// were never wired up.
 					if (!result.ok) {
 						outcome.skipped.push({

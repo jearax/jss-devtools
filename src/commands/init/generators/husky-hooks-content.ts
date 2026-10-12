@@ -5,7 +5,7 @@ import { fmtCommand, localBinCommand } from '@/core/runner/pm-commands'
 export type HuskyHookName = 'pre-commit' | 'commit-msg'
 
 // Hooks call locally installed bins through the PM so they work in every
-// project layout (matches this repo's own .husky/pre-commit: pnpm exec).
+// project layout.
 export const buildHookContent = (hook: HuskyHookName, pm: Agent): string => {
 	const body =
 		hook === 'pre-commit'
@@ -15,7 +15,7 @@ export const buildHookContent = (hook: HuskyHookName, pm: Agent): string => {
 	return `#!/usr/bin/env sh\n${body}\n`
 }
 
-// jss-cli merge pattern: keep every user line, drop the husky sample command,
+// Keep every user line, drop the husky sample command,
 // and guarantee exactly one occurrence of the managed line. Only init's own
 // `#!/usr/bin/env sh` is stripped — a bash hook (`#!/usr/bin/env bash`)
 // keeps its interpreter so user-authored syntax still runs.

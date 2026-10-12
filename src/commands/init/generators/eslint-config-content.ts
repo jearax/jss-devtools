@@ -26,8 +26,7 @@ const indentLines = (lines: string[], tabs: number): string =>
 const pluginKey = (key: string): string => (/^[a-z]\w*$/i.test(key) ? key : `'${key}'`)
 
 // House config from the reference repos (dokploy/auth for node,
-// dokploy/design-system for react): emitted already prettier-formatted with the
-// generated .prettierrc.json so a fresh `lint` run is clean.
+// dokploy/design-system for react), emitted prettier-clean so a fresh `lint` run passes.
 export const buildEslintConfigContent = (preset: FrameworkPreset): string => {
 	const imports = [
 		...BASE_IMPORTS,

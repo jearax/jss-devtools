@@ -1,4 +1,3 @@
-// Unit tests for init plan computation — injected ctx, readFile backed by Map.
 import { AgentName } from 'package-manager-detector'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -53,7 +52,6 @@ describe('computePlan', () => {
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.husky/pre-commit')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.husky/commit-msg')).toBe(true)
 
-		// Manifest edit
 		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')
 
 		expect(manifestEdit).toBeDefined()
@@ -61,19 +59,15 @@ describe('computePlan', () => {
 		expect(manifestEdit?.scripts).toHaveProperty('format')
 		expect(manifestEdit?.lintStaged).toBeDefined()
 
-		// Install action
 		expect(plan.actions.some((a) => a.kind === 'install')).toBe(true)
 		const install = plan.actions.find((a) => a.kind === 'install')
 
 		expect(install?.devSpecs).toEqual(['eslint@^10.0.0'])
 
-		// Git init
 		expect(plan.actions.some((a) => a.kind === 'git-init')).toBe(true)
 
-		// Husky activate
 		expect(plan.actions.some((a) => a.kind === 'husky-activate')).toBe(true)
 
-		// Skipped
 		expect(plan.skipped).toHaveLength(0)
 	})
 
@@ -101,7 +95,6 @@ describe('computePlan', () => {
 
 		expect(manifestEdit.devDeps).toBeUndefined()
 
-		// Install action should include runtime specs as peer+dev
 		const install = plan.actions.find((a) => a.kind === 'install')
 
 		expect(install).toBeDefined()
@@ -128,7 +121,6 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, ctx)
 
-		// With install: true, devDeps/runtimePlacement NOT on manifest-edit
 		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')!
 
 		expect(manifestEdit.devDeps).toBeUndefined()
@@ -268,7 +260,6 @@ describe('computePlan', () => {
 	})
 
 	it('idempotent: same content returns no write actions', () => {
-		// First call to get the generated content
 		const initialCtx = {
 			pm: 'pnpm' as AgentName,
 			manifest: {
@@ -287,7 +278,6 @@ describe('computePlan', () => {
 
 		const firstPlan = computePlan(defaultArgs, initialCtx)
 
-		// Collect generated content from first plan
 		const existingFiles: Record<string, string> = {}
 
 		for (const action of firstPlan.actions) {
@@ -296,7 +286,6 @@ describe('computePlan', () => {
 			}
 		}
 
-		// Now second call with those as existing files
 		const secondCtx = {
 			pm: 'pnpm' as AgentName,
 			manifest: {
@@ -315,12 +304,10 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, secondCtx)
 
-		// All write actions should be skipped because content matches
 		const writeActions = plan.actions.filter((a) => a.kind === 'write-file')
 
 		expect(writeActions).toHaveLength(0)
 
-		// git-init not present when hasGit=true
 		expect(plan.actions.some((a) => a.kind === 'git-init')).toBe(false)
 	})
 
@@ -533,8 +520,8 @@ describe('planDisplayLines', () => {
 		expect(lines).toContain('write tsconfig.json')
 		expect(lines).toContain('write .husky/pre-commit')
 		expect(lines).toContain('write .husky/commit-msg')
-		expect(lines.some((l) => l.includes('package.json: scripts'))) // manifest edit
-		expect(lines.some((l) => l.includes('pnpm add -D'))) // install command
+		expect(lines.some((l) => l.includes('package.json: scripts')))
+		expect(lines.some((l) => l.includes('pnpm add -D')))
 	})
 
 	it('writes show install command string', () => {
@@ -653,7 +640,6 @@ describe('planDisplayLines', () => {
 
 		const lines = planDisplayLines(plan, 'pnpm')
 
-		// Linter not in write-file lines
 		expect(lines.some((l) => l.includes('eslint.config.mjs'))).toBe(false)
 		expect(lines.some((l) => l.includes('prettier'))).toBe(false)
 	})
