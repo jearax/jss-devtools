@@ -84,7 +84,6 @@ Phased delivery. Each phase is shippable; later phases layer on top.
 - Plugin system
 - Workspace / monorepo awareness
 - TUI mode
-- Auto-update of CLI itself
 - Hooks / events surface
 
 ## Tracking Conventions

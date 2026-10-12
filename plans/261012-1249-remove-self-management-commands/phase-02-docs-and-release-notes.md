@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Docs and release notes"
-status: pending
+status: done
 effort: 1h
 blockedBy: [phase-01]
 ---
@@ -45,3 +45,11 @@ user instead of guessing.
 
 - `docs: replace self-management commands with native package manager commands`
 - Release 0.6.0 via `docs/deployment-guide.md` (tag-based) **only with user approval**.
+
+## Execution notes
+
+- `docs/system-architecture.md`, `docs/project-roadmap.md` Phase 2 and the PDR goals describe
+  `update/upgrade/downgrade [package...]` as planned commands for **project dependencies**, not
+  self-management, so they were left unchanged. Only self-management references were edited:
+  `code-standards.md` (non-TTY rule), PDR non-goal, roadmap "Auto-update of CLI itself".
+- Also removed a dead `vi.mock('@/core/store')` in `tests/init-detectors.test.ts`.

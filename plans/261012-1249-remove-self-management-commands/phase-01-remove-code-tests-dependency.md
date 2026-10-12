@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Remove code, tests, dependency"
-status: pending
+status: done
 effort: 1h
 ---
 

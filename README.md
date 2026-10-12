@@ -13,16 +13,26 @@
 
 Most JS dev-tool CLIs are either too narrow (single-purpose) or too scattered (one tool per concern). `jss-devtools` aims to be a single, opinionated entry point for the common JavaScript stack workflows — version management, scaffolding, and everyday helpers — with a Docker-style help experience that always tells you what's possible next.
 
-## MVP Commands
+## Install / update / uninstall
+
+The CLI has no self-management commands; use your package manager.
+
+| PM | Install | Update | Uninstall |
+|---|---|---|---|
+| npm | `npm i -g @jjuidev/jss-devtools` | `npm i -g @jjuidev/jss-devtools@latest` | `npm rm -g @jjuidev/jss-devtools` |
+| pnpm | `pnpm add -g @jjuidev/jss-devtools` | `pnpm add -g @jjuidev/jss-devtools@latest` | `pnpm remove -g @jjuidev/jss-devtools` |
+| bun | `bun add -g @jjuidev/jss-devtools` | `bun add -g @jjuidev/jss-devtools@latest` | `bun remove -g @jjuidev/jss-devtools` |
+| yarn 1 | `yarn global add @jjuidev/jss-devtools` | `yarn global upgrade @jjuidev/jss-devtools --latest` | `yarn global remove @jjuidev/jss-devtools` |
+
+Pin a version (downgrade) with `@<version>`, e.g. `npm i -g @jjuidev/jss-devtools@0.5.10`.
+Run once without installing: `npx @jjuidev/jss-devtools`, `pnpm dlx @jjuidev/jss-devtools`, `bunx @jjuidev/jss-devtools`, or `yarn dlx @jjuidev/jss-devtools` (Yarn 2+).
+
+## Commands
 
 ```
 jss-devtools --help            # top-level help
 jss-devtools version           # show CLI version
-jss-devtools update [pkg]      # update package(s) to latest matching range
-jss-devtools upgrade [pkg]     # upgrade to next major (interactive)
-jss-devtools downgrade [pkg]   # downgrade to previous version
-jss-devtools ls                # list installed / available versions
-jss-devtools scaffold init     # initialize a new project from a preset
+jss-devtools init              # set up dev tooling on an existing project
 ```
 
 Each subcommand supports `jss-devtools <subcommand> --help` for usage details.

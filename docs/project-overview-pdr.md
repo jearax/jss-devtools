@@ -31,7 +31,7 @@ JS developers juggle multiple one-off CLIs (version managers, scaffolders, updat
 - No GUI / TUI mode
 - No plugin system (future)
 - No monorepo / workspace awareness (future)
-- No auto-update mechanism for the CLI itself (future)
+- No self-management of the CLI (install/update/uninstall); the package manager's native commands handle it
 
 ## Target User
 

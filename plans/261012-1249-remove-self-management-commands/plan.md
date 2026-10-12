@@ -1,7 +1,7 @@
 ---
 title: "Remove self-management commands"
 description: "Drop update/upgrade/downgrade/uninstall from the CLI; users manage jss with their package manager's native commands."
-status: pending
+status: in-progress
 priority: P1
 effort: 2h
 branch: main
@@ -59,8 +59,8 @@ through the package manager's native commands, documented in the README.
 
 | # | Phase | Status | Effort |
 |---|---|---|---|
-| 01 | [Remove code, tests, dependency](phase-01-remove-code-tests-dependency.md) | pending | 1h |
-| 02 | [Docs and release notes](phase-02-docs-and-release-notes.md) | pending | 1h |
+| 01 | [Remove code, tests, dependency](phase-01-remove-code-tests-dependency.md) | done (manual gate pending) | 1h |
+| 02 | [Docs and release notes](phase-02-docs-and-release-notes.md) | done | 1h |
 
 ## Risks
 

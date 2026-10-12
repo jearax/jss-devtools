@@ -1,5 +1,17 @@
 # @jjuidev/jss-devtools
 
+## 0.6.0
+
+### Minor Changes
+
+- **BREAKING:** remove the self-management commands `update` (incl. `update check`), `upgrade`, `downgrade`, and `uninstall`. Manage the CLI with your package manager instead:
+
+  - Update: `npm i -g @jjuidev/jss-devtools@latest` (or `pnpm add -g` / `bun add -g` / `yarn global upgrade --latest`)
+  - Downgrade: install a pinned version, e.g. `npm i -g @jjuidev/jss-devtools@0.5.10`
+  - Uninstall: `npm rm -g @jjuidev/jss-devtools` (or `pnpm remove -g` / `bun remove -g` / `yarn global remove`)
+
+- Drop the `conf` dependency. The package-manager ledger it wrote (in the OS config directory under `jss-devtools`) is no longer read and can be deleted.
+
 ## 0.5.2
 
 ### Patch Changes
