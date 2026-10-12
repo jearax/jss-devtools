@@ -1,6 +1,6 @@
 # `jss-devtools`
 
-> **JavaScript Stack Dev Tools CLI** — A complete SDK-style command-line interface (subcommands + per-subcommand `--help`).
+> **JavaScript Stack Dev Tools CLI** — one command, `init`, that overlays an opinionated lint/format/commit toolchain on an existing Node.js + TypeScript project.
 
 - **Package name:** `@jjuidev/jss-devtools` (npm public)
 - **Bin:** `jss-devtools`
@@ -11,7 +11,7 @@
 
 ## Why
 
-Most JS dev-tool CLIs are either too narrow (single-purpose) or too scattered (one tool per concern). `jss-devtools` aims to be a single, opinionated entry point for the common JavaScript stack workflows — version management, scaffolding, and everyday helpers — with a Docker-style help experience that always tells you what's possible next.
+Setting up eslint, prettier, editorconfig, husky, lint-staged and commitlint by hand means picking compatible versions, wiring them so they do not fight, and repeating it in every repo. `jss-devtools init` does it in one run: it resolves peer-compatible versions, writes configs that pass their own checks on the first `lint`, installs through the project's package manager, and is safe to re-run. Installing, updating and removing the CLI itself is left to your package manager.
 
 ## Install / update / uninstall
 

@@ -2,56 +2,41 @@
 
 ## One-liner
 
-A complete SDK-style JavaScript stack dev-tools CLI, distributed publicly on npm as `jss-devtools` with bin `jss-devtools`. Inspired by Docker's command-tree UX (subcommands + per-subcommand `--help`).
+A lean CLI, published on npm as `@jjuidev/jss-devtools` (bin `jss-devtools`), whose single command `init` overlays a lint/format/commit toolchain on an existing Node.js + TypeScript project.
 
 ## Problem
 
-JS developers juggle multiple one-off CLIs (version managers, scaffolders, updaters, listers). Each has its own UX, help format, and update cadence. No single tool gives a coherent, discoverable surface for the common stack-management workflows.
+Wiring eslint, prettier, editorconfig, husky, lint-staged and commitlint by hand means choosing peer-compatible versions, keeping the tools from fighting each other, and repeating the work in every repository.
 
 ## Solution
 
-`jss-devtools` is a single entry point covering:
+`jss-devtools init`:
 
-1. **Version management** — update / upgrade / downgrade / ls of project dependencies and runtime versions
-2. **Scaffolding** — preset-based project initialization
-3. **Standard CLI ergonomics** — `--help` everywhere, subcommand trees, predictable exit codes
+1. Resolves peer-compatible versions of the house toolchain from the npm registry.
+2. Writes configs that already pass their own checks (`.editorconfig` owns whitespace, `.prettierrc.json` owns JS syntax, `eslint.config.mjs` runs prettier).
+3. Installs and wires git hooks through the project's own package manager (npm, pnpm, yarn, bun).
+4. Re-runs idempotently and asks before replacing differing configs.
 
-## Goals (MVP)
+## Scope
 
-| # | Goal | Acceptance |
-|---|---|---|
-| G1 | Publish `jss-devtools` to npm public registry | `npm i -g jss-devtools` works; bin `jss-devtools` callable |
-| G2 | Subcommand tree mirrors Docker UX | `jss-devtools <sub> --help` prints usage for every subcommand |
-| G3 | MVP commands shipped | `update`, `upgrade`, `downgrade`, `ls`, `help`, `version`, `scaffold init` |
-| G4 | Test coverage baseline | Vitest suite covers core command paths; CI green |
-| G5 | Node 24 LTS baseline | `engines.node` = `>=24.0.0`; tested on v24.19.0 |
+| In | Out |
+|---|---|
+| `init` for single-package Node.js + TypeScript projects (`--framework node`) | Self-management of the CLI (install/update/uninstall belong to the package manager) |
+| `--dry-run`, `--json`, `--yes`, `--no-linter`, `--no-commitlint`, `--no-install` | Monorepos and foreign linters (biome, oxlint): `init` aborts with a hint |
+| Reserved framework ids `react`, `next`, `nest`, `rn` (abort with `FRAMEWORK_NOT_SUPPORTED`) | Creating new projects (left to each framework's scaffolder) |
 
-## Non-Goals (MVP)
+## Principles
 
-- No GUI / TUI mode
-- No plugin system (future)
-- No monorepo / workspace awareness (future)
-- No self-management of the CLI (install/update/uninstall); the package manager's native commands handle it
+- Keep only what delivers real value; prefer the package manager and upstream tools over wrappers.
+- Generated output must pass `lint`, `typecheck` and the commit hooks right after `init`.
+- Never rewrite a user's own editor or ignore files; create them only when missing.
 
 ## Target User
 
-- JavaScript / TypeScript developers
-- Comfortable with npm/pnpm, terminal-first workflow
-- Wants one CLI to handle many small stack-management tasks
+JavaScript / TypeScript developers who want the same toolchain in every Node.js repository without hand-wiring it.
 
-## Author & Ownership
+## Ownership
 
-- Owner: `jjuidev` (GitHub: `jjuidev`)
-- Org: `jearax`
-- Repo: `jss-cli`
-- Package: `jss-devtools`
-
-## Open Decisions
-
-| Topic | Decision | Status |
-|---|---|---|
-| Build/bundler | bun / esbuild / tsup / tsdown / rollup / vite | researching |
-| Linter / formatter | ESLint + Prettier (revised from Biome, 2026-08-21) | locked |
-| License | TBD (likely MIT) | open |
-| CI provider | TBD (GitHub Actions assumed) | open |
-| Release tooling | TBD (changesets / release-please) | open |
+- Owner: `jjuidev`
+- Org / repo: `jearax/jss-devtools`
+- Package: `@jjuidev/jss-devtools` (MIT)
