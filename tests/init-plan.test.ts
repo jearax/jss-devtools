@@ -39,8 +39,8 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, ctx)
 
-		// git-init + 11 writes (editorconfig, eslint, prettier, 2 vscode, commitlint, pnpm-workspace, gitignore, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
-		expect(plan.actions).toHaveLength(15)
+		// git-init + 10 writes (editorconfig, eslint, prettier, 2 vscode, commitlint, pnpm-workspace, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
+		expect(plan.actions).toHaveLength(14)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.editorconfig')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/settings.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/extensions.json')).toBe(true)
@@ -49,7 +49,7 @@ describe('computePlan', () => {
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.prettierrc.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'commitlint.config.mjs')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'tsconfig.json')).toBe(true)
-		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.gitignore')).toBe(true)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.gitignore')).toBe(false)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.husky/pre-commit')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.husky/commit-msg')).toBe(true)
 

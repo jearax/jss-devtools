@@ -22,7 +22,7 @@ export interface FrameworkPreset {
 	/** tsconfig compilerOptions for a fresh generate (merge path adds only paths). */
 	tsconfigCompilerOptions: Record<string, unknown>
 	tsconfigInclude: string[]
-	/** source glob shared by the format/lint scripts and lint-staged. */
+	/** source glob lint-staged runs eslint + prettier on. */
 	codeGlob: string
 	/** framework runtime deps ensured per deps-placement rules. */
 	runtimeDeps: string[]

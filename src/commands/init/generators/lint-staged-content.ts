@@ -1,5 +1,6 @@
-import { ROOT_CODE_GLOB } from '@/commands/init/generators/scripts-content'
 import { FrameworkPreset } from '@/commands/init/presets/types'
+
+const ROOT_CODE_GLOB = '*.{ts,mjs}'
 
 export const buildLintStagedConfig = (preset: FrameworkPreset): Record<string, string[]> => ({
 	[preset.codeGlob]: ['eslint --fix', 'prettier --write'],

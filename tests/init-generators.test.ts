@@ -44,6 +44,19 @@ describe('buildEslintConfigContent', () => {
 		expect(await isPrettierClean(buildEslintConfigContent(getPreset(framework)), 'eslint.config.mjs')).toBe(true)
 	})
 
+	it.each(FRAMEWORK_IDS)('%s imports are alphabetized like import-x/order', (framework) => {
+		const modules = [...buildEslintConfigContent(getPreset(framework)).matchAll(/^import \w+ from '([^']+)';$/gm)].map(
+			(match) => match[1] ?? ''
+		)
+
+		expect(modules).toEqual([...modules].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })))
+	})
+
+	it('ignores build output; next also ignores .next', () => {
+		expect(buildEslintConfigContent(getPreset('node'))).toContain("ignores: ['dist/**', 'build/**', 'coverage/**']")
+		expect(buildEslintConfigContent(getPreset('next'))).toContain("'coverage/**', '.next/**']")
+	})
+
 	it('node lints ts/js/mjs with node globals', () => {
 		const content = buildEslintConfigContent(getPreset('node'))
 
@@ -119,19 +132,17 @@ describe('buildLintStagedConfig', () => {
 })
 
 describe('buildScripts', () => {
-	it('adds prepare, typecheck, lint and format over the preset globs', () => {
-		const scripts = buildScripts(getPreset('node'))
-
-		expect(scripts.prepare).toBe('husky')
-		expect(scripts.typecheck).toBe('tsc --noEmit')
-		expect(scripts.lint).toBe('eslint --no-error-on-unmatched-pattern "{src,test}/**/*.ts" "*.{ts,mjs}"')
-		expect(scripts.format).toContain('prettier --write --no-error-on-unmatched-pattern')
+	it('lints and formats the whole project; scope lives in eslint.config.mjs', () => {
+		expect(buildScripts()).toEqual({
+			prepare: 'husky',
+			typecheck: 'tsc --noEmit',
+			lint: 'eslint .',
+			format: 'eslint --fix .'
+		})
 	})
 
 	it('drops lint and format when the linter feature is off', () => {
-		const scripts = buildScripts(getPreset('node'), { includeLinter: false })
-
-		expect(Object.keys(scripts)).toEqual(['prepare', 'typecheck'])
+		expect(Object.keys(buildScripts({ includeLinter: false }))).toEqual(['prepare', 'typecheck'])
 	})
 })
 
@@ -346,7 +357,8 @@ describe('VS Code files', () => {
 			'editor.defaultFormatter': 'esbenp.prettier-vscode',
 			'editor.formatOnSave': true,
 			'editor.codeActionsOnSave': {
-				'source.fixAll.eslint': 'explicit'
+				'source.fixAll.eslint': 'explicit',
+				'source.organizeImports': 'never'
 			}
 		})
 	})

@@ -4,7 +4,6 @@ import {
 } from '@/commands/init/generators/commitlint-config-content'
 import { buildEditorconfigContent, EDITORCONFIG_PATH } from '@/commands/init/generators/editorconfig-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
-import { buildGitignoreContent, GITIGNORE_PATH } from '@/commands/init/generators/gitignore-content'
 import { buildHookContent, mergeHookContent, HuskyHookName } from '@/commands/init/generators/husky-hooks-content'
 import { buildLintStagedConfig } from '@/commands/init/generators/lint-staged-content'
 import { mergePnpmAllowBuilds, PNPM_WORKSPACE_PATH } from '@/commands/init/generators/pnpm-workspace-content'
@@ -101,16 +100,6 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 		}
 	}
 
-	const existingGitignore = ctx.readFile(GITIGNORE_PATH)
-
-	// .gitignore is only generated when missing — a project that already has
-	// custom ignore rules keeps them (we have no opinion on top of a user's
-	// intentional file list). Without this, lint-staged's first run would
-	// scan node_modules (hundreds of MB of bin/.bin files) and OOM.
-	if (existingGitignore === null) {
-		pushWrite(GITIGNORE_PATH, buildGitignoreContent())
-	}
-
 	const existingTsconfig = ctx.readFile(TSCONFIG_PATH)
 
 	if (existingTsconfig === null) {
@@ -172,7 +161,7 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 	// unless it copies the map — pin any new field in this order.
 	const manifestEdit: Extract<PlanAction, { kind: 'manifest-edit' }> = {
 		kind: 'manifest-edit',
-		scripts: buildScripts(preset, { includeLinter: args.features.linter })
+		scripts: buildScripts({ includeLinter: args.features.linter })
 	}
 
 	if (!args.features.linter) {

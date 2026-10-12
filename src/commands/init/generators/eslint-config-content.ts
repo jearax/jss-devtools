@@ -33,6 +33,8 @@ export const buildEslintConfigContent = (preset: FrameworkPreset): string => {
 		...BASE_IMPORTS,
 		...preset.eslintFrameworkImports.map((spec): [string, string] => [spec.localName, spec.moduleName])
 	]
+		// Same order import-x/order (alphabetize) enforces, so re-runs stay no-ops.
+		.sort(([, a], [, b]) => a.localeCompare(b, 'en', { sensitivity: 'base' }))
 		.map(([local, module]) => `import ${local} from '${module}';`)
 		.join('\n')
 
@@ -59,16 +61,21 @@ export const buildEslintConfigContent = (preset: FrameworkPreset): string => {
 				sourceType: 'module'
 			}`
 
+	// eslint does not read .gitignore; build output must be listed for `eslint .`.
+	const ignores = ['dist/**', 'build/**', 'coverage/**', ...(preset.id === 'next' ? ['.next/**'] : [])]
+		.map((glob) => `'${glob}'`)
+		.join(', ')
+
 	return `${imports}
 
 const eslintConfig = [
 	{
-		ignores: ['dist/**', 'node_modules/**', 'coverage/**']
+		ignores: [${ignores}]
 	},
 	js.configs.recommended,
 	eslintConfigPrettier,
 	{
-		files: ['**/*.${preset.jsx ? '{ts,tsx,js,jsx}' : '{ts,js,mjs}'}'],
+		files: ['**/*.${preset.jsx ? '{ts,tsx,js,jsx,mjs}' : '{ts,js,mjs}'}'],
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: ${parserOptions},

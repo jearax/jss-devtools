@@ -44,10 +44,9 @@ jss-devtools --help | --version
 | `.vscode/settings.json`, `.vscode/extensions.json` | Only when missing: format on save with Prettier, eslint fixes on save; recommend EditorConfig, eslint and Prettier extensions |
 | `commitlint.config.mjs` | `@commitlint/config-conventional` |
 | `.husky/pre-commit`, `.husky/commit-msg` | `lint-staged` and `commitlint --edit` through the project's package manager |
-| `package.json` | `prepare`, `typecheck`, `lint`, `format` scripts (only when absent) and a `lint-staged` block |
+| `package.json` | `prepare`, `typecheck`, `lint` (`eslint .`), `format` (`eslint --fix .`) scripts (only when absent) and a `lint-staged` block |
 | `tsconfig.json` | Fresh file, or the `@/*` path alias merged into an existing plain one |
 | `pnpm-workspace.yaml` | pnpm only: `allowBuilds: { unrs-resolver: true }` for pnpm 11 |
-| `.gitignore` | Only when missing |
 
 The package manager (npm, pnpm, yarn classic, yarn berry, bun) is detected from the lockfile or the `packageManager` field, falling back to npm when neither exists; every command is mapped through [`package-manager-detector`](https://github.com/antfu-collective/package-manager-detector). Re-running is idempotent; differing config files are listed for confirmation before they are replaced.
 
