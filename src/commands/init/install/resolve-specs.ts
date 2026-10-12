@@ -59,9 +59,33 @@ const ANCHOR_MAX_MAJOR: Record<string, number> = {
 	eslint: 9
 }
 
-const pickVersion = (metadata: PackageMetadata, chosen: Record<string, string>): string => {
+// Packages released in lockstep with an anchor must share its major. Peer
+// checks alone miss this: @eslint/js 10.0.0 declares no peers, so it passes
+// against eslint 9, and npm then rejects the manifest on a plain `npm install`.
+const MAJOR_LOCKSTEP: Record<string, string> = {
+	'@eslint/js': 'eslint'
+}
+
+const anchorMajor = (
+	anchor: string,
+	chosen: Record<string, string>,
+	manifest: Record<string, unknown>
+): number | undefined => {
+	const picked = chosen[anchor]
+
+	if (picked !== undefined) {
+		return semver.major(picked)
+	}
+
+	const declared = declaredDependency(manifest, anchor)
+	const floor = declared !== undefined && semver.validRange(declared) !== null ? semver.minVersion(declared) : null
+
+	return floor === null ? undefined : floor.major
+}
+
+const pickVersion = (metadata: PackageMetadata, chosen: Record<string, string>, major?: number): string => {
 	const ordered = stableVersionsDesc(metadata.versions)
-	const currentMajor = semver.major(ordered[0] ?? '0.0.0')
+	const currentMajor = major ?? semver.major(ordered[0] ?? '0.0.0')
 
 	for (const version of ordered) {
 		if (semver.major(version) !== currentMajor) {
@@ -134,7 +158,11 @@ export const resolveSpecs = async (
 	const resolveOne = async (name: string): Promise<string> => {
 		try {
 			const metadata = await fetchPackageMetadata(name)
-			const version = name in ANCHOR_MAX_MAJOR ? pickAnchorVersion(metadata, name) : pickVersion(metadata, chosen)
+			const lockstep = MAJOR_LOCKSTEP[name]
+			const major = lockstep === undefined ? undefined : anchorMajor(lockstep, chosen, manifest)
+
+			const version =
+				name in ANCHOR_MAX_MAJOR ? pickAnchorVersion(metadata, name) : pickVersion(metadata, chosen, major)
 
 			if (version !== 'latest' && semver.valid(version) !== null) {
 				chosen[name] = version

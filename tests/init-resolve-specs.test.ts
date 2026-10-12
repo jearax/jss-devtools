@@ -456,6 +456,61 @@ describe('resolveSpecs', () => {
 		expect(specs.dev).not.toContain('@typescript-eslint/parser@^1.1.0')
 	})
 
+	it.each([
+		['the resolved eslint', defaultManifest, 'eslint@^9.39.5', '@eslint/js@^9.39.4'],
+		[
+			'a user-declared eslint',
+			{
+				...defaultManifest,
+				devDependencies: { eslint: '^8.57.0' }
+			},
+			undefined,
+			'@eslint/js@^8.57.1'
+		]
+	])('pins @eslint/js to the major of %s', async (_label, manifest, eslintSpec, eslintJsSpec) => {
+		const metadata: Record<string, PackageMetadata> = {
+			eslint: {
+				name: 'eslint',
+				versions: ['10.0.0', '9.39.5'],
+				versionDocs: {
+					'10.0.0': {},
+					'9.39.5': {}
+				},
+				'dist-tags': { latest: '10.0.0' }
+			},
+			// Mirrors the registry: 10.0.0 has no peers, so a peer check alone accepts it.
+			'@eslint/js': {
+				name: '@eslint/js',
+				versions: ['10.0.1', '10.0.0', '9.39.4', '8.57.1'],
+				versionDocs: {
+					'10.0.1': { peerDependencies: { eslint: '^10.0.0' } },
+					'10.0.0': {},
+					'9.39.4': {},
+					'8.57.1': {}
+				},
+				'dist-tags': { latest: '10.0.1' }
+			}
+		}
+
+		mockedFetch.mockImplementation(
+			async (pkg: string) =>
+				metadata[pkg] ?? {
+					name: pkg,
+					versions: ['1.0.0'],
+					versionDocs: { '1.0.0': { peerDependencies: {} } },
+					'dist-tags': { latest: '1.0.0' }
+				}
+		)
+
+		const specs = await resolveSpecs(getPreset('node'), defaultFeatures, manifest)
+
+		if (eslintSpec !== undefined) {
+			expect(specs.dev).toContain(eslintSpec)
+		}
+
+		expect(specs.dev).toContain(eslintJsSpec)
+	})
+
 	it('typescript anchor capped to ecosystem-safe major', async () => {
 		// typescript 7.x is real (current stable), but the eslint-ecosystem
 		// typescript plugin majors trail it. Anchoring typescript to a major
