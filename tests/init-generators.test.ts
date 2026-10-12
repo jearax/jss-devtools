@@ -4,12 +4,14 @@ import { describe, expect, it } from 'vitest'
 
 import { buildCommitlintConfigContent } from '@/commands/init/generators/commitlint-config-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
+import { formatJson } from '@/commands/init/generators/format-json'
 import { buildHookContent, mergeHookContent } from '@/commands/init/generators/husky-hooks-content'
 import { buildLintStagedConfig } from '@/commands/init/generators/lint-staged-content'
 import { mergePnpmAllowBuilds } from '@/commands/init/generators/pnpm-workspace-content'
 import { buildPrettierConfigContent } from '@/commands/init/generators/prettier-config-content'
 import { buildScripts } from '@/commands/init/generators/scripts-content'
 import { buildFreshTsconfig, mergeTsconfigAlias } from '@/commands/init/generators/tsconfig-content'
+import { buildVscodeExtensionsContent, buildVscodeSettingsContent } from '@/commands/init/generators/vscode-content'
 import { getPreset } from '@/commands/init/presets/get-preset'
 import { FRAMEWORK_IDS } from '@/commands/init/types'
 import { addCommand, fmtCommand, localBinCommand, oneOffCommand } from '@/core/runner/pm-commands'
@@ -60,14 +62,13 @@ describe('buildEslintConfigContent', () => {
 })
 
 describe('buildPrettierConfigContent', () => {
-	it('emits the house style', () => {
-		expect(prettierOptions).toMatchObject({
+	it('lists only the options that differ from Prettier defaults', () => {
+		expect(prettierOptions).toEqual({
 			useTabs: true,
-			tabWidth: 2,
 			printWidth: 120,
-			semi: true,
 			singleQuote: true,
-			trailingComma: 'none'
+			trailingComma: 'none',
+			endOfLine: 'auto'
 		})
 	})
 })
@@ -197,6 +198,26 @@ describe('buildFreshTsconfig', () => {
 
 		expect(tsconfig.compilerOptions).toHaveProperty('jsx', 'preserve')
 	})
+
+	it.each(FRAMEWORK_IDS)('%s preset output is prettier-clean', async (framework) => {
+		expect(await isPrettierClean(buildFreshTsconfig(getPreset(framework)), 'tsconfig.json')).toBe(true)
+	})
+
+	it('merged alias output is prettier-clean', async () => {
+		const outcome = mergeTsconfigAlias('{"compilerOptions":{"strict":true,"lib":["ES2024","DOM"]},"include":["src"]}')
+
+		expect(outcome.kind).toBe('write')
+		expect(outcome.kind === 'write' && (await isPrettierClean(outcome.content, 'tsconfig.json'))).toBe(true)
+	})
+})
+
+describe('formatJson', () => {
+	it('breaks a primitive array that exceeds the print width', async () => {
+		const content = formatJson({ include: Array.from({ length: 12 }, (_, i) => `src/module-${i}/**/*.ts`) })
+
+		expect(content.split('\n').length).toBeGreaterThan(4)
+		expect(await isPrettierClean(content, 'tsconfig.json')).toBe(true)
+	})
 })
 
 describe('mergeTsconfigAlias', () => {
@@ -293,5 +314,30 @@ echo "user line 2"
 		const managedCount = (merged.match(/pnpm exec lint-staged/g) || []).length
 
 		expect(managedCount).toBe(1)
+	})
+})
+
+describe('VS Code files', () => {
+	it('settings only delegate formatting to Prettier and fixes to eslint', () => {
+		expect(JSON.parse(buildVscodeSettingsContent())).toEqual({
+			'editor.defaultFormatter': 'esbenp.prettier-vscode',
+			'editor.formatOnSave': true,
+			'editor.codeActionsOnSave': {
+				'source.fixAll.eslint': 'explicit'
+			}
+		})
+	})
+
+	it('recommends the eslint and prettier extensions', () => {
+		expect(JSON.parse(buildVscodeExtensionsContent())).toEqual({
+			recommendations: ['dbaeumer.vscode-eslint', 'esbenp.prettier-vscode']
+		})
+	})
+
+	it.each([
+		['settings.json', buildVscodeSettingsContent],
+		['extensions.json', buildVscodeExtensionsContent]
+	])('%s is prettier-clean', async (name, build) => {
+		expect(await isPrettierClean(build(), `.vscode/${name}`)).toBe(true)
 	})
 })

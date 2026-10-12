@@ -4,4 +4,4 @@
 export const GITIGNORE_PATH = '.gitignore'
 
 export const buildGitignoreContent = (): string =>
-	`# dependencies\nnode_modules/\n\n# build output\ndist/\nbuild/\n*.tsbuildinfo\n\n# logs / coverage\n*.log\ncoverage/\n\n# editor\n.vscode/\n.idea/\n.DS_Store\n`
+	`# dependencies\nnode_modules/\n\n# build output\ndist/\nbuild/\n*.tsbuildinfo\n\n# logs / coverage\n*.log\ncoverage/\n\n# editor\n.idea/\n.DS_Store\n`

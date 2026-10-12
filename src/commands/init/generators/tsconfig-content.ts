@@ -1,3 +1,4 @@
+import { formatJson } from '@/commands/init/generators/format-json'
 import { FrameworkPreset } from '@/commands/init/presets/types'
 
 export type TsconfigMergeOutcome =
@@ -6,15 +7,11 @@ export type TsconfigMergeOutcome =
 export const TSCONFIG_PATH = 'tsconfig.json'
 
 export const buildFreshTsconfig = (preset: FrameworkPreset): string =>
-	`${JSON.stringify(
-		{
-			compilerOptions: preset.tsconfigCompilerOptions,
-			include: preset.tsconfigInclude,
-			exclude: ['node_modules', 'dist']
-		},
-		null,
-		'\t'
-	)}\n`
+	formatJson({
+		compilerOptions: preset.tsconfigCompilerOptions,
+		include: preset.tsconfigInclude,
+		exclude: ['node_modules', 'dist']
+	})
 
 // Merge-min policy: add the alias only when the file parses as plain JSON and
 // has no path mapping yet. JSONC (comments/trailing commas) and solution-style
@@ -69,6 +66,6 @@ export const mergeTsconfigAlias = (existingRaw: string): TsconfigMergeOutcome =>
 
 	return {
 		kind: 'write',
-		content: `${JSON.stringify(merged, null, '\t')}\n`
+		content: formatJson(merged)
 	}
 }

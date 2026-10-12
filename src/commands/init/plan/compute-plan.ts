@@ -11,6 +11,12 @@ import { buildPrettierConfigContent, PRETTIER_CONFIG_PATH } from '@/commands/ini
 import { buildScripts } from '@/commands/init/generators/scripts-content'
 import { buildFreshTsconfig, mergeTsconfigAlias, TSCONFIG_PATH } from '@/commands/init/generators/tsconfig-content'
 import {
+	buildVscodeExtensionsContent,
+	buildVscodeSettingsContent,
+	VSCODE_EXTENSIONS_PATH,
+	VSCODE_SETTINGS_PATH
+} from '@/commands/init/generators/vscode-content'
+import {
 	COMMITLINT_CONFIG_VARIANTS,
 	ESLINT_CONFIG_VARIANTS,
 	PRETTIER_CONFIG_VARIANTS
@@ -50,6 +56,16 @@ export const computePlan = (args: InitArgs, ctx: PlanContext): InitPlan => {
 	if (args.features.linter) {
 		pushWrite(ESLINT_CONFIG_PATH, buildEslintConfigContent(preset))
 		pushWrite(PRETTIER_CONFIG_PATH, buildPrettierConfigContent())
+
+		// Editor files are personal territory: create them when missing, never
+		// rewrite a user's existing settings.
+		if (ctx.readFile(VSCODE_SETTINGS_PATH) === null) {
+			pushWrite(VSCODE_SETTINGS_PATH, buildVscodeSettingsContent())
+		}
+
+		if (ctx.readFile(VSCODE_EXTENSIONS_PATH) === null) {
+			pushWrite(VSCODE_EXTENSIONS_PATH, buildVscodeExtensionsContent())
+		}
 	} else {
 		skipped.push({
 			feature: 'linter',

@@ -39,7 +39,8 @@ jss-devtools --help | --version
 | Output | Content |
 |---|---|
 | `eslint.config.mjs` | Flat config: typescript-eslint, import-x ordering, prettier, autofix, arrow functions, type-aware promise rules, `@/` alias imports (react/next add react + react-hooks) |
-| `.prettierrc.json` | Tabs, width 2, semicolons, single quotes, print width 120 |
+| `.prettierrc.json` | The only formatting source: tabs, single quotes, print width 120, no trailing commas (other options stay at Prettier defaults) |
+| `.vscode/settings.json`, `.vscode/extensions.json` | Only when missing: format on save with Prettier, eslint fixes on save, recommend both extensions |
 | `commitlint.config.mjs` | `@commitlint/config-conventional` |
 | `.husky/pre-commit`, `.husky/commit-msg` | `lint-staged` and `commitlint --edit` through the project's package manager |
 | `package.json` | `prepare`, `typecheck`, `lint`, `format` scripts (only when absent) and a `lint-staged` block |

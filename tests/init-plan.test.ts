@@ -40,8 +40,10 @@ describe('computePlan', () => {
 
 		const plan = computePlan(defaultArgs, ctx)
 
-		// git-init + 8 writes (eslint, prettier, commitlint, pnpm-workspace, gitignore, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
-		expect(plan.actions).toHaveLength(12)
+		// git-init + 10 writes (eslint, prettier, 2 vscode, commitlint, pnpm-workspace, gitignore, tsconfig, pre-commit, commit-msg) + manifest-edit + install + husky-activate
+		expect(plan.actions).toHaveLength(14)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/settings.json')).toBe(true)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.vscode/extensions.json')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'pnpm-workspace.yaml')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'eslint.config.mjs')).toBe(true)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.prettierrc.json')).toBe(true)
@@ -138,7 +140,7 @@ describe('computePlan', () => {
 		expect(install.devSpecs.some((s) => s.startsWith('next@'))).toBe(true)
 	})
 
-	it('--no-linter: no eslint/prettier writes, no pre-commit hook, no format script, lint-staged skipped', () => {
+	it('--no-linter: no eslint/prettier/vscode writes, no pre-commit hook, no format script, lint-staged skipped', () => {
 		const args = {
 			...defaultArgs,
 			features: {
@@ -169,6 +171,7 @@ describe('computePlan', () => {
 
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === 'eslint.config.mjs')).toBe(false)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.prettierrc.json')).toBe(false)
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path.startsWith('.vscode/'))).toBe(false)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.husky/pre-commit')).toBe(false)
 
 		const manifestEdit = plan.actions.find((a) => a.kind === 'manifest-edit')!
@@ -326,6 +329,29 @@ describe('computePlan', () => {
 
 		// git-init not present when hasGit=true
 		expect(plan.actions.some((a) => a.kind === 'git-init')).toBe(false)
+	})
+
+	it('keeps existing VS Code files untouched', () => {
+		const ctx = {
+			pm: 'npm' as AgentName,
+			manifest: {
+				name: 'test',
+				version: '1.0.0'
+			},
+			hasGit: true,
+			specs: {
+				dev: [],
+				runtime: [],
+				ppjSpec: 'prettier-package-json@^2.8.0',
+				runtimePlacement: 'none' as const,
+				offlineFallback: false
+			},
+			readFile: vi.fn((path: string) => (path.startsWith('.vscode/') ? '{ "editor.tabSize": 4 }\n' : null))
+		}
+
+		const plan = computePlan(defaultArgs, ctx)
+
+		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path.startsWith('.vscode/'))).toBe(false)
 	})
 
 	it('tsconfig existing no-paths → merge write', () => {
