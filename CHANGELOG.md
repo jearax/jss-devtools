@@ -10,13 +10,13 @@
   - Downgrade: install a pinned version, e.g. `npm i -g @jjuidev/jss-devtools@0.5.10`
   - Uninstall: `npm rm -g @jjuidev/jss-devtools` (or `pnpm remove -g` / `bun remove -g` / `yarn global remove`)
 
-- **BREAKING:** remove the `version` and `help` subcommands; use `--version` / `--help`. `init` is the only command.
+- **BREAKING:** remove the `version` and `help` subcommands; use `-v`/`--version` and `-h`/`--help` (both print the figlet banner). `init` is the only command.
 - `init` output now follows the house setup of the `dokploy/design-system` and `dokploy/auth` repos: prettier width 2 with semicolons, plain `@commitlint/config-conventional`, eslint with type-aware promise rules and `@/` alias imports, `lint`/`typecheck` scripts, and `prettier-package-json --use-tabs`.
 - `init` on pnpm writes `allowBuilds: { unrs-resolver: true }` to `pnpm-workspace.yaml`. pnpm 11 removed `onlyBuiltDependencies`, so the previous `package.json#pnpm` entry had no effect (and was also written for npm/yarn/bun projects).
 - `init` no longer treats a `pnpm-workspace.yaml` without `packages` as a monorepo.
 - Package manager detection and command mapping use `package-manager-detector` only (yarn classic vs berry included).
 - Re-running `init` keeps `package.json` indentation and reports `noop` when nothing changed.
-- Drop the `figlet`, `consola`, `ora`, `nypm` and `pathe` dependencies; the published tarball no longer ships a sourcemap.
+- Drop the `consola`, `ora`, `nypm` and `pathe` dependencies; the published tarball no longer ships a sourcemap.
 - Drop the `conf` dependency. The package-manager ledger it wrote (in the OS config directory under `jss-devtools`) is no longer read and can be deleted.
 
 ## 0.5.2

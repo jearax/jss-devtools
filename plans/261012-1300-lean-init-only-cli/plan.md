@@ -24,7 +24,7 @@ dependencies it needs. Its generated tooling matches the house setup used by
 | Area | Decision | Why |
 |---|---|---|
 | CLI surface | Remove `version` and `help` subcommands; keep `--help` / `--version` flags | Subcommands duplicated the flags |
-| Banner | Remove `figlet` banner; plain `name version` output | Cosmetic only |
+| Banner | Keep the `figlet` banner on `-h`/`--help` (citty `showUsage` hook, as in `cs-cli`) and `-v`/`--version` | User wants branded help/version output |
 | Logging | Replace `consola` with a small stderr logger built on `node:util` `styleText` | One-file usage; Node 24 has styling built in |
 | Spinner | Replace `ora` with `@clack/prompts` `spinner()` | clack is already a dependency |
 | Paths | Replace `pathe` with `node:path` | Built-in |
@@ -44,7 +44,7 @@ dependencies it needs. Its generated tooling matches the house setup used by
 ## Acceptance criteria
 
 1. `jss-devtools --help` lists only `init`; `version`/`help` subcommands are gone; `--version` prints the version.
-2. Runtime dependencies: `@clack/prompts`, `citty`, `execa`, `package-manager-detector`, `semver` only.
+2. Runtime dependencies: `@clack/prompts`, `citty`, `execa`, `figlet`, `package-manager-detector`, `semver` only.
 3. `init` on fresh node/react/next fixtures (npm, pnpm, yarn, bun detection) produces configs matching the reference repos' house style; `pnpm lint` of the generated `eslint.config.mjs` loads.
 4. `init --dry-run` on copies of `design-system` and `auth` no longer aborts as a monorepo.
 5. `pnpm lint && pnpm typecheck && pnpm test && pnpm build` pass.
@@ -57,7 +57,7 @@ dependencies it needs. Its generated tooling matches the house setup used by
 - Real `init` + install + `lint` + `typecheck` + commit hooks (bad message rejected, conventional accepted): node preset on pnpm 11, npm, bun, yarn classic.
 - Real Vite react-ts app (npm): install, lint after `format`, `vite build` pass. Findings below.
 - Dry-run on copies of `design-system` (react) and `auth` (node): prettier, commitlint, pnpm-workspace, hooks, gitignore, tsconfig byte-identical (no write); only `eslint.config.mjs` differs (reference repos add project-specific blocks).
-- Pack gate: tarball = `dist/cli/cli.js`, `LICENSE`, `package.json`, `README.md`; 5 runtime deps (28 packages installed); installed bin ran `init` end to end; re-run reports `noop` with a clean tree.
+- Pack gate: tarball = `dist/cli/cli.js`, `LICENSE`, `package.json`, `README.md`; 6 runtime deps (30 packages installed); installed bin ran `init` end to end; re-run reports `noop` with a clean tree.
 
 ## Findings left open
 

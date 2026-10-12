@@ -53,10 +53,17 @@ const runBinAllowFail = (args: string[]): { output: string; exitCode: number } =
 }
 
 describe('bin/jss-devtools', () => {
-	it.each(['--version', '-v'])('prints the CLI version for %s', (flag) => {
+	it.each(['--version', '-v'])('prints the banner, tagline and version for %s', (flag) => {
 		const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'))
+		const output = runBin([flag])
 
-		expect(runBin([flag])).toBe(pkg.version)
+		expect(output).toContain('|___/')
+		expect(output).toContain(pkg.description)
+		expect(output.split('\n').at(-1)).toBe(pkg.version)
+	})
+
+	it.each([['--help'], ['-h'], ['init', '--help']])('prints the banner before usage for %s', (...args) => {
+		expect(runBin(args)).toMatch(/\|___\/[\s\S]*USAGE/)
 	})
 
 	it('lists init as the only command in --help', () => {
