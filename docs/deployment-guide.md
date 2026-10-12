@@ -24,7 +24,7 @@ pnpm build
 
 # 2. Bump version + create annotated tag in one step
 pnpm version patch     # or: minor / major
-# → updates package.json, commits "vX.Y.Z" + creates git tag vX.Y.Z
+# → updates package.json, commits "X.Y.Z" + creates git tag vX.Y.Z
 
 # 3. Push the commit AND the tag
 git push --follow-tags
@@ -60,7 +60,7 @@ Trade-offs we accept:
 - `package.json` `"version"` script (`changeset version`) — use `pnpm version <bump>` directly
 - `package.json` `"release"` script — now `pnpm clean && pnpm build && pnpm publish --no-git-checks`
 - `@changesets/cli` from `devDependencies`
-- `.github/workflows/release.yml` — `changesets/action@v1` step removed; `environment: main` removed
+- `.github/workflows/release.yml` — `changesets/action@v1` step removed
 
 ## Pre-publish Checklist
 
@@ -79,7 +79,6 @@ Trade-offs we accept:
 
 - SemVer: `MAJOR.MINOR.PATCH`
 - Pre-release tags: `1.0.0-rc.1`, etc.
-- Initial release target: `0.1.0` (MVP usable but pre-stable)
 - Tag format: `vX.Y.Z` (must match pattern for release.yml trigger)
 
 ## CI Workflows (current)
@@ -104,8 +103,7 @@ Repo-level: `allow_auto_merge` stays `false` (irrelevant for tag-based flow; wou
 ## Local Install Test
 
 ```bash
-# After first publish
-npm i -g jss-devtools
+npm i -g @jjuidev/jss-devtools@<version>   # pin the version: @latest can hit stale registry metadata right after a publish
 jss-devtools --version
 jss-devtools --help
 ```
@@ -114,4 +112,4 @@ jss-devtools --help
 
 - ~~Release tooling: changesets vs release-please~~ — **resolved**: tag-based manual, no bot
 - CI runner: GitHub Actions (current) vs other
-- Signing / provenance scope — currently no provenance flag; can add `--provenance` to `pnpm publish` for npm OIDC attestations later
+- Trusted publishing: `release.yml` grants `id-token: write`, so publishing switches to OIDC (with automatic provenance) once the npm package lists `jearax/jss-devtools` / `release.yml` / environment `main` as its Trusted Publisher. `NODE_AUTH_TOKEN` stays as the fallback until a release log confirms OIDC; then remove `NPM_TOKEN`.

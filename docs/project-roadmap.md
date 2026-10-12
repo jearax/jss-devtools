@@ -1,93 +1,24 @@
 # Project Roadmap — `jss-devtools`
 
-Phased delivery. Each phase is shippable; later phases layer on top.
+## Shipped
 
-## Phase 0 — Bootstrap (current)
+- **0.5.x** — `init` with peer-aware version resolution, conflict confirmation, husky/lint-staged/commitlint wiring.
+- **0.6.0** — lean release: `init` is the only command; `.editorconfig` owns whitespace and `.prettierrc.json` owns JS syntax; minimal `.vscode` and `.gitignore`; npm default when no PM signal; eslint 10; `node` is the only framework.
 
-**Goal:** Establish project context, docs, repo conventions.
+## Next
 
-**Status:** in progress.
+- **Framework presets** for the reserved ids `react` (Vite), `next`, `nest` and `rn` (Expo). Direction from the 2026-10-13 brainstorm:
+  - compose each framework's official eslint config (`eslint-config-next`, `eslint-config-expo`) with the house rules;
+  - leave framework-owned `tsconfig` files untouched;
+  - auto-detect the framework from `package.json` dependencies, with `--framework` as an override;
+  - accept eslint 9 for React-based presets while `eslint-plugin-react` peers `^9.7`.
+- **Release:** switch publishing to npm trusted publishing (OIDC) and drop `NPM_TOKEN` once a release confirms it.
 
-**Deliverables (DONE):**
-- [x] Git initialized + remote configured
-- [x] `README.md` written
-- [x] `docs/` initialized (PDR, architecture, standards, deployment, roadmap, summary)
+## Out of Scope
 
-**Deliverables (TODO):**
-- [ ] `package.json` (name, bin, engines, scripts)
-- [ ] `tsconfig.json` (strict + ESM)
-- [ ] `vitest.config.ts`
-- [ ] `.gitignore`, `.npmignore`, `.editorconfig`, `.nvmrc`
-- [ ] First commit after Phase 0 close
-
-## Phase 1 — Skeleton CLI
-
-**Goal:** Runnable empty CLI with `--help`, `--version`, command tree.
-
-**Deliverables:**
-- [ ] Pick build/bundler (research conclusion on tsup / tsdown / esbuild)
-- [ ] `src/cli/router.ts` — command parser
-- [ ] `src/commands/version.ts` — `jss-devtools version`
-- [ ] `src/commands/help.ts` — top-level + per-subcommand help
-- [ ] Vitest setup + 1 smoke test
-- [ ] CI workflow (lint + typecheck + test)
-- [ ] `npm pack` succeeds
-
-**Exit criteria:**
-- `node ./dist/bin/jss-devtools.js --help` prints help
-- `node ./dist/bin/jss-devtools.js --version` prints version
-- CI green
-
-## Phase 2 — MVP Commands
-
-**Goal:** Ship MVP command set.
-
-**Deliverables:**
-- [ ] `ls` command (list installed/available packages)
-- [ ] `update` command
-- [ ] `upgrade` command (with `--major`/`--minor`/`--patch`)
-- [ ] `downgrade` command
-- [ ] `core/registry-client/` — npm registry HTTP client
-- [ ] `core/version-resolver/` — semver logic
-- [ ] Tests for each command
-- [ ] `--json` output flag on all commands
-
-**Exit criteria:**
-- All MVP commands functional
-- Test coverage ≥ 80% on `core/`
-- README updated with command examples
-
-## Phase 3 — Scaffolding
-
-**Goal:** `scaffold init` works end-to-end.
-
-**Deliverables:**
-- [ ] `scaffold` subcommand tree
-- [ ] `core/scaffold-engine/` — template render + write
-- [ ] At least one preset (e.g. `ts-lib`, `node-cli`, `ts-svc`)
-- [ ] Tests for scaffold flow
-- [ ] Documentation for adding custom presets
-
-## Phase 4 — Public Launch
-
-**Goal:** `0.1.0` on npm public registry.
-
-**Deliverables:**
-- [ ] LICENSE file
-- [ ] GitHub Release notes
-- [ ] npm publish with provenance
-- [ ] Install instructions verified
-- [ ] GitHub repo metadata (description, topics, homepage)
-
-## Phase 5+ (Future)
-
-- Plugin system
-- Workspace / monorepo awareness
-- TUI mode
-- Hooks / events surface
+Monorepo support, self-management commands, project scaffolding (left to each framework's scaffolder).
 
 ## Tracking Conventions
 
-- Each phase becomes a plan in `plans/{date}-phase-{N}-{slug}/`
-- Reports land in `plans/reports/`
-- Roadmap updates when scope or phase order changes
+- Plans live in `plans/{date}-{slug}/`; reports in `plans/reports/`.
+- Update this file when a release ships or scope changes.
