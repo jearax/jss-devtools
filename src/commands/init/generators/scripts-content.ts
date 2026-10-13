@@ -1,9 +1,7 @@
-export const SOURCE_CODE_GLOB = '{src,test}/**/*.ts'
-export const ROOT_CODE_GLOB = '*.{ts,mjs}'
+import { ROOT_CODE_GLOB, SOURCE_CODE_GLOB } from '@/commands/init/generators/lint-globs'
 
 // Added only when absent — an existing user script is never clobbered.
-// Explicit globs keep `lint` off tool-owned dirs even when eslint.config.mjs is
-// user-edited; eslint --fix formats through prettier/prettier.
+// eslint --fix formats through prettier/prettier.
 export const buildScripts = (options?: { includeLinter?: boolean }): Record<string, string> => {
 	const scripts: Record<string, string> = {
 		prepare: 'husky',

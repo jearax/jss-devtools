@@ -1,5 +1,13 @@
 # @jjuidev/jss-devtools
 
+## 0.6.2
+
+### Patch Changes
+
+- `init` no longer adds `.claude/**`, `.agentkit/**` and `.harness/**` to `eslint.config.mjs`; lint scope lives only in explicit globs, which are easier to edit than a hard-coded ignore list.
+- The generated `lint`/`format` scripts and lint-staged cover `*.{ts,mts,js,mjs}` in `src`, `lib`, `app`, `server`, `bin`, `scripts`, `config`, `test`, `tests`, `spec`, `__tests__`, `e2e` and the project root. `eslint.config.mjs` `files` uses the same extensions. CommonJS (`.cjs`/`.cts`) stays out because the generated rules are ESM-only.
+- lint-staged's root glob is `./*.{ts,mts,js,mjs}`: a glob without `/` matches files in every directory, so the old `*.{ts,mjs}` also linted staged files under `.claude/` and other folders.
+
 ## 0.6.1
 
 ### Patch Changes

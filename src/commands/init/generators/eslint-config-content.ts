@@ -1,3 +1,5 @@
+import { ANY_DEPTH_CODE_GLOB } from '@/commands/init/generators/lint-globs'
+
 const BASE_IMPORTS: Array<[string, string]> = [
 	['js', '@eslint/js'],
 	['tsPlugin', '@typescript-eslint/eslint-plugin'],
@@ -33,11 +35,8 @@ export const buildEslintConfigContent = (): string => {
 		.map(([key, ref]) => `\t\t\t${pluginKey(key)}: ${ref}`)
 		.join(',\n')
 
-	// eslint does not read .gitignore or skip dot-dirs; build output and
-	// agent-tool dirs (Claude Code, AgentKit, harness) must be listed here.
-	const ignores = ['dist/**', 'build/**', 'coverage/**', '.claude/**', '.agentkit/**', '.harness/**']
-		.map((glob) => `'${glob}'`)
-		.join(', ')
+	// eslint does not read .gitignore; build output must be listed for a direct `eslint .`.
+	const ignores = ['dist/**', 'build/**', 'coverage/**'].map((glob) => `'${glob}'`).join(', ')
 
 	return `${imports}
 
@@ -48,7 +47,7 @@ const eslintConfig = [
 	js.configs.recommended,
 	eslintConfigPrettier,
 	{
-		files: ['**/*.{ts,js,mjs}'],
+		files: ['${ANY_DEPTH_CODE_GLOB}'],
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: {

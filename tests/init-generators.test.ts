@@ -50,14 +50,12 @@ describe('buildEslintConfigContent', () => {
 		expect(modules).toEqual([...modules].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })))
 	})
 
-	it('ignores build output and agent-tool dirs', () => {
-		expect(content).toContain(
-			"ignores: ['dist/**', 'build/**', 'cov" + "erage/**', '.claude/**', '.agentkit/**', '.harness/**']"
-		)
+	it('ignores build output', () => {
+		expect(content).toContain("ignores: ['dist/**', 'build/**', 'cov" + "erage/**']")
 	})
 
-	it('lints ts/js/mjs with node globals', () => {
-		expect(content).toContain("files: ['**/*.{ts,js,mjs}']")
+	it('lints ts/mts/js/mjs with node globals', () => {
+		expect(content).toContain("files: ['**/*.{ts,mts,js,mjs}']")
 		expect(content).toContain('...globals.node')
 	})
 
@@ -105,10 +103,13 @@ describe('buildCommitlintConfigContent', () => {
 })
 
 describe('buildLintStagedConfig', () => {
-	it('lints src/test and root configs, formats package.json with prettier', () => {
+	it('lints common source folders and root-only files, formats package.json with prettier', () => {
 		expect(buildLintStagedConfig()).toEqual({
-			'{src,test}/**/*.ts': ['eslint --fix', 'prettier --write'],
-			'*.{ts,mjs}': ['eslint --fix', 'prettier --write'],
+			'{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{ts,mts,js,mjs}': [
+				'eslint --fix',
+				'prettier --write'
+			],
+			'./*.{ts,mts,js,mjs}': ['eslint --fix', 'prettier --write'],
 			'package.json': ['prettier --write']
 		})
 	})
@@ -121,12 +122,13 @@ describe('buildGitignoreContent', () => {
 })
 
 describe('buildScripts', () => {
-	it('lints and formats only src/test and root configs', () => {
+	it('lints and formats only common source folders and root files', () => {
 		expect(buildScripts()).toEqual({
 			prepare: 'husky',
 			typecheck: 'tsc --noEmit',
-			lint: 'eslint --no-error-on-unmatched-pattern "{src,test}/**/*.ts" "*.{ts,mjs}"',
-			format: 'eslint --fix --no-error-on-unmatched-pattern "{src,test}/**/*.ts" "*.{ts,mjs}"'
+			lint: 'eslint --no-error-on-unmatched-pattern "{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{ts,mts,js,mjs}" "*.{ts,mts,js,mjs}"',
+			format:
+				'eslint --fix --no-error-on-unmatched-pattern "{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{ts,mts,js,mjs}" "*.{ts,mts,js,mjs}"'
 		})
 	})
 
