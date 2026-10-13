@@ -1,5 +1,11 @@
 # @jjuidev/jss-devtools
 
+## 0.6.3
+
+### Patch Changes
+
+- lint-staged formats only the root manifest: the generated key is `./package.json` instead of `package.json`. A glob without `/` matches basenames in every directory, so committing nested `package.json` files (vendored tools, agent skills under `.claude/`) reformatted them too. Existing projects keep their `lint-staged` block; rename the key by hand.
+
 ## 0.6.2
 
 ### Patch Changes

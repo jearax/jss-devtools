@@ -44,7 +44,7 @@ jss-devtools --help | --version
 | `.vscode/settings.json`, `.vscode/extensions.json` | Only when missing: format on save with Prettier, eslint fixes on save; recommend EditorConfig, eslint and Prettier extensions |
 | `commitlint.config.mjs` | `@commitlint/config-conventional` |
 | `.husky/pre-commit`, `.husky/commit-msg` | `lint-staged` and `commitlint --edit` through the project's package manager |
-| `package.json` | `prepare`, `typecheck`, `lint`, `format` scripts (only when absent; `lint`/`format` and lint-staged cover `*.{ts,mts,js,mjs}` in `src`, `lib`, `app`, `server`, `bin`, `scripts`, `config`, `test`, `tests`, `spec`, `__tests__`, `e2e` and the project root — edit the folder list in the scripts to change scope) and a `lint-staged` block |
+| `package.json` | `prepare`, `typecheck`, `lint`, `format` scripts (only when absent; `lint`/`format` and lint-staged cover `*.{ts,mts,js,mjs}` in `src`, `lib`, `app`, `server`, `bin`, `scripts`, `config`, `test`, `tests`, `spec`, `__tests__`, `e2e` and the project root — edit the folder list in the scripts to change scope) and a `lint-staged` block (root globs are written as `./…`, so nested `package.json` files are left alone) |
 | `tsconfig.json` | Fresh file, or the `@/*` path alias merged into an existing plain one |
 | `.gitignore` | Only when missing: `node_modules/` |
 | `pnpm-workspace.yaml` | pnpm only: `allowBuilds: { unrs-resolver: true }` for pnpm 11 |

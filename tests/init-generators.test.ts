@@ -103,14 +103,14 @@ describe('buildCommitlintConfigContent', () => {
 })
 
 describe('buildLintStagedConfig', () => {
-	it('lints common source folders and root-only files, formats package.json with prettier', () => {
+	it('lints common source folders and root-only files, formats the root package.json with prettier', () => {
 		expect(buildLintStagedConfig()).toEqual({
 			'{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{ts,mts,js,mjs}': [
 				'eslint --fix',
 				'prettier --write'
 			],
 			'./*.{ts,mts,js,mjs}': ['eslint --fix', 'prettier --write'],
-			'package.json': ['prettier --write']
+			'./package.json': ['prettier --write']
 		})
 	})
 })
