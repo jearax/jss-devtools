@@ -17,6 +17,9 @@ export const planDisplayLines = (plan: InitPlan, pm: Agent): string[] => {
 			case 'write-file':
 				lines.push(`write ${action.path}`)
 				break
+			case 'update-file':
+				lines.push(`update ${action.path}`)
+				break
 			case 'remove-file':
 				lines.push(`remove ${action.path} (legacy config)`)
 				break

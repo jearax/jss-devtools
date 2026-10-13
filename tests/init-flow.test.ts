@@ -556,4 +556,57 @@ describe('runInitFlow', () => {
 		// runCommandSpec is mocked, so .git may not exist; the git-init action is
 		// covered by compute-plan tests.
 	})
+
+	describe('existing .gitignore without node_modules', () => {
+		const args = (dryRun: boolean): InitArgs => ({
+			framework: 'node' as const,
+			yes: true,
+			dryRun,
+			json: true,
+			features: {
+				linter: true,
+				commitlint: true,
+				install: true
+			}
+		})
+
+		const setup = (): string => {
+			const dir = newDir()
+
+			writePkgJson(dir)
+			writeFileSync(join(dir, '.gitignore'), 'local-notes.txt')
+			process.chdir(dir)
+
+			return dir
+		}
+
+		it('appends node_modules/ and reports .gitignore as modified', async () => {
+			const dir = setup()
+			const initModule = await loadRunInitFlow()
+
+			const result = await initModule.runInitFlow(args(false))
+
+			expect(result.status).toBe('success')
+			expect(readFileSync(join(dir, '.gitignore'), 'utf8')).toBe('local-notes.txt\nnode_modules/\n')
+			expect(result.modified).toEqual(['.gitignore', 'package.json'])
+			expect(result.generated).not.toContain('.gitignore')
+
+			const rerun = await initModule.runInitFlow(args(false))
+
+			expect(rerun.modified).not.toContain('.gitignore')
+			expect(readFileSync(join(dir, '.gitignore'), 'utf8')).toBe('local-notes.txt\nnode_modules/\n')
+		})
+
+		it('--dry-run reports the .gitignore change without writing it', async () => {
+			const dir = setup()
+			const initModule = await loadRunInitFlow()
+
+			const result = await initModule.runInitFlow(args(true))
+
+			expect(result.status).toBe('dry-run')
+			expect(result.modified).toEqual(['.gitignore', 'package.json'])
+			expect(result.generated).not.toContain('.gitignore')
+			expect(readFileSync(join(dir, '.gitignore'), 'utf8')).toBe('local-notes.txt')
+		})
+	})
 })

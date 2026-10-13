@@ -5,6 +5,8 @@ import { InitConflictEntry, InitSkippedEntry } from '@/commands/init/types'
 export type PlanAction =
 	| { kind: 'git-init' }
 	| { kind: 'write-file'; path: string; content: string }
+	// Rewrites a file the project already owns; reported as modified, not generated.
+	| { kind: 'update-file'; path: string; content: string }
 	| { kind: 'remove-file'; path: string }
 	| {
 			kind: 'manifest-edit'

@@ -5,6 +5,7 @@
 ### Patch Changes
 
 - lint-staged formats only the root manifest: the generated key is `./package.json` instead of `package.json`. A glob without `/` matches basenames in every directory, so committing nested `package.json` files (vendored tools, agent skills under `.claude/`) reformatted them too. Existing projects keep their `lint-staged` block; rename the key by hand.
+- `init` appends `node_modules/` to an existing `.gitignore` that does not already ignore it (`node_modules`, `/node_modules`, `**/node_modules`, with or without a trailing `/`, `/*` or `/**`, or a `!` negation). Existing content is kept byte for byte, a missing final newline is added first, and the file is listed under `modified` in the result, including `--dry-run`. Previously the installed dependency tree stayed untracked after `init` in such repos.
 
 ## 0.6.2
 

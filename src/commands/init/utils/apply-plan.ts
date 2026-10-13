@@ -208,6 +208,14 @@ const runPlan = async (
 				break
 			}
 
+			case 'update-file': {
+				writeFileSync(join(deps.cwd, action.path), action.content)
+				outcome.modified.push(action.path)
+				outcome.mutations += 1
+
+				break
+			}
+
 			case 'remove-file': {
 				rmSync(join(deps.cwd, action.path), { force: true })
 				outcome.removed.push(action.path)

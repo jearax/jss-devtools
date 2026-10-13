@@ -157,7 +157,13 @@ export const runInitFlow = async (args: InitArgs): Promise<InitResult> => {
 			generated: effectivePlan.actions
 				.filter((action) => action.kind === 'write-file')
 				.map((action) => (action.kind === 'write-file' ? action.path : '')),
-			modified: ['package.json'],
+			// Same order as a real run: file updates are planned before the manifest edit.
+			modified: [
+				...effectivePlan.actions
+					.filter((action) => action.kind === 'update-file')
+					.map((action) => (action.kind === 'update-file' ? action.path : '')),
+				'package.json'
+			],
 			installed: [],
 			skipped: effectivePlan.skipped,
 			conflicts: [],

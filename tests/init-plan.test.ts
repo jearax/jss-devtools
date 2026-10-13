@@ -251,9 +251,11 @@ describe('computePlan', () => {
 				offlineFallback: false
 			},
 			readFile: vi.fn((path: string) =>
-				path.startsWith('.vscode/') || path === '.editorconfig' || path === '.gitignore'
-					? '{ "editor.tabSize": 4 }\n'
-					: null
+				path === '.gitignore'
+					? 'dist\n/node_modules\n'
+					: path.startsWith('.vscode/') || path === '.editorconfig'
+						? '{ "editor.tabSize": 4 }\n'
+						: null
 			)
 		}
 
@@ -261,7 +263,34 @@ describe('computePlan', () => {
 
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path.startsWith('.vscode/'))).toBe(false)
 		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.editorconfig')).toBe(false)
-		expect(plan.actions.some((a) => a.kind === 'write-file' && a.path === '.gitignore')).toBe(false)
+		expect(plan.actions.some((a) => 'path' in a && a.path === '.gitignore')).toBe(false)
+	})
+
+	it('appends node_modules/ to an existing .gitignore that does not ignore it', () => {
+		const ctx = {
+			pm: 'npm' as AgentName,
+			manifest: {
+				name: 'test',
+				version: '1.0.0'
+			},
+			hasGit: true,
+			specs: {
+				dev: [],
+				offlineFallback: false
+			},
+			readFile: vi.fn((path: string) => (path === '.gitignore' ? 'local-notes.txt' : null))
+		}
+
+		const plan = computePlan(defaultArgs, ctx)
+
+		expect(plan.actions.filter((a) => 'path' in a && a.path === '.gitignore')).toEqual([
+			{
+				kind: 'update-file',
+				path: '.gitignore',
+				content: 'local-notes.txt\nnode_modules/\n'
+			}
+		])
+		expect(planDisplayLines(plan, 'npm')).toContain('update .gitignore')
 	})
 
 	it('tsconfig existing no-paths → merge write', () => {

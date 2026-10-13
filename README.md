@@ -46,7 +46,7 @@ jss-devtools --help | --version
 | `.husky/pre-commit`, `.husky/commit-msg` | `lint-staged` and `commitlint --edit` through the project's package manager |
 | `package.json` | `prepare`, `typecheck`, `lint`, `format` scripts (only when absent; `lint`/`format` and lint-staged cover `*.{ts,mts,js,mjs}` in `src`, `lib`, `app`, `server`, `bin`, `scripts`, `config`, `test`, `tests`, `spec`, `__tests__`, `e2e` and the project root — edit the folder list in the scripts to change scope) and a `lint-staged` block (root globs are written as `./…`, so nested `package.json` files are left alone) |
 | `tsconfig.json` | Fresh file, or the `@/*` path alias merged into an existing plain one |
-| `.gitignore` | Only when missing: `node_modules/` |
+| `.gitignore` | `node_modules/` when missing; an existing file that does not ignore `node_modules` gets the entry appended (reported as modified) |
 | `pnpm-workspace.yaml` | pnpm only: `allowBuilds: { unrs-resolver: true }` for pnpm 11 |
 
 The package manager (npm, pnpm, yarn classic, yarn berry, bun) is detected from the lockfile or the `packageManager` field, falling back to npm when neither exists; every command is mapped through [`package-manager-detector`](https://github.com/antfu-collective/package-manager-detector). Re-running is idempotent; differing config files are listed for confirmation before they are replaced.

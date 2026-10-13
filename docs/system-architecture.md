@@ -46,7 +46,7 @@ Generated file content lives in `src/commands/init/generators/`, one module per 
 
 - Exit codes: `0` success, dry-run or noop; `1` user error, abort or cancel.
 - `--json` prints exactly one document on stdout; logs go to stderr.
-- Existing `.editorconfig`, `.gitignore` and `.vscode/*` are never rewritten; other differing configs need confirmation.
+- Existing `.editorconfig` and `.vscode/*` are never rewritten. An existing `.gitignore` is only appended to, with `node_modules/` when no entry covers it; the file is reported under `modified`. Other differing configs need confirmation.
 
 ## Tech Stack
 

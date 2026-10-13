@@ -9,7 +9,7 @@ import { buildCommitlintConfigContent } from '@/commands/init/generators/commitl
 import { buildEditorconfigContent } from '@/commands/init/generators/editorconfig-content'
 import { buildEslintConfigContent } from '@/commands/init/generators/eslint-config-content'
 import { formatJson } from '@/commands/init/generators/format-json'
-import { buildGitignoreContent } from '@/commands/init/generators/gitignore-content'
+import { appendNodeModulesEntry, buildGitignoreContent } from '@/commands/init/generators/gitignore-content'
 import { buildHookContent, mergeHookContent } from '@/commands/init/generators/husky-hooks-content'
 import { buildLintStagedConfig } from '@/commands/init/generators/lint-staged-content'
 import { mergePnpmAllowBuilds } from '@/commands/init/generators/pnpm-workspace-content'
@@ -119,6 +119,49 @@ describe('buildGitignoreContent', () => {
 	it('ignores only the dependency tree', () => {
 		expect(buildGitignoreContent()).toBe('node_modules/\n')
 	})
+})
+
+describe('appendNodeModulesEntry', () => {
+	it('appends the entry and keeps existing bytes verbatim', () => {
+		expect(appendNodeModulesEntry('local-notes.txt\n')).toBe('local-notes.txt\nnode_modules/\n')
+		expect(appendNodeModulesEntry('# notes\n\n  spaced \n')).toBe('# notes\n\n  spaced \nnode_modules/\n')
+	})
+
+	it('adds the missing final newline first', () => {
+		expect(appendNodeModulesEntry('local-notes.txt')).toBe('local-notes.txt\nnode_modules/\n')
+	})
+
+	it('follows CRLF line endings', () => {
+		expect(appendNodeModulesEntry('dist\r\n')).toBe('dist\r\nnode_modules/\r\n')
+		expect(appendNodeModulesEntry('dist\r\nlogs')).toBe('dist\r\nlogs\r\nnode_modules/\r\n')
+	})
+
+	it('fills an empty file', () => {
+		expect(appendNodeModulesEntry('')).toBe('node_modules/\n')
+	})
+
+	it.each([
+		'node_modules',
+		'node_modules/',
+		'/node_modules',
+		'/node_modules/',
+		'**/node_modules',
+		'**/node_modules/',
+		'node_modules/*',
+		'node_modules/**',
+		'node_modules/  ',
+		'!node_modules/'
+	])('leaves a file that already has `%s` untouched', (entry) => {
+		expect(appendNodeModulesEntry(`dist\n${entry}\n.env\n`)).toBeNull()
+		expect(appendNodeModulesEntry(`dist\r\n${entry}`)).toBeNull()
+	})
+
+	it.each(['# node_modules', 'node_modules_backup/', 'packages/a/node_modules/', ' node_modules'])(
+		'does not treat `%s` as ignoring the root dependency tree',
+		(entry) => {
+			expect(appendNodeModulesEntry(`${entry}\n`)).toBe(`${entry}\nnode_modules/\n`)
+		}
+	)
 })
 
 describe('buildScripts', () => {
