@@ -33,8 +33,11 @@ export const buildEslintConfigContent = (): string => {
 		.map(([key, ref]) => `\t\t\t${pluginKey(key)}: ${ref}`)
 		.join(',\n')
 
-	// eslint does not read .gitignore; build output must be listed for `eslint .`.
-	const ignores = ['dist/**', 'build/**', 'coverage/**'].map((glob) => `'${glob}'`).join(', ')
+	// eslint does not read .gitignore or skip dot-dirs; build output and
+	// agent-tool dirs (Claude Code, AgentKit, harness) must be listed here.
+	const ignores = ['dist/**', 'build/**', 'coverage/**', '.claude/**', '.agentkit/**', '.harness/**']
+		.map((glob) => `'${glob}'`)
+		.join(', ')
 
 	return `${imports}
 

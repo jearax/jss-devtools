@@ -38,13 +38,13 @@ jss-devtools --help | --version
 
 | Output | Content |
 |---|---|
-| `eslint.config.mjs` | Flat config: typescript-eslint, import-x ordering, prettier, autofix, arrow functions |
+| `eslint.config.mjs` | Flat config: typescript-eslint, import-x ordering, prettier, autofix, arrow functions. Ignores build output and agent-tool dirs (`.claude/`, `.agentkit/`, `.harness/`) |
 | `.editorconfig` | Only when missing. The single whitespace source: tabs (width 2), print width 120, LF line endings. Prettier, eslint-plugin-prettier and editors all read it |
 | `.prettierrc.json` | JS syntax rules only: semicolons, single quotes (double in JSX), quote props as needed, no trailing commas, bracket spacing, arrow parens always |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Only when missing: format on save with Prettier, eslint fixes on save; recommend EditorConfig, eslint and Prettier extensions |
 | `commitlint.config.mjs` | `@commitlint/config-conventional` |
 | `.husky/pre-commit`, `.husky/commit-msg` | `lint-staged` and `commitlint --edit` through the project's package manager |
-| `package.json` | `prepare`, `typecheck`, `lint` (`eslint .`), `format` (`eslint --fix .`) scripts (only when absent) and a `lint-staged` block |
+| `package.json` | `prepare`, `typecheck`, `lint`, `format` scripts (only when absent; `lint`/`format` cover `{src,test}/**/*.ts` and root `*.{ts,mjs}`) and a `lint-staged` block |
 | `tsconfig.json` | Fresh file, or the `@/*` path alias merged into an existing plain one |
 | `.gitignore` | Only when missing: `node_modules/` |
 | `pnpm-workspace.yaml` | pnpm only: `allowBuilds: { unrs-resolver: true }` for pnpm 11 |

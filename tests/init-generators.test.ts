@@ -50,8 +50,10 @@ describe('buildEslintConfigContent', () => {
 		expect(modules).toEqual([...modules].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })))
 	})
 
-	it('ignores build output', () => {
-		expect(content).toContain("ignores: ['dist/**', 'build/**', 'cov" + "erage/**']")
+	it('ignores build output and agent-tool dirs', () => {
+		expect(content).toContain(
+			"ignores: ['dist/**', 'build/**', 'cov" + "erage/**', '.claude/**', '.agentkit/**', '.harness/**']"
+		)
 	})
 
 	it('lints ts/js/mjs with node globals', () => {
@@ -119,12 +121,12 @@ describe('buildGitignoreContent', () => {
 })
 
 describe('buildScripts', () => {
-	it('lints and formats the whole project; scope lives in eslint.config.mjs', () => {
+	it('lints and formats only src/test and root configs', () => {
 		expect(buildScripts()).toEqual({
 			prepare: 'husky',
 			typecheck: 'tsc --noEmit',
-			lint: 'eslint .',
-			format: 'eslint --fix .'
+			lint: 'eslint --no-error-on-unmatched-pattern "{src,test}/**/*.ts" "*.{ts,mjs}"',
+			format: 'eslint --fix --no-error-on-unmatched-pattern "{src,test}/**/*.ts" "*.{ts,mjs}"'
 		})
 	})
 

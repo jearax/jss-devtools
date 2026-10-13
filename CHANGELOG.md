@@ -1,5 +1,12 @@
 # @jjuidev/jss-devtools
 
+## 0.6.1
+
+### Patch Changes
+
+- `init` scopes the generated `lint`/`format` scripts to `{src,test}/**/*.ts` and root `*.{ts,mjs}` (with `--no-error-on-unmatched-pattern`) instead of `eslint .`, matching `lint-staged`. In projects that also hold agent tooling, `eslint .` walked hundreds of tool-owned JS files and `lint` could run for minutes.
+- `eslint.config.mjs` also ignores `.claude/**`, `.agentkit/**` and `.harness/**`, so a direct `eslint .` or a staged root file in those dirs skips them too. Scripts are only added when absent: on an existing project, re-run `init` to update `eslint.config.mjs` (shown as a differing file) and change the `lint`/`format` scripts by hand if you want the narrower scope.
+
 ## 0.6.0
 
 ### Minor Changes

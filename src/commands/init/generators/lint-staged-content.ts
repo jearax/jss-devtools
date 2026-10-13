@@ -1,5 +1,7 @@
+import { ROOT_CODE_GLOB, SOURCE_CODE_GLOB } from '@/commands/init/generators/scripts-content'
+
 export const buildLintStagedConfig = (): Record<string, string[]> => ({
-	'{src,test}/**/*.ts': ['eslint --fix', 'prettier --write'],
-	'*.{ts,mjs}': ['eslint --fix', 'prettier --write'],
+	[SOURCE_CODE_GLOB]: ['eslint --fix', 'prettier --write'],
+	[ROOT_CODE_GLOB]: ['eslint --fix', 'prettier --write'],
 	'package.json': ['prettier --write']
 })
