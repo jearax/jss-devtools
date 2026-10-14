@@ -54,8 +54,8 @@ describe('buildEslintConfigContent', () => {
 		expect(content).toContain("ignores: ['dist/**', 'build/**', 'cov" + "erage/**']")
 	})
 
-	it('lints ts/mts/js/mjs with node globals', () => {
-		expect(content).toContain("files: ['**/*.{ts,mts,js,mjs}']")
+	it('lints mjs/js/jsx/mts/ts/tsx with node globals', () => {
+		expect(content).toContain("files: ['**/*.{mjs,js,jsx,mts,ts,tsx}']")
 		expect(content).toContain('...globals.node')
 	})
 
@@ -105,11 +105,11 @@ describe('buildCommitlintConfigContent', () => {
 describe('buildLintStagedConfig', () => {
 	it('lints common source folders and root-only files, formats the root package.json with prettier', () => {
 		expect(buildLintStagedConfig()).toEqual({
-			'{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{ts,mts,js,mjs}': [
+			'{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{mjs,js,jsx,mts,ts,tsx}': [
 				'eslint --fix',
 				'prettier --write'
 			],
-			'./*.{ts,mts,js,mjs}': ['eslint --fix', 'prettier --write'],
+			'./*.{mjs,js,jsx,mts,ts,tsx}': ['eslint --fix', 'prettier --write'],
 			'./package.json': ['prettier --write']
 		})
 	})
@@ -169,9 +169,9 @@ describe('buildScripts', () => {
 		expect(buildScripts()).toEqual({
 			prepare: 'husky',
 			typecheck: 'tsc --noEmit',
-			lint: 'eslint --no-error-on-unmatched-pattern "{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{ts,mts,js,mjs}" "*.{ts,mts,js,mjs}"',
+			lint: 'eslint --no-error-on-unmatched-pattern "{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{mjs,js,jsx,mts,ts,tsx}" "*.{mjs,js,jsx,mts,ts,tsx}"',
 			format:
-				'eslint --fix --no-error-on-unmatched-pattern "{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{ts,mts,js,mjs}" "*.{ts,mts,js,mjs}"'
+				'eslint --fix --no-error-on-unmatched-pattern "{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{mjs,js,jsx,mts,ts,tsx}" "*.{mjs,js,jsx,mts,ts,tsx}"'
 		})
 	})
 

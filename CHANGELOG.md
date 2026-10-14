@@ -1,5 +1,11 @@
 # @jjuidev/jss-devtools
 
+## 0.6.4
+
+### Patch Changes
+
+- The generated `lint`/`format` scripts, lint-staged and `eslint.config.mjs` `files` cover `.jsx` and `.tsx` too: the code glob is `{src,lib,app,server,bin,scripts,config,test,tests,spec,__tests__,e2e}/**/*.{mjs,js,jsx,mts,ts,tsx}` plus `./*.{mjs,js,jsx,mts,ts,tsx}` at the root. React components were skipped by lint and the pre-commit hook. CommonJS (`.cjs`/`.cts`) stays out. Existing projects keep their scripts and `lint-staged` block; edit the extension list by hand, and re-run `init` to see the `eslint.config.mjs` difference.
+
 ## 0.6.3
 
 ### Patch Changes

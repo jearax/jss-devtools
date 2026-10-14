@@ -22,7 +22,7 @@
     "build": "tsup",
     "clean": "rimraf dist",
     "dev": "tsup --watch",
-    "format": "eslint --fix \"{src,tests}/**/*.{js,ts,jsx,tsx}\" \"*.ts\" && prettier --write \"{src,tests}/**/*.{js,ts,jsx,tsx}\" \"*.ts\"",
+    "format": "eslint --fix \"{src,tests}/**/*.{mjs,js,jsx,mts,ts,tsx}\" \"*.ts\" && prettier --write \"{src,tests}/**/*.{mjs,js,jsx,mts,ts,tsx}\" \"*.ts\"",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prepare": "husky",
@@ -78,7 +78,7 @@
     "access": "public"
   },
   "lint-staged": {
-    "{src,tests}/**/*.{ts,tsx,js,jsx}": [
+    "{src,tests}/**/*.{mjs,js,jsx,mts,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],

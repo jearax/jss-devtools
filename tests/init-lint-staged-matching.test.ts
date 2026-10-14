@@ -20,11 +20,17 @@ const STAGED_FILES = [
 	'.claude/skills/ak-demo/scripts/package.json',
 	'index.ts',
 	'eslint.config.mjs',
+	'vite.config.mts',
 	'src/app.ts',
+	'src/view.tsx',
+	'app/page.jsx',
 	'tests/app.test.ts',
 	'.claude/skills/ak-demo/run.mjs',
 	'.claude/skills/ak-demo/src/tool.ts',
-	'sub/index.ts'
+	'.claude/skills/ak-demo/src/ui.tsx',
+	'sub/index.ts',
+	'sub/widget.jsx',
+	'legacy.cjs'
 ]
 
 const git = (...args: string[]): void => {
@@ -90,11 +96,14 @@ describe('generated lint-staged patterns', () => {
 
 	it('touches only root code files and the listed source folders', async () => {
 		expect(touchedFiles(await matchedByPattern())).toEqual([
+			'app/page.jsx',
 			'eslint.config.mjs',
 			'index.ts',
 			'package.json',
 			'src/app.ts',
-			'tests/app.test.ts'
+			'src/view.tsx',
+			'tests/app.test.ts',
+			'vite.config.mts'
 		])
 	})
 

@@ -17,7 +17,7 @@ export const LINT_FOLDERS = [
 	'e2e'
 ]
 // ESM only: the house rules (sourceType module, no-require-imports) reject CommonJS.
-export const LINT_EXTENSIONS = ['ts', 'mts', 'js', 'mjs']
+export const LINT_EXTENSIONS = ['mjs', 'js', 'jsx', 'mts', 'ts', 'tsx']
 
 const extGlob = `*.{${LINT_EXTENSIONS.join(',')}}`
 
