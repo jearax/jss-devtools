@@ -9,7 +9,7 @@ What the code does today. The source layout was decided in
 ```
 src/
 ├─ cli.ts                     the program, the exit code, the global handlers
-├─ core/                      shared; imports no command and no commander
+├─ core/                      shared; imports no command and no module
 │  ├─ adapters/git.adapter.ts the only file that knows git's command line
 │  ├─ constants/              the banner art, the exit codes, the package facts, the shared flags
 │  ├─ errors/cli.error.ts     an expected failure with an exit code and a hint
@@ -33,26 +33,31 @@ src/
       └─ types/               the types the command shares
 ```
 
-A file name says what the file is: `.command.ts`, `.ui.ts`, `.service.ts`, `.check.ts`,
-`.adapter.ts`, `.util.ts`, `.constant.ts`, `.error.ts`, `.type.ts`. The table and the rules are in
-[0024](./decisions/0024-core-and-command-layout.md) and
+Imports flow `cli.ts` → `commands/` → `modules/` → `core/`. A file name says what the file is:
+`.command.ts`, `.ui.ts`, `.service.ts`, `.check.ts`, `.adapter.ts`, `.util.ts`, `.constant.ts`,
+`.error.ts`, `.type.ts`, and, in `modules/`, `.entry.ts` and `.hook.ts`. The table and the rules are
+in [0024](./decisions/0024-core-and-command-layout.md) and
 [code-standards.md](./code-standards.md).
 
 The rules are enforced by the architecture suite, and each rule has a negative fixture that breaks
 exactly that rule:
 
-| Id                                               | Rule                                                                                                |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `file-role-suffix`                               | Every file under `src/` except `cli.ts` has a suffix from the table, in its folder                  |
-| `core-imports-no-command`                        | `src/core/**` never imports from `src/commands/**`                                                  |
-| `command-imports-no-other-command`               | `src/commands/<a>/**` never imports `src/commands/<b>/**`; logic two commands share goes to `core/` |
-| `commander-in-command-files-only`                | `commander` only in `*.command.ts` and `cli.ts`                                                     |
-| `clack-in-ui-layer-only`                         | `@clack/prompts` only in `*.ui.ts`, `*.command.ts` and `cli.ts`                                     |
-| `output-in-ui-layer-only`                        | `process.stdout`, `process.stderr`, `console.` only in `*.ui.ts`, `*.command.ts` and `cli.ts`       |
-| `child-process-in-runner-only`                   | `node:child_process` only in `core/utils/run-command.util.ts`                                       |
-| `runner-in-adapters-only`                        | the command runner is called only by an adapter                                                     |
-| `no-process-exit-outside-entry-point`            | `process.exit` only in `cli.ts`                                                                     |
-| `no-global-process-handlers-outside-entry-point` | global process handlers only in `cli.ts`                                                            |
+| Id                                               | Rule                                                                                                        |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `file-role-suffix`                               | Every file under `src/` except `cli.ts` has a suffix from the table, in its folder                          |
+| `core-imports-no-command`                        | `src/core/**` never imports from `src/commands/**`                                                          |
+| `core-imports-no-module`                         | `src/core/**` never imports from `src/modules/**`                                                           |
+| `command-imports-no-other-command`               | `src/commands/<a>/**` never imports `src/commands/<b>/**`; logic two commands share goes to `core/`         |
+| `module-imports-no-command`                      | `src/modules/<name>/**` never imports from `src/commands/**`                                                |
+| `module-imports-no-other-module`                 | `src/modules/<a>/**` never imports `src/modules/<b>/**`                                                     |
+| `commander-in-command-files-only`                | `commander` only in `*.command.ts` and `cli.ts`                                                             |
+| `clack-in-ui-layer-only`                         | `@clack/prompts` only in `*.ui.ts`, `*.command.ts` and `cli.ts`                                             |
+| `output-in-ui-layer-only`                        | `process.stdout`, `process.stderr`, `console.` only in `*.ui.ts`, `*.command.ts`, `*.entry.ts` and `cli.ts` |
+| `entry-imports-own-module-and-core-only`         | a `*.entry.ts` imports only its own module and `src/core/**`                                                |
+| `child-process-in-runner-only`                   | `node:child_process` only in `core/utils/run-command.util.ts`                                               |
+| `runner-in-adapters-only`                        | the command runner is called only by an adapter                                                             |
+| `no-process-exit-outside-entry-point`            | `process.exit` only in `cli.ts`                                                                             |
+| `no-global-process-handlers-outside-entry-point` | global process handlers only in `cli.ts`                                                                    |
 
 ## Entry point
 

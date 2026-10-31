@@ -45,7 +45,8 @@ state, not a result to assume.
   [docs/decisions/0024](./docs/decisions/0024-core-and-command-layout.md).
 - **Failures stay non-zero.** Only `src/cli.ts` may touch process exit or global process handlers;
   the architecture test enforces this, because the previous release shipped a handler that turned
-  crashes into exit 0.
+  crashes into exit 0. The deliberate exception is a `*.entry.ts` under `src/modules/`: a hook must
+  never block a session, so it always exits 0.
 - **One fact, one home.** The version, the dev runtime, the package manager and the bundled
   dependencies are each declared once. Do not add a second copy in a config file; read it from
   `package.json` instead, the way `scripts/package-info.mjs` does. Formatting facts shared by

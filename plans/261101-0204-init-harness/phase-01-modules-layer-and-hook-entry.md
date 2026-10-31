@@ -71,10 +71,11 @@ Add them to `ROLE_SUFFIXES` in `tests/support/architecture-rules.ts` before any 
 - Modify: `docs/decisions/0024-core-and-command-layout.md` (amendment note with date and the user's
   quote "modules/harness/ ngay từ đầu"; the record keeps its original date),
   `docs/code-standards.md` (roles table), `docs/system-architecture.md` (layers, two entries),
-  `CLAUDE.md` (the `src/cli.ts` row says "the only entry point"; add the `src/modules/` row and one
-  line for `src/modules/harness/harness-hook.entry.ts`: the entry of the hook bundle Claude Code runs
-  in an installed repository; the "Failures stay non-zero" rule gains one line that this entry is
-  the deliberate exception, because a hook must never block a session).
+  `CLAUDE.md` (the "Failures stay non-zero" rule gains one line that a `*.entry.ts` is the
+  deliberate exception, because a hook must never block a session).
+- "Write what exists": no doc names `src/modules/harness/` or `harness-hook.entry.ts` as present
+  until phase 3 creates them. Phase 1 documents the roles and rules, which exist; the layout tree,
+  the "Where things are" rows and the entry paragraph land in phase 3.
 - No `src/` file yet: an empty `modules/harness/` is not committed.
 
 ## Validation

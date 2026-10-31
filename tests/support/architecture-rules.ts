@@ -27,6 +27,11 @@ const ROLE_SUFFIXES: readonly (readonly [RegExp, readonly string[]])[] = [
 	[/^core\/errors\//, ['.error.ts']],
 	[/^core\/ui\//, ['.ui.ts']],
 	[/^core\/utils\//, ['.util.ts']],
+	[/^modules\/[^/]+\/constants\//, ['.constant.ts']],
+	[/^modules\/[^/]+\/templates\//, ['.template.ts']],
+	[/^modules\/[^/]+\/types\//, ['.type.ts']],
+	[/^modules\/[^/]+\/hooks\//, ['.hook.ts']],
+	[/^modules\/[^/]+\//, ['.service.ts', '.entry.ts']],
 	[/^commands\/[^/]+\/constants\//, ['.constant.ts']],
 	[/^commands\/[^/]+\/templates\//, ['.template.ts']],
 	[/^commands\/[^/]+\/checks\//, ['.check.ts']],
@@ -93,6 +98,54 @@ const importsOtherCommand = (logicalPath: string, content: string): boolean => {
 	});
 };
 
+const importsCommand = (logicalPath: string, content: string): boolean => {
+	return importSpecifiers(content).some((specifier) => {
+		const target = logicalTargetOf(logicalPath, specifier);
+
+		if (target === null) {
+			return false;
+		}
+
+		return target.split('/')[0] === 'commands';
+	});
+};
+
+const importsOtherModule = (logicalPath: string, content: string): boolean => {
+	const currentModule = logicalPath.split('/')[1];
+
+	return importSpecifiers(content).some((specifier) => {
+		const target = logicalTargetOf(logicalPath, specifier);
+
+		if (target === null) {
+			return false;
+		}
+
+		const parts = target.split('/');
+
+		return parts[0] === 'modules' && parts[1] !== currentModule;
+	});
+};
+
+const entryImportsOutsideOwnModuleAndCore = (logicalPath: string, content: string): boolean => {
+	const ownModule = logicalPath.split('/')[1];
+
+	return importSpecifiers(content).some((specifier) => {
+		const target = logicalTargetOf(logicalPath, specifier);
+
+		if (target === null) {
+			return false;
+		}
+
+		const parts = target.split('/');
+
+		if (parts[0] === 'core') {
+			return false;
+		}
+
+		return !(parts[0] === 'modules' && parts[1] === ownModule);
+	});
+};
+
 // A command that exits the process or installs a global handler can turn a failure into a
 // silent success, which is the bug the previous JSS release shipped.
 export const rules: readonly ArchitectureRule[] = [
@@ -108,6 +161,8 @@ export const rules: readonly ArchitectureRule[] = [
 		reason: 'every file under src/ carries the suffix that states its role',
 		fixtures: [
 			'tests/fixtures/architecture/src/core/utils/legacy-helper.ts',
+			'tests/fixtures/architecture/src/modules/harness/legacy-helper.ts',
+			'tests/fixtures/architecture/src/modules/harness/hooks/legacy-helper.ts',
 			'tests/fixtures/architecture/src/commands/init/constants/legacy-helper.ts',
 			'tests/fixtures/architecture/src/commands/init/templates/legacy-helper.ts'
 		]
@@ -121,6 +176,36 @@ export const rules: readonly ArchitectureRule[] = [
 		allow: [],
 		reason: 'src/core is shared and imports no command',
 		fixtures: ['tests/fixtures/architecture/src/core/utils/imports-command.util.ts']
+	},
+	{
+		id: 'core-imports-no-module',
+		scope: (logicalPath) => {
+			return logicalPath.startsWith('core/');
+		},
+		pattern: /from\s+['"][^'"]*modules\//,
+		allow: [],
+		reason: 'src/core is shared and imports no module',
+		fixtures: ['tests/fixtures/architecture/src/core/utils/imports-module.util.ts']
+	},
+	{
+		id: 'module-imports-no-command',
+		scope: (logicalPath) => {
+			return logicalPath.startsWith('modules/') && !logicalPath.endsWith('.entry.ts');
+		},
+		check: importsCommand,
+		allow: [],
+		reason: 'a module imports no command',
+		fixtures: ['tests/fixtures/architecture/src/modules/harness/imports-command.service.ts']
+	},
+	{
+		id: 'module-imports-no-other-module',
+		scope: (logicalPath) => {
+			return logicalPath.startsWith('modules/') && !logicalPath.endsWith('.entry.ts');
+		},
+		check: importsOtherModule,
+		allow: [],
+		reason: 'a module imports nothing from another module',
+		fixtures: ['tests/fixtures/architecture/src/modules/other/imports-harness.service.ts']
 	},
 	{
 		id: 'command-imports-no-other-command',
@@ -140,7 +225,10 @@ export const rules: readonly ArchitectureRule[] = [
 		pattern: /from\s+['"]commander['"]/,
 		allow: [],
 		reason: 'commander is wired in *.command.ts and in cli.ts',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/uses-commander.service.ts']
+		fixtures: [
+			'tests/fixtures/architecture/src/commands/doctor/uses-commander.service.ts',
+			'tests/fixtures/architecture/src/modules/harness/uses-commander.service.ts'
+		]
 	},
 	{
 		id: 'clack-in-ui-layer-only',
@@ -150,18 +238,29 @@ export const rules: readonly ArchitectureRule[] = [
 		pattern: /from\s+['"]@clack\/prompts['"]/,
 		allow: [],
 		reason: '@clack/prompts is rendered in *.ui.ts, in *.command.ts and in cli.ts',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/uses-clack.service.ts']
+		fixtures: [
+			'tests/fixtures/architecture/src/commands/doctor/uses-clack.service.ts',
+			'tests/fixtures/architecture/src/modules/harness/uses-clack.service.ts'
+		]
 	},
 	{
 		id: 'output-in-ui-layer-only',
 		scope: (logicalPath) => {
 			// *.template.ts carries the content of a generated file as data; a console call there is text, not output.
-			return !isUiFile(logicalPath) && !isCommandFile(logicalPath) && !logicalPath.endsWith('.template.ts');
+			return (
+				!isUiFile(logicalPath) &&
+				!isCommandFile(logicalPath) &&
+				!logicalPath.endsWith('.template.ts') &&
+				!logicalPath.endsWith('.entry.ts')
+			);
 		},
 		pattern: /\b(?:process\.(?:stdout|stderr)|console\.)/,
 		allow: [],
-		reason: 'the terminal is written in *.ui.ts, in *.command.ts and in cli.ts',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/writes-output.service.ts']
+		reason: 'the terminal is written in *.ui.ts, in *.command.ts, in *.entry.ts and in cli.ts',
+		fixtures: [
+			'tests/fixtures/architecture/src/commands/doctor/writes-output.service.ts',
+			'tests/fixtures/architecture/src/modules/harness/writes-output.service.ts'
+		]
 	},
 	{
 		id: 'child-process-in-runner-only',
@@ -202,6 +301,16 @@ export const rules: readonly ArchitectureRule[] = [
 		allow: ['cli.ts'],
 		reason: 'global process handlers live in src/cli.ts and must not swallow failures',
 		fixtures: ['tests/fixtures/architecture/src/commands/doctor/forbidden-global-handler.service.ts']
+	},
+	{
+		id: 'entry-imports-own-module-and-core-only',
+		scope: (logicalPath) => {
+			return logicalPath.endsWith('.entry.ts');
+		},
+		check: entryImportsOutsideOwnModuleAndCore,
+		allow: [],
+		reason: 'a *.entry.ts imports only its own module and core',
+		fixtures: ['tests/fixtures/architecture/src/modules/harness/imports-command.entry.ts']
 	}
 ];
 

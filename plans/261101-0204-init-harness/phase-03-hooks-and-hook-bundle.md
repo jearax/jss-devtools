@@ -71,6 +71,14 @@ design proposal (Read or `cat` of `SKILL.md` counts as a use; subagent events ca
   no `commander` or `@clack/prompts` and stays under a size budget the cooker measures and records
   (start: 40 KB); the shim plus bundle run from a sandbox with no `node_modules`.
 
+## Docs
+
+Now that the files exist: `CLAUDE.md` "Where things are" gains the `src/modules/` row and the
+`src/modules/harness/harness-hook.entry.ts` row (the entry of the hook bundle Claude Code runs in an
+installed repository); `docs/system-architecture.md` gains `modules/harness/` in the layout tree and
+a paragraph under "Entry point" for the second entry; `docs/codebase-summary.md` lists the new
+files.
+
 ## Validation
 
 ```bash
