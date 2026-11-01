@@ -23,6 +23,12 @@ export const validateInitArguments = (positional: readonly string[], options: In
 			hint: 'Drop it when creating one'
 		});
 	}
+
+	if (options.agentKit === true && options.harness === false) {
+		throw new CliError('Option --agent-kit needs the harness', {
+			hint: 'Drop --no-harness'
+		});
+	}
 };
 
 export const resolveInitMode = (positional: readonly string[]): InitMode => {

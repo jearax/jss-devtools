@@ -9,4 +9,6 @@ export type InitOptions = {
 	force?: true;
 	framework?: InitFramework;
 	vscode?: boolean;
+	harness?: boolean;
+	agentKit?: true;
 };

@@ -38,6 +38,7 @@ src/
       ├─ constants/             the state paths, the limits, the settings entries
       ├─ templates/             the shim template phase 4 installs
       ├─ types/                 the hook payload and result types
+      ├─ install-plan.service.ts  the harness entries init appends: files, kinds, manifest, base
       └─ *.service.ts           config, memory, knowledge, session log, fingerprint, curator state
 ```
 
@@ -74,9 +75,11 @@ to it; it never replaces it.
 
 A second entry exists: `src/modules/harness/harness-hook.entry.ts` builds `dist/hooks.mjs`, the
 hook bundle Claude Code runs in an installed repository. Its text is embedded into `cli.mjs` at
-build (the `footer` in `tsdown.config.ts`, built after `tsdown.hooks.config.ts`), so the release
-still ships one file with one checksum. Unlike the CLI, the hook entry always exits 0 — a hook
-must never block a session — and it is the only file in `modules/` that may print or touch
+build (the `define` in `tsdown.config.ts`, built after `tsdown.hooks.config.ts`), the install plan
+imports `harnessHookBundle` so tree-shaking keeps it, `tests/bundle.test.ts` proves the embedded
+text equals `dist/hooks.mjs`, and init writes it as `.harness/bin/hooks.mjs`. The release still
+ships one file with one checksum. Unlike the CLI, the hook entry always exits 0 — a hook must
+never block a session — and it is the only file in `modules/` that may print or touch
 `process.exitCode`.
 
 ```

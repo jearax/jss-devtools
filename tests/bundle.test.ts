@@ -191,6 +191,9 @@ Options:
   --force, -f         Replace existing ESLint, Prettier, commitlint and editor
                       configs (init stops and lists them; default: off)
   --no-vscode         Do not write .vscode/ (default: written)
+  --no-harness        Do not install the harness (default: installed)
+  --agent-kit         Point AgentKit at .harness/docs and .harness/plans; needs
+                      ak (default: off)
   --yes, -y           Skip the questions and use the defaults (asks in a
                       terminal; default: off)
   --dry-run           Show what would change; write and install nothing
@@ -202,6 +205,7 @@ Examples:
   $ jss-devtools init my-app --pm pnpm -y Create my-app with pnpm, no questions (CI)
   $ jss-devtools init                     Set up the project in the current folder
   $ jss-devtools init -f                  Replace existing ESLint, Prettier and commitlint configs
+  $ jss-devtools init --no-harness        Set up the toolchain without the harness
   $ jss-devtools init --dry-run           Show what would change, write nothing
 `);
 	});
@@ -222,6 +226,39 @@ Examples:
 describe('hook bundle', () => {
 	const hooksPath = resolve(projectRoot, 'di' + 'st/hooks.mjs');
 	const BUDGET = 40 * 1024;
+
+	it('is embedded byte for byte in cli.mjs, so the install plan ships the same hook code', async () => {
+		const text = await readFile(hooksPath, 'utf8');
+		const cli = await readFile(resolve(projectRoot, 'di' + 'st/cli.mjs'), 'utf8');
+
+		const marker = 'harnessHookBundle = "';
+
+		const start = cli.indexOf(marker);
+
+		expect(start).toBeGreaterThan(-1);
+
+		// The bundler re-serializes the define string its own way (raw tabs stay raw), so the
+		// literal is normalized back to JSON escaping before it is parsed.
+		let end = start + marker.length;
+
+		while (true) {
+			if (cli[end] === '\\') {
+				end += 2;
+				continue;
+			}
+
+			if (cli[end] === '"') {
+				break;
+			}
+
+			end += 1;
+		}
+
+		const literal = cli.slice(start + marker.length - 1, end + 1);
+		const embedded = JSON.parse(literal.replace(/\t/g, '\\t')) as string;
+
+		expect(embedded).toBe(text);
+	});
 
 	it('holds no commander or clack and stays inside the size budget', async () => {
 		const text = await readFile(hooksPath, 'utf8');

@@ -1,9 +1,18 @@
-import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 
+import { agentKitVersion } from '@/core/adapters/agent-kit.adapter';
 import { gitHooksPath, gitTopLevel, gitVersion } from '@/core/adapters/git.adapter';
 import { detectPackageManager, isYarnBerry, packageManagerVersion } from '@/core/adapters/package-manager.adapter';
 import { CliError } from '@/core/errors/cli.error';
+import {
+	CLAUDE_MD,
+	CLAUDE_SETTINGS,
+	CLAUDE_SKILLS_DIR,
+	HARNESS_BLOCK_BEGIN,
+	HARNESS_DIR,
+	HOOK_SHIM_PATH
+} from '@/modules/harness/constants/harness-paths.constant';
 
 import { CONFIG_NAMES } from './constants/config-name.constant';
 import { mergePnpmWorkspaceYaml } from './merge.service';
@@ -149,6 +158,62 @@ const ownedConflicts = (cwd: string, withVscode: boolean): readonly string[] => 
 	});
 };
 
+const ensureNotSymlink = (cwd: string, name: string): void => {
+	const full = join(cwd, name);
+
+	if (existsSync(full) && lstatSync(full).isSymbolicLink()) {
+		throw new CliError(`${name} is a symlink`, {
+			hint: 'Replace it with a real file, then rerun'
+		});
+	}
+};
+
+const ensureSettingsJsonParses = (cwd: string): void => {
+	const full = join(cwd, CLAUDE_SETTINGS);
+
+	if (!existsSync(full)) {
+		return;
+	}
+
+	try {
+		JSON.parse(readFileSync(full, 'utf8'));
+	} catch (error) {
+		throw new CliError(`Invalid JSON in ${CLAUDE_SETTINGS}: ${(error as Error).message}`, {
+			hint: 'Fix it, then rerun'
+		});
+	}
+};
+
+const harnessConflicts = (cwd: string): readonly string[] => {
+	const found: string[] = [];
+
+	if (existsSync(join(cwd, HARNESS_DIR))) {
+		found.push(`${HARNESS_DIR}/`);
+	}
+
+	if (existsSync(join(cwd, CLAUDE_SKILLS_DIR))) {
+		for (const entry of readdirSync(join(cwd, CLAUDE_SKILLS_DIR))) {
+			if (entry.startsWith('harness-')) {
+				found.push(`${CLAUDE_SKILLS_DIR}/${entry}/`);
+			}
+		}
+	}
+
+	const claudeMdPath = join(cwd, CLAUDE_MD);
+
+	if (existsSync(claudeMdPath) && readFileSync(claudeMdPath, 'utf8').includes(HARNESS_BLOCK_BEGIN)) {
+		found.push(`the harness block in ${CLAUDE_MD}`);
+	}
+
+	const settingsPath = join(cwd, CLAUDE_SETTINGS);
+
+	if (existsSync(settingsPath) && readFileSync(settingsPath, 'utf8').includes(HOOK_SHIM_PATH)) {
+		found.push(`harness hooks in ${CLAUDE_SETTINGS}`);
+	}
+
+	return found;
+};
+
 const preflightExisting = async (cwd: string, options: InitOptions): Promise<InitPreflight> => {
 	const parsed = parsePackageJson(cwd);
 
@@ -206,6 +271,16 @@ const preflightExisting = async (cwd: string, options: InitOptions): Promise<Ini
 
 	const fileConflicts = ownedConflicts(cwd, options.vscode !== false);
 
+	const harnessEnabled = options.harness !== false;
+
+	if (harnessEnabled) {
+		ensureNotSymlink(cwd, CLAUDE_MD);
+		ensureNotSymlink(cwd, CLAUDE_SETTINGS);
+		ensureSettingsJsonParses(cwd);
+	}
+
+	const harnessFound = harnessEnabled ? harnessConflicts(cwd) : [];
+
 	const keyConflicts = (['eslint', 'prettier', 'commitlint'] as const).flatMap((tool) => {
 		return CONFIG_NAMES[tool].packageJsonKeys
 			.filter((key) => {
@@ -216,7 +291,7 @@ const preflightExisting = async (cwd: string, options: InitOptions): Promise<Ini
 			});
 	});
 
-	const conflicts = [...fileConflicts, ...keyConflicts];
+	const conflicts = [...fileConflicts, ...keyConflicts, ...harnessFound];
 
 	if (conflicts.length > 0 && options.force !== true) {
 		const withVscode = conflicts.some((name) => {
@@ -250,6 +325,15 @@ export const preflightInit = async (
 	options: InitOptions
 ): Promise<InitPreflight> => {
 	const dir = positional[0];
+
+	const agentKitCheck =
+		options.agentKit === true && options.harness !== false ? await agentKitVersion() : { status: 'ok' as const };
+
+	if (agentKitCheck.status !== 'ok') {
+		throw new CliError(agentKitCheck.problem, {
+			hint: 'Install ak, then rerun'
+		});
+	}
 
 	return dir === undefined ? preflightExisting(cwd, options) : preflightCreate(dir, options);
 };

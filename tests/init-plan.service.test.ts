@@ -82,7 +82,7 @@ const entryFor = (plan: ReturnType<typeof buildInitPlan>, path: string) => {
 
 describe('the plan, create mode', () => {
 	it('plans every node-preset file, and pnpm-workspace.yaml only for pnpm', () => {
-		const npmPlan = buildInitPlan(createPreflight('/tmp/nowhere'), {});
+		const npmPlan = buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false });
 
 		expect(
 			npmPlan.entries.map((entry) => {
@@ -109,7 +109,7 @@ describe('the plan, create mode', () => {
 				...createPreflight('/tmp/nowhere'),
 				pm: 'pnpm'
 			},
-			{}
+			{ harness: false }
 		);
 
 		expect(pnpmPlan.entries.at(-1)).toEqual({
@@ -120,7 +120,10 @@ describe('the plan, create mode', () => {
 	});
 
 	it('plans no vscode files with --no-vscode', () => {
-		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), { vscode: false });
+		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), {
+			vscode: false,
+			harness: false
+		});
 
 		expect(
 			plan.entries.some((entry) => {
@@ -130,7 +133,7 @@ describe('the plan, create mode', () => {
 	});
 
 	it('writes the packageManager field from the preflight', () => {
-		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), {});
+		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false });
 
 		expect(entryFor(plan, 'package.json')?.content).toContain('"packageManager": "npm@11.10.0"');
 	});
@@ -153,7 +156,7 @@ describe('the plan, create mode', () => {
 describe('the plan, existing mode', () => {
 	it('adds the shared scripts, keeps the user scripts, and never adds dev, build or start', async () => {
 		const dir = await makeProject(BASIC_EXISTING);
-		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), {});
+		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), { harness: false });
 		const entry = entryFor(plan, 'package.json');
 
 		expect(entry?.action).toBe('update');
@@ -178,7 +181,7 @@ describe('the plan, existing mode', () => {
 			'tsconfig.json': '{}\n'
 		});
 
-		const plan = buildInitPlan(existingPreflight(dir, packageJson), {});
+		const plan = buildInitPlan(existingPreflight(dir, packageJson), { harness: false });
 
 		const merged = JSON.parse(entryFor(plan, 'package.json')?.content ?? '{}') as {
 			devDependencies: Record<string, string>;
@@ -223,7 +226,7 @@ describe('the plan, existing mode', () => {
 			'tsconfig.json': '{}\n'
 		});
 
-		const plan = buildInitPlan(existingPreflight(dir, packageJson), {});
+		const plan = buildInitPlan(existingPreflight(dir, packageJson), { harness: false });
 		const packageEntry = entryFor(plan, 'package.json');
 
 		expect(packageEntry).toBeUndefined();
@@ -236,7 +239,7 @@ describe('the plan, existing mode', () => {
 			'.prettierignore': ''
 		});
 
-		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), {});
+		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), { harness: false });
 
 		const merged = entryFor(plan, '.gitignore')?.content ?? '';
 
@@ -256,7 +259,7 @@ describe('the plan, existing mode', () => {
 			'.husky/pre-commit': `#!/usr/bin/env sh\necho custom\nnpm test\n`
 		});
 
-		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), {});
+		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), { harness: false });
 		const entry = entryFor(plan, '.husky/pre-commit');
 
 		expect(entry?.action).toBe('update');
@@ -272,14 +275,14 @@ describe('the plan, existing mode', () => {
 		};
 
 		const dir = await makeProject(files);
-		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), {});
+		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), { harness: false });
 
 		expect(entryFor(plan, '.husky/pre-commit')).toBeUndefined();
 	});
 
 	it('never plans tsconfig.json, src/main.ts or pnpm-workspace.yaml in existing mode', async () => {
 		const dir = await makeProject(BASIC_EXISTING);
-		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), {});
+		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), { harness: false });
 
 		const paths = plan.entries.map((entry) => {
 			return entry.path;
@@ -296,7 +299,7 @@ describe('the plan, existing mode', () => {
 			'eslint.config.mjs': 'old\n'
 		});
 
-		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), {});
+		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), { harness: false });
 
 		expect(entryFor(plan, 'eslint.config.mjs')).toEqual({
 			action: 'update',
@@ -319,7 +322,11 @@ describe('the plan, existing mode', () => {
 			'.commitlintrc.json': '{}\n'
 		});
 
-		const plan = buildInitPlan(existingPreflight(dir, packageJson), { force: true });
+		const plan = buildInitPlan(existingPreflight(dir, packageJson), {
+			force: true,
+			harness: false
+		});
+
 		const merged = JSON.parse(entryFor(plan, 'package.json')?.content ?? '{}') as Record<string, unknown>;
 
 		expect(merged['prettier']).toBeUndefined();
@@ -339,7 +346,7 @@ describe('the plan, existing mode', () => {
 
 	it('renders +, ~ and - in the plan list', async () => {
 		const dir = await makeProject(BASIC_EXISTING);
-		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), {});
+		const plan = buildInitPlan(existingPreflight(dir, BASIC_PACKAGE_JSON), { harness: false });
 		const rendered = renderPlan(plan);
 
 		expect(rendered).toContain(`~ package.json`);
@@ -364,7 +371,7 @@ describe('merging pnpm-workspace.yaml, existing mode with pnpm', () => {
 
 	it('creates the file when absent, with only the allowBuilds entries', async () => {
 		const dir = await makeProject(BASIC_EXISTING);
-		const plan = buildInitPlan(pnpmPreflight(dir), {});
+		const plan = buildInitPlan(pnpmPreflight(dir), { harness: false });
 
 		expect(entryFor(plan, 'pnpm-workspace.yaml')).toEqual({
 			action: 'create',
@@ -381,7 +388,7 @@ describe('merging pnpm-workspace.yaml, existing mode with pnpm', () => {
 			'pnpm-workspace.yaml': raw
 		});
 
-		const plan = buildInitPlan(pnpmPreflight(dir), {});
+		const plan = buildInitPlan(pnpmPreflight(dir), { harness: false });
 
 		expect(entryFor(plan, 'pnpm-workspace.yaml')).toEqual({
 			action: 'update',
@@ -396,7 +403,7 @@ describe('merging pnpm-workspace.yaml, existing mode with pnpm', () => {
 			'pnpm-workspace.yaml': 'allowBuilds:\n  esbuild: true\n  unrs-resolver: true\n'
 		});
 
-		const plan = buildInitPlan(pnpmPreflight(dir), {});
+		const plan = buildInitPlan(pnpmPreflight(dir), { harness: false });
 
 		expect(entryFor(plan, 'pnpm-workspace.yaml')).toBeUndefined();
 	});
@@ -456,7 +463,7 @@ describe('the package name in create mode', () => {
 				...createPreflight('/tmp/nowhere'),
 				projectName: 'My App'
 			},
-			{}
+			{ harness: false }
 		);
 
 		expect(entryFor(plan, 'package.json')?.content).toContain('"name": "my-app"');
@@ -469,7 +476,7 @@ describe('the package name in create mode', () => {
 				...createPreflight('/tmp/nowhere'),
 				projectName: '  a  b__c  '
 			},
-			{}
+			{ harness: false }
 		);
 
 		expect(entryFor(plan, 'package.json')?.content).toContain('"name": "a-b__c"');
@@ -482,7 +489,7 @@ describe('the package name in create mode', () => {
 					...createPreflight('/tmp/nowhere'),
 					projectName: 'برنامج'
 				},
-				{}
+				{ harness: false }
 			);
 		}).toThrow('Not a valid package name: برنامج');
 	});
@@ -531,7 +538,7 @@ describe('sorting the plan list', () => {
 				...createPreflight('/tmp/nowhere'),
 				pm: 'pnpm'
 			},
-			{}
+			{ harness: false }
 		);
 
 		expect(renderedPaths(plan)).toEqual([
@@ -553,7 +560,7 @@ describe('sorting the plan list', () => {
 	});
 
 	it('renders the npm create list without pnpm-workspace.yaml', () => {
-		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), {});
+		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false });
 
 		expect(renderedPaths(plan)).toEqual([
 			'.husky/commit-msg',
@@ -573,7 +580,10 @@ describe('sorting the plan list', () => {
 	});
 
 	it('renders the --no-vscode create list without the .vscode entries', () => {
-		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), { vscode: false });
+		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), {
+			vscode: false,
+			harness: false
+		});
 
 		expect(renderedPaths(plan)).toEqual([
 			'.husky/commit-msg',
@@ -600,7 +610,8 @@ describe('sorting the plan list', () => {
 		});
 
 		const plan = buildInitPlan(existingPreflight(dir, '{"name":"x","prettier":{"singleQuote":true}}'), {
-			force: true
+			force: true,
+			harness: false
 		});
 
 		expect(
@@ -694,7 +705,7 @@ describe('rendering the plan', () => {
 	it('colours the marks and the folder part of a path when colour is forced', () => {
 		process.env['FORCE_COLOR'] = '1';
 
-		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), {});
+		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false });
 		const rendered = renderPlan(plan);
 
 		expect(rendered).toContain(`${ESC}[32m+${ESC}[39m package.json`);
@@ -702,7 +713,7 @@ describe('rendering the plan', () => {
 	});
 
 	it('stays plain without colour', () => {
-		const rendered = renderPlan(buildInitPlan(createPreflight('/tmp/nowhere'), {}));
+		const rendered = renderPlan(buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false }));
 
 		expect(rendered).toContain('+ package.json');
 		expect(rendered).toContain('src/main.ts');
@@ -712,7 +723,7 @@ describe('rendering the plan', () => {
 	it('counts each action in its mark colour and leaves zero counts out', () => {
 		process.env['FORCE_COLOR'] = '1';
 
-		const createPlan = buildInitPlan(createPreflight('/tmp/nowhere'), {});
+		const createPlan = buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false });
 		const heading = renderPlanHeading(createPlan, 'my-app');
 
 		expect(heading).toContain(`Changes in my-app: ${ESC}[32m13 to create${ESC}[39m`);
@@ -747,7 +758,7 @@ describe('rendering the plan', () => {
 	});
 
 	it('keeps the heading plain without colour', () => {
-		const heading = renderPlanHeading(buildInitPlan(createPreflight('/tmp/nowhere'), {}), 'my-app');
+		const heading = renderPlanHeading(buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false }), 'my-app');
 
 		expect(heading).toBe('Changes in my-app: 13 to create');
 		expect(heading).not.toContain(ESC);

@@ -1,11 +1,13 @@
-import { execFile } from 'node:child_process';
+import { execFile, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
-import { cp, mkdtemp, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
 import { afterAll, describe, expect, it } from 'vitest';
+
+import { harnessInstallEntries } from '@/modules/harness/install-plan.service';
 
 // Needs the network for the installs and every manager on PATH, so it stays out of the default
 // `pnpm test`: run it alone with `INIT_E2E=1 pnpm vitest run tests/init.e2e.test.ts` after a build
@@ -53,6 +55,30 @@ const DECIDED_FILES = [
 	'src/main.ts',
 	'tsconfig.json'
 ];
+
+const HARNESS_FILES = harnessInstallEntries({
+	mode: 'create',
+	agentKit: false,
+	claudeMd: null,
+	settingsJson: null
+})
+	.map((entry) => {
+		return entry.path;
+	})
+	.toSorted();
+
+const runHook = (project: string, payload: Record<string, unknown>): { stdout: string; code: number } => {
+	const result = spawnSync(process.execPath, [join(project, '.harness/bin/harness-hook.mjs')], {
+		cwd: project,
+		input: JSON.stringify(payload),
+		encoding: 'utf8'
+	});
+
+	return {
+		stdout: result.stdout ?? '',
+		code: result.status ?? -1
+	};
+};
 
 const LOCKFILES: Record<Manager, string> = {
 	bun: 'bun.lock',
@@ -164,11 +190,99 @@ describe.runIf(enabled)('init end to end', () => {
 
 			expect(readFileSync(packageJsonPath, 'utf8')).toBe(before);
 
-			const decided = (pm === 'pnpm' ? [...DECIDED_FILES, 'pnpm-workspace.yaml'] : DECIDED_FILES).toSorted();
+			const decided = (
+				pm === 'pnpm'
+					? [...DECIDED_FILES, 'pnpm-workspace.yaml', ...HARNESS_FILES]
+					: [...DECIDED_FILES, ...HARNESS_FILES]
+			).toSorted();
 
 			expect(listInitFiles(project, pm)).toEqual(decided);
 
+			const hook = runHook(project, {
+				hook_event_name: 'SessionStart',
+				session_id: 'e2e',
+				source: 'startup'
+			});
+
+			expect(hook.code).toBe(0);
+
+			const hookOutput = JSON.parse(hook.stdout) as {
+				hookSpecificOutput: { hookEventName: string; additionalContext: string };
+			};
+
+			expect(hookOutput.hookSpecificOutput.hookEventName).toBe('SessionStart');
+			expect(hookOutput.hookSpecificOutput.additionalContext).toContain('# Harness memory');
+
 			console.log(`[init e2e] ${pm}: ${((Date.now() - started) / 1000).toFixed(1)}s`);
+		},
+		TIMEOUT
+	);
+
+	it(
+		'writes exactly the previous toolchain with --no-harness',
+		async () => {
+			const project = join(root, 'my-app-noharness');
+
+			await run('node', [CLI, 'init', 'my-app-noharness', '--pm', 'npm', '--no-harness', '-y'], {
+				cwd: root,
+				timeout: TIMEOUT
+			});
+
+			expect(listInitFiles(project, 'npm')).toEqual([...DECIDED_FILES].toSorted());
+		},
+		TIMEOUT
+	);
+
+	it(
+		'runs ak init with --agent-kit and a stub ak, and exits 1 without one',
+		async () => {
+			const stub = join(root, 'ak-stub');
+			const calls = join(stub, 'calls.log');
+
+			await mkdir(stub, { recursive: true });
+			await writeFile(
+				join(stub, 'ak'),
+				`#!/bin/sh
+echo "$@" >> ${JSON.stringify(calls)}
+[ "$1" = "--version" ] && echo ak 1.0.0
+exit 0
+`,
+				{ mode: 0o755 }
+			);
+
+			const withStub = {
+				...process.env,
+				PATH: `${stub}:${process.env['PATH'] ?? ''}`
+			};
+
+			const missing = await run(process.execPath, [CLI, 'init', 'no-ak', '--pm', 'npm', '--agent-kit', '-y'], {
+				cwd: root,
+				env: {
+					...process.env,
+					PATH: '/usr/bin:/bin'
+				}
+			}).then(
+				() => {
+					return 'ok';
+				},
+				(error: { stderr?: string }) => {
+					return error.stderr ?? '';
+				}
+			);
+
+			expect(missing).toContain('ak is not installed');
+			expect(existsSync(join(root, 'no-ak'))).toBe(false);
+
+			const project = join(root, 'with-ak');
+
+			await run(process.execPath, [CLI, 'init', 'with-ak', '--pm', 'npm', '--agent-kit', '-y'], {
+				cwd: root,
+				env: withStub,
+				timeout: TIMEOUT
+			});
+
+			expect(readFileSync(calls, 'utf8')).toContain('init --docs-dir .harness/docs --plans-dir .harness/plans');
+			expect(listInitFiles(project, 'npm')).toEqual([...DECIDED_FILES, ...HARNESS_FILES].toSorted());
 		},
 		TIMEOUT
 	);

@@ -62,6 +62,17 @@ describe('init argument rules', () => {
 		await removeDir(dir);
 	});
 
+	it('exits 1 for --agent-kit with --no-harness', () => {
+		expect(
+			messageOf(() => {
+				validateInitArguments([], {
+					agentKit: true,
+					harness: false
+				});
+			})
+		).toBe('Option --agent-kit needs the harness');
+	});
+
 	it('picks create mode with <dir> and existing mode without', () => {
 		expect(resolveInitMode(['my-app'])).toBe('create');
 		expect(resolveInitMode([])).toBe('existing');

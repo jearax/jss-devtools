@@ -4,6 +4,7 @@ import { styleText } from 'node:util';
 import { confirm, intro, isCancel, log, outro, select } from '@clack/prompts';
 import { Option } from 'commander';
 
+import { AGENT_KIT_INIT_COMMAND_LINE, agentKitInit } from '@/core/adapters/agent-kit.adapter';
 import { installPackages, localBinCommandLine, runLocalBin } from '@/core/adapters/package-manager.adapter';
 import { COMMON_OPTIONS } from '@/core/constants/common-option.constant';
 import { PACKAGE } from '@/core/constants/package.constant';
@@ -42,6 +43,7 @@ const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools init my-app --pm pnpm -y', 'Create my-app with pnpm, no questions (CI)'],
 	['jss-devtools init', 'Set up the project in the current folder'],
 	['jss-devtools init -f', 'Replace existing ESLint, Prettier and commitlint configs'],
+	['jss-devtools init --no-harness', 'Set up the toolchain without the harness'],
 	['jss-devtools init --dry-run', 'Show what would change, write nothing']
 ];
 
@@ -85,6 +87,8 @@ export const registerInitCommand = (program: Command): void => {
 			'Replace existing ESLint, Prettier, commitlint and editor configs (init stops and lists them; default: off)'
 		)
 		.option('--no-vscode', 'Do not write .vscode/ (default: written)')
+		.option('--no-harness', 'Do not install the harness (default: installed)')
+		.option('--agent-kit', 'Point AgentKit at .harness/docs and .harness/plans; needs ak (default: off)')
 		.option(COMMON_OPTIONS.yes.flags, COMMON_OPTIONS.yes.description)
 		.option(COMMON_OPTIONS.dryRun.flags, COMMON_OPTIONS.dryRun.description)
 		.addHelpText('after', examplesText)
@@ -269,7 +273,26 @@ const runInit = async (dirArg: string | undefined, options: InitOptions, command
 		}
 	]);
 
+	if (options.harness !== false && options.agentKit === true) {
+		const ok = await agentKitInit(plan.targetDir);
+
+		if (!ok) {
+			throw new CliError('AgentKit setup failed; the files are written', {
+				label: 'To finish:',
+				commands: nextStepCommands(preflight, relativeTarget, AGENT_KIT_INIT_COMMAND_LINE)
+			});
+		}
+	}
+
 	const nextCommand = preflight.mode === 'create' ? `${preflight.pm} run dev` : `${preflight.pm} run format`;
 
-	outro(['Next steps', ...nextStepLines(nextStepCommands(preflight, relativeTarget, nextCommand))].join('\n'));
+	outro(
+		[
+			'Next steps',
+			...(options.harness !== false
+				? ['     The harness is installed; open Claude Code in the project folder to onboard.']
+				: []),
+			...nextStepLines(nextStepCommands(preflight, relativeTarget, nextCommand))
+		].join('\n')
+	);
 };

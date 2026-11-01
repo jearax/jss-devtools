@@ -106,6 +106,16 @@ it writes, through the project's own installed copy.
 > Asked whether existing mode should also add `strictPeerDependencies` and `engineStrict`, the user
 > chose "Không thêm" (2026-10-27).
 
+## Amendment: the harness is installed by default (2026-11-01)
+
+> "--harness trong command init giá trị default là true. --agent-kit gía trị default là false."
+> (user, 2026-11-01)
+
+`jss-devtools init` installs the repository harness by default; `--no-harness` keeps the behavior
+this decision describes. The full record is
+[0031](./0031-init-installs-the-harness.md). `--harness` as a separate non-goal no longer applies:
+the harness is inside this flow, not outside it.
+
 ## Known limits
 
 **Native Windows is not supported.** Decided 2026-10-28: nothing is built for it; WSL is Linux and

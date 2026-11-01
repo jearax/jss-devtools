@@ -5,6 +5,8 @@ import { styleText } from 'node:util';
 import { localBinCommandLine } from '@/core/adapters/package-manager.adapter';
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
+import { CLAUDE_MD, CLAUDE_SETTINGS } from '@/modules/harness/constants/harness-paths.constant';
+import { harnessInstallEntries } from '@/modules/harness/install-plan.service';
 
 import { CONFIG_NAMES } from './constants/config-name.constant';
 import { mergeHook, mergeLines, mergePackageJson, mergePnpmWorkspaceYaml } from './merge.service';
@@ -235,12 +237,51 @@ const existingModeEntries = (preflight: InitPreflight, options: InitOptions): re
 	return entries;
 };
 
+const harnessEntries = (preflight: InitPreflight, options: InitOptions): readonly PlanEntry[] => {
+	if (options.harness === false) {
+		return [];
+	}
+
+	const claudeMd = readIfExists(preflight.targetDir, CLAUDE_MD);
+	const settingsJson = readIfExists(preflight.targetDir, CLAUDE_SETTINGS);
+
+	return harnessInstallEntries({
+		mode: preflight.mode,
+		agentKit: options.agentKit === true,
+		claudeMd,
+		settingsJson
+	}).flatMap((file) => {
+		const current =
+			file.path === CLAUDE_MD
+				? claudeMd
+				: file.path === CLAUDE_SETTINGS
+					? settingsJson
+					: readIfExists(preflight.targetDir, file.path);
+
+		if (current !== null && current === file.content) {
+			return [];
+		}
+
+		return [
+			{
+				action: current === null ? ('create' as const) : ('update' as const),
+				path: file.path,
+				content: file.content
+			}
+		];
+	});
+};
+
 export const buildInitPlan = (preflight: InitPreflight, options: InitOptions): InitPlan => {
 	return {
 		mode: preflight.mode,
 		targetDir: preflight.targetDir,
-		entries:
-			preflight.mode === 'create' ? createModeEntries(preflight, options) : existingModeEntries(preflight, options)
+		entries: [
+			...(preflight.mode === 'create'
+				? createModeEntries(preflight, options)
+				: existingModeEntries(preflight, options)),
+			...harnessEntries(preflight, options)
+		]
 	};
 };
 

@@ -560,3 +560,165 @@ describe('preflight, existing mode', () => {
 		expect(result.mode).toBe('existing');
 	});
 });
+
+const BLOCK_BEGIN = '<!-- HARNESS:BEGIN -->';
+const HOOK_LINE = '.harness/bin/harness-hook.mjs';
+
+describe('preflight, the harness', () => {
+	it('exits 1 listing every harness path that is already there, and the folder is unchanged', async () => {
+		const dir = await makeGitProject({
+			...EXISTING_PROJECT,
+			'CLAUDE.md': '# Mine\n',
+			'.claude/settings.json': '{"hooks":{}}\n'
+		});
+
+		await mkdir(join(dir, '.harness'), { recursive: true });
+		await mkdir(join(dir, '.claude/skills/harness-review'), { recursive: true });
+		const before = snapshotDir(dir);
+
+		expect(
+			await failureMessage(() => {
+				return preflightInit(dir, [], {});
+			})
+		).toBe('Already set up: .harness/, .claude/skills/harness-review/');
+		expectUnchanged(dir, before);
+	});
+
+	it('exits 1 on the block markers in CLAUDE.md and on a harness hook in settings.json', async () => {
+		const withBlock = await makeGitProject({
+			...EXISTING_PROJECT,
+			'CLAUDE.md': `# Mine\n${BLOCK_BEGIN}\nrules\n<!-- HARNESS:END -->\n`
+		});
+
+		expect(
+			await failureMessage(() => {
+				return preflightInit(withBlock, [], {});
+			})
+		).toBe('Already set up: the harness block in CLAUDE.md');
+
+		const withHooks = await makeGitProject({
+			...EXISTING_PROJECT,
+			'.claude/settings.json': JSON.stringify({
+				hooks: {
+					SessionStart: [
+						{
+							hooks: [
+								{
+									type: 'command',
+									command: HOOK_LINE
+								}
+							]
+						}
+					]
+				}
+			})
+		});
+
+		expect(
+			await failureMessage(() => {
+				return preflightInit(withHooks, [], {});
+			})
+		).toBe('Already set up: harness hooks in .claude/settings.json');
+	});
+
+	it('ignores harness paths with --no-harness', async () => {
+		const dir = await makeGitProject({ ...EXISTING_PROJECT });
+
+		await mkdir(join(dir, '.harness'), { recursive: true });
+
+		const result = await preflightInit(dir, [], { harness: false });
+
+		expect(result.mode).toBe('existing');
+	});
+
+	it('passes harness paths with -f', async () => {
+		const dir = await makeGitProject({ ...EXISTING_PROJECT });
+
+		await mkdir(join(dir, '.harness'), { recursive: true });
+
+		const result = await preflightInit(dir, [], { force: true });
+
+		expect(result.mode).toBe('existing');
+	});
+
+	it('exits 1 when CLAUDE.md or .claude/settings.json is a symlink, and the folder is unchanged', async () => {
+		for (const name of ['CLAUDE.md', '.claude/settings.json']) {
+			const dir = await makeGitProject({ ...EXISTING_PROJECT });
+
+			await mkdir(dirname(join(dir, name)), { recursive: true });
+			await symlink(join(dir, 'target'), join(dir, name));
+			dirs.push(join(dir, 'target'));
+			await writeFile(join(dir, 'target'), 'x\n');
+			const before = snapshotDir(dir);
+
+			expect(
+				await failureMessage(() => {
+					return preflightInit(dir, [], {});
+				})
+			).toBe(`${name} is a symlink`);
+			expectUnchanged(dir, before);
+		}
+	});
+
+	it('exits 1 naming the parse error for a .claude/settings.json that does not parse', async () => {
+		const dir = await makeGitProject({
+			...EXISTING_PROJECT,
+			'.claude/settings.json': '{oops'
+		});
+
+		const before = snapshotDir(dir);
+		let parseError = '';
+
+		try {
+			JSON.parse('{oops');
+		} catch (error) {
+			parseError = (error as Error).message;
+		}
+
+		expect(
+			await failureMessage(() => {
+				return preflightInit(dir, [], {});
+			})
+		).toBe(`Invalid JSON in .claude/settings.json: ${parseError}`);
+		expectUnchanged(dir, before);
+	});
+
+	it('exits 1 before any write when --agent-kit is passed and ak is missing', async () => {
+		const dir = await makeGitProject({ ...EXISTING_PROJECT });
+		const empty = await makeEmptyDir();
+
+		dirs.push(empty);
+
+		await withPath([empty], async () => {
+			const before = snapshotDir(dir);
+
+			expect(
+				await failureMessage(() => {
+					return preflightInit(dir, [], { agentKit: true });
+				})
+			).toBe('ak is not installed');
+			expectUnchanged(dir, before);
+		});
+	});
+
+	it('checks ak in create mode too, and never runs it without the flag', async () => {
+		const dir = await makeEmptyDir();
+
+		dirs.push(dir);
+		const empty = await makeEmptyDir();
+
+		dirs.push(empty);
+
+		await withPath([empty], async () => {
+			expect(
+				await failureMessage(() => {
+					return preflightInit(process.cwd(), [dir], { agentKit: true });
+				})
+			).toBe('ak is not installed');
+		});
+
+		const result = await preflightInit(process.cwd(), [dir], {});
+
+		expect(result.mode).toBe('create');
+	});
+});

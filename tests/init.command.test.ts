@@ -78,6 +78,9 @@ Options:
   --force, -f         Replace existing ESLint, Prettier, commitlint and editor
                       configs (init stops and lists them; default: off)
   --no-vscode         Do not write .vscode/ (default: written)
+  --no-harness        Do not install the harness (default: installed)
+  --agent-kit         Point AgentKit at .harness/docs and .harness/plans; needs
+                      ak (default: off)
   --yes, -y           Skip the questions and use the defaults (asks in a
                       terminal; default: off)
   --dry-run           Show what would change; write and install nothing
@@ -89,6 +92,7 @@ Examples:
   $ jss-devtools init my-app --pm pnpm -y Create my-app with pnpm, no questions (CI)
   $ jss-devtools init                     Set up the project in the current folder
   $ jss-devtools init -f                  Replace existing ESLint, Prettier and commitlint configs
+  $ jss-devtools init --no-harness        Set up the toolchain without the harness
   $ jss-devtools init --dry-run           Show what would change, write nothing
 `;
 
@@ -183,7 +187,7 @@ describe('the init command', () => {
 
 		const { stdout } = await runInit('--dry-run');
 
-		expect(stdout).toContain(': 10 to create; 1 to update');
+		expect(stdout).toContain(': 48 to create; 1 to update');
 		expect(stdout).toContain('+ .prettierrc.json');
 		expect(stdout).toContain('Dry run: nothing written\n   To apply:\n     $ jss-devtools init');
 		expect(stdout).not.toContain('would be written');
@@ -322,7 +326,7 @@ describe('the init command', () => {
 		interactivity.enabled = true;
 		answers.confirm = false;
 
-		await runInit('-f');
+		await runInit('-f', '--no-harness');
 
 		expect(confirmCalls[0]?.message).toBe(`Write 11 files; delete 1 in ${basename(dir)} and install?`);
 	});

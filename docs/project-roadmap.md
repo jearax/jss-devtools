@@ -115,6 +115,20 @@ Decision: [0030](./decisions/0030-init-node-preset.md); the discussion history i
   required; yarn 1 and bun skipped where absent), gated behind `INIT_E2E=1` because it installs
   from the registry.
 
+## Done: init installs the harness
+
+Plan: [../plans/261101-0204-init-harness/plan.md](../plans/261101-0204-init-harness/plan.md),
+phase 4. Decisions: [0030](./decisions/0030-init-node-preset.md) (amended),
+[0031](./decisions/0031-init-installs-the-harness.md).
+
+- `jss-devtools init` installs the repository harness by default in both modes: the `CLAUDE.md`
+  block, `.harness/` (memory, bootstrap, decisions, docs, plans, templates, config, hook code,
+  manifest and base copies), three `harness-*` skills and the five hook entries in
+  `.claude/settings.json`. `--no-harness` writes exactly what init wrote before; `--agent-kit`
+  only runs `ak init --docs-dir .harness/docs --plans-dir .harness/plans` after the install and
+  changes no harness file. Every harness check runs in preflight, before the first write.
+- `harness update` (phases 5 and 6) is not started.
+
 ## Not started
 
 Each of these needs its own plan before implementation. Open questions that will shape them are

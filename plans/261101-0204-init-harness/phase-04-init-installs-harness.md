@@ -1,7 +1,7 @@
 ---
 phase: 4
 title: "init installs the harness"
-status: pending
+status: done
 priority: P1
 effort: "1.5d"
 dependencies: [2, 3]
@@ -18,7 +18,9 @@ preflight, plan, dry run, confirmation and writes.
 
 Decision log sections "Harness is on by default, AgentKit is off", "`--harness` runs inside the
 init flow", "Harness flags depend on `--harness`", "`--agent-kit` follows the prototype's decision
-0013", "`.harness/config.json` holds the harness settings". Init's flow and its rules are in
+0013" as amended by "No variant files" and "With AgentKit, the harness defers to it", "Onboarding
+does not commit", "`.harness/config.json` holds the harness settings". The approved file contents are
+the drafts under `content/`. Init's flow and its rules are in
 decision 0030 and `src/commands/init/`.
 
 ## Flags
@@ -50,13 +52,14 @@ them. The module knows nothing of commander or clack.
 
 - Every file of the design proposal's table, from the `.template.ts` files encoding the drafts the
   user approved in phase 2. One copy of each; AgentKit changes no file the harness writes.
-- `.harness/bin/hooks.mjs` from the embedded text; `.harness/bin/harness-hook.mjs` from the shim
+- `.harness/bin/hooks.mjs` from `harnessHookBundle` (`src/modules/harness/constants/hook-bundle.constant.ts`),
+  imported by the install plan so tree-shaking keeps it in `cli.mjs`; `.harness/bin/harness-hook.mjs` from the shim
   template.
 - `CLAUDE.md`: created with only the block when missing; otherwise the block appended after one
   blank line.
 - `.claude/settings.json`: harness entries added, every other key and hook kept, key order kept.
-- `.harness/core/manifest.json`: CLI version, AgentKit on or off, each managed, block and config
-  path with its kind and sha256. `.harness/core/base/**`: the installed text of each.
+- `.harness/core/manifest.json`: CLI version, each managed, block and config path with its kind
+  and sha256. Nothing about AgentKit (decision log, "No variant files"). `.harness/core/base/**`: the installed text of each.
 - `BOOTSTRAP.md`: the create-mode or existing-mode copy.
 - The "Nothing to change" early return counts harness entries.
 
@@ -82,7 +85,8 @@ them. The module knows nothing of commander or clack.
 ## Docs
 
 Decision 0030 gains an amendment for the new default with the user's quote; a new decision record
-`0031` for the harness install (folders, kinds, AgentKit as 0013, the CLI never commits), quoting
+`0031` for the harness install (folders, kinds, `--agent-kit` only runs `ak init` and changes no harness file, the CLI never
+commits), quoting
 the decision log; `docs/system-architecture.md`, `docs/codebase-summary.md`,
 `docs/project-roadmap.md`.
 
