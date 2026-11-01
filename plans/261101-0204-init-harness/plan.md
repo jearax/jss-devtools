@@ -1,7 +1,7 @@
 ---
 title: "init installs the harness; harness update keeps it current"
 description: "jss-devtools init installs the repository harness by default (--no-harness, --agent-kit), jss-devtools harness update merges a newer harness into a repository, staging conflicts for --continue or --abort, and jss-devtools harness doctor checks it."
-status: in-progress
+status: completed
 priority: P1
 effort: 7.5d
 branch: main

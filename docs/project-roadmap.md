@@ -144,6 +144,19 @@ phase 5. Decision: [0032](./decisions/0032-harness-update.md).
   refuses copies that still hold markers, `--abort` discards. A conflict run asks no question,
   so the agent workflow works without a terminal.
 
+## Done: harness doctor
+
+Plan: [../plans/261101-0204-init-harness/plan.md](../plans/261101-0204-init-harness/plan.md),
+phase 7. Decision: [0033](./decisions/0033-harness-doctor.md).
+
+- `jss-devtools harness doctor` checks the harness installed in the current repository, read-only:
+  the manifest, the `CLAUDE.md` block, the harness hook entries in `.claude/settings.json`, the
+  hook files under `.harness/bin`, `config.json`, memory limits, index drift, decision records,
+  secrets in `.harness/`, learned skills, managed-file drift, staged updates and, with AgentKit,
+  uncommitted `ak-*` skill edits. It prints a summary plus one row per issue and exits 1 when any
+  issue is an error; `--help` lists the checks and the exit codes. Every rule lives once in
+  `src/modules/harness/services/health-*.service.ts`, shared with the hooks and `harness update`.
+
 ## Not started
 
 Each of these needs its own plan before implementation. Open questions that will shape them are

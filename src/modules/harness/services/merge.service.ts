@@ -120,6 +120,43 @@ const mergeIntoSettings = (parsed: Record<string, unknown>, hooks: HooksObject):
 	};
 };
 
+export const missingHookEntries = (raw: string | null): readonly string[] => {
+	let parsed: Record<string, unknown>;
+
+	try {
+		parsed = raw === null ? {} : (JSON.parse(raw) as Record<string, unknown>);
+	} catch {
+		return ['settings.json is not valid JSON'];
+	}
+
+	const missing: string[] = [];
+
+	for (const entry of hookSettingEntries) {
+		const list = parsed['hooks'];
+
+		const items =
+			typeof list === 'object' && list !== null && Array.isArray((list as HooksObject)[entry.event])
+				? ((list as HooksObject)[entry.event] as unknown[])
+				: [];
+
+		const present = items.some((item) => {
+			const inner = (item as { hooks?: unknown })?.hooks;
+
+			return (Array.isArray(inner) ? inner : []).some((hook) => {
+				const command = (hook as { command?: unknown })?.command;
+
+				return typeof command === 'string' && command === entry.command;
+			});
+		});
+
+		if (!present) {
+			missing.push(`${entry.event}${entry.matcher === null ? '' : ` (${entry.matcher})`}`);
+		}
+	}
+
+	return missing;
+};
+
 export const mergeHarnessSettings = (raw: string | null): string => {
 	const hooks = buildHarnessHooks();
 

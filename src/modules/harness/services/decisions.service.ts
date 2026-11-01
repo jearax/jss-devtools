@@ -11,43 +11,38 @@ export type DecisionInfo = {
 const DECISION_FILE = /^(\d{4})-.+\.md$/;
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
+export const frontmatterOf = (text: string): string => {
+	return text.match(FRONTMATTER)?.[1] ?? '';
+};
+
 const frontmatterValue = (block: string, key: string): string => {
 	const match = block.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
 
 	return match?.[1]?.trim() ?? '';
 };
 
-const frontmatterOf = (text: string): string => {
-	return text.match(FRONTMATTER)?.[1] ?? '';
+export const decisionFileIds = (root: string): string[] => {
+	return decisionFileNames(root).map((name) => {
+		return name.slice(0, 4);
+	});
 };
 
-export const decisionFileIds = (root: string): string[] => {
+export const decisionFileNames = (root: string): string[] => {
 	const dir = join(root, HARNESS_DECISIONS_DIR);
 
 	if (!existsSync(dir)) {
 		return [];
 	}
 
-	return readdirSync(dir)
-		.filter((name) => {
-			return DECISION_FILE.test(name);
-		})
-		.map((name) => {
-			return name.slice(0, 4);
-		});
+	return readdirSync(dir).filter((name) => {
+		return DECISION_FILE.test(name);
+	});
 };
 
 export const decisionsInForce = (root: string): DecisionInfo[] => {
 	const dir = join(root, HARNESS_DECISIONS_DIR);
 
-	if (!existsSync(dir)) {
-		return [];
-	}
-
-	return readdirSync(dir)
-		.filter((name) => {
-			return DECISION_FILE.test(name);
-		})
+	return decisionFileNames(root)
 		.map((name) => {
 			const text = readFileSync(join(dir, name), 'utf8');
 			const frontmatter = frontmatterOf(text);

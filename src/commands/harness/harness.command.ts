@@ -3,6 +3,7 @@ import { styleText } from 'node:util';
 import { COMMON_OPTIONS } from '@/core/constants/common-option.constant';
 import { helpTitle } from '@/core/ui/terminal.ui';
 
+import { runHarnessDoctor } from './doctor.command';
 import { runHarnessUpdate } from './update.command';
 
 import type { Command } from 'commander';
@@ -33,6 +34,21 @@ const examplesText = (): string => {
 	].join('\n');
 };
 
+const DOCTOR_CHECKS = `Checks the harness installed in this repository: the manifest in .harness/core/,
+the harness block in CLAUDE.md, the harness hook entries in .claude/settings.json, the hook files
+under .harness/bin, config.json, memory limits, index drift, decision records, secrets in .harness/,
+learned skills, managed-file drift, staged updates, and (with AgentKit) uncommitted ak skill edits.
+
+Exit codes: 0 when the harness is healthy or has warnings only, 1 when any check fails.`;
+
+const registerDoctor = (harness: Command): void => {
+	harness
+		.command('doctor')
+		.description('Check the harness installed in this repository')
+		.addHelpText('after', DOCTOR_CHECKS)
+		.action(runHarnessDoctor);
+};
+
 const registerUpdate = (harness: Command): void => {
 	harness
 		.command('update')
@@ -55,5 +71,6 @@ export const registerHarnessCommand = (program: Command): void => {
 		harness.help();
 	});
 
+	registerDoctor(harness);
 	registerUpdate(harness);
 };

@@ -30,14 +30,16 @@ src/
    └─ harness/                one folder per command
       ├─ harness.command.ts   the `harness` group wiring and its help examples
       ├─ update.command.ts    the update flow: preflight, plan, render, confirm, stage, apply
-      ├─ services/            the update renderer
+      ├─ doctor.command.ts    the doctor flow: collect the issues, render, exit 1 on any error
+      ├─ services/            the update renderer and the health collector
       └─ types/               the flag types
 └─ modules/
    └─ harness/                the repository-harness hook program; imports core only
       ├─ harness-hook.entry.ts  the entry Claude Code runs: stdin in, one JSON line out, exit 0 always
       ├─ hooks/                 one pure handler per hook event
       ├─ services/              the module's services: install plan, the update flow, block region,
-      │                         three-way merge, config merge, staging, config, memory, session log
+      │                         three-way merge, config merge, staging, config, memory, session log,
+      │                         the health checks `harness doctor` runs
       ├─ constants/             the state paths, the limits, the settings entries
       ├─ templates/             the shim template phase 4 installs
       └─ types/                 the hook payload and result types
