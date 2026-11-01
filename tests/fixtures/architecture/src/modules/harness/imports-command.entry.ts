@@ -1,4 +1,4 @@
-import { sample } from '../../commands/doctor/sample.service';
+import { sample } from '../../commands/doctor/services/sample.service';
 
 const message = sample();
 

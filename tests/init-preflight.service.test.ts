@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { preflightInit } from '@/commands/init/preflight.service';
+import { preflightInit } from '@/commands/init/services/preflight.service';
 
 import { snapshotDir } from './support/fs-snapshot';
 import { makeEmptyDir, removeDir } from './support/tmp-dir';

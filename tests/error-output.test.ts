@@ -5,10 +5,10 @@ import { promisify } from 'node:util';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { validateInitArguments } from '@/commands/init/init.service';
-import { derivePackageName } from '@/commands/init/plan.service';
-import { preflightInit } from '@/commands/init/preflight.service';
-import { applyInitPlan } from '@/commands/init/write.service';
+import { validateInitArguments } from '@/commands/init/services/init.service';
+import { derivePackageName } from '@/commands/init/services/plan.service';
+import { preflightInit } from '@/commands/init/services/preflight.service';
+import { applyInitPlan } from '@/commands/init/services/write.service';
 import { ExitCode } from '@/core/constants/exit-code.constant';
 import { CliError } from '@/core/errors/cli.error';
 import { renderError } from '@/core/ui/terminal.ui';

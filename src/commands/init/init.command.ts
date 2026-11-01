@@ -20,12 +20,12 @@ import {
 	taskLogSummary
 } from '@/core/ui/terminal.ui';
 
-import { validateInitArguments } from './init.service';
-import { buildInitPlan, planActionCounts, renderPlan, renderPlanHeading } from './plan.service';
-import { preflightInit } from './preflight.service';
-import { shellQuote } from './shell-quote.service';
+import { validateInitArguments } from './services/init.service';
+import { buildInitPlan, planActionCounts, renderPlan, renderPlanHeading } from './services/plan.service';
+import { preflightInit } from './services/preflight.service';
+import { shellQuote } from './services/shell-quote.service';
+import { applyInitPlan } from './services/write.service';
 import { PACKAGE_MANAGERS } from './templates/package-json.template';
-import { applyInitPlan } from './write.service';
 
 import type { PackageManagerName } from './templates/package-json.template';
 import type { InitOptions } from './types/init-options.type';

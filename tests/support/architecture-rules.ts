@@ -31,12 +31,14 @@ const ROLE_SUFFIXES: readonly (readonly [RegExp, readonly string[]])[] = [
 	[/^modules\/[^/]+\/templates\//, ['.template.ts']],
 	[/^modules\/[^/]+\/types\//, ['.type.ts']],
 	[/^modules\/[^/]+\/hooks\//, ['.hook.ts']],
-	[/^modules\/[^/]+\//, ['.service.ts', '.entry.ts']],
+	[/^modules\/[^/]+\/services\//, ['.service.ts']],
+	[/^modules\/[^/]+\//, ['.entry.ts']],
 	[/^commands\/[^/]+\/constants\//, ['.constant.ts']],
 	[/^commands\/[^/]+\/templates\//, ['.template.ts']],
 	[/^commands\/[^/]+\/checks\//, ['.check.ts']],
 	[/^commands\/[^/]+\/types\//, ['.type.ts']],
-	[/^commands\/[^/]+\//, ['.command.ts', '.service.ts']]
+	[/^commands\/[^/]+\/services\//, ['.service.ts']],
+	[/^commands\/[^/]+\//, ['.command.ts']]
 ];
 
 const isCommandFile = (logicalPath: string): boolean => {
@@ -164,7 +166,9 @@ export const rules: readonly ArchitectureRule[] = [
 			'tests/fixtures/architecture/src/modules/harness/legacy-helper.ts',
 			'tests/fixtures/architecture/src/modules/harness/hooks/legacy-helper.ts',
 			'tests/fixtures/architecture/src/commands/init/constants/legacy-helper.ts',
-			'tests/fixtures/architecture/src/commands/init/templates/legacy-helper.ts'
+			'tests/fixtures/architecture/src/commands/init/templates/legacy-helper.ts',
+			'tests/fixtures/architecture/src/commands/doctor/misplaced.service.ts',
+			'tests/fixtures/architecture/src/modules/harness/misplaced.service.ts'
 		]
 	},
 	{
@@ -195,7 +199,7 @@ export const rules: readonly ArchitectureRule[] = [
 		check: importsCommand,
 		allow: [],
 		reason: 'a module imports no command',
-		fixtures: ['tests/fixtures/architecture/src/modules/harness/imports-command.service.ts']
+		fixtures: ['tests/fixtures/architecture/src/modules/harness/services/imports-command.service.ts']
 	},
 	{
 		id: 'module-imports-no-other-module',
@@ -205,7 +209,7 @@ export const rules: readonly ArchitectureRule[] = [
 		check: importsOtherModule,
 		allow: [],
 		reason: 'a module imports nothing from another module',
-		fixtures: ['tests/fixtures/architecture/src/modules/other/imports-harness.service.ts']
+		fixtures: ['tests/fixtures/architecture/src/modules/other/services/imports-harness.service.ts']
 	},
 	{
 		id: 'command-imports-no-other-command',
@@ -215,7 +219,7 @@ export const rules: readonly ArchitectureRule[] = [
 		check: importsOtherCommand,
 		allow: [],
 		reason: 'a command imports nothing from another command',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/imports-other.service.ts']
+		fixtures: ['tests/fixtures/architecture/src/commands/doctor/services/imports-other.service.ts']
 	},
 	{
 		id: 'commander-in-command-files-only',
@@ -226,8 +230,8 @@ export const rules: readonly ArchitectureRule[] = [
 		allow: [],
 		reason: 'commander is wired in *.command.ts and in cli.ts',
 		fixtures: [
-			'tests/fixtures/architecture/src/commands/doctor/uses-commander.service.ts',
-			'tests/fixtures/architecture/src/modules/harness/uses-commander.service.ts'
+			'tests/fixtures/architecture/src/commands/doctor/services/uses-commander.service.ts',
+			'tests/fixtures/architecture/src/modules/harness/services/uses-commander.service.ts'
 		]
 	},
 	{
@@ -239,8 +243,8 @@ export const rules: readonly ArchitectureRule[] = [
 		allow: [],
 		reason: '@clack/prompts is rendered in *.ui.ts, in *.command.ts and in cli.ts',
 		fixtures: [
-			'tests/fixtures/architecture/src/commands/doctor/uses-clack.service.ts',
-			'tests/fixtures/architecture/src/modules/harness/uses-clack.service.ts'
+			'tests/fixtures/architecture/src/commands/doctor/services/uses-clack.service.ts',
+			'tests/fixtures/architecture/src/modules/harness/services/uses-clack.service.ts'
 		]
 	},
 	{
@@ -258,8 +262,8 @@ export const rules: readonly ArchitectureRule[] = [
 		allow: [],
 		reason: 'the terminal is written in *.ui.ts, in *.command.ts, in *.entry.ts and in cli.ts',
 		fixtures: [
-			'tests/fixtures/architecture/src/commands/doctor/writes-output.service.ts',
-			'tests/fixtures/architecture/src/modules/harness/writes-output.service.ts'
+			'tests/fixtures/architecture/src/commands/doctor/services/writes-output.service.ts',
+			'tests/fixtures/architecture/src/modules/harness/services/writes-output.service.ts'
 		]
 	},
 	{
@@ -270,7 +274,7 @@ export const rules: readonly ArchitectureRule[] = [
 		pattern: /from\s+['"]node:child_process['"]/,
 		allow: [],
 		reason: 'node:child_process is spawned only by core/utils/run-command.util.ts',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/spawns.service.ts']
+		fixtures: ['tests/fixtures/architecture/src/commands/doctor/services/spawns.service.ts']
 	},
 	{
 		id: 'runner-in-adapters-only',
@@ -280,7 +284,7 @@ export const rules: readonly ArchitectureRule[] = [
 		pattern: /from\s+['"][^'"]*run-command\.util(?:\.js)?['"]/,
 		allow: [],
 		reason: 'the command runner is called only by an adapter',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/uses-runner.service.ts']
+		fixtures: ['tests/fixtures/architecture/src/commands/doctor/services/uses-runner.service.ts']
 	},
 	{
 		id: 'no-process-exit-outside-entry-point',
@@ -290,7 +294,7 @@ export const rules: readonly ArchitectureRule[] = [
 		pattern: /\bprocess\s*\.\s*exit\s*\(/,
 		allow: ['cli.ts'],
 		reason: 'set process.exitCode in src/cli.ts instead, so failures stay non-zero',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/forbidden-process-exit.service.ts']
+		fixtures: ['tests/fixtures/architecture/src/commands/doctor/services/forbidden-process-exit.service.ts']
 	},
 	{
 		id: 'no-global-process-handlers-outside-entry-point',
@@ -300,7 +304,7 @@ export const rules: readonly ArchitectureRule[] = [
 		pattern: /\bprocess\s*\.\s*on\s*\(\s*['"](uncaughtException|unhandledRejection)['"]/,
 		allow: ['cli.ts'],
 		reason: 'global process handlers live in src/cli.ts and must not swallow failures',
-		fixtures: ['tests/fixtures/architecture/src/commands/doctor/forbidden-global-handler.service.ts']
+		fixtures: ['tests/fixtures/architecture/src/commands/doctor/services/forbidden-global-handler.service.ts']
 	},
 	{
 		id: 'entry-imports-own-module-and-core-only',

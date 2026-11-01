@@ -49,8 +49,8 @@ describe('the alias in the scanner', () => {
 
 	it('sees an aliased import of another command', () => {
 		const broken = rule?.check?.(
-			'commands/doctor/doctor.service.ts',
-			"import { other } from '@/commands/other/other.service';"
+			'commands/doctor/services/doctor.service.ts',
+			"import { other } from '@/commands/other/services/other.service';"
 		);
 
 		expect(broken).toBe(true);
@@ -58,7 +58,7 @@ describe('the alias in the scanner', () => {
 
 	it('leaves an aliased import of core alone', () => {
 		const broken = rule?.check?.(
-			'commands/doctor/doctor.service.ts',
+			'commands/doctor/services/doctor.service.ts',
 			"import { PACKAGE } from '@/core/constants/package.constant';"
 		);
 

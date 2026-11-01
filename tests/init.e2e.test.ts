@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 
 import { afterAll, describe, expect, it } from 'vitest';
 
-import { harnessInstallEntries } from '@/modules/harness/install-plan.service';
+import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
 
 // Needs the network for the installs and every manager on PATH, so it stays out of the default
 // `pnpm test`: run it alone with `INIT_E2E=1 pnpm vitest run tests/init.e2e.test.ts` after a build

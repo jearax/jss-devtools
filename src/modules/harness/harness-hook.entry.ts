@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 
-import { runHook } from './dispatcher.service';
-import { logHookError } from './hook-errors.service';
+import { runHook } from './services/dispatcher.service';
+import { logHookError } from './services/hook-errors.service';
 
 const root = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
 

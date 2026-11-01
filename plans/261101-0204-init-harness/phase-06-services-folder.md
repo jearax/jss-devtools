@@ -1,7 +1,7 @@
 ---
 phase: 6
 title: "Services move into services/"
-status: pending
+status: done
 priority: P2
 effort: "0.5d"
 dependencies: [5]

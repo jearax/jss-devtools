@@ -1,13 +1,18 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { readConfig } from '@/modules/harness/config.service';
 import { CURATE_SIZE_COOLDOWN_DAYS } from '@/modules/harness/constants/harness-limits.constant';
 import { HARNESS_BOOTSTRAP } from '@/modules/harness/constants/harness-paths.constant';
-import { learnedSkillNames } from '@/modules/harness/learned-skills.service';
-import { memoryNearCap, readMemoryState } from '@/modules/harness/memory.service';
-import { appendSessionEvent, pruneSessions, readSessionLog } from '@/modules/harness/session-log.service';
-import { dayDiff, foldSkillUsage, lastCuratorRun, recordCuratorRun } from '@/modules/harness/skill-usage.service';
+import { readConfig } from '@/modules/harness/services/config.service';
+import { learnedSkillNames } from '@/modules/harness/services/learned-skills.service';
+import { memoryNearCap, readMemoryState } from '@/modules/harness/services/memory.service';
+import { appendSessionEvent, pruneSessions, readSessionLog } from '@/modules/harness/services/session-log.service';
+import {
+	dayDiff,
+	foldSkillUsage,
+	lastCuratorRun,
+	recordCuratorRun
+} from '@/modules/harness/services/skill-usage.service';
 
 import type { HookContext, HookPayload, HookResult } from '@/modules/harness/types/hook.type';
 

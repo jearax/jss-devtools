@@ -11,7 +11,7 @@ import {
 	readyMessage,
 	runDoctorChecks,
 	usablePackageManagerCount
-} from '@/commands/doctor/doctor.service';
+} from '@/commands/doctor/services/doctor.service';
 import { PACKAGE } from '@/core/constants/package.constant';
 
 import type { DoctorContext, DoctorResult, GitProbe } from '@/commands/doctor/types/doctor-check.type';

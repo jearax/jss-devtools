@@ -1,13 +1,13 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { readConfig } from '@/modules/harness/config.service';
 import { HARNESS_BOOTSTRAP } from '@/modules/harness/constants/harness-paths.constant';
-import { decisionsInForce } from '@/modules/harness/decisions.service';
-import { hookErrorsSinceLastSession } from '@/modules/harness/hook-errors.service';
-import { indexDrift } from '@/modules/harness/index-drift.service';
-import { memoryLimitProblems, memoryNearCap, readMemoryState } from '@/modules/harness/memory.service';
-import { appendSessionEvent } from '@/modules/harness/session-log.service';
+import { readConfig } from '@/modules/harness/services/config.service';
+import { decisionsInForce } from '@/modules/harness/services/decisions.service';
+import { hookErrorsSinceLastSession } from '@/modules/harness/services/hook-errors.service';
+import { indexDrift } from '@/modules/harness/services/index-drift.service';
+import { memoryLimitProblems, memoryNearCap, readMemoryState } from '@/modules/harness/services/memory.service';
+import { appendSessionEvent } from '@/modules/harness/services/session-log.service';
 
 import type { HookContext, HookPayload, HookResult } from '@/modules/harness/types/hook.type';
 

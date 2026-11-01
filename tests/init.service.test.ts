@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveInitMode, validateInitArguments } from '@/commands/init/init.service';
+import { resolveInitMode, validateInitArguments } from '@/commands/init/services/init.service';
 
 import { snapshotDir } from './support/fs-snapshot';
 import { makeEmptyDir, removeDir } from './support/tmp-dir';

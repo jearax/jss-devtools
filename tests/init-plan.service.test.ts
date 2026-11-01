@@ -5,15 +5,15 @@ import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { NODE_PRESET_DEPENDENCIES } from '@/commands/init/constants/node-preset-dependency.constant';
-import { mergePackageJson, mergePnpmWorkspaceYaml } from '@/commands/init/merge.service';
-import { buildInitPlan, comparePlanPaths, renderPlan, renderPlanHeading } from '@/commands/init/plan.service';
+import { mergePackageJson, mergePnpmWorkspaceYaml } from '@/commands/init/services/merge.service';
+import { buildInitPlan, comparePlanPaths, renderPlan, renderPlanHeading } from '@/commands/init/services/plan.service';
+import { applyInitPlan } from '@/commands/init/services/write.service';
 import { eslintConfigMjsTemplate } from '@/commands/init/templates/eslint-config-mjs.template';
 import { LINT_STAGED } from '@/commands/init/templates/package-json.template';
 import {
 	pnpmWorkspaceYamlExistingTemplate,
 	pnpmWorkspaceYamlTemplate
 } from '@/commands/init/templates/pnpm-workspace-yaml.template';
-import { applyInitPlan } from '@/commands/init/write.service';
 import { localBinCommandLine } from '@/core/adapters/package-manager.adapter';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';

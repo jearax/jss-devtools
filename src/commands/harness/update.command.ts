@@ -11,18 +11,18 @@ import {
 	loadResolutions,
 	loadUpdateSession,
 	withUpdateLock
-} from '@/modules/harness/staging.service';
-import { applyUpdatePlan } from '@/modules/harness/update-apply.service';
-import { planHarnessUpdate } from '@/modules/harness/update-plan.service';
-import { runUpdatePreflight } from '@/modules/harness/update-preflight.service';
-import { harnessRelease } from '@/modules/harness/update-release.service';
-import { stageConflictedUpdate } from '@/modules/harness/update-stage.service';
+} from '@/modules/harness/services/staging.service';
+import { applyUpdatePlan } from '@/modules/harness/services/update-apply.service';
+import { planHarnessUpdate } from '@/modules/harness/services/update-plan.service';
+import { runUpdatePreflight } from '@/modules/harness/services/update-preflight.service';
+import { harnessRelease } from '@/modules/harness/services/update-release.service';
+import { stageConflictedUpdate } from '@/modules/harness/services/update-stage.service';
 
-import { renderHeading, renderUpdatePlan, updateActionCounts, conflictMessage } from './update-render.service';
+import { renderHeading, renderUpdatePlan, updateActionCounts, conflictMessage } from './services/update-render.service';
 
 import type { UpdateOptions } from './types/update-options.type';
+import type { UpdateMode } from '@/modules/harness/services/update-preflight.service';
 import type { UpdatePlan } from '@/modules/harness/types/update.type';
-import type { UpdateMode } from '@/modules/harness/update-preflight.service';
 import type { Command } from 'commander';
 
 const typedWordsOf = (command: Command): readonly string[] => {

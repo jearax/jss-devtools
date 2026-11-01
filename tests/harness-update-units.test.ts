@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasConflictMarkers } from '@/modules/harness/block-region.service';
-import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/config-merge.service';
-import { mergeThreeWay } from '@/modules/harness/three-way-merge.service';
+import { hasConflictMarkers } from '@/modules/harness/services/block-region.service';
+import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/services/config-merge.service';
+import { mergeThreeWay } from '@/modules/harness/services/three-way-merge.service';
 
 const line = (text: string): string => {
 	return `${text}\n`;

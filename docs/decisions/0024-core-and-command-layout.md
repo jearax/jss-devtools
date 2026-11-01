@@ -100,6 +100,24 @@ touches `commander` or `@clack/prompts`, and it sets `process.exitCode` — it n
 the entry of the hook bundle Claude Code runs in an installed repository; a hook must never block a
 session, so the entry exits 0 no matter what the module decided.
 
+## Amendment 2026-11-01: services move into `services/`
+
+Approved by the user on 2026-11-01 for every command and module, doctor included — one rule, no
+count threshold. The record keeps its original date.
+
+Every `*.service.ts` lives in the `services/` folder of its command or module. The root of
+`src/commands/<name>/` holds only `*.command.ts` files; the root of `src/modules/<name>/` holds
+only `*.entry.ts` files. The architecture rules enforce both.
+
+| Suffix        | Folder                      | Role                                              |
+| ------------- | --------------------------- | ------------------------------------------------- |
+| `.service.ts` | `commands/<name>/services/` | the command's logic; returns data, prints nothing |
+| `.service.ts` | `modules/<name>/services/`  | the feature's logic; returns data, prints nothing |
+
+The two root rows in the earlier tables ("command folder root", "`modules/<name>/` root") are
+superseded by this amendment. The `file-role-suffix` fixtures gain a misplaced `.service.ts` at a
+command root and at a module root, each failing the rules.
+
 ## In the user's words
 
 > "Cần modular hoá kiểu nestjs theo phân loại file nha, ví dụ: src/core/utils/abc.util.ts" (user,
@@ -108,6 +126,8 @@ session, so the entry exits 0 no matter what the module decided.
 > "IMHO, i think `src/modules` -> `src/commands`" (user, 2026-10-21)
 >
 > "modules/harness/ ngay từ đầu" (user, 2026-11-01)
+>
+> "Chuyển luôn, không ngoại lệ (Recommended)" (user, 2026-11-01)
 >
 > "Layout and rules: Approved as previewed, including H0 decision 0010's one-adapter-per-external-tool
 > rule" (user, 2026-10-21)

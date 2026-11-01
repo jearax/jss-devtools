@@ -15,7 +15,7 @@ import {
 	readyMessage,
 	runDoctorChecks,
 	usablePackageManagerCount
-} from './doctor.service';
+} from './services/doctor.service';
 
 import type { Command } from 'commander';
 

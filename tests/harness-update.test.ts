@@ -13,7 +13,7 @@ import {
 	HARNESS_UPDATE_LOCK,
 	HARNESS_UPDATE_SESSION
 } from '@/modules/harness/constants/harness-paths.constant';
-import { harnessInstallEntries, harnessRecordedFiles } from '@/modules/harness/install-plan.service';
+import { harnessInstallEntries, harnessRecordedFiles } from '@/modules/harness/services/install-plan.service';
 
 import { capture } from './support/capture-stream';
 import { snapshotDir } from './support/fs-snapshot';
@@ -135,7 +135,7 @@ const releaseHolder = vi.hoisted(() => {
 	};
 });
 
-vi.mock('@/modules/harness/update-release.service', async (importOriginal) => {
+vi.mock('@/modules/harness/services/update-release.service', async (importOriginal) => {
 	const actual = await importOriginal<{
 		harnessRelease: () => HarnessRelease;
 	}>();

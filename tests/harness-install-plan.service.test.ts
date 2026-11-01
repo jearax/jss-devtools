@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { PACKAGE } from '@/core/constants/package.constant';
 import { HARNESS_BLOCK_BEGIN, HARNESS_BLOCK_END } from '@/modules/harness/constants/harness-paths.constant';
-import { harnessInstallEntries } from '@/modules/harness/install-plan.service';
-import { mergeHarnessSettings } from '@/modules/harness/merge.service';
+import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
+import { mergeHarnessSettings } from '@/modules/harness/services/merge.service';
 import { hookShimTemplate } from '@/modules/harness/templates/hook-shim.template';
 
 const createInput = (overrides: Partial<Parameters<typeof harnessInstallEntries>[0]> = {}) => {

@@ -1,11 +1,11 @@
 import { existsSync, realpathSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-import { readConfig } from '@/modules/harness/config.service';
 import { MEMORY_GUARD_TOOLS } from '@/modules/harness/constants/harness-limits.constant';
 import { CLAUDE_SKILLS_DIR, HARNESS_MEMORY } from '@/modules/harness/constants/harness-paths.constant';
-import { memoryLimitProblems, readMemoryState } from '@/modules/harness/memory.service';
-import { appendSessionEvent } from '@/modules/harness/session-log.service';
+import { readConfig } from '@/modules/harness/services/config.service';
+import { memoryLimitProblems, readMemoryState } from '@/modules/harness/services/memory.service';
+import { appendSessionEvent } from '@/modules/harness/services/session-log.service';
 
 import type { HookContext, HookPayload, HookResult } from '@/modules/harness/types/hook.type';
 

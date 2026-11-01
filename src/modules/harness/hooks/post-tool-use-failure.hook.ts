@@ -1,5 +1,5 @@
-import { firstLine, redactSecrets } from '@/modules/harness/redaction.service';
-import { appendSessionEvent } from '@/modules/harness/session-log.service';
+import { firstLine, redactSecrets } from '@/modules/harness/services/redaction.service';
+import { appendSessionEvent } from '@/modules/harness/services/session-log.service';
 
 import type { HookContext, HookPayload, HookResult } from '@/modules/harness/types/hook.type';
 

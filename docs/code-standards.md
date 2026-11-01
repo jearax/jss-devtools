@@ -164,7 +164,7 @@ allows. The architecture suite enforces this, and a rule with no fixture is a co
 | -------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `.command.ts`  | command folder root          | commander wiring, argument parsing, rendering through clack                                           |
 | `.ui.ts`       | `ui/`                        | terminal rendering built on `@clack/prompts`, shared by commands                                      |
-| `.service.ts`  | command folder root          | the command's logic; returns data, prints nothing                                                     |
+| `.service.ts`  | `commands/<name>/services/`  | the command's logic; returns data, prints nothing                                                     |
 | `.check.ts`    | `checks/`                    | one doctor check                                                                                      |
 | `.adapter.ts`  | `adapters/`                  | the only knowledge of one external tool's command line                                                |
 | `.util.ts`     | `utils/`                     | stateless helpers                                                                                     |
@@ -173,7 +173,7 @@ allows. The architecture suite enforces this, and a rule with no fixture is a co
 | `.template.ts` | `commands/<name>/templates/` | the content of one file a command generates, as a function of its inputs                              |
 | `.error.ts`    | `errors/`                    | error classes                                                                                         |
 | `.type.ts`     | `types/`                     | types only                                                                                            |
-| `.service.ts`  | `modules/<name>/` root       | the feature's logic; returns data, prints nothing                                                     |
+| `.service.ts`  | `modules/<name>/services/`   | the feature's logic; returns data, prints nothing                                                     |
 | `.entry.ts`    | `modules/<name>/` root       | the entry of a program built on its own from the module; reads stdin, prints, sets `process.exitCode` |
 | `.constant.ts` | `modules/<name>/constants/`  | constant values the feature owns                                                                      |
 | `.template.ts` | `modules/<name>/templates/`  | the content of one file the feature writes                                                            |
