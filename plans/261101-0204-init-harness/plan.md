@@ -1,9 +1,9 @@
 ---
 title: "init installs the harness; harness update keeps it current"
-description: "jss-devtools init installs the repository harness by default (--no-harness, --agent-kit), and jss-devtools harness update merges a newer harness into a repository, staging conflicts for --continue or --abort."
-status: pending
+description: "jss-devtools init installs the repository harness by default (--no-harness, --agent-kit), jss-devtools harness update merges a newer harness into a repository, staging conflicts for --continue or --abort, and jss-devtools harness doctor checks it."
+status: in-progress
 priority: P1
-effort: 6d
+effort: 7d
 branch: main
 tags: [init, harness, update, hooks]
 blockedBy: []
@@ -22,7 +22,9 @@ Claude Code session gets memory and decisions injected, is asked once about onbo
 for a review after real work. `--no-harness` keeps today's behavior; `--agent-kit` also points ak
 at `.harness/docs` and `.harness/plans`. After the user installs a newer CLI,
 `jss-devtools harness update` brings every harness-owned file up to date, keeps the user's edits,
-and on a conflict stages it and exits 1 naming `--continue` and `--abort`. The CLI never commits.
+and on a conflict stages it and exits 1 naming `--continue` and `--abort`.
+`jss-devtools harness doctor` checks the installed harness from outside the hooks and exits 1 on
+an error. The CLI never commits.
 
 ## Input
 
@@ -43,6 +45,7 @@ code to copy.
 | 3 | [Hooks and the embedded hook bundle](./phase-03-hooks-and-hook-bundle.md) | 1, 2 |
 | 4 | [init installs the harness](./phase-04-init-installs-harness.md) | 2, 3 |
 | 5 | [harness update](./phase-05-harness-update.md) | 4 |
+| 6 | [harness doctor](./phase-06-harness-doctor.md) | 5 |
 
 The approved outline had init before hooks; they are swapped because init writes the hook bundle,
 so the bundle must exist first. Scope is unchanged.
@@ -55,14 +58,14 @@ first commit, before any code, holds this plan, the decision log, the design pro
 ## Acceptance
 
 - In an existing TypeScript repository without the harness, `jss-devtools init -y` exits 0 and
-  writes every path of the design proposal's file table except `.harness/plans/README.md`'s
-  AgentKit variant; a second run exits 1 on the owned configs, as today.
+  writes every path of the design proposal's file table; a second run exits 1 on the owned
+  configs, as today.
 - `jss-devtools init --no-harness -y` writes exactly what today's `init -y` writes (the existing
   snapshot tests stay green unchanged except where they assert the default).
 - `jss-devtools init --no-harness --agent-kit` exits 1 before any write, naming the conflict.
 - `jss-devtools init --agent-kit -y` without `ak` on PATH exits 1 in preflight; with a stub `ak`
-  it runs `ak init --docs-dir .harness/docs --plans-dir .harness/plans` and writes the AgentKit
-  variants.
+  it runs `ak init --docs-dir .harness/docs --plans-dir .harness/plans` and writes the same harness
+  files as without it.
 - Each hook, run from the installed `.harness/bin/harness-hook.mjs` with a recorded payload on
   stdin inside a temp repository, prints the expected JSON or nothing and exits 0, including on a
   corrupt `config.json`, a missing `.harness/state/` and Node below the floor (simulated).
@@ -71,6 +74,8 @@ first commit, before any code, holds this plan, the decision log, the design pro
   edited, exit 1 with staged copies under `.harness/update/` and the live file unchanged;
   `--continue` applies the resolution; `--abort` restores the state before the update. Seeds,
   learned skills and toolchain files are byte for byte unchanged in every case.
+- `harness doctor` in a fresh install: exit 0, no issue. With the hook entries removed from
+  `.claude/settings.json`, the block markers removed, or a broken learned skill: exit 1 naming each.
 - Architecture rules green, including the new ones from phase 1, each with its negative fixture.
 - `pnpm lint && pnpm typecheck && pnpm test && pnpm build` green on Node 24.11.0, real output
   reported.
@@ -83,7 +88,7 @@ first commit, before any code, holds this plan, the decision log, the design pro
 - A background or model-run review (`prompt`/`agent` hooks, `claude -p`); review runs in the
   user's session.
 - Committing, pushing or requiring a clean tree.
-- A `harness doctor`, `harness status` or any other harness subcommand.
+- Any harness subcommand other than `update` and `doctor`.
 
 ## Decisions this plan makes
 

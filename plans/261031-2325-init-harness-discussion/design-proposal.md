@@ -1,7 +1,7 @@
 # Design proposal: what `init --harness` writes and how it runs
 
-Status: accepted with three changes, recorded in the decision log (2026-11-01): variant files
-stay, the `update` outro suggests no commit, no skill disables model invocation. Decisions already taken are in
+Status: accepted with changes recorded in the decision log (2026-11-01): no variant files, the
+`update` outro suggests no commit, no skill disables model invocation, `harness doctor` added. Decisions already taken are in
 [decision-log.md](./decision-log.md); this file proposes the rest. The user asked for one best
 option: "đề xuất cho tôi 1 option best nhất" (user, 2026-11-01).
 
@@ -20,7 +20,7 @@ file), **merge** (entries merged into a user file), **config** (user-edited, mer
 
 | Path | Kind | Purpose | Change from H0 |
 | --- | --- | --- | --- |
-| `CLAUDE.md` block | block | Agent rules, knowledge routes, stop-and-ask, done-means-proven | Same, with its variant file for repositories without AgentKit |
+| `CLAUDE.md` block | block | Agent rules, knowledge routes, stop-and-ask, done-means-proven | One copy; AgentKit lines are conditions, no variant file |
 | `.claude/settings.json` hook entries | merge | Wire the four hooks | Hook options change, see section 2 |
 | `.claude/skills/harness-onboard/SKILL.md` | managed | First-session ritual | Same role |
 | `.claude/skills/harness-review/SKILL.md` | managed | Learning step | Same role |
@@ -39,7 +39,7 @@ file), **merge** (entries merged into a user file), **config** (user-edited, mer
 | `.harness/.gitignore` | managed | Ignores `state/` and `update/` | `backup/` dropped |
 | `.harness/state/` | local | Session event logs, skill usage, hook error log | Event logs replace read-modify-write state, see 2.3 |
 | `.harness/update/` | local | Conflict staging for `harness update --continue` | Same (decided) |
-| `.harness/plans/README.md` | managed, with its variant | With AgentKit, ak's plans directory; without, `active/` then `completed/` | Same as H0 (decision 0013) |
+| `.harness/plans/README.md` | managed | `active/` then `completed/`; with AgentKit its skills decide the layout | One copy, no variant |
 
 Dropped from H0:
 
@@ -101,7 +101,9 @@ H0's edit counter (its "non-git fallback") is no longer needed.
   and at least `review.minToolCalls` tool calls ran, or any tool failed. This is the knob of the
   user's example ("8 lần hay 10 lần"); H0 used 8, Hermes 10.
 - **Curation is due** when there are at least `curator.minLearnedSkills` learned skills and the
-  last curation is older than `curator.intervalDays`. H0 deferred archiving until ten learned
+  last curation, recorded in the committed `.harness/curator.json`, is older than
+  `curator.intervalDays`; or, as in the prototype, when `MEMORY.md` is past the ratio of
+  `memory.maxChars` at which session start warns and the last curation is at least a day old. H0 deferred archiving until ten learned
   skills existed; this keeps that rule as a setting.
 
 ## 4. Skills (H9, H10)

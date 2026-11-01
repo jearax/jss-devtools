@@ -35,6 +35,14 @@ design proposal (Read or `cat` of `SKILL.md` counts as a use; subagent events ca
   secret) and the hook prints nothing.
 - A missing config key turns its feature off and is warned; the hook never falls back to a
   default in code.
+- When `.claude/skills/ak-*` exists, AgentKit owns `.harness/docs/` and `.harness/plans/`, so the
+  index drift check skips `docs/`; `decisions/` is always checked.
+- The last review in a session is the last use of `harness-review` in its session log. The last
+  curation is shared by the team: when the session used `harness-curate`, the Stop hook writes
+  `.harness/curator.json` (`{ "lastRun": "YYYY-MM-DD" }`, committed, not under `state/`), and
+  curation is due from its date, or when memory is past the session-start warning ratio and the
+  last curation is at least a day old. The ratio and the one day are constants, not config keys.
+  No skill writes state of its own.
 - Session logs older than seven days are removed by the Stop hook.
 - The worktree fingerprint uses the git adapter; a git failure means "unknown", never "changed".
 

@@ -49,9 +49,8 @@ holds only argument rules and wiring.
 | hook bundle | Overwrite |
 | config | Key by key: untouched key takes the new default, edited key kept, new key added, missing key written back with the default, both sides changed to different values is a conflict |
 | settings entries | Harness entries replaced, others kept |
-| seed, learned skill, archive, toolchain | Never touched |
+| seed, learned skill, archive, `curator.json`, toolchain | Never touched |
 
-The manifest records whether AgentKit was on, so the base and upstream are the same variant.
 
 ## Flow
 

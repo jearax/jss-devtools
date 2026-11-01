@@ -49,7 +49,7 @@ AgentKit on or off, the current `CLAUDE.md` and `settings.json` text); `plan.ser
 them. The module knows nothing of commander or clack.
 
 - Every file of the design proposal's table, from the `.template.ts` files encoding the drafts the
-  user approved in phase 2; variants chosen by AgentKit.
+  user approved in phase 2. One copy of each; AgentKit changes no file the harness writes.
 - `.harness/bin/hooks.mjs` from the embedded text; `.harness/bin/harness-hook.mjs` from the shim
   template.
 - `CLAUDE.md`: created with only the block when missing; otherwise the block appended after one

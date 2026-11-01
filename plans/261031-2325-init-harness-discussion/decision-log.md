@@ -95,9 +95,8 @@ user asked "Hay là khi install.sh thì bản chất cài 2 CLI luôn, là jss-d
 The prototype's 0013 (`.harness/decisions/0013-agent-kit-integration-is-folders-only.md`) carries
 unchanged:
 
-- AgentKit on means exactly two things: `ak init --docs-dir .harness/docs --plans-dir
-  .harness/plans`, and the AgentKit variant of each file that names it (the `CLAUDE.md` block,
-  `.harness/docs/README.md`, `.harness/plans/README.md`).
+- AgentKit on means `ak init --docs-dir .harness/docs --plans-dir .harness/plans`. The variant
+  files the prototype also wrote are dropped (see "No variant files" below).
 - Preflight exits 1 when `--agent-kit` is passed and `ak` is missing. Harness never installs a kit
   and never detects `ak` on the machine, so the result is the same on every machine.
 - AgentKit off: harness owns plans, in `.harness/plans/active/`, moved to `completed/` when done.
@@ -141,6 +140,81 @@ decisions implied but did not say. The user's answers:
   session log and the Stop hook folds it into that file, so no lock is needed. Explained to the user,
   who asked how the prototype did it.
 - Hooks are built before init in the phase order, because init writes the hook bundle.
+
+## File contents, group 1, and `harness doctor` (2026-11-01)
+
+- The `CLAUDE.md` block and the `MEMORY.md` seed in
+  `plans/261101-0204-init-harness/content/` are approved, with the prototype's "Match process to
+  the work" restored in a short form. The planner had cut it as Claude Code's default behavior;
+  the user questioned that ("nó đã là hành vi mặc định của Anthropic claude rồi hả"), no source
+  confirms it, and weaker models run in Claude Code too.
+- `jss-devtools harness doctor` joins this plan as phase 6: "Đưa doctor vào plan này" (user,
+  2026-11-01). It checks the installed harness from outside the hooks, chiefly that the hooks are
+  still wired, sharing every check function with the SessionStart hook and `update`.
+
+## No variant files (2026-11-01, supersedes keeping them)
+
+> "không cần cố phân biệt variant file với agent kit ở khắp mọi nơi, mà chủ yếu là nói agent kit sở
+> hữu/làm theo các skill của agent kit thôi, tại vì cơ bản agent kit trong ngữ cảnh của project này
+> là config lại path cho agent kit skill thôi" (user, 2026-11-01)
+
+Answered with the option "Bỏ variant ở mọi nơi (Recommended)".
+
+- Every harness file has one copy. A line about AgentKit is a condition the agent checks at run
+  time: "When `ak-*` skills are present, ...". This covers the `CLAUDE.md` block and the docs,
+  plans and templates READMEs.
+- `--agent-kit` only runs `ak init --docs-dir .harness/docs --plans-dir .harness/plans`; it changes
+  no file the harness writes. The manifest records nothing about AgentKit, and turning AgentKit on
+  after the install needs no harness change.
+- This departs from the prototype's 0013, which wrote the AgentKit note only with the flag.
+
+## With AgentKit, the harness defers to it; paths stay fixed (2026-11-01)
+
+> "ý tôi muốn phó thác toàn bộ cho ak nếu có mặt ak" ... "chỉ nên dừng lại ở kiểu như là `follow
+> its skills` thôi, bỏ việc `not this index`, `not this file` đi, vì ... harss vs agentkit dùng
+> chung folder á, nếu phủ định vậy sẽ có thể gây hiểu lầm cho agent." (user, 2026-11-01)
+
+- Every AgentKit line reads "When `ak-*` skills are present, AgentKit owns ...: follow its
+  skills." No negation: harness and AgentKit share `.harness/docs/` and `.harness/plans/`.
+- The paths stay fixed constants in code, passed to `ak init`; no `docsDir` or `plansDir` key in
+  `config.json`: "Approved cho ý "đường dẫn cố định"" (user, 2026-11-01).
+- The index drift check skips `docs/` when `ak-*` skills are present, since AgentKit's files there
+  need no harness index row; `decisions/` is always checked.
+- Group 2 of the file contents (the READMEs and both `BOOTSTRAP.md` copies) is approved with this
+  wording.
+
+## Skills approved; the last curation is committed (2026-11-01)
+
+- Group 4, the three `harness-*` skills in `plans/261101-0204-init-harness/content/.claude/skills/`,
+  is approved: "Duyệt theo ý bạn" (user, 2026-11-01).
+- The last curation is shared, as in the prototype: answered "Được, commit chung (Recommended)"
+  (user, 2026-11-01). The Stop hook writes `.harness/curator.json` when the session used
+  `harness-curate`; the user commits it. Counted per machine, every teammate would be asked to
+  curate the same shared files each interval. Skill usage stays per machine under `state/`.
+- Archiving stays a proposal the user accepts; there is no `curate` subcommand.
+- Curation is also due when memory passes the session-start warning ratio, at most once a day, as
+  in the prototype: "Thêm như H0 (Recommended)" (user, 2026-11-01). No new config key.
+
+## Templates approved; learned skills carry no prefix (2026-11-01)
+
+- Group 3 of the file contents, the six templates in
+  `plans/261101-0204-init-harness/content/.harness/templates/`, is approved: "approve theo các
+  convention bạn đề xuất" (user, 2026-11-01). They drop `last-verified`, keep the secret rule only
+  in the `CLAUDE.md` block and the runbook, and move the plan format into `templates/plan.md`.
+- A learned skill's name says what it does, with no prefix, and never starts with `ak-` or
+  `harness-`; `metadata.harness-origin: learned` is what marks it. Answered with the option "Không
+  tiền tố, dùng metadata (Recommended)", over `learned-*` and `harness-learned-*`, because
+  `harness-*` means "managed, replaced by update, do not edit", and curation, the usage count and
+  `doctor` all read the frontmatter.
+
+## Onboarding does not commit (2026-11-01)
+
+Answered with the option "Không commit, liệt kê file (Recommended)" (user, 2026-11-01), against
+the prototype, whose onboarding committed `chore(harness): complete onboarding`.
+
+- `harness-onboard` ends by listing every file it wrote and the deletion of `.harness/BOOTSTRAP.md`,
+  and tells the user to commit them so teammates are not asked to onboard again.
+- No harness step commits: not the CLI, not onboarding, review or curation.
 
 ## Harness flags depend on `--harness` (2026-10-31)
 
@@ -211,8 +285,6 @@ The prototype's decision 0001 (`/Users/tandm/Documents/jearax/dokploy/harness`,
   a lock keeps two updates from running at once.
 - The hook bundle `.harness/bin/hooks.mjs` is minified build output, so it is always overwritten,
   never merged, as the prototype did with its bundle. Nobody edits it by hand.
-- The manifest records whether the repository was installed with AgentKit, so `update` compares
-  against the same variant it installed.
 
 ### What `harness update` covers (2026-11-01)
 
@@ -260,5 +332,4 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
 - No skill sets `disable-model-invocation`; every harness and learned skill stays invocable by the
   model.
 - The `update` outro suggests no commit command (above).
-- The prototype's variant files stay: a file that differs with and without AgentKit keeps a second
-  full copy, not one template with a condition. Revisit once the user explains AgentKit's role.
+- The prototype's variant files stay. Superseded by "No variant files" below.
