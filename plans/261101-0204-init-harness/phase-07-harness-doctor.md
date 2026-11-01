@@ -1,7 +1,7 @@
 ---
 phase: 7
 title: "harness doctor"
-status: done
+status: completed
 priority: P2
 effort: "1d"
 dependencies: [6]

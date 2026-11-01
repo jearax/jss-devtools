@@ -1,7 +1,7 @@
 ---
 phase: 4
 title: "init installs the harness"
-status: done
+status: completed
 priority: P1
 effort: "1.5d"
 dependencies: [2, 3]
