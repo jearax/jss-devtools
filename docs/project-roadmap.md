@@ -127,7 +127,22 @@ phase 4. Decisions: [0030](./decisions/0030-init-node-preset.md) (amended),
   `.claude/settings.json`. `--no-harness` writes exactly what init wrote before; `--agent-kit`
   only runs `ak init --docs-dir .harness/docs --plans-dir .harness/plans` after the install and
   changes no harness file. Every harness check runs in preflight, before the first write.
-- `harness update` (phases 5 and 6) is not started.
+
+## Done: harness update
+
+Plan: [../plans/261101-0204-init-harness/plan.md](../plans/261101-0204-init-harness/plan.md),
+phase 5. Decision: [0032](./decisions/0032-harness-update.md).
+
+- `jss-devtools harness update` brings an installed harness to the templates inside the CLI:
+  managed files by three-way merge, the `CLAUDE.md` block in unit space, `config.json` key by key
+  (a missing key is repaired even at the same version), the harness entries in
+  `.claude/settings.json` replaced with every other hook kept, the hook bundle always
+  overwritten. Seeds, learned skills, `.harness/archive/`, `.harness/curator.json` and the
+  toolchain are never touched, and the CLI never commits or suggests one.
+- With conflicts the live tree is untouched: base, local, upstream and a resolved copy are staged
+  under `.harness/update/`, the run exits 1 naming `--continue` and `--abort`; `--continue`
+  refuses copies that still hold markers, `--abort` discards. A conflict run asks no question,
+  so the agent workflow works without a terminal.
 
 ## Not started
 

@@ -110,22 +110,43 @@ const OWNED_FILES = (input: HarnessInstallInput): readonly OwnedFile[] => {
 
 const RECORDED_KINDS = new Set<string>(['managed', 'block', 'config']);
 
-const manifestOf = (owned: readonly OwnedFile[]): string => {
-	const files = owned
+export type HarnessRecordedFile = {
+	path: string;
+	kind: 'managed' | 'block' | 'config';
+	content: string;
+};
+
+export const harnessRecordedFiles = (): readonly HarnessRecordedFile[] => {
+	return OWNED_FILES({
+		mode: 'existing',
+		agentKit: false,
+		claudeMd: null,
+		settingsJson: null
+	})
 		.filter((file) => {
 			return RECORDED_KINDS.has(file.kind);
 		})
 		.map((file) => {
 			return {
 				path: file.path,
-				kind: file.kind,
-				sha256: sha256(file.content)
+				kind: file.kind as 'managed' | 'block' | 'config',
+				content: file.content
 			};
 		});
+};
+
+const manifestOf = (recorded: readonly HarnessRecordedFile[], version: string): string => {
+	const files = recorded.map((file) => {
+		return {
+			path: file.path,
+			kind: file.kind,
+			sha256: sha256(file.content)
+		};
+	});
 
 	return `${JSON.stringify(
 		{
-			version: PACKAGE.version,
+			version,
 			files
 		},
 		null,
@@ -133,23 +154,40 @@ const manifestOf = (owned: readonly OwnedFile[]): string => {
 	)}\n`;
 };
 
-const baseEntriesOf = (owned: readonly OwnedFile[]): readonly HarnessInstallEntry[] => {
-	return owned
+const baseEntriesOf = (recorded: readonly HarnessRecordedFile[]): readonly HarnessInstallEntry[] => {
+	return recorded.map((file) => {
+		return {
+			path: `${HARNESS_BASE_DIR}/${file.path}`,
+			kind: 'cli' as const,
+			content: file.content
+		};
+	});
+};
+
+export const harnessManifestOf = (recorded: readonly HarnessRecordedFile[], version: string): string => {
+	return manifestOf(recorded, version);
+};
+
+export const harnessBaseEntriesOf = (recorded: readonly HarnessRecordedFile[]): readonly HarnessInstallEntry[] => {
+	return baseEntriesOf(recorded);
+};
+
+export const harnessInstallEntries = (input: HarnessInstallInput): readonly HarnessInstallEntry[] => {
+	const owned = OWNED_FILES(input);
+
+	const recorded = owned
 		.filter((file) => {
 			return RECORDED_KINDS.has(file.kind);
 		})
 		.map((file) => {
 			return {
-				path: `${HARNESS_BASE_DIR}/${file.path}`,
-				kind: 'cli' as const,
+				path: file.path,
+				kind: file.kind as 'managed' | 'block' | 'config',
 				content: file.content
 			};
 		});
-};
 
-export const harnessInstallEntries = (input: HarnessInstallInput): readonly HarnessInstallEntry[] => {
-	const owned = OWNED_FILES(input);
-	const manifest = manifestOf(owned);
+	const manifest = manifestOf(recorded, PACKAGE.version);
 
 	return [
 		...owned.map((file) => {
@@ -164,6 +202,6 @@ export const harnessInstallEntries = (input: HarnessInstallInput): readonly Harn
 			kind: 'cli',
 			content: manifest
 		},
-		...baseEntriesOf(owned)
+		...baseEntriesOf(recorded)
 	];
 };

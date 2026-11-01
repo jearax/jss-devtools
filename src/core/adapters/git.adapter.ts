@@ -53,6 +53,32 @@ export const gitTopLevel = async (cwd: string): Promise<string | null> => {
 	return result.code === 0 ? result.stdout.trim() : null;
 };
 
+export const gitMergeFile = async (
+	current: string,
+	base: string,
+	other: string
+): Promise<{ code: number | null; stdout: string; stderr: string }> => {
+	const result = await runCommand('git', [
+		'merge-file',
+		'-p',
+		'-L',
+		'yours',
+		'-L',
+		'the installed version',
+		'-L',
+		'the new version',
+		current,
+		base,
+		other
+	]);
+
+	return {
+		code: result.code,
+		stdout: result.stdout,
+		stderr: result.stderr
+	};
+};
+
 export const gitWorktreeChanges = async (cwd: string): Promise<{ status: string; diff: string } | null> => {
 	const status = await runCommand('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], { cwd });
 

@@ -4,6 +4,7 @@ import { styleText } from 'node:util';
 import { Command, CommanderError, Help } from 'commander';
 
 import { registerDoctorCommand } from '@/commands/doctor/doctor.command';
+import { registerHarnessCommand } from '@/commands/harness/harness.command';
 import { registerInitCommand } from '@/commands/init/init.command';
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
@@ -127,6 +128,7 @@ export const createProgram = ({ exitOverride = false }: ProgramOptions = {}): Co
 
 	registerDoctorCommand(program);
 	registerInitCommand(program);
+	registerHarnessCommand(program);
 
 	return program;
 };

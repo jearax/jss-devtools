@@ -21,7 +21,7 @@ src/
    │  ├─ doctor.service.ts    the checks, no I/O
    │  ├─ checks/              one file per check
    │  └─ types/               the types the command shares
-   └─ init/                   one folder per command
+   ├─ init/                   one folder per command
       ├─ init.command.ts      commander wiring, the questions, the shared flags, the help examples
       ├─ init.service.ts      the argument rules and the mode
       ├─ preflight.service.ts the checks that run before the first write
@@ -31,6 +31,10 @@ src/
       ├─ constants/           the pinned version table and the config-name table
       ├─ templates/           the content of one generated file, per file
       └─ types/               the types the command shares
+   └─ harness/                one folder per command
+      ├─ harness.command.ts   the `harness` group wiring and its help examples
+      ├─ update.command.ts    the update flow: preflight, plan, render, confirm, stage, apply
+      └─ types/               the flag types
 └─ modules/
    └─ harness/                the repository-harness hook program; imports core only
       ├─ harness-hook.entry.ts  the entry Claude Code runs: stdin in, one JSON line out, exit 0 always
@@ -39,6 +43,11 @@ src/
       ├─ templates/             the shim template phase 4 installs
       ├─ types/                 the hook payload and result types
       ├─ install-plan.service.ts  the harness entries init appends: files, kinds, manifest, base
+      ├─ update-*.service.ts    the update flow: preflight, plan, merge, staging, apply, release
+      ├─ block-region.service.ts  the CLAUDE.md block unit: extract, embed, conflict markers
+      ├─ three-way-merge.service.ts  the line merge behind `git merge-file`
+      ├─ config-merge.service.ts  the config.json key-by-key merge
+      ├─ staging.service.ts     the `.harness/update/` session: lock, copies, resolutions
       └─ *.service.ts           config, memory, knowledge, session log, fingerprint, curator state
 ```
 
