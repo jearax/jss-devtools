@@ -1,13 +1,13 @@
 ---
-phase: 6
+phase: 7
 title: "harness doctor"
 status: pending
 priority: P2
 effort: "1d"
-dependencies: [5]
+dependencies: [6]
 ---
 
-# Phase 6: harness doctor
+# Phase 7: harness doctor
 
 ## Goal
 
@@ -46,14 +46,14 @@ skills with their last use from `.harness/state/skill-usage.json` ("never" when 
 | A staged update in `.harness/update/` | warn, naming `--continue` and `--abort` | update preflight |
 | With AgentKit on: uncommitted changes under `.claude/skills/ak-*` | warn, "`ak update` overwrites them" | |
 
-Every check is a function in `src/modules/harness/` that returns issues; the SessionStart hook and
+Every check is a function in `src/modules/harness/services/` that returns issues; the SessionStart hook and
 `update` call the same functions, so a rule is written once. The command only renders.
 
 ## Code
 
 - `src/commands/harness/harness.command.ts` registers `doctor` beside `update`;
-  `src/commands/harness/doctor.service.ts` only collects and orders the issues.
-- `src/modules/harness/health.service.ts` (or one service per area if it grows past 200 lines),
+  `src/commands/harness/services/doctor.service.ts` only collects and orders the issues.
+- `src/modules/harness/services/health.service.ts` (or one service per area if it grows past 200 lines),
   type `src/modules/harness/types/health-issue.type.ts`.
 - No new flag. `--help` describes what it checks and the exit codes.
 

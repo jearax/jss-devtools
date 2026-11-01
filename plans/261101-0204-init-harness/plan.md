@@ -3,7 +3,7 @@ title: "init installs the harness; harness update keeps it current"
 description: "jss-devtools init installs the repository harness by default (--no-harness, --agent-kit), jss-devtools harness update merges a newer harness into a repository, staging conflicts for --continue or --abort, and jss-devtools harness doctor checks it."
 status: in-progress
 priority: P1
-effort: 7d
+effort: 7.5d
 branch: main
 tags: [init, harness, update, hooks]
 blockedBy: []
@@ -45,7 +45,8 @@ code to copy.
 | 3 | [Hooks and the embedded hook bundle](./phase-03-hooks-and-hook-bundle.md) | 1, 2 |
 | 4 | [init installs the harness](./phase-04-init-installs-harness.md) | 2, 3 |
 | 5 | [harness update](./phase-05-harness-update.md) | 4 |
-| 6 | [harness doctor](./phase-06-harness-doctor.md) | 5 |
+| 6 | [Services move into `services/`](./phase-06-services-folder.md) | 5 |
+| 7 | [harness doctor](./phase-07-harness-doctor.md) | 6 |
 
 The approved outline had init before hooks; they are swapped because init writes the hook bundle,
 so the bundle must exist first. Scope is unchanged.

@@ -148,7 +148,7 @@ decisions implied but did not say. The user's answers:
   the work" restored in a short form. The planner had cut it as Claude Code's default behavior;
   the user questioned that ("nó đã là hành vi mặc định của Anthropic claude rồi hả"), no source
   confirms it, and weaker models run in Claude Code too.
-- `jss-devtools harness doctor` joins this plan as phase 6: "Đưa doctor vào plan này" (user,
+- `jss-devtools harness doctor` joins this plan (now phase 7): "Đưa doctor vào plan này" (user,
   2026-11-01). It checks the installed harness from outside the hooks, chiefly that the hooks are
   still wired, sharing every check function with the SessionStart hook and `update`.
 
@@ -182,6 +182,16 @@ Answered with the option "Bỏ variant ở mọi nơi (Recommended)".
   need no harness index row; `decisions/` is always checked.
 - Group 2 of the file contents (the READMEs and both `BOOTSTRAP.md` copies) is approved with this
   wording.
+
+## Every service lives in a `services/` folder (2026-11-01)
+
+> "Gom / gộp thành src/{commands/modules}/<command_name>/services/<service_name>.service.ts, có lẽ
+> codebase đang flollow từ src/commands/doctor/doctor.serice.ts, đó là edge case vì command doctor
+> chỉ có 1 mình doctor.service.ts" (user, 2026-11-01)
+
+- The root of a command folder holds only `.command.ts`; the root of a module folder only
+  `.entry.ts`. Services go to `services/`, doctor included: "Chuyển luôn, không ngoại lệ
+  (Recommended)" (user, 2026-11-01). Phase 6 of the harness plan moves them and amends 0024.
 
 ## Skills approved; the last curation is committed (2026-11-01)
 
