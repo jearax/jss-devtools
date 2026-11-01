@@ -1,0 +1,15 @@
+export const HARNESS_DIR = '.harness';
+export const HARNESS_MEMORY = `${HARNESS_DIR}/MEMORY.md`;
+export const HARNESS_BOOTSTRAP = `${HARNESS_DIR}/BOOTSTRAP.md`;
+export const HARNESS_CONFIG = `${HARNESS_DIR}/config.json`;
+export const HARNESS_CURATOR = `${HARNESS_DIR}/curator.json`;
+export const HARNESS_DECISIONS_DIR = `${HARNESS_DIR}/decisions`;
+export const HARNESS_DOCS_DIR = `${HARNESS_DIR}/docs`;
+export const HARNESS_STATE_DIR = `${HARNESS_DIR}/state`;
+export const HARNESS_SESSIONS_DIR = `${HARNESS_STATE_DIR}/sessions`;
+export const HARNESS_ERROR_LOG = `${HARNESS_STATE_DIR}/hook-errors.log`;
+export const HARNESS_ERROR_CURSOR = `${HARNESS_STATE_DIR}/hook-errors.cursor`;
+export const HARNESS_SKILL_USAGE = `${HARNESS_STATE_DIR}/skill-usage.json`;
+export const CLAUDE_SKILLS_DIR = '.claude/skills';
+export const HOOK_SHIM_PATH = `${HARNESS_DIR}/bin/harness-hook.mjs`;
+export const HOOK_COMMAND = `node "$CLAUDE_PROJECT_DIR/${HOOK_SHIM_PATH}"`;

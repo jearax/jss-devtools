@@ -75,6 +75,8 @@ them. The module knows nothing of commander or clack.
 - `tests/init.e2e.test.ts`: create mode and existing mode with the default; `--no-harness` equals
   the previous snapshot; `--agent-kit` with a stub `ak` on PATH. After the e2e install, run the
   installed SessionStart hook once and assert memory is injected.
+- `tests/bundle.test.ts`: the hook bundle text inside `cli.mjs` equals `dist/hooks.mjs`. It is
+  provable only now, when the init code imports the constant, so tree-shaking keeps it.
 - Existing snapshots that assert the default plan are updated, and only those.
 
 ## Docs

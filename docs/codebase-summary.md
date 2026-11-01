@@ -41,10 +41,11 @@ only Node floor is `engines.node` in `package.json`, which `engineStrict` enforc
 | `src/core/adapters/git.adapter.ts`   | The only file that knows git's command line                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `src/commands/doctor/`               | The first command: `doctor.command.ts` wires it, `doctor.service.ts` runs the machine checks (Node, git, package managers), `checks/` holds one file per check, `types/` the types                                                                                                                                                                                                                                                                                                                  |
 | `src/commands/init/`                 | The toolchain command, shipping the `node` preset: `init.command.ts` wires it, `init.service.ts` the argument rules, `preflight.service.ts` the checks before the first write, `plan.service.ts` the file plan and its coloured rendering, `merge.service.ts` the shared-file merges, `shell-quote.service.ts` the POSIX quoting for `cd` targets, `write.service.ts` the writer, `constants/` the pinned versions and config names, `templates/` one export per generated file, `types/` the types |
+| `src/modules/harness/`               | The repository-harness hook program, built to `dist/hooks.mjs` and embedded into `cli.mjs`: `harness-hook.entry.ts` reads the payload on stdin and always exits 0, `dispatcher.service.ts` routes it to one pure handler per event in `hooks/` (session start, memory guard, recording, failure, stop), the services hold config, memory, knowledge index, session log, worktree fingerprint, curator state and secret redaction, `templates/` the shim, `constants/` and `types/` the rest         |
 
-`core/` is shared and imports no command; `commands/` holds one folder per command. A file name
-says what the file is, and the architecture suite enforces it. The rules are in
-[0024](./decisions/0024-core-and-command-layout.md) and
+`core/` is shared and imports no command; `commands/` holds one folder per command; `modules/`
+holds one folder per module. A file name says what the file is, and the architecture suite
+enforces it. The rules are in [0024](./decisions/0024-core-and-command-layout.md) and
 [code-standards.md](./code-standards.md).
 
 ## Install and release

@@ -31,6 +31,14 @@ src/
       ├─ constants/           the pinned version table and the config-name table
       ├─ templates/           the content of one generated file, per file
       └─ types/               the types the command shares
+└─ modules/
+   └─ harness/                the repository-harness hook program; imports core only
+      ├─ harness-hook.entry.ts  the entry Claude Code runs: stdin in, one JSON line out, exit 0 always
+      ├─ hooks/                 one pure handler per hook event
+      ├─ constants/             the state paths, the limits, the settings entries
+      ├─ templates/             the shim template phase 4 installs
+      ├─ types/                 the hook payload and result types
+      └─ *.service.ts           config, memory, knowledge, session log, fingerprint, curator state
 ```
 
 Imports flow `cli.ts` → `commands/` → `modules/` → `core/`. A file name says what the file is:
@@ -63,6 +71,13 @@ exactly that rule:
 
 `src/cli.ts` builds the program and owns every process-level decision. A module attaches a command
 to it; it never replaces it.
+
+A second entry exists: `src/modules/harness/harness-hook.entry.ts` builds `dist/hooks.mjs`, the
+hook bundle Claude Code runs in an installed repository. Its text is embedded into `cli.mjs` at
+build (the `footer` in `tsdown.config.ts`, built after `tsdown.hooks.config.ts`), so the release
+still ships one file with one checksum. Unlike the CLI, the hook entry always exits 0 — a hook
+must never block a session — and it is the only file in `modules/` that may print or touch
+`process.exitCode`.
 
 ```
 node dist/cli.mjs --help

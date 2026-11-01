@@ -8,13 +8,17 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 	dependencies?: Record<string, string>;
 };
 
+const hookBundleText = (): string => {
+	return readFileSync(new URL('./dist/hooks.mjs', import.meta.url), 'utf8');
+};
+
 const tsdownConfig = defineConfig({
 	entry: ['src/cli.ts'],
 	outDir: 'dist',
 	format: ['esm'],
 	platform: 'node',
 	target: 'node24',
-	clean: true,
+	clean: false,
 	dts: false,
 	sourcemap: false,
 	minify: false,
@@ -29,7 +33,10 @@ const tsdownConfig = defineConfig({
 			handler(log.code === 'UNRESOLVED_IMPORT' ? 'error' : level, log);
 		}
 	},
-	define: { __JSS_PACKAGE__: JSON.stringify(readPackageInfo()) }
+	define: {
+		__JSS_PACKAGE__: JSON.stringify(readPackageInfo()),
+		__HARNESS_HOOK_BUNDLE__: JSON.stringify(hookBundleText())
+	}
 });
 
 export default tsdownConfig;

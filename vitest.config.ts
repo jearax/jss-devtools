@@ -4,7 +4,8 @@ import { readPackageInfo } from './scripts/package-info.mjs';
 
 const vitestConfig = defineConfig({
 	define: {
-		__JSS_PACKAGE__: JSON.stringify(readPackageInfo())
+		__JSS_PACKAGE__: JSON.stringify(readPackageInfo()),
+		__HARNESS_HOOK_BUNDLE__: JSON.stringify('__HARNESS_HOOK_BUNDLE_PLACEHOLDER__')
 	},
 	resolve: {
 		tsconfigPaths: true

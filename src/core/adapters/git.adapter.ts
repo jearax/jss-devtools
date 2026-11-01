@@ -52,3 +52,20 @@ export const gitTopLevel = async (cwd: string): Promise<string | null> => {
 
 	return result.code === 0 ? result.stdout.trim() : null;
 };
+
+export const gitWorktreeChanges = async (cwd: string): Promise<{ status: string; diff: string } | null> => {
+	const status = await runCommand('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], { cwd });
+
+	if (status.code !== 0) {
+		return null;
+	}
+
+	const diff = await runCommand('git', ['diff', 'HEAD', '--no-ext-diff'], { cwd });
+
+	return diff.code === 0
+		? {
+				status: status.stdout,
+				diff: diff.stdout
+			}
+		: null;
+};

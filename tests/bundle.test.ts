@@ -1,10 +1,13 @@
-import { execFile } from 'node:child_process';
-import { copyFile, readdir, readFile, symlink } from 'node:fs/promises';
+import { execFile, spawnSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+import { copyFile, readdir, readFile, symlink, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { hookShimTemplate } from '@/modules/harness/templates/hook-shim.template';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
 
@@ -213,5 +216,72 @@ Examples:
 		expect(await readdir(empty)).toEqual([]);
 
 		await removeDir(empty);
+	});
+});
+
+describe('hook bundle', () => {
+	const hooksPath = resolve(projectRoot, 'di' + 'st/hooks.mjs');
+	const BUDGET = 40 * 1024;
+
+	it('holds no commander or clack and stays inside the size budget', async () => {
+		const text = await readFile(hooksPath, 'utf8');
+
+		expect(text).not.toContain('commander');
+		expect(text).not.toContain('@clack/prompts');
+		expect(Buffer.byteLength(text)).toBeLessThanOrEqual(BUDGET);
+	});
+
+	it('runs from the shim with no node_modules, below the floor it exits 0 silently', async () => {
+		const sandbox = await makeEmptyDir();
+		const floor = pkg.engines.node.replace(/^>=/, '');
+
+		await copyFile(hooksPath, resolve(sandbox, 'hooks.mjs'));
+		await writeFile(resolve(sandbox, 'harness-hook.mjs'), hookShimTemplate(floor));
+		await writeFile(resolve(sandbox, 'old-node.mjs'), hookShimTemplate('99.0.0'));
+		mkdirSync(resolve(sandbox, '.harness'), { recursive: true });
+		await writeFile(
+			resolve(sandbox, '.harness/config.json'),
+			JSON.stringify({
+				review: { minToolCalls: 8 },
+				memory: {
+					maxChars: 3000,
+					maxEntryChars: 240
+				},
+				curator: {
+					minLearnedSkills: 10,
+					intervalDays: 7,
+					staleDays: 14,
+					archiveDays: 30
+				}
+			})
+		);
+
+		const runHook = (entry: string): { stdout: string; code: number } => {
+			const result = spawnSync(process.execPath, [resolve(sandbox, entry)], {
+				cwd: sandbox,
+				input: JSON.stringify({
+					hook_event_name: 'SessionStart',
+					session_id: 's1',
+					source: 'startup'
+				}),
+				encoding: 'utf8'
+			});
+
+			return {
+				stdout: result.stdout ?? '',
+				code: result.status ?? -1
+			};
+		};
+
+		const live = runHook('harness-hook.mjs');
+		const stale = runHook('old-node.mjs');
+
+		expect(live.code).toBe(0);
+		expect(JSON.parse(live.stdout)).toHaveProperty('hookSpecificOutput.hookEventName', 'SessionStart');
+		expect(stale.code).toBe(0);
+		expect(stale.stdout).toBe('');
+		expect(await readdir(sandbox)).toEqual(expect.arrayContaining(['hooks.mjs', 'harness-hook.mjs', 'old-node.mjs']));
+
+		await removeDir(sandbox);
 	});
 });

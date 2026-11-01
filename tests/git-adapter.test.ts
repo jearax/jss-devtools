@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { gitHooksPath, gitInit, gitTopLevel, gitVersion } from '@/core/adapters/git.adapter';
+import { gitHooksPath, gitInit, gitTopLevel, gitVersion, gitWorktreeChanges } from '@/core/adapters/git.adapter';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
 
@@ -116,5 +116,32 @@ describe('the git adapter', () => {
 
 		expect(await gitTopLevel(repo)).toBe(await realpath(repo));
 		expect(await gitTopLevel(plain)).toBeNull();
+	});
+
+	it('reads worktree changes, null without HEAD or outside a repository', async () => {
+		const repo = await makeEmptyDir();
+		const plain = await makeEmptyDir();
+
+		dirs.push(repo, plain);
+
+		await run('git', ['init'], { cwd: repo });
+
+		expect(await gitWorktreeChanges(repo)).toBeNull();
+
+		await run('git', ['config', 'user.email', 't@t'], { cwd: repo });
+		await run('git', ['config', 'user.name', 't'], { cwd: repo });
+		await run('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo });
+
+		expect(await gitWorktreeChanges(repo)).toEqual({
+			status: '',
+			diff: ''
+		});
+
+		await writeFile(resolve(repo, 'a.txt'), 'x\n');
+
+		const changes = await gitWorktreeChanges(repo);
+
+		expect(changes?.status).toContain('a.txt');
+		expect(changes?.diff).toBe('');
 	});
 });

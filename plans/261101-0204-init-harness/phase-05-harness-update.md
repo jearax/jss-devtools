@@ -33,7 +33,9 @@ holds only argument rules and wiring.
 - Git root, as init requires. No clean tree, no git identity.
 - `.harness/core/manifest.json` present; else exit 1 with `jss-devtools init` as the next step.
 - Manifest version newer than the CLI: exit 1, `refusing downgrade`, with the install command.
-- Same version and no staged update: exit 0, "Harness is up to date".
+- Same version, no staged update and no `config.json` key missing: exit 0, "Harness is up to
+  date". A missing key at the same version is still written back with its default; this is the
+  repair the SessionStart warning names.
 - A base file missing: exit 1, "restore `.harness/core` from git".
 - `config.json` not valid JSON: exit 1 naming the line.
 - An update already staged: `update` exits 1 naming `--continue` and `--abort`.
