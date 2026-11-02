@@ -71,7 +71,7 @@ const summaryRows = (root: string, config: HealthContext['config']): readonly Ch
 	rows.push({
 		label: 'Decisions',
 		status: 'ok',
-		detail: `${decisionsInForce(root).length} decisions in force`
+		detail: String(decisionsInForce(root).length)
 	});
 
 	rows.push({

@@ -110,7 +110,8 @@ describe('harness doctor, a fresh install', () => {
 		expect(stdout).not.toContain('✖');
 		expect(stdout).not.toContain('–');
 		expect(stdout).toContain('chars,');
-		expect(stdout).toContain('decisions in force');
+		expect(stdout).toMatch(/Decisions\s+0/);
+		expect(stdout).not.toContain('decisions in force');
 		expect(snapshotDir(dir)).toBe(before);
 	});
 });

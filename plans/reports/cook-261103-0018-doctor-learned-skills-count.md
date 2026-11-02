@@ -53,6 +53,38 @@ Fixture: a repo installed by `jss-devtools init --yes`, with `.claude/skills/fin
 
 Exactly one `Learned skills` row, carrying the count only.
 
+## Follow-up: the Decisions row is a bare count too
+
+The user asked for the same shape on the `Decisions` row, which had read `1 decisions in force`:
+
+- `src/commands/harness/services/doctor.service.ts`: the row is now
+  `{ label: 'Decisions', status: 'ok', detail: String(decisionsInForce(root).length) }`.
+- `tests/harness-doctor.test.ts`: the fresh-install case asserts `/Decisions\s+0/` and asserts that
+  `decisions in force` no longer appears in the output.
+- Nothing else was touched. The `decisions in force` wording in the CLAUDE block template
+  (`src/modules/harness/templates/claude-block.template.ts`) and in the harness skills template
+  (`src/modules/harness/templates/harness-skills.template.ts`) stays; those describe the harness,
+  not the doctor table.
+
+This overrides the plan's non-goal, which had put the "1 decisions" wording out of scope for that
+phase. The user decided otherwise after the phase landed.
+
+Gate after the follow-up: lint clean, typecheck clean,
+`Test Files 28 passed | 1 skipped (29)`, `Tests 443 passed | 7 skipped (450)`, build green
+(`dist/cli.mjs` 323.39 kB, gzip 84.36 kB).
+
+Doctor output on the fixture with one decision in force and two learned skills:
+
+```
+┌   jss-devtools harness doctor
+│  ✔ Version         0.0.1
+│  ✔ Memory          488/4800 chars, 5 entries
+│  ✔ Decisions       1
+│  ✔ Learned skills  2
+│
+└  Harness is healthy
+```
+
 ## Notes and limitations
 
 - No commit and no push was made; the working tree holds the change for review.

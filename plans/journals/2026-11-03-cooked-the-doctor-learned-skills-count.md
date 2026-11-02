@@ -50,6 +50,16 @@ dated today in the usage log:
 └  Harness is healthy
 ```
 
+## Follow-up: the Decisions row became a bare count
+
+After the phase landed, the user asked for the `Decisions` row to match the `Learned skills` row:
+`detail` is now `String(decisionsInForce(root).length)` instead of `N decisions in force`. The
+fresh-install test asserts `/Decisions\s+0/` and that `decisions in force` is gone from the output.
+
+The plan had listed the "1 decisions" wording as a non-goal for that phase. The user reversed that
+after seeing the table, so the row changed. The `decisions in force` wording in the CLAUDE block
+template and the harness skills template stays; those are harness prose, not the doctor table.
+
 ## Next steps
 
 - Nothing was committed or pushed; the working tree holds the change for review.
