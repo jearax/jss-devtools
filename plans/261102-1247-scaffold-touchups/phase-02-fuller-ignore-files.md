@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Fuller ignore files"
-status: pending
+status: completed
 priority: P3
 effort: "2h"
 dependencies: []
@@ -31,8 +31,9 @@ case, grouped, no framework-specific sprawl.
 - The harness commits `.harness/bin/harness-hook.mjs` and `.harness/bin/hooks.mjs` (a bundled
   file), and `harness doctor` compares them with their manifest hash. The scaffold's
   `format` script runs `prettier --write .`, which would rewrite them and break the hash check.
-  They must be in `.prettierignore`. Whether the harness's managed Markdown files are stable under
-  Prettier is checked in the steps below, not assumed.
+  They must be in `.prettierignore`. The same holds for `.harness/core/`, the machine-written
+  manifest and base copies. The harness's **Markdown** files are not ignored: they are installed
+  already in Prettier's output, so `prettier --write .` leaves them alone (see the target below).
 - Nothing under a lint-glob source folder (`lib/`, `bin/`, `types/`, …) may be ignored: those are
   source in this scaffold.
 
@@ -60,10 +61,24 @@ not swept in by accident; `.env.example` stays committed.
 
 Only committed files Prettier must not touch:
 
-- lockfiles: `package-lock.json`, `npm-shrinkwrap.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock`;
+- lockfiles: `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock`;
 - Yarn's committed releases and plugins: `.yarn/`;
 - the harness's committed scripts: `.harness/bin/`;
+- the harness's machine-written state: `.harness/core/`, the manifest and the base copies the
+  three-way merge reads — machine files, the same class as `.harness/bin/`;
 - `CHANGELOG.md` is **not** added (no changelog tool in the scaffold).
+
+The harness's Markdown is **not** ignored. It is installed already in Prettier's output, so
+`prettier --write .` leaves every managed, seed and block file byte for byte as the CLI wrote it,
+and the live copy keeps matching its base copy.
+
+> "Đổi sang format sẵn (Recommended)" (user, 2026-11-02)
+
+The formatting is Prettier 3.9.10's, with the scaffold's own `.prettierrc.json` and `.editorconfig`,
+so the templates are written in the form Prettier would give them: tables aligned, a blank line
+after every heading, the list indents Prettier uses. A test formats every Markdown entry the
+harness installs and requires the result to equal the file, so a template that drifts from
+Prettier's output fails the suite.
 
 Everything the current file repeats from `.gitignore` (`node_modules/`, `dist/`, `coverage/`,
 `.env*`, `.eslintcache`, `*.log`) is removed.
@@ -72,6 +87,8 @@ Everything the current file repeats from `.gitignore` (`node_modules/`, `dist/`,
 
 - `src/commands/init/templates/gitignore.template.ts`
 - `src/commands/init/templates/prettierignore.template.ts`
+- `src/modules/harness/templates/*.template.ts`: the Markdown the harness installs, rewritten in
+  Prettier's output (formatting only, no wording).
 - Tests and snapshots that print these files (`grep -rn "eslintcache\|pnpm-lock.yaml" tests`).
 - `docs/` only if a doc lists the ignore entries.
 
@@ -80,19 +97,22 @@ Everything the current file repeats from `.gitignore` (`node_modules/`, `dist/`,
 1. Write both templates as above.
 2. Add a test that `.prettierignore` repeats no entry of `.gitignore`, and one that no `.gitignore`
    entry names a lint-glob source folder.
-3. Update snapshots that print the files.
-4. In a temp folder outside this repository: `init -y` (with the harness), then in the generated
+3. Rewrite the harness's Markdown templates in Prettier's output, and add a test that formats
+   every Markdown entry `harnessInstallEntries` produces and requires the result to equal the
+   file, in create and existing mode, with and without AgentKit. The test also holds the repo's
+   installed Prettier to the version the scaffold installs, so the two cannot drift apart.
+4. Update snapshots that print the files.
+5. In a temp folder outside this repository: `init -y` (with the harness), then in the generated
    project run `pnpm format` twice and `git status --porcelain`; then `jss-devtools harness doctor`.
-   Expected: the second `format` changes nothing, and doctor reports no `differs from the manifest
-   hash` error. If a managed harness Markdown file changes under Prettier, stop and report it with
-   the diff: the fix (a Prettier-stable template or one more ignore line) is a planner decision.
-5. Full gate.
+   Expected: the second `format` changes nothing, the tree stays clean, and doctor reports no
+   `differs from the manifest hash` error and no `changed from its base` line.
+6. Full gate.
 
 ## Acceptance
 
 - The generated `.gitignore` and `.prettierignore` match the targets above.
-- Step 4 holds: formatting a fresh scaffold is idempotent and leaves the harness healthy.
-- The two new tests pass.
+- Step 5 holds: formatting a fresh scaffold is idempotent and leaves the harness healthy.
+- The three new tests pass, and the Markdown test fails against the unformatted templates.
 
 ## Risk and rollback
 

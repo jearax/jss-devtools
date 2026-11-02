@@ -18,18 +18,16 @@ export const harnessDecisionsReadmeTemplate = `# Decisions
 User decisions that later work must follow: the only product policy in this repository. Write one
 from [\`../templates/decision.md\`](../templates/decision.md).
 
-| # | Title | Status | Date |
-|---|---|---|---|\n`;
+| #   | Title | Status | Date |
+| --- | ----- | ------ | ---- |\n`;
 
 export const harnessDocsReadmeTemplate = `# Docs
 
 Knowledge longer than one line of [\`../MEMORY.md\`](../MEMORY.md). Pick the template from
 [\`../templates/README.md\`](../templates/README.md).
 
-When \`ak-*\` skills are present, AgentKit owns this folder: follow its skills.
-
 | Doc | Kind | Summary |
-|---|---|---|\n`;
+| --- | ---- | ------- |\n`;
 
 export const harnessPlansReadmeTemplate = `# Plans
 
@@ -40,6 +38,4 @@ Work that spans sessions. One file per plan; its folder is its state.
 
 Start from [\`../templates/plan.md\`](../templates/plan.md). When done, fill its Result and
 \`git mv\` it to \`completed/\`. A user decision goes to \`../decisions/\`, lasting knowledge to
-\`../docs/\` or \`../MEMORY.md\`.
-
-When \`ak-*\` skills are present, AgentKit owns this folder: follow its skills.\n`;
+\`../docs/\` or \`../MEMORY.md\`.\n`;

@@ -245,7 +245,8 @@ describe('the plan, existing mode', () => {
 
 		expect(merged.startsWith('node_modules/\n*.log\n')).toBe(true);
 		expect(merged).toContain('dist/');
-		expect(merged).toContain('.env*');
+		expect(merged).toContain('.env\n');
+		expect(merged).toContain('.env.*');
 		expect(merged.endsWith('\n')).toBe(true);
 		expect(entryFor(plan, '.prettierignore')?.action).toBe('update');
 		expect(entryFor(plan, '.prettierignore')?.content).toContain('package-lock.json');

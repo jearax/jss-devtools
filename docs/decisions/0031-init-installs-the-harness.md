@@ -27,21 +27,25 @@ handled like an install failure, with `To finish:` commands.
 
 **Defaults and flags.** The harness is installed by default; `--no-harness` installs the
 toolchain only. `--agent-kit` (default off) only runs `ak init --docs-dir .harness/docs
---plans-dir .harness/plans` after the install; it changes no file the harness writes, and the
-manifest records nothing about AgentKit. `--agent-kit` with `--no-harness` exits 1 before any
-write. Both defaults are stated in `--help`.
+--plans-dir .harness/plans` after the install, and it decides the `CLAUDE.md` block variant; it
+changes no other file the harness writes, and the manifest records nothing about AgentKit. The
+same setting is detected later from `.agentkit/config.yaml`, the file `ak init` writes. See
+[0034](./0034-claude-block-follows-agentkit.md). `--agent-kit` with `--no-harness` exits 1 before
+any write. Both defaults are stated in `--help`.
 
 > "--harness trong command init giá trị default là true. --agent-kit gía trị default là false."
 > (user, 2026-11-01)
 
 **Files and kinds.** One copy of every file in the design proposal's table: the `CLAUDE.md` block
-(kind `block`), the `.harness/` seeds (`MEMORY.md`, the mode's `BOOTSTRAP.md`, the `decisions/`,
-`docs/` and `plans/` READMEs), the managed templates, the three `harness-*` skills, `config.json`
-(kind `config`), `.harness/.gitignore`, the hook shim and the hook bundle, and the merge entries
-in `.claude/settings.json`. The manifest `.harness/core/manifest.json` records the CLI version and
-each managed, block and config path with its kind and sha256; `.harness/core/base/**` holds the
-installed text of each of those. Nothing is installed into `.harness/state/`, `.harness/archive/`
-or `.harness/curator.json`; the CLI writes none of them.
+(kind `block`), the `.harness/` seeds (`MEMORY.md`, the mode's `BOOTSTRAP.md`, the `decisions/` and
+`docs/` READMEs), the managed `.harness/plans/README.md` and `.harness/templates/README.md`, the
+managed templates, the three `harness-*` skills, `config.json` (kind `config`),
+`.harness/.gitignore`, the hook shim and the hook bundle, and the merge entries in
+`.claude/settings.json`. The `CLAUDE.md` block is the one file that varies with AgentKit; see
+[0034](./0034-claude-block-follows-agentkit.md). The manifest `.harness/core/manifest.json`
+records the CLI version and each managed, block and config path with its kind and sha256;
+`.harness/core/base/**` holds the installed text of each of those. Nothing is installed into
+`.harness/state/`, `.harness/archive/` or `.harness/curator.json`; the CLI writes none of them.
 
 **Preflight rules.** An existing harness path (`.harness/`, a `harness-*` skill, the block markers
 in `CLAUDE.md`, a harness entry in `.claude/settings.json`) joins init's owned conflicts, so it
@@ -55,11 +59,11 @@ the next step: open Claude Code in the project folder.
 
 ## Options considered
 
-| Option                              | Consequence                                                                                 |
-| ----------------------------------- | ------------------------------------------------------------------------------------------- |
-| Harness inside init's flow (chosen) | One flow, one plan, one confirmation; failures before the first write                       |
-| A second `harness install` flow     | Two flows to keep in step; the prototype suffered this coupling                             |
-| Variant files per AgentKit setting  | Rejected: "No variant files" (2026-11-01) — one copy, AgentKit lines as run-time conditions |
+| Option                              | Consequence                                                                                                                                                                                  |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Harness inside init's flow (chosen) | One flow, one plan, one confirmation; failures before the first write                                                                                                                        |
+| A second `harness install` flow     | Two flows to keep in step; the prototype suffered this coupling                                                                                                                              |
+| Variant files per AgentKit setting  | Rejected: "No variant files" (2026-11-01) — one copy, AgentKit lines as run-time conditions; the `CLAUDE.md` block is the one exception, see [0034](./0034-claude-block-follows-agentkit.md) |
 
 ## Consequences
 

@@ -126,7 +126,9 @@ phase 4. Decisions: [0030](./decisions/0030-init-node-preset.md) (amended),
   manifest and base copies), three `harness-*` skills and the five hook entries in
   `.claude/settings.json`. `--no-harness` writes exactly what init wrote before; `--agent-kit`
   only runs `ak init --docs-dir .harness/docs --plans-dir .harness/plans` after the install and
-  changes no harness file. Every harness check runs in preflight, before the first write.
+  decides the `CLAUDE.md` block variant, changing no other harness file. Every harness check runs
+  in preflight, before the first write. See
+  [0034](./decisions/0034-claude-block-follows-agentkit.md).
 
 ## Done: harness update
 
@@ -134,7 +136,8 @@ Plan: [../plans/261101-0204-init-harness/plan.md](../plans/261101-0204-init-harn
 phase 5. Decision: [0032](./decisions/0032-harness-update.md).
 
 - `jss-devtools harness update` brings an installed harness to the templates inside the CLI:
-  managed files by three-way merge, the `CLAUDE.md` block in unit space, `config.json` key by key
+  managed files by three-way merge, the `CLAUDE.md` block in unit space (rendered for the AgentKit
+  setting update detects), `config.json` key by key
   (a missing key is repaired even at the same version), the harness entries in
   `.claude/settings.json` replaced with every other hook kept, the hook bundle always
   overwritten. Seeds, learned skills, `.harness/archive/`, `.harness/curator.json` and the

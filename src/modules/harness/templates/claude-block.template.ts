@@ -1,4 +1,20 @@
-export const harnessClaudeBlockTemplate = `<!-- HARNESS:BEGIN -->
+const ownershipBullets = (agentKit: boolean): string => {
+	const harness =
+		'- Do not edit what an update replaces; put a correction in a learned skill or a memory line instead:\n' +
+		'  - `harness-*` skills, `.harness/{bin,core,templates}/`: `jss-devtools harness update`.';
+
+	if (agentKit === false) {
+		return harness;
+	}
+
+	return `${harness}
+  - \`ak-*\` skills, \`.claude/{hooks,rules,agents,output-styles,scripts}/\`: \`ak update\`.
+- AgentKit owns \`.harness/{docs,plans}/\`: follow its skills there. It also works in \`.harness/decisions/\`.`;
+};
+
+export const harnessClaudeBlockTemplate = (agentKit: boolean): string => {
+	return `<!-- HARNESS:BEGIN -->
+
 # Repository harness
 
 The code, tests and CI are the authority. \`.harness/\` records what agents learned about working
@@ -6,24 +22,19 @@ with them. Read an index first, then only the file the task needs.
 
 ## Where knowledge goes
 
-| Kind | Write to | Start from |
-|---|---|---|
-| Fact, trap, convention, user correction | one line in \`.harness/MEMORY.md\` | its header |
-| Topic longer than a line | \`.harness/docs/<topic>.md\`, and a memory line pointing to it | \`.harness/docs/README.md\` |
-| User decision | \`.harness/decisions/NNNN-<slug>.md\`, quoting the user | \`.harness/templates/decision.md\` |
-| Work spanning sessions | \`.harness/plans/active/<YYMMDD>-<slug>.md\` | \`.harness/plans/README.md\` |
-| Reusable procedure | \`.claude/skills/<name>/SKILL.md\`, a learned skill | \`.harness/templates/skill.md\` |
+| Kind                                    | Write to                                                     | Start from                       |
+| --------------------------------------- | ------------------------------------------------------------ | -------------------------------- |
+| Fact, trap, convention, user correction | one line in \`.harness/MEMORY.md\`                             | its header                       |
+| Topic longer than a line                | \`.harness/docs/<topic>.md\`, and a memory line pointing to it | \`.harness/docs/README.md\`        |
+| User decision                           | \`.harness/decisions/NNNN-<slug>.md\`, quoting the user        | \`.harness/templates/decision.md\` |
+| Work spanning sessions                  | \`.harness/plans/active/<YYMMDD>-<slug>.md\`                   | \`.harness/plans/README.md\`       |
+| Reusable procedure                      | \`.claude/skills/<name>/SKILL.md\`, a learned skill            | \`.harness/templates/skill.md\`    |
 
 - Add or remove the row in the folder's \`README.md\` in the same change as the file.
 - Learned skills are yours to create, patch and archive without asking; use one when it matches the
   task, patch it when it is wrong.
 - Never write a secret. Name the variable or file that holds it.
-- Do not edit \`harness-*\` skills, \`.harness/templates/\`, \`.harness/bin/\` or \`.harness/core/\`:
-  \`jss-devtools harness update\` replaces them.
-- When \`ak-*\` skills are present, AgentKit owns \`.harness/docs/\` and \`.harness/plans/\`: follow its
-  skills there. It also owns the \`ak-*\` skills and
-  \`.claude/{hooks,rules,agents,output-styles,scripts}/\`, which \`ak update\` replaces: do not edit
-  them; put a correction in a learned skill or a memory line.
+${ownershipBullets(agentKit)}
 
 ## Match the process to the work
 
@@ -52,3 +63,4 @@ Claim done only with commands you ran and output you saw. Report what changed, h
 what you did not check, and what harness knowledge changed. Commit harness changes with the work;
 the harness never commits.
 <!-- HARNESS:END -->`;
+};

@@ -45,6 +45,9 @@ replaced while every other hook is kept, and the hook bundle `.harness/bin/hooks
 overwritten — it is minified build output; nobody edits it by hand. Seeds, learned skills,
 `.harness/archive/`, `.harness/curator.json` and the toolchain init installed are never touched.
 The upstream text is always the templates inside the installed CLI; update downloads nothing.
+The `CLAUDE.md` block is rendered for the AgentKit setting update detects in the repository
+(`.agentkit/config.yaml`), see
+[0034](./0034-claude-block-follows-agentkit.md).
 
 **The edge cases carry over from the prototype.** A managed file deleted locally is a conflict,
 not recreated; a file dropped upstream is deleted when untouched and a conflict when edited; a

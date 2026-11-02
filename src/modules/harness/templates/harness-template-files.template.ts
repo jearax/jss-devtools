@@ -3,16 +3,14 @@ export const harnessTemplatesReadmeTemplate = `# Templates
 Each template holds the rules and the format for one kind of file: read it before writing one.
 \`jss-devtools harness update\` replaces them; do not edit them here.
 
-When \`ak-*\` skills are present, AgentKit owns \`../docs/\` and \`../plans/\`: follow its skills there.
-
-| Template | For | Index to update |
-|---|---|---|
-| [decision.md](./decision.md) | \`../decisions/NNNN-<slug>.md\` | \`../decisions/README.md\` |
-| [docs/topic.md](./docs/topic.md) | \`../docs/<topic>.md\` | \`../docs/README.md\` |
-| [docs/architecture.md](./docs/architecture.md) | \`../docs/architecture.md\` | \`../docs/README.md\` |
-| [docs/runbook.md](./docs/runbook.md) | \`../docs/runbook-<operation>.md\` | \`../docs/README.md\` |
-| [plan.md](./plan.md) | \`../plans/active/<YYMMDD>-<slug>.md\` | none |
-| [skill.md](./skill.md) | \`.claude/skills/<name>/SKILL.md\` | none |\n`;
+| Template                                       | For                                  | Index to update          |
+| ---------------------------------------------- | ------------------------------------ | ------------------------ |
+| [decision.md](./decision.md)                   | \`../decisions/NNNN-<slug>.md\`        | \`../decisions/README.md\` |
+| [docs/topic.md](./docs/topic.md)               | \`../docs/<topic>.md\`                 | \`../docs/README.md\`      |
+| [docs/architecture.md](./docs/architecture.md) | \`../docs/architecture.md\`            | \`../docs/README.md\`      |
+| [docs/runbook.md](./docs/runbook.md)           | \`../docs/runbook-<operation>.md\`     | \`../docs/README.md\`      |
+| [plan.md](./plan.md)                           | \`../plans/active/<YYMMDD>-<slug>.md\` | none                     |
+| [skill.md](./skill.md)                         | \`.claude/skills/<name>/SKILL.md\`     | none                     |\n`;
 
 export const harnessDecisionTemplateTemplate = `# Template: decision
 
@@ -44,20 +42,24 @@ supersedes: none
 # NNNN: <rule>
 
 ## Context
+
 The question and the constraint behind it, in two to five sentences.
 
 ## Decision
+
 The rule, phrased so an agent can apply it.
 
 > "<the user's words>" (user, YYYY-MM-DD)
 
 ## Options considered
-| Option | Consequence |
-|---|---|
-| <chosen> | <why it won> |
+
+| Option     | Consequence   |
+| ---------- | ------------- |
+| <chosen>   | <why it won>  |
 | <rejected> | <why it lost> |
 
 ## Consequences
+
 - Easier: ...
 - Harder: ...
 - Enforced by: <test, hook, check, or "review only">
@@ -84,21 +86,25 @@ name: <name>
 description: <what it does>. Use when <concrete situations>.
 metadata:
   harness-origin: learned
-  harness-pinned: "false"
+  harness-pinned: 'false'
 ---
 
 # <Title>
 
 ## When to use
+
 - Task shape, files or error text that call for it.
 
 ## Procedure
+
 1. Step with the exact command or file.
 
 ## Pitfalls
+
 - Rule, and why.
 
 ## Verification
+
 - The command or observation that proves it worked.
 \`\`\`\n`;
 
@@ -120,28 +126,36 @@ Date: YYYY-MM-DD
 Status: Active | Blocked | Completed
 
 ## Outcome
+
 The observable result this work must produce.
 
 ## Context
+
 Links to the decisions, docs, code and tests it depends on.
 
 ## Scope
+
 In: ...
 Out: ...
 
 ## Approach
+
 The smallest coherent sequence; revise it when evidence changes it.
 
 ## Risks
+
 - Risk, mitigation, rollback.
 
 ## Progress
+
 - [ ] Step.
 
 ## Validation
+
 - Command run, and what it showed.
 
 ## Result
+
 Verified outcome, limits, follow-ups. Filled before moving to \`completed/\`.
 \`\`\`\n`;
 
@@ -171,15 +185,19 @@ sources: [<path>, <test path>]
 > What a teammate must know about this area, in one sentence.
 
 ## How it works
+
 Current behavior, naming files and functions as \`path:line\`.
 
 ## Rules
+
 - Rule, why it holds. \`(src: path:line)\`
 
 ## Traps
+
 - What goes wrong, how it shows (exact error text), how to avoid it.
 
 ## Verify
+
 \`\`\`bash
 <command that proves the claims above still hold>
 \`\`\`
@@ -210,20 +228,25 @@ sources: [<entry point>, <config>]
 > What the system does and for whom, in one sentence.
 
 ## Components
+
 | Component | Path | Responsibility |
-|---|---|---|
+| --------- | ---- | -------------- |
 
 ## Main path
+
 Numbered steps of the main request or job, naming the file at each step.
 
 ## Boundaries
+
 - What must never cross a boundary, and what enforces it (test, type, lint rule, CI).
 
 ## External dependencies
+
 | Dependency | Used for | On failure |
-|---|---|---|
+| ---------- | -------- | ---------- |
 
 ## Build, test, run
+
 The exact commands, and what about them is not obvious.
 \`\`\`\n`;
 
@@ -250,18 +273,23 @@ sources: [<script>, <workflow file>]
 > When to run it, in one sentence.
 
 ## Before
+
 - [ ] Access, tools and state required (clean tree, green CI, backup taken).
 
 ## Steps
+
 1. \`<command>\`: the output that means it worked.
 
 ## Verify
+
 - The observable result that proves success.
 
 ## Rollback
+
 1. \`<command>\`: what it undoes.
 
 ## Failures
+
 | Symptom | Likely cause | Action |
-|---|---|---|
+| ------- | ------------ | ------ |
 \`\`\`\n`;

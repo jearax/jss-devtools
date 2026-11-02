@@ -179,7 +179,7 @@ Answered with the option "Bỏ variant ở mọi nơi (Recommended)".
   skills." No negation: harness and AgentKit share `.harness/docs/` and `.harness/plans/`.
 - The paths stay fixed constants in code, passed to `ak init`; no `docsDir` or `plansDir` key in
   `config.json`: "Approved cho ý "đường dẫn cố định"" (user, 2026-11-01).
-- The index drift check skips `docs/` when `ak-*` skills are present, since AgentKit's files there
+- The index drift check skips `docs/` when AgentKit is in use, since AgentKit's files there
   need no harness index row; `decisions/` is always checked.
 - Group 2 of the file contents (the READMEs and both `BOOTSTRAP.md` copies) is approved with this
   wording.
@@ -368,10 +368,14 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
 > tất cả như .harness/{decisions/docs/plans/templates}/README.md,... nên tôi mới bảo thế." and
 > "Chọn 1, detect, nhưng quyết định này khá quan trọng / magic, nên docs rõ lại." (user, 2026-11-02)
 
+> "2 vì khi init với --agent-kit, behaivior là ak init. Như vậy dựa vào ak đó, suy ngược lại."
+> (user, 2026-11-02)
+
 - "No variant files" means the folder READMEs. The `CLAUDE.md` block varies with AgentKit; the
   READMEs carry no AgentKit line.
-- `init` reads `--agent-kit`; `harness update` detects AgentKit by any `.claude/skills/ak-*`
-  entry. The manifest still records nothing about AgentKit. A recorded setting was rejected.
+- `init` reads `--agent-kit`; `harness update` detects AgentKit by `.agentkit/config.yaml`, the
+  file `ak init` writes and the project commits. The manifest still records nothing about
+  AgentKit. A recorded setting was rejected.
 - With AgentKit the block says AgentKit owns `.harness/{docs,plans}/` and works in
   `.harness/decisions/`, because the hooks read decision file names, `status` and index rows.
 - `ak-*` stays in the wording: "khi `ak-*` skills thay đổi, mình sẽ maintenance theo ak".

@@ -77,7 +77,7 @@ const sha256 = (text: string): string => {
 };
 
 const OWNED_FILES = (input: HarnessInstallInput): readonly OwnedFile[] => {
-	const block = harnessClaudeBlockTemplate;
+	const block = harnessClaudeBlockTemplate(input.agentKit);
 
 	const skills = [
 		at(`${CLAUDE_SKILLS_DIR}/harness-onboard/SKILL.md`, 'managed', harnessOnboardSkillTemplate),
@@ -116,10 +116,10 @@ export type HarnessRecordedFile = {
 	content: string;
 };
 
-export const harnessRecordedFiles = (): readonly HarnessRecordedFile[] => {
+export const harnessRecordedFiles = (agentKit: boolean): readonly HarnessRecordedFile[] => {
 	return OWNED_FILES({
 		mode: 'existing',
-		agentKit: false,
+		agentKit,
 		claudeMd: null,
 		settingsJson: null
 	})

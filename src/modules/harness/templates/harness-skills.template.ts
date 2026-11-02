@@ -108,8 +108,8 @@ Curation removes, merges and moves; it never adds knowledge, which is review's j
    code. Then propose to the user, from \`.harness/state/skill-usage.json\`:
    - merging skills whose triggers overlap into the clearer one;
    - archiving skills not used for \`curator.archiveDays\`, unless \`harness-pinned: "true"\`.
-   Apply only what the user accepts. Archiving moves the folder to \`.harness/archive/<name>/\`;
-   nothing is deleted.
+     Apply only what the user accepts. Archiving moves the folder to \`.harness/archive/<name>/\`;
+     nothing is deleted.
 4. **Your own memory**: entries about this repository that a teammate would need move into
    \`.harness/MEMORY.md\` or \`.harness/docs/\`. Ask before removing them from your memory; leave
    personal entries alone.

@@ -388,6 +388,7 @@ describe('harness doctor, the check table', () => {
 		await run('git', ['add', '-A'], { cwd: dir });
 		await run('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-m', 'x'], { cwd: dir });
 
+		writeFile(dir, '.agentkit/config.yaml', 'paths:\n    docs: .harness/docs\n    plans: .harness/plans\n');
 		writeFile(dir, '.claude/skills/ak-foo/SKILL.md', '---\nname: ak-foo\n---\n\nAgentKit owns this\n');
 
 		const dirty = await runCli(dir);

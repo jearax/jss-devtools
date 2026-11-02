@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { CONFIG_NAMES } from '@/commands/init/constants/config-name.constant';
 import { NODE_PRESET_DEPENDENCIES } from '@/commands/init/constants/node-preset-dependency.constant';
 import { eslintConfigMjsTemplate } from '@/commands/init/templates/eslint-config-mjs.template';
+import { gitignoreTemplate } from '@/commands/init/templates/gitignore.template';
 import { prettierignoreTemplate } from '@/commands/init/templates/prettierignore.template';
 import { tsconfigJsonTemplate } from '@/commands/init/templates/tsconfig-json.template';
 import { PACKAGE } from '@/core/constants/package.constant';
@@ -47,14 +48,12 @@ describe('prettierignore aligns with the preset ignore lists', () => {
 
 		expect(tsconfig.exclude).toBeUndefined();
 
-		const prettierIgnoreLines = prettierignoreTemplate()
-			.split('\n')
-			.map((line) => {
-				return line.trim();
-			});
+		const ignoredLines = [...gitignoreTemplate().split('\n'), ...prettierignoreTemplate().split('\n')].map((line) => {
+			return line.trim();
+		});
 
 		const uncovered = eslintFolders.filter((folder) => {
-			return !prettierIgnoreLines.includes(folder);
+			return !ignoredLines.includes(folder);
 		});
 
 		expect(uncovered).toEqual([]);

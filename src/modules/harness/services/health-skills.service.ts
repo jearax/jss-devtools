@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { gitWorktreeChanges } from '@/core/adapters/git.adapter';
 import { CLAUDE_SKILLS_DIR, HARNESS_SKILL_USAGE } from '@/modules/harness/constants/harness-paths.constant';
 
+import { usesAgentKit } from './agent-kit.service';
 import { frontmatterOf } from './decisions.service';
-import { hasAgentKitSkills } from './index-drift.service';
 import { learnedSkillNames } from './learned-skills.service';
 import { dayDiff } from './skill-usage.service';
 
@@ -113,7 +113,7 @@ const usageOf = (root: string): Record<string, string> => {
 };
 
 const akSkillIssues = async (root: string): Promise<readonly HealthIssue[]> => {
-	if (!hasAgentKitSkills(root)) {
+	if (!usesAgentKit(root)) {
 		return [];
 	}
 

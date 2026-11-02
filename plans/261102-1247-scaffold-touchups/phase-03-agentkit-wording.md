@@ -1,7 +1,7 @@
 ---
 phase: 3
 title: "The CLAUDE block follows AgentKit"
-status: pending
+status: completed
 priority: P3
 effort: "3h"
 dependencies: []
@@ -41,12 +41,12 @@ Settled with the user on 2026-11-02:
 | Moment               | Source                                                                 |
 | -------------------- | ---------------------------------------------------------------------- |
 | `init`               | the `--agent-kit` flag (`HarnessInstallInput.agentKit`, already there) |
-| `harness update`     | `hasAgentKitSkills(root)`: any `.claude/skills/ak-*` entry             |
-| `harness doctor`     | unchanged: it compares the block with the manifest hash                |
+| `harness update`     | `usesAgentKit(root)`: `.agentkit/config.yaml`, the file `ak init` writes |
+| `harness doctor`     | unchanged: it checks the block for its markers, not against the manifest hash |
 
 Consequences, stated in the docs (below): turning AgentKit on after the install and running
-`harness update` adds the AgentKit lines; removing every `ak-*` skill and running `harness update`
-removes them. The manifest still records nothing about AgentKit.
+`harness update` adds the AgentKit lines; removing `.agentkit/config.yaml` and running `harness
+update` removes them. The manifest still records nothing about AgentKit.
 
 ## Target text
 
@@ -83,19 +83,23 @@ Delete the AgentKit line, and the blank line it leaves, from:
 
 - `install-plan.service.ts`: `OWNED_FILES` passes `input.agentKit` to the block template.
   `harnessRecordedFiles` takes the AgentKit setting as an argument instead of hard-coding `false`.
-- `update-release.service.ts`: `harnessRelease(root)` passes `hasAgentKitSkills(root)`.
+- `update-release.service.ts`: `harnessRelease(root)` passes `usesAgentKit(root)`.
 - `src/commands/harness/update.command.ts`: pass the repository root.
-- Keep `hasAgentKitSkills` the single detector; if it moves out of `index-drift.service.ts` for the
-  new import, move it as is.
+- Keep `usesAgentKit` the single detector; it lives in `agent-kit.service.ts`, out of
+  `index-drift.service.ts`, because the update flow, the index drift check and the doctor all
+  read it.
 
 ## Tests
 
 - The install entries contain the AgentKit lines with `agentKit: true` and none of them with
   `false`; nothing else in the block differs.
-- `harness update` in a repository installed with AgentKit and still holding an `ak-*` skill keeps
-  the AgentKit lines and reports no conflict.
-- A repository installed without AgentKit that gains an `ak-*` skill gets the lines on `harness
-  update`; one that loses every `ak-*` skill loses them.
+- `harness update` in a repository installed with AgentKit and still holding `.agentkit/config.yaml`
+  keeps the AgentKit lines and reports no conflict.
+- A repository installed without AgentKit that gains `.agentkit/config.yaml` gets the lines on
+  `harness update`; one that loses it loses them.
+- `init --agent-kit` followed by `harness update` keeps the lines: the case the `ak-*` detector
+  got wrong, because `ak init` writes `.agentkit/config.yaml` and no `ak-*` skill.
+- A repository with `.claude/skills/ak-*` but no `.agentkit/config.yaml` counts as no AgentKit.
 - No generated folder README contains "AgentKit".
 
 ## Docs
@@ -104,7 +108,7 @@ The user asked for this to be documented clearly.
 
 - New `docs/decisions/0034-claude-block-follows-agentkit.md`, in the format of 0033: the context
   (the README variants, the misread of "No variant files"), the decision (the block varies, the
-  READMEs do not; `init` reads the flag, `harness update` detects `.claude/skills/ak-*`), the
+  READMEs do not; `init` reads the flag, `harness update` detects `.agentkit/config.yaml`), the
   consequences above, the options considered (detection vs a recorded setting, which the user
   rejected), and the user quotes in this file.
 - `docs/decisions/0031-init-installs-the-harness.md`: the "One copy of every file" paragraph and

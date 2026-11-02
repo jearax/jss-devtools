@@ -91,7 +91,7 @@ export const runHarnessUpdate = async (options: UpdateOptions, command: Command)
 	}
 
 	const mode: UpdateMode = options.continue === true ? 'continue' : 'update';
-	const release = harnessRelease();
+	const release = harnessRelease(cwd);
 
 	if (mode === 'continue') {
 		const session = loadUpdateSession(cwd);

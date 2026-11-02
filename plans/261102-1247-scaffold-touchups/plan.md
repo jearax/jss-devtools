@@ -1,7 +1,7 @@
 ---
 title: "Scaffold touch-ups: moss green banner, fuller ignore files, AgentKit wording"
 description: "Three small user requests in one plan: the CLI banner in the design system's moss green, .gitignore / .prettierignore that cover the common Node.js cases, and the harness wording for AgentKit."
-status: pending
+status: completed
 priority: P3
 effort: 6h
 branch: main

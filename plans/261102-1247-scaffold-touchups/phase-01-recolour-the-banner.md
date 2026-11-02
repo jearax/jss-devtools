@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Recolour the banner"
-status: pending
+status: completed
 priority: P3
 effort: "1h"
 dependencies: []

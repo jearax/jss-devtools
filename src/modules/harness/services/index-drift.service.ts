@@ -1,12 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import {
-	CLAUDE_SKILLS_DIR,
-	HARNESS_DECISIONS_DIR,
-	HARNESS_DOCS_DIR
-} from '@/modules/harness/constants/harness-paths.constant';
+import { HARNESS_DECISIONS_DIR, HARNESS_DOCS_DIR } from '@/modules/harness/constants/harness-paths.constant';
 
+import { usesAgentKit } from './agent-kit.service';
 import { decisionFileIds } from './decisions.service';
 
 const tableCells = (readme: string): string[][] => {
@@ -52,17 +49,6 @@ const docRowNames = (readme: string): string[] => {
 	return rowNames(readme).map((cell) => {
 		return cell.replace(/^\[|\]\([^)]*\)$/g, '').replace(/\.md$/, '');
 	});
-};
-
-export const hasAgentKitSkills = (root: string): boolean => {
-	const dir = join(root, CLAUDE_SKILLS_DIR);
-
-	return (
-		existsSync(dir) &&
-		readdirSync(dir, { withFileTypes: true }).some((entry) => {
-			return entry.name.startsWith('ak-');
-		})
-	);
 };
 
 const decisionsDrift = (root: string): string[] => {
@@ -137,5 +123,5 @@ const docsDrift = (root: string): string[] => {
 };
 
 export const indexDrift = (root: string): string[] => {
-	return [...decisionsDrift(root), ...(hasAgentKitSkills(root) ? [] : docsDrift(root))];
+	return [...decisionsDrift(root), ...(usesAgentKit(root) ? [] : docsDrift(root))];
 };

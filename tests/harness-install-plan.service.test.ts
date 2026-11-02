@@ -207,11 +207,33 @@ describe('the harness install plan', () => {
 		expect(mergeHarnessSettings(mergeHarnessSettings(raw))).toBe(mergeHarnessSettings(raw));
 	});
 
-	it('changes no harness file when AgentKit is on', () => {
-		const off = harnessInstallEntries(createInput());
-		const on = harnessInstallEntries(createInput({ agentKit: true }));
+	it('puts the AgentKit lines in the CLAUDE block only when AgentKit is on', () => {
+		const off = entryFor(harnessInstallEntries(createInput()), 'CLAUDE.md')?.content ?? '';
+		const on = entryFor(harnessInstallEntries(createInput({ agentKit: true })), 'CLAUDE.md')?.content ?? '';
 
-		expect(on).toEqual(off);
+		const harnessBullet =
+			'- Do not edit what an update replaces; put a correction in a learned skill or a memory line instead:\n' +
+			'  - `harness-*` skills, `.harness/{bin,core,templates}/`: `jss-devtools harness update`.';
+
+		const agentKitBullets =
+			'  - `ak-*` skills, `.claude/{hooks,rules,agents,output-styles,scripts}/`: `ak update`.\n' +
+			'- AgentKit owns `.harness/{docs,plans}/`: follow its skills there. It also works in `.harness/decisions/`.';
+
+		expect(off).toContain(harnessBullet);
+		expect(off).not.toContain('AgentKit');
+
+		expect(on).toContain(`${harnessBullet}\n${agentKitBullets}`);
+		expect(on.replace(`\n${agentKitBullets}`, '')).toBe(off);
+	});
+
+	it('mentions AgentKit in no folder README', () => {
+		for (const entry of harnessInstallEntries(createInput({ agentKit: true }))) {
+			if (!entry.path.endsWith('README.md')) {
+				continue;
+			}
+
+			expect(entry.content).not.toContain('AgentKit');
+		}
 	});
 
 	it('installs the create-mode bootstrap in create mode and the existing-mode copy otherwise', () => {

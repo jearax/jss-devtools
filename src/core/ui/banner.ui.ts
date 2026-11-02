@@ -1,12 +1,6 @@
 import { styleText } from 'node:util';
 
-import {
-	BANNER_ART,
-	DS_PRIMARY_300,
-	DS_PRIMARY_400,
-	DS_PRIMARY_500,
-	PLATFORM_NAMES
-} from '@/core/constants/banner.constant';
+import { BANNER_ART, DS_MOSS_300, DS_MOSS_400, DS_MOSS_500, PLATFORM_NAMES } from '@/core/constants/banner.constant';
 import { PACKAGE } from '@/core/constants/package.constant';
 
 import { isInteractive, type TerminalContext } from './terminal.ui';
@@ -39,7 +33,7 @@ const hexToRgb = (hex: string): Rgb => {
 	];
 };
 
-const GRADIENT_STOPS: readonly Rgb[] = [DS_PRIMARY_300, DS_PRIMARY_400, DS_PRIMARY_500].map(hexToRgb);
+const GRADIENT_STOPS: readonly Rgb[] = [DS_MOSS_300, DS_MOSS_400, DS_MOSS_500].map(hexToRgb);
 
 const SHADOW_CHARACTERS = new Set(['╚', '╔', '╗', '╝', '║', '═']);
 
@@ -122,7 +116,7 @@ const artLine = (line: string, width: number, depth: number): string => {
 				return character;
 			}
 
-			const code = depth >= 8 ? gradientCode(gradientColour(column, width), depth) : '35';
+			const code = depth >= 8 ? gradientCode(gradientColour(column, width), depth) : '32';
 			const dim = SHADOW_CHARACTERS.has(character) ? ';2' : '';
 
 			return `\u001b[${code}${dim}m${character}\u001b[0m`;

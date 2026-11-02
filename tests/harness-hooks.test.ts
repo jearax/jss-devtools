@@ -212,7 +212,7 @@ describe('session start', () => {
 		expect(sessionStart()).toContain('not valid JSON');
 	});
 
-	it('warns on decisions drift and skips docs drift when ak skills exist', () => {
+	it('warns on decisions drift and skips docs drift when the AgentKit config exists', () => {
 		decision('0001', 'First rule', 'Accepted');
 		decision('0002', 'Second rule', 'Accepted');
 		write(root, '.harness/docs/a.md', 'x\n');
@@ -220,7 +220,7 @@ describe('session start', () => {
 
 		expect(withoutAk).toContain('decisions/README.md is missing rows for: 0001, 0002');
 		expect(withoutAk).toContain('docs/README.md is missing rows for: a');
-		write(root, '.claude/skills/ak-demo/SKILL.md', 'x\n');
+		write(root, '.agentkit/config.yaml', 'paths:\n    docs: .harness/docs\n    plans: .harness/plans\n');
 		const withAk = sessionStart();
 
 		expect(withAk).not.toContain('docs/README.md');

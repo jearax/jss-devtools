@@ -20,6 +20,7 @@ export const HARNESS_TEMPLATES_DIR = `${HARNESS_DIR}/templates`;
 export const CLAUDE_MD = 'CLAUDE.md';
 export const CLAUDE_SETTINGS = '.claude/settings.json';
 export const CLAUDE_SKILLS_DIR = '.claude/skills';
+export const AGENT_KIT_CONFIG = '.agentkit/config.yaml';
 export const HARNESS_BLOCK_BEGIN = '<!-- HARNESS:BEGIN -->';
 export const HARNESS_BLOCK_END = '<!-- HARNESS:END -->';
 export const HOOK_SHIM_PATH = `${HARNESS_DIR}/bin/harness-hook.mjs`;

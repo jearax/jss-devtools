@@ -60,8 +60,8 @@ describe('banner', () => {
 	it('colours the end stops in truecolor and dims the shadow characters at depth 24', () => {
 		const banner = renderBanner(info, {}, streamWithDepth(24));
 
-		expect(banner).toContain('\u001b[38;2;225;169;213m');
-		expect(banner).toContain('\u001b[38;2;171;100;150;2m');
+		expect(banner).toContain('\u001b[38;2;168;213;88m');
+		expect(banner).toContain('\u001b[38;2;94;140;4;2m');
 		expect(
 			banner.split('\u001b[').some((sequence) => {
 				return sequence.startsWith('38;2;') && sequence.includes(';2m');
@@ -79,8 +79,8 @@ describe('banner', () => {
 	it('uses one 16-colour code at depth 4', () => {
 		const banner = renderBanner(info, {}, streamWithDepth(4));
 
-		expect(banner).toContain('\u001b[35m');
-		expect(banner).toContain('\u001b[35;2m');
+		expect(banner).toContain('\u001b[32m');
+		expect(banner).toContain('\u001b[32;2m');
 		expect(banner).not.toContain('38;2;');
 		expect(banner).not.toContain('38;5;');
 	});

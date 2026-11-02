@@ -39,7 +39,7 @@ src/
       ├─ hooks/                 one pure handler per hook event
       ├─ services/              the module's services: install plan, the update flow, block region,
       │                         three-way merge, config merge, staging, config, memory, session log,
-      │                         the health checks `harness doctor` runs
+      │                         the AgentKit detector, the health checks `harness doctor` runs
       ├─ constants/             the state paths, the limits, the settings entries
       ├─ templates/             the shim template phase 4 installs
       └─ types/                 the hook payload and result types
@@ -182,10 +182,10 @@ returns it when the help is not an error, and a listener registered before `.ver
 before the version. Piped, captured or in CI there is no banner, so `--version` is exactly
 `x.y.z`, which is what `scripts/install.sh` reads.
 
-The art takes a left to right gradient over the design system's primary colours, declared beside
+The art takes a left to right gradient over the design system's moss green scale, declared beside
 it in `src/core/constants/banner.constant.ts`, with the shadow characters dimmed. The colour depth
 comes from the stream's `getColorDepth`: a truecolor terminal gets the gradient, a 256-colour one
-the nearest colours, a 16-colour one a single magenta, and `NO_COLOR` or a non-terminal no codes.
+the nearest colours, a 16-colour one a single green, and `NO_COLOR` or a non-terminal no codes.
 The depth comes from Node so one rule is shared with `styleText`, not a second copy of the
 environment checks.
 

@@ -7,6 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createProgram, runProgram } from '@/cli';
 import { runHarnessUpdate } from '@/commands/harness/update.command';
+import { buildInitPlan } from '@/commands/init/services/plan.service';
+import { applyInitPlan } from '@/commands/init/services/write.service';
 import {
 	HARNESS_MANIFEST,
 	HARNESS_UPDATE_DIR,
@@ -26,7 +28,7 @@ const run = promisify(execFile);
 const MANAGED = '.harness/templates/decision.md';
 
 const recordedOf = (path: string): string => {
-	const entry = harnessRecordedFiles().find((file) => {
+	const entry = harnessRecordedFiles(false).find((file) => {
 		return file.path === path;
 	});
 
@@ -59,10 +61,10 @@ const makeRepo = async (): Promise<string> => {
 	return dir;
 };
 
-const installHarness = (dir: string, settingsJson: string | null = null): void => {
+const installHarness = (dir: string, settingsJson: string | null = null, agentKit = false): void => {
 	for (const entry of harnessInstallEntries({
 		mode: 'existing',
-		agentKit: false,
+		agentKit,
 		claudeMd: null,
 		settingsJson
 	})) {
@@ -98,7 +100,7 @@ const ageBase = (dir: string, path: string, content: string): void => {
 const stubbedRelease = (edits: Record<string, string>, version = '0.9.0') => {
 	return {
 		version,
-		files: harnessRecordedFiles().map((file) => {
+		files: harnessRecordedFiles(false).map((file) => {
 			return edits[file.path] === undefined
 				? file
 				: {
@@ -137,13 +139,13 @@ const releaseHolder = vi.hoisted(() => {
 
 vi.mock('@/modules/harness/services/update-release.service', async (importOriginal) => {
 	const actual = await importOriginal<{
-		harnessRelease: () => HarnessRelease;
+		harnessRelease: (root: string) => HarnessRelease;
 	}>();
 
 	return {
 		...actual,
-		harnessRelease: () => {
-			return releaseHolder.current ?? actual.harnessRelease();
+		harnessRelease: (root: string) => {
+			return releaseHolder.current ?? actual.harnessRelease(root);
 		}
 	};
 });
@@ -760,5 +762,101 @@ describe('harness update, the continue flow asks like a clean update', () => {
 		);
 
 		expect(snapshotDir(dir)).toBe(before);
+	});
+});
+
+const AGENT_KIT_LINES = [
+	'  - `ak-*` skills, `.claude/{hooks,rules,agents,output-styles,scripts}/`: `ak update`.',
+	'- AgentKit owns `.harness/{docs,plans}/`: follow its skills there. It also works in `.harness/decisions/`.'
+].join('\n');
+
+const AGENT_KIT_CONFIG = 'paths:\n    docs: .harness/docs\n    plans: .harness/plans\n';
+
+const writeAgentKitConfig = (dir: string): void => {
+	writeFile(dir, '.agentkit/config.yaml', AGENT_KIT_CONFIG);
+};
+
+const writeAgentKitSkill = (dir: string): void => {
+	writeFile(dir, '.claude/skills/ak-demo/SKILL.md', '---\nname: ak-demo\n---\n\nbody\n');
+};
+
+describe('harness update, the AgentKit lines of the CLAUDE block', () => {
+	it('keeps the AgentKit lines in a repository that still holds the AgentKit config', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir, null, true);
+		writeAgentKitConfig(dir);
+		ageManifest(dir);
+
+		await runUpdate(dir, { yes: true });
+
+		expect(readLive(dir, 'CLAUDE.md') ?? '').toContain(AGENT_KIT_LINES);
+	});
+
+	it('adds the AgentKit lines to a repository that gained the AgentKit config', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		writeAgentKitConfig(dir);
+
+		await runUpdate(dir, { yes: true });
+
+		expect(readLive(dir, 'CLAUDE.md') ?? '').toContain(AGENT_KIT_LINES);
+	});
+
+	it('removes the AgentKit lines from a repository that lost the AgentKit config', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir, null, true);
+		writeAgentKitConfig(dir);
+		ageManifest(dir);
+		rmSync(join(dir, '.agentkit'), { recursive: true });
+
+		await runUpdate(dir, { yes: true });
+
+		const claudeMd = readLive(dir, 'CLAUDE.md') ?? '';
+
+		expect(claudeMd).not.toContain(AGENT_KIT_LINES);
+		expect(claudeMd).not.toContain('AgentKit');
+	});
+
+	it('counts ak-* skills without the AgentKit config as no AgentKit', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		writeAgentKitSkill(dir);
+
+		await runUpdate(dir, { yes: true });
+
+		const claudeMd = readLive(dir, 'CLAUDE.md') ?? '';
+
+		expect(claudeMd).not.toContain(AGENT_KIT_LINES);
+		expect(claudeMd).not.toContain('AgentKit');
+	});
+
+	it('keeps the AgentKit lines when init --agent-kit is followed by harness update', async () => {
+		const dir = await makeRepo();
+
+		const plan = buildInitPlan(
+			{
+				mode: 'existing',
+				targetDir: dir,
+				projectName: 'app',
+				pm: 'pnpm',
+				pmVersion: '11.0.0',
+				packageJson: { parsed: {} }
+			},
+			{ agentKit: true }
+		);
+
+		await applyInitPlan(plan);
+		writeAgentKitConfig(dir);
+		ageManifest(dir);
+
+		await runUpdate(dir, { yes: true });
+
+		expect(readLive(dir, 'CLAUDE.md') ?? '').toContain(AGENT_KIT_LINES);
 	});
 });

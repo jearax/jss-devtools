@@ -96,3 +96,135 @@ describe('node preset templates', () => {
 		expect(pnpmWorkspaceYamlTemplate()).toMatchSnapshot();
 	});
 });
+
+const splitTopLevel = (body: string): string[] => {
+	const parts: string[] = [];
+	let depth = 0;
+	let current = '';
+
+	for (const character of body) {
+		if (character === '{') {
+			depth += 1;
+		} else if (character === '}') {
+			depth -= 1;
+		}
+
+		if (character === ',' && depth === 0) {
+			parts.push(current);
+			current = '';
+			continue;
+		}
+
+		current += character;
+	}
+
+	parts.push(current);
+
+	return parts;
+};
+
+const expandBraces = (pattern: string): string[] => {
+	const start = pattern.indexOf('{');
+
+	if (start === -1) {
+		return [pattern];
+	}
+
+	let depth = 0;
+	let end = -1;
+
+	for (let index = start; index < pattern.length; index += 1) {
+		if (pattern[index] === '{') {
+			depth += 1;
+		} else if (pattern[index] === '}') {
+			depth -= 1;
+
+			if (depth === 0) {
+				end = index;
+				break;
+			}
+		}
+	}
+
+	const parts = splitTopLevel(pattern.slice(start + 1, end));
+	const expanded: string[] = [];
+
+	for (const part of parts) {
+		const inner = part.includes(',') ? expandBraces(part) : [part];
+
+		for (const candidate of inner) {
+			expanded.push(pattern.slice(0, start) + candidate + pattern.slice(end + 1));
+		}
+	}
+
+	return expanded;
+};
+
+const lintSourceFolders = (): string[] => {
+	const packageJson = JSON.parse(
+		packageJsonTemplate({
+			projectName: PROJECT_NAME,
+			packageManager: 'pnpm',
+			packageManagerVersion: '1.2.3',
+			nodeFloor: NODE_FLOOR
+		})
+	) as { scripts: Record<string, string> };
+
+	const lint = packageJson.scripts['lint']!;
+
+	const start = lint.indexOf('{');
+	let depth = 0;
+	let end = -1;
+
+	for (let index = start; index < lint.length; index += 1) {
+		if (lint[index] === '{') {
+			depth += 1;
+		} else if (lint[index] === '}') {
+			depth -= 1;
+
+			if (depth === 0) {
+				end = index;
+				break;
+			}
+		}
+	}
+
+	return expandBraces(lint.slice(start, end + 1)).map((folder) => {
+		return folder.replace(/\/$/, '');
+	});
+};
+
+const ignoreEntries = (raw: string): string[] => {
+	return raw
+		.split('\n')
+		.map((line) => {
+			return line.trim();
+		})
+		.filter((line) => {
+			return line !== '' && !line.startsWith('#');
+		});
+};
+
+describe('the preset ignore files', () => {
+	it('repeats no entry of the .gitignore in the .prettierignore', () => {
+		const gitignore = new Set(ignoreEntries(gitignoreTemplate()));
+
+		const repeated = ignoreEntries(prettierignoreTemplate()).filter((entry) => {
+			return gitignore.has(entry);
+		});
+
+		expect(repeated).toEqual([]);
+	});
+
+	it('ignores no folder the lint glob treats as source', () => {
+		const sourceFolders = lintSourceFolders();
+
+		const offending = ignoreEntries(gitignoreTemplate()).filter((entry) => {
+			const name = entry.replace(/^\.+/, '').split('/')[0]!.replace(/\/$/, '');
+
+			return sourceFolders.includes(name);
+		});
+
+		expect(offending).toEqual([]);
+	});
+});
