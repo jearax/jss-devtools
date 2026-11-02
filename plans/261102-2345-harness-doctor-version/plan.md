@@ -1,7 +1,7 @@
 ---
 title: "harness doctor reports the installed harness version"
 description: "harness doctor compares the version in the manifest with the running CLI and says what to run when they differ."
-status: pending
+status: completed
 priority: P3
 effort: 1h
 branch: main

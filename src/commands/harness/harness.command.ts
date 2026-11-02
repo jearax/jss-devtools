@@ -37,7 +37,8 @@ const examplesText = (): string => {
 const DOCTOR_CHECKS = `Checks the harness installed in this repository: the manifest in .harness/core/,
 the harness block in CLAUDE.md, the harness hook entries in .claude/settings.json, the hook files
 under .harness/bin, config.json, memory limits, index drift, decision records, secrets in .harness/,
-learned skills, managed-file drift, staged updates, and (with AgentKit) uncommitted ak skill edits.
+learned skills, managed-file drift, staged updates, the installed harness version against the running
+CLI, and (with AgentKit) uncommitted ak skill edits.
 
 Exit codes: 0 when the harness is healthy or has warnings only, 1 when any check fails.`;
 

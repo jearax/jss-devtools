@@ -1,8 +1,39 @@
+import { PACKAGE } from '@/core/constants/package.constant';
+
 import { loadUpdateSession } from './staging.service';
 import { readBaseCopy, readLiveFile } from './update-manifest.service';
+import { compareHarnessVersions, INSTALL_COMMAND_LINE } from './update-release.service';
 
 import type { HealthIssue } from '@/modules/harness/types/health-issue.type';
 import type { InstalledManifest } from '@/modules/harness/types/update.type';
+
+const versionIssue = (manifest: InstalledManifest | null): HealthIssue | null => {
+	if (manifest === null) {
+		return null;
+	}
+
+	const order = compareHarnessVersions(manifest.version, PACKAGE.version);
+
+	if (order === 0) {
+		return null;
+	}
+
+	if (order < 0) {
+		return {
+			level: 'warn',
+			label: 'Version',
+			detail: `harness ${manifest.version} installed, CLI is ${PACKAGE.version}`,
+			nextStep: 'run jss-devtools harness update'
+		};
+	}
+
+	return {
+		level: 'warn',
+		label: 'Version',
+		detail: `installed by CLI ${manifest.version}, this CLI is ${PACKAGE.version}`,
+		nextStep: INSTALL_COMMAND_LINE
+	};
+};
 
 const managedDriftIssues = (root: string, manifest: InstalledManifest | null): readonly HealthIssue[] => {
 	if (manifest === null) {
@@ -53,4 +84,4 @@ const stagedUpdateIssue = (root: string): HealthIssue | null => {
 	};
 };
 
-export { managedDriftIssues, stagedUpdateIssue };
+export { managedDriftIssues, stagedUpdateIssue, versionIssue };

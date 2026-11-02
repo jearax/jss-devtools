@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createProgram, runProgram } from '@/cli';
+import { PACKAGE } from '@/core/constants/package.constant';
 import { HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
 import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
@@ -85,6 +86,15 @@ const runCli = async (dir: string): Promise<{ stdout: string; exitCode: number }
 
 const LEARNED = (name: string): string => {
 	return `---\nname: ${name}\nharness-origin: learned\n---\n\nbody\n`;
+};
+
+const setManifestVersion = (dir: string, version: string): void => {
+	const path = join(dir, HARNESS_MANIFEST);
+	const manifest = JSON.parse(readFileSync(path, 'utf8')) as { version: string };
+
+	manifest.version = version;
+
+	writeFile(dir, HARNESS_MANIFEST, `${JSON.stringify(manifest, null, '\t')}\n`);
 };
 
 describe('harness doctor, a fresh install', () => {
@@ -380,6 +390,46 @@ describe('harness doctor, the check table', () => {
 		expect(exitCode).toBe(0);
 	});
 
+	it('reports the installed version when it matches the CLI', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		setManifestVersion(dir, PACKAGE.version);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain(`Version`);
+		expect(stdout).toContain(PACKAGE.version);
+		expect(stdout).not.toContain('installed, CLI is');
+		expect(exitCode).toBe(0);
+	});
+
+	it('warns when the installed harness is older than the CLI', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		setManifestVersion(dir, '0.0.0');
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain(`harness 0.0.0 installed, CLI is ${PACKAGE.version}`);
+		expect(stdout).toContain('run jss-devtools harness update');
+		expect(exitCode).toBe(0);
+	});
+
+	it('warns when the installed harness is newer than the CLI', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		setManifestVersion(dir, '99.0.0');
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain(`installed by CLI 99.0.0, this CLI is ${PACKAGE.version}`);
+		expect(stdout).toContain('curl -fsSL https://jss-devtools.jjuidev.com/install.sh | sh');
+		expect(exitCode).toBe(0);
+	});
+
 	it('warns on uncommitted ak skill edits, and stays quiet once they are committed', async () => {
 		const dir = await makeRepo();
 
@@ -436,6 +486,7 @@ describe('harness doctor, writes and help', () => {
 		});
 
 		expect(stdout).toContain('the harness hook entries in .claude/settings.json');
+		expect(stdout).toContain('the installed harness version against the running');
 		expect(stdout).toContain('Exit codes: 0 when the harness is healthy or has warnings only, 1 when any check fails.');
 		expect(existsSync(join(dir, '.harness'))).toBe(false);
 	});

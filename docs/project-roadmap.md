@@ -155,9 +155,10 @@ phase 7. Decision: [0033](./decisions/0033-harness-doctor.md).
 - `jss-devtools harness doctor` checks the harness installed in the current repository, read-only:
   the manifest, the `CLAUDE.md` block, the harness hook entries in `.claude/settings.json`, the
   hook files under `.harness/bin`, `config.json`, memory limits, index drift, decision records,
-  secrets in `.harness/`, learned skills, managed-file drift, staged updates and, with AgentKit,
-  uncommitted `ak-*` skill edits. It prints a summary plus one row per issue and exits 1 when any
-  issue is an error; `--help` lists the checks and the exit codes. Every rule lives once in
+  secrets in `.harness/`, learned skills, managed-file drift, staged updates, the installed harness
+  version against the running CLI and, with AgentKit, uncommitted `ak-*` skill edits. It prints a
+  summary plus one row per issue and exits 1 when any issue is an error; `--help` lists the checks
+  and the exit codes. Every rule lives once in
   `src/modules/harness/services/health-*.service.ts`, shared with the hooks and `harness update`.
 
 ## Not started

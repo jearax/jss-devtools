@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Version check"
-status: pending
+status: completed
 priority: P3
 effort: 1h
 dependencies: []
