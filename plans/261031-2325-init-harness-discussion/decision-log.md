@@ -359,3 +359,18 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
 - `harness update` adds missing keys and keeps existing values, so repositories already installed
   keep their numbers; only new installs get these.
 - Plan: [261102-1045-harness-config-defaults](../261102-1045-harness-config-defaults/plan.md).
+
+## AgentKit wording in the harness (2026-11-02)
+
+> "Ý tưởng ban đầu mang ý nghĩa là "delegate full cho ak nếu có ak"." and "khi `ak-*` skills thay
+> đổi, mình sẽ maintenance theo ak … => Giữ `ak-*`" (user, 2026-11-02)
+
+- `.harness/` splits in two: `bin`, `core` and `templates` belong to `jss-devtools harness update`;
+  `docs`, `plans` and `decisions` are where AgentKit's skills write.
+- AgentKit owns `docs` and `plans`. It only "works in" `decisions`, because the hooks read decision
+  file names, `status` and index rows, and AgentKit has no decision format of its own.
+- One "do not edit what an update replaces" rule, one line per updater, one shared correction route.
+- The templates README drops its AgentKit line; the CLAUDE block and the folder READMEs carry it.
+- No separate learned-skill marker line: the `## Where knowledge goes` table already routes every
+  learned skill to `.harness/templates/skill.md`.
+- Plan: [261102-1247-scaffold-touchups](../261102-1247-scaffold-touchups/phase-03-agentkit-wording.md).
