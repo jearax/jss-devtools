@@ -167,6 +167,7 @@ Answered with the option "Bỏ variant ở mọi nơi (Recommended)".
   no file the harness writes. The manifest records nothing about AgentKit, and turning AgentKit on
   after the install needs no harness change.
 - This departs from the prototype's 0013, which wrote the AgentKit note only with the flag.
+- Narrowed on 2026-11-02 to the folder READMEs: see "The CLAUDE block follows AgentKit" below.
 
 ## With AgentKit, the harness defers to it; paths stay fixed (2026-11-01)
 
@@ -360,17 +361,22 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
   keep their numbers; only new installs get these.
 - Plan: [261102-1045-harness-config-defaults](../261102-1045-harness-config-defaults/plan.md).
 
-## AgentKit wording in the harness (2026-11-02)
+## The CLAUDE block follows AgentKit (2026-11-02, narrows "No variant files")
 
-> "Ý tưởng ban đầu mang ý nghĩa là "delegate full cho ak nếu có ak"." and "khi `ak-*` skills thay
-> đổi, mình sẽ maintenance theo ak … => Giữ `ak-*`" (user, 2026-11-02)
+> "trong `decision-log.md:155` tôi confirm là có quyết định, nhưng tôi và bạn đã hiểu sai 1 chút.
+> Trong ngữ cảnh lúc đó, bạn thảo luận là lập plan cùng tôi, có quá nhiều files variant, gần như cho
+> tất cả như .harness/{decisions/docs/plans/templates}/README.md,... nên tôi mới bảo thế." and
+> "Chọn 1, detect, nhưng quyết định này khá quan trọng / magic, nên docs rõ lại." (user, 2026-11-02)
 
-- `.harness/` splits in two: `bin`, `core` and `templates` belong to `jss-devtools harness update`;
-  `docs`, `plans` and `decisions` are where AgentKit's skills write.
-- AgentKit owns `docs` and `plans`. It only "works in" `decisions`, because the hooks read decision
-  file names, `status` and index rows, and AgentKit has no decision format of its own.
+- "No variant files" means the folder READMEs. The `CLAUDE.md` block varies with AgentKit; the
+  READMEs carry no AgentKit line.
+- `init` reads `--agent-kit`; `harness update` detects AgentKit by any `.claude/skills/ak-*`
+  entry. The manifest still records nothing about AgentKit. A recorded setting was rejected.
+- With AgentKit the block says AgentKit owns `.harness/{docs,plans}/` and works in
+  `.harness/decisions/`, because the hooks read decision file names, `status` and index rows.
+- `ak-*` stays in the wording: "khi `ak-*` skills thay đổi, mình sẽ maintenance theo ak".
 - One "do not edit what an update replaces" rule, one line per updater, one shared correction route.
-- The templates README drops its AgentKit line; the CLAUDE block and the folder READMEs carry it.
-- No separate learned-skill marker line: the `## Where knowledge goes` table already routes every
-  learned skill to `.harness/templates/skill.md`.
+- No learned-skill marker line: the `## Where knowledge goes` table already routes learned skills
+  to `.harness/templates/skill.md`.
+- Documented in `docs/decisions/0034-claude-block-follows-agentkit.md` by the plan.
 - Plan: [261102-1247-scaffold-touchups](../261102-1247-scaffold-touchups/phase-03-agentkit-wording.md).

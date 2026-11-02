@@ -1,4 +1,4 @@
-# Task: scaffold touch-ups (moss green banner, fuller ignore files, AgentKit wording)
+# Task: scaffold touch-ups (moss green banner, fuller ignore files, CLAUDE block follows AgentKit)
 
 Repository: `/Users/tandm/Desktop/yyyy`, branch `main`. Node 24.11+, pnpm.
 
@@ -17,17 +17,21 @@ Implement `plans/261102-1247-scaffold-touchups/plan.md` and its three phases,
 4. Phase 2: `src/commands/init/templates/gitignore.template.ts`,
    `src/commands/init/templates/prettierignore.template.ts`, the lint glob in
    `src/commands/init/templates/package-json.template.ts`, and the tests that print these files
-5. Phase 3: `src/modules/harness/templates/claude-block.template.ts`,
-   `src/modules/harness/templates/harness-seeds.template.ts`,
-   `src/modules/harness/templates/harness-template-files.template.ts`
+5. Phase 3: the three templates it names, `src/modules/harness/services/install-plan.service.ts`,
+   `update-release.service.ts`, `index-drift.service.ts`, `src/commands/harness/update.command.ts`,
+   `tests/harness-update.test.ts`, `tests/harness-install-plan.service.test.ts`,
+   `docs/decisions/0031-*.md`, `0032-*.md`, `0033-*.md` (format)
 
 ## Files you may modify
 
 - The phase 1 files above.
 - The two ignore templates, `tests/**` where a test or snapshot prints the ignore files, and new
   tests the phase 2 file asks for.
-- The three phase 3 templates, and `tests/**` where a test prints their text.
-- `docs/**` only where a doc lists the banner colours, the ignore entries or quotes the phase 3 lines.
+- The phase 3 templates and services, `src/commands/harness/update.command.ts`, and `tests/**`
+  for the phase 3 tests.
+- `docs/decisions/0034-claude-block-follows-agentkit.md` (new), `0031`, `0032`, and the roadmap
+  and architecture docs only where phase 3 says.
+- Other `docs/**` only where a doc lists the banner colours or the ignore entries.
 - `status` in the plan and phase files.
 
 ## Acceptance
