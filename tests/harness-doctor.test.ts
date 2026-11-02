@@ -115,6 +115,46 @@ describe('harness doctor, a fresh install', () => {
 	});
 });
 
+describe('harness doctor, the learned skills row', () => {
+	it('counts the learned skills in one row and names none of them', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeFile(dir, '.claude/skills/find-things/SKILL.md', LEARNED('find-things'));
+		writeFile(dir, '.claude/skills/spot-bugs/SKILL.md', LEARNED('spot-bugs'));
+		writeFile(
+			dir,
+			'.harness/state/skill-usage.json',
+			`${JSON.stringify(
+				{
+					'find-things': daysAgo(0),
+					'spot-bugs': daysAgo(0)
+				},
+				null,
+				'\t'
+			)}\n`
+		);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(exitCode).toBe(0);
+		expect(stdout).toMatch(/Learned skills\s+2/);
+		expect(stdout).not.toContain('find-things');
+		expect(stdout).not.toContain('spot-bugs');
+	});
+
+	it('shows zero when no skill is learned', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(exitCode).toBe(0);
+		expect(stdout).toMatch(/Learned skills\s+0/);
+	});
+});
+
 describe('harness doctor, the check table', () => {
 	it('errors when the manifest is missing', async () => {
 		const dir = await makeRepo();

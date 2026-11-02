@@ -7,7 +7,6 @@ import { stateIssues } from '@/modules/harness/services/health-state.service';
 import { managedDriftIssues, stagedUpdateIssue, versionIssue } from '@/modules/harness/services/health-update.service';
 import { learnedSkillNames } from '@/modules/harness/services/learned-skills.service';
 import { readMemoryState } from '@/modules/harness/services/memory.service';
-import { foldSkillUsage } from '@/modules/harness/services/skill-usage.service';
 import { readManifest } from '@/modules/harness/services/update-manifest.service';
 import { compareHarnessVersions } from '@/modules/harness/services/update-release.service';
 
@@ -48,18 +47,9 @@ const collectHealth = async (root: string): Promise<HealthIssue[]> => {
 	});
 };
 
-const usageOf = (root: string): Record<string, string> => {
-	try {
-		return foldSkillUsage(root, [], '');
-	} catch {
-		return {};
-	}
-};
-
 const summaryRows = (root: string, config: HealthContext['config']): readonly CheckListRow[] => {
 	const memory = readMemoryState(root);
 	const maxChars = config.memory.maxChars;
-	const usage = usageOf(root);
 	const manifest = manifestOf(root);
 
 	const rows: CheckListRow[] = [];
@@ -84,15 +74,11 @@ const summaryRows = (root: string, config: HealthContext['config']): readonly Ch
 		detail: `${decisionsInForce(root).length} decisions in force`
 	});
 
-	for (const name of learnedSkillNames(root)) {
-		const last = usage[name];
-
-		rows.push({
-			label: name,
-			status: 'ok',
-			detail: `last used ${last ?? 'never'}`
-		});
-	}
+	rows.push({
+		label: 'Learned skills',
+		status: 'ok',
+		detail: String(learnedSkillNames(root).length)
+	});
 
 	return rows;
 };

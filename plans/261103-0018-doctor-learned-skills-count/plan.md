@@ -1,7 +1,7 @@
 ---
 title: "harness doctor counts learned skills in one row"
 description: "The doctor summary shows one Learned skills row with the count instead of one row per learned skill."
-status: pending
+status: completed
 priority: P3
 effort: 30m
 branch: main
