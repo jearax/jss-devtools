@@ -244,4 +244,22 @@ describe('the harness install plan', () => {
 		expect(entryFor(entries, '.harness/bin/hooks.mjs')?.content.length).toBeGreaterThan(0);
 		expect(entryFor(entries, '.harness/bin/harness-hook.mjs')?.content).toBe(hookShimTemplate(PACKAGE.nodeFloor));
 	});
+
+	it('installs the decided config defaults', () => {
+		const content = entryFor(harnessInstallEntries(createInput()), '.harness/config.json')?.content ?? '';
+
+		expect(JSON.parse(content)).toEqual({
+			review: { minToolCalls: 7 },
+			memory: {
+				maxChars: 4800,
+				maxEntryChars: 300
+			},
+			curator: {
+				minLearnedSkills: 10,
+				intervalDays: 7,
+				staleDays: 14,
+				archiveDays: 28
+			}
+		});
+	});
 });

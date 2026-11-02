@@ -1,7 +1,7 @@
 ---
 title: "Harness config defaults for a medium project"
 description: "Change the defaults init writes to .harness/config.json to 7 / 4800 / 300 / 10 / 7 / 14 / 28."
-status: pending
+status: completed
 priority: P2
 effort: 1h
 branch: main

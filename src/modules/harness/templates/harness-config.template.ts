@@ -1,18 +1,18 @@
 import type { HarnessConfig } from '@/modules/harness/types/hook.type';
 
-export const HARNESS_CONFIG_DEFAULTS: HarnessConfig = {
-	review: { minToolCalls: 8 },
+export const HARNESS_CONFIG_DEFAULTS = {
+	review: { minToolCalls: 7 },
 	memory: {
-		maxChars: 3000,
-		maxEntryChars: 240
+		maxChars: 4800,
+		maxEntryChars: 300
 	},
 	curator: {
 		minLearnedSkills: 10,
 		intervalDays: 7,
 		staleDays: 14,
-		archiveDays: 30
+		archiveDays: 28
 	}
-};
+} satisfies HarnessConfig;
 
 export const harnessConfigTemplate = (): string => {
 	return `${JSON.stringify(HARNESS_CONFIG_DEFAULTS, null, '\t')}\n`;

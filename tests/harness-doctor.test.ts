@@ -8,12 +8,15 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createProgram, runProgram } from '@/cli';
 import { HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
 import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
+import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
 
 import { capture } from './support/capture-stream';
 import { snapshotDir } from './support/fs-snapshot';
 import { makeEmptyDir } from './support/tmp-dir';
 
 const run = promisify(execFile);
+
+const MEMORY_LIMIT = HARNESS_CONFIG_DEFAULTS.memory.maxChars;
 
 const writeFile = (dir: string, path: string, content: string): void => {
 	const full = join(dir, path);
@@ -224,11 +227,11 @@ describe('harness doctor, the check table', () => {
 
 		const memory = readFileSync(join(dir, '.harness/MEMORY.md'), 'utf8');
 
-		writeFile(dir, '.harness/MEMORY.md', `${memory}${'x'.repeat(3100 - memory.length)}\n`);
+		writeFile(dir, '.harness/MEMORY.md', `${memory}${'x'.repeat(MEMORY_LIMIT + 100 - memory.length)}\n`);
 
 		const { stdout, exitCode } = await runCli(dir);
 
-		expect(stdout).toContain('over the limit of 3000');
+		expect(stdout).toContain(`over the limit of ${MEMORY_LIMIT}`);
 		expect(exitCode).toBe(1);
 	});
 
@@ -239,11 +242,11 @@ describe('harness doctor, the check table', () => {
 
 		const memory = readFileSync(join(dir, '.harness/MEMORY.md'), 'utf8');
 
-		writeFile(dir, '.harness/MEMORY.md', `${memory}${'x'.repeat(2700 - memory.length)}\n`);
+		writeFile(dir, '.harness/MEMORY.md', `${memory}${'x'.repeat(Math.floor(MEMORY_LIMIT * 0.9) - memory.length)}\n`);
 
 		const { stdout, exitCode } = await runCli(dir);
 
-		expect(stdout).toContain('% of its 3000 char limit');
+		expect(stdout).toContain(`% of its ${MEMORY_LIMIT} char limit`);
 		expect(exitCode).toBe(0);
 	});
 

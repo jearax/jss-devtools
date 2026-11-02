@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Change the defaults"
-status: pending
+status: completed
 priority: P2
 effort: "1h"
 dependencies: []

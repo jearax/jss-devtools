@@ -6,6 +6,8 @@ import { promisify } from 'node:util';
 
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 
+import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
+
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
 
 const exec = promisify(execFile);
@@ -17,19 +19,7 @@ const write = (root: string, rel: string, content: string): void => {
 	writeFileSync(resolve(root, rel), content);
 };
 
-const DEFAULT_CONFIG = {
-	review: { minToolCalls: 8 },
-	memory: {
-		maxChars: 3000,
-		maxEntryChars: 240
-	},
-	curator: {
-		minLearnedSkills: 10,
-		intervalDays: 7,
-		staleDays: 14,
-		archiveDays: 30
-	}
-};
+const DEFAULT_CONFIG = HARNESS_CONFIG_DEFAULTS;
 
 let root = '';
 
@@ -192,8 +182,8 @@ describe('session start', () => {
 		await makeRepo({
 			...DEFAULT_CONFIG,
 			memory: {
-				maxChars: 100,
-				maxEntryChars: 240
+				...DEFAULT_CONFIG.memory,
+				maxChars: 100
 			}
 		});
 		write(root, '.harness/MEMORY.md', `# Memory\n- ${'x'.repeat(90)}\n`);
@@ -203,7 +193,7 @@ describe('session start', () => {
 	});
 
 	it('warns per missing config key with the repair command', async () => {
-		await makeRepo({ review: { minToolCalls: 8 } });
+		await makeRepo({ review: { minToolCalls: DEFAULT_CONFIG.review.minToolCalls } });
 		const context = sessionStart();
 
 		expect(context).toContain('memory.maxChars');
@@ -259,7 +249,7 @@ describe('memory guard', () => {
 		await makeRepo({
 			...DEFAULT_CONFIG,
 			memory: {
-				maxChars: 3000,
+				...DEFAULT_CONFIG.memory,
 				maxEntryChars: 20
 			}
 		});
@@ -276,7 +266,7 @@ describe('memory guard', () => {
 		await makeRepo({
 			...DEFAULT_CONFIG,
 			memory: {
-				maxChars: 3000,
+				...DEFAULT_CONFIG.memory,
 				maxEntryChars: 20
 			}
 		});
@@ -436,10 +426,8 @@ describe('stop hook', () => {
 		await makeRepo({
 			...DEFAULT_CONFIG,
 			curator: {
-				minLearnedSkills: 1,
-				intervalDays: 7,
-				staleDays: 14,
-				archiveDays: 30
+				...DEFAULT_CONFIG.curator,
+				minLearnedSkills: 1
 			}
 		});
 		learnedSkill('lesson-one');
@@ -452,10 +440,8 @@ describe('stop hook', () => {
 		await makeRepo({
 			...DEFAULT_CONFIG,
 			curator: {
-				minLearnedSkills: 1,
-				intervalDays: 7,
-				staleDays: 14,
-				archiveDays: 30
+				...DEFAULT_CONFIG.curator,
+				minLearnedSkills: 1
 			}
 		});
 		learnedSkill('lesson-one');
@@ -469,8 +455,8 @@ describe('stop hook', () => {
 		await makeRepo({
 			...DEFAULT_CONFIG,
 			memory: {
-				maxChars: 100,
-				maxEntryChars: 240
+				...DEFAULT_CONFIG.memory,
+				maxChars: 100
 			}
 		});
 		write(root, '.harness/MEMORY.md', `# Memory\n- ${'x'.repeat(90)}\n`);

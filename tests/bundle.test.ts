@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
 import { hookShimTemplate } from '@/modules/harness/templates/hook-shim.template';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
@@ -276,22 +277,7 @@ describe('hook bundle', () => {
 		await writeFile(resolve(sandbox, 'harness-hook.mjs'), hookShimTemplate(floor));
 		await writeFile(resolve(sandbox, 'old-node.mjs'), hookShimTemplate('99.0.0'));
 		mkdirSync(resolve(sandbox, '.harness'), { recursive: true });
-		await writeFile(
-			resolve(sandbox, '.harness/config.json'),
-			JSON.stringify({
-				review: { minToolCalls: 8 },
-				memory: {
-					maxChars: 3000,
-					maxEntryChars: 240
-				},
-				curator: {
-					minLearnedSkills: 10,
-					intervalDays: 7,
-					staleDays: 14,
-					archiveDays: 30
-				}
-			})
-		);
+		await writeFile(resolve(sandbox, '.harness/config.json'), JSON.stringify(HARNESS_CONFIG_DEFAULTS));
 
 		const runHook = (entry: string): { stdout: string; code: number } => {
 			const result = spawnSync(process.execPath, [resolve(sandbox, entry)], {

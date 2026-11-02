@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { hasConflictMarkers } from '@/modules/harness/services/block-region.service';
 import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/services/config-merge.service';
 import { mergeThreeWay } from '@/modules/harness/services/three-way-merge.service';
+import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
 
 const line = (text: string): string => {
 	return `${text}\n`;
@@ -77,19 +78,7 @@ const configWith = (values: Record<string, unknown>): string => {
 	return `${JSON.stringify(values, null, '\t')}\n`;
 };
 
-const DEFAULTS = {
-	review: { minToolCalls: 8 },
-	memory: {
-		maxChars: 3000,
-		maxEntryChars: 240
-	},
-	curator: {
-		minLearnedSkills: 10,
-		intervalDays: 7,
-		staleDays: 14,
-		archiveDays: 30
-	}
-};
+const DEFAULTS = HARNESS_CONFIG_DEFAULTS;
 
 describe('the config merge', () => {
 	it('takes the new default for an untouched key and keeps an edited key', () => {
@@ -101,19 +90,18 @@ describe('the config merge', () => {
 		expect(result.conflictKeys).toEqual([]);
 		expect(JSON.parse(result.content)).toEqual({
 			...DEFAULTS,
-			review: { minToolCalls: 8 }
+			review: { ...DEFAULTS.review }
 		});
 	});
 
 	it('repairs a missing key with its default', () => {
 		const base = configWith({
 			memory: {
-				maxChars: 3000,
-				maxEntryChars: 240
+				...DEFAULTS.memory
 			}
 		});
 
-		const local = configWith({ memory: { maxChars: 3000 } });
+		const local = configWith({ memory: { maxChars: DEFAULTS.memory.maxChars } });
 
 		const result = mergeHarnessConfig(base, local);
 
