@@ -343,3 +343,19 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
   model.
 - The `update` outro suggests no commit command (above).
 - The prototype's variant files stay. Superseded by "No variant files" below.
+
+## Config defaults for a medium project (2026-11-02, supersedes H0's values)
+
+> "Tôi thấy context 3000 char có vẻ ít, tôi sợ ít." and "Chốt 7 / 4800 / 300 / 10 / 7 / 14 / 28,
+> lên plan thôi, không giao cooker." (user, 2026-11-02)
+
+- Defaults: `review.minToolCalls` 7, `memory.maxChars` 4800, `memory.maxEntryChars` 300,
+  `curator.minLearnedSkills` 10, `curator.intervalDays` 7, `curator.staleDays` 14,
+  `curator.archiveDays` 28.
+- 4800 holds sixteen entries of 300 chars, and the 80% warning starts at 3840; memory stays an
+  index of non-obvious traps, with decisions, skills and docs holding the rest.
+- 28 days is four curation intervals and twice `staleDays`, so a skill turns stale and then
+  archivable on a curation boundary.
+- `harness update` adds missing keys and keeps existing values, so repositories already installed
+  keep their numbers; only new installs get these.
+- Plan: [261102-1045-harness-config-defaults](../261102-1045-harness-config-defaults/plan.md).
