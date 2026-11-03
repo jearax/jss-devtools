@@ -1,7 +1,5 @@
-import { styleText } from 'node:util';
-
 import { COMMON_OPTIONS } from '@/core/constants/common-option.constant';
-import { helpTitle } from '@/core/ui/terminal.ui';
+import { examplesText } from '@/core/ui/help-examples.ui';
 
 import { runHarnessDoctor } from './doctor.command';
 import { runHarnessUpdate } from './update.command';
@@ -15,24 +13,6 @@ const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools harness update --continue', 'Apply the staged conflict resolution'],
 	['jss-devtools harness update --abort', 'Discard the staged update']
 ];
-
-const examplesText = (): string => {
-	const width = Math.max(
-		...EXAMPLE_ROWS.map(([command]) => {
-			return command.length;
-		})
-	);
-
-	return [
-		'',
-		helpTitle('Examples:'),
-		...EXAMPLE_ROWS.map(([command, description]) => {
-			const gap = ' '.repeat(width - command.length + 1);
-
-			return `  ${styleText('dim', '$ ')}${styleText('cyan', command)}${gap}${description}`;
-		})
-	].join('\n');
-};
 
 const DOCTOR_CHECKS = `Checks the harness installed in this repository: the manifest in .harness/core/,
 the harness block in CLAUDE.md, the harness hook entries in .claude/settings.json, the hook files
@@ -61,7 +41,7 @@ const registerUpdate = (harness: Command): void => {
 		.option('--abort', 'Discard the staged update; live files were never changed (default: off)')
 		.option(COMMON_OPTIONS.yes.flags, COMMON_OPTIONS.yes.description)
 		.option(COMMON_OPTIONS.dryRun.flags, COMMON_OPTIONS.dryRun.description)
-		.addHelpText('after', examplesText)
+		.addHelpText('after', examplesText(EXAMPLE_ROWS))
 		.action(runHarnessUpdate);
 };
 

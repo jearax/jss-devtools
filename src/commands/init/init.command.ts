@@ -10,20 +10,20 @@ import { COMMON_OPTIONS } from '@/core/constants/common-option.constant';
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
 import { showBanner } from '@/core/ui/banner.ui';
+import { examplesText } from '@/core/ui/help-examples.ui';
 import {
 	createTaskLog,
-	helpTitle,
 	isInteractive,
 	nextStepBlock,
 	nextStepLines,
 	runTasks,
 	taskLogSummary
 } from '@/core/ui/terminal.ui';
+import { shellQuote } from '@/core/utils/shell-quote.util';
 
 import { validateInitArguments } from './services/init.service';
 import { buildInitPlan, planActionCounts, renderPlan, renderPlanHeading } from './services/plan.service';
-import { preflightInit } from './services/preflight.service';
-import { shellQuote } from './services/shell-quote.service';
+import { completePreflight, preflightFolderChecks } from './services/preflight.service';
 import { applyInitPlan } from './services/write.service';
 import { PACKAGE_MANAGERS } from './templates/package-json.template';
 
@@ -46,24 +46,6 @@ const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools init --no-harness', 'Set up the toolchain without the harness'],
 	['jss-devtools init --dry-run', 'Show what would change, write nothing']
 ];
-
-const examplesText = (): string => {
-	const commandWidth = Math.max(
-		...EXAMPLE_ROWS.map(([command]) => {
-			return command.length;
-		})
-	);
-
-	return [
-		'',
-		helpTitle('Examples:'),
-		...EXAMPLE_ROWS.map(([command, description]) => {
-			const gap = ' '.repeat(commandWidth - command.length + 1);
-
-			return `  ${styleText('dim', '$ ')}${styleText('cyan', command)}${gap}${description}`;
-		})
-	].join('\n');
-};
 
 // Shows `default: "npm"` in help without a parsed default: --pm must stay undefined when it is
 // not passed, so the question runs and the no-folder check still errors.
@@ -91,7 +73,7 @@ export const registerInitCommand = (program: Command): void => {
 		.option('--agent-kit', 'Point AgentKit at .harness/docs and .harness/plans; needs ak (default: off)')
 		.option(COMMON_OPTIONS.yes.flags, COMMON_OPTIONS.yes.description)
 		.option(COMMON_OPTIONS.dryRun.flags, COMMON_OPTIONS.dryRun.description)
-		.addHelpText('after', examplesText)
+		.addHelpText('after', examplesText(EXAMPLE_ROWS))
 		.action(runInit);
 };
 
@@ -199,8 +181,9 @@ const runInit = async (dirArg: string | undefined, options: InitOptions, command
 		});
 	}
 
-	const pm = await askPackageManager(dirArg !== undefined, options);
-	const preflight = await preflightInit(process.cwd(), positional, withPm(options, pm));
+	const folder = await preflightFolderChecks(process.cwd(), positional, options);
+	const pm = await askPackageManager(folder.mode === 'create', options);
+	const preflight = await completePreflight(folder, withPm(options, pm));
 	const relativeTarget = relative(process.cwd(), preflight.targetDir);
 	const plan = buildInitPlan(preflight, withPm(options, pm));
 
@@ -212,6 +195,10 @@ const runInit = async (dirArg: string | undefined, options: InitOptions, command
 
 	log.step(renderPlanHeading(plan, preflight.projectName));
 	log.message(renderPlan(plan), { spacing: 0 });
+
+	if (options.dryRun === true && options.pm === undefined && plan.mode === 'create') {
+		log.message('Assumed npm for this plan; pass --pm to pick another');
+	}
 
 	if (options.dryRun === true) {
 		outro(['Dry run: nothing written', ...nextStepBlock('To apply', [applyCommandLine(command)])].join('\n'));
