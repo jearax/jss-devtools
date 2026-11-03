@@ -8,6 +8,9 @@
 	"bin": {
 		"jss-devtools": "dist/cli.mjs"
 	},
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "tsdown --config tsdown.hooks.config.ts && tsdown --config tsdown.config.ts",
 		"dev": "tsdown --config tsdown.hooks.config.ts && tsdown --watch",
@@ -15,7 +18,7 @@
 		"format:check": "prettier --check .",
 		"lint": "eslint \"{src,lib{,s},bin{,s},script{,s},tool{,s},config{,s},type{,s},test{,s},__test{s,}__,spec{,s},e2e}/**/*.{cjs,mjs,js,jsx,cts,mts,ts,tsx}\" \"*.{cjs,mjs,js,jsx,cts,mts,ts,tsx}\"",
 		"lint:fix": "eslint --fix \"{src,lib{,s},bin{,s},script{,s},tool{,s},config{,s},type{,s},test{,s},__test{s,}__,spec{,s},e2e}/**/*.{cjs,mjs,js,jsx,cts,mts,ts,tsx}\" \"*.{cjs,mjs,js,jsx,cts,mts,ts,tsx}\"",
-		"prepare": "husky",
+		"prepare": "pnpm build && husky",
 		"stage:release": "node scripts/stage-release.mjs",
 		"test": "vitest run",
 		"test:watch": "vitest",
