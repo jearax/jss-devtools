@@ -19,6 +19,7 @@ import {
 	runTasks,
 	taskLogSummary
 } from '@/core/ui/terminal.ui';
+import { applyCommandLineOf } from '@/core/utils/apply-command-line.util';
 import { shellQuote } from '@/core/utils/shell-quote.util';
 
 import { validateInitArguments } from './services/init.service';
@@ -123,19 +124,6 @@ const nextStepCommands = (preflight: InitPreflight, relativeTarget: string, comm
 	return [...cd, command];
 };
 
-const typedWords = (command: Command): readonly string[] => {
-	const rawArgs = (command.parent as { rawArgs?: readonly string[] } | undefined)?.rawArgs ?? [];
-	const subIndex = rawArgs.indexOf(command.name());
-
-	return rawArgs.slice(subIndex).filter((word) => {
-		return word !== '--dry-run';
-	});
-};
-
-const applyCommandLine = (command: Command): string => {
-	return [PACKAGE.name, ...typedWords(command)].map(shellQuote).join(' ');
-};
-
 export const sortFailureMessage = (bin: string, result: { stdout: string; stderr: string }): string => {
 	const output = result.stderr.trim() || result.stdout.trim();
 
@@ -201,7 +189,7 @@ const runInit = async (dirArg: string | undefined, options: InitOptions, command
 	}
 
 	if (options.dryRun === true) {
-		outro(['Dry run: nothing written', ...nextStepBlock('To apply', [applyCommandLine(command)])].join('\n'));
+		outro(['Dry run: nothing written', ...nextStepBlock('To apply', [applyCommandLineOf(command)])].join('\n'));
 
 		return;
 	}

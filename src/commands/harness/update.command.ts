@@ -7,7 +7,7 @@ import { confirm, intro, isCancel, log, outro } from '@clack/prompts';
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
 import { isInteractive, nextStepBlock } from '@/core/ui/terminal.ui';
-import { shellQuote } from '@/core/utils/shell-quote.util';
+import { applyCommandLineOf } from '@/core/utils/apply-command-line.util';
 import {
 	clearUpdateSession,
 	loadResolutions,
@@ -27,19 +27,6 @@ import type { UpdateOptions } from './types/update-options.type';
 import type { UpdateMode } from '@/modules/harness/services/update-preflight.service';
 import type { UpdatePlan } from '@/modules/harness/types/update.type';
 import type { Command } from 'commander';
-
-const typedWordsOf = (command: Command): readonly string[] => {
-	const rawArgs = (command.parent as { rawArgs?: readonly string[] } | undefined)?.rawArgs ?? [];
-	const subIndex = rawArgs.indexOf(command.name());
-
-	return rawArgs.slice(subIndex).filter((word) => {
-		return word !== '--dry-run';
-	});
-};
-
-export const applyCommandLineOf = (command: Command): string => {
-	return [PACKAGE.name, ...typedWordsOf(command)].map(shellQuote).join(' ');
-};
 
 const runAbort = (cwd: string): void => {
 	if (!existsSync(updateDirOf(cwd))) {

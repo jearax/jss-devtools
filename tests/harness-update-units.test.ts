@@ -1,12 +1,68 @@
+import { Command } from 'commander';
 import { describe, expect, it, vi } from 'vitest';
 
-import { applyCommandLineOf } from '@/commands/harness/update.command';
+import { applyCommandLineOf } from '@/core/utils/apply-command-line.util';
 import { hasConflictMarkers } from '@/modules/harness/services/block-region.service';
 import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/services/config-merge.service';
 import { mergeThreeWay } from '@/modules/harness/services/three-way-merge.service';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
 
-import type { Command } from 'commander';
+const commandThrough = (argv: readonly string[]): Command => {
+	const program = new Command('jss-devtools');
+	const harness = program.command('harness');
+	const update = harness.command('update');
+
+	update.argument('[value]');
+	update.option('--dry-run').option('-y, --yes');
+
+	update.action(() => {});
+
+	program.parse(['node', 'jss-devtools', ...argv], { from: 'node' });
+
+	return update;
+};
+
+describe('the update apply command line', () => {
+	it('names the nested command in the apply line', () => {
+		const line = applyCommandLineOf(commandThrough(['harness', 'update', '--dry-run', '-y']));
+
+		expect(line).toBe('jss-devtools harness update -y');
+	});
+
+	it('names a top-level command in the apply line', () => {
+		const program = new Command('jss-devtools');
+		const init = program.command('init');
+
+		init.argument('[dir]');
+		init.option('--pm <name>').option('--dry-run');
+
+		init.action(() => {});
+
+		program.parse(['node', 'jss-devtools', 'init', 'my-app', '--pm', 'pnpm', '--dry-run'], { from: 'node' });
+
+		expect(applyCommandLineOf(init)).toBe('jss-devtools init my-app --pm pnpm');
+	});
+
+	it('keeps an empty argument quoted in the apply line', () => {
+		const program = new Command('jss-devtools');
+		const init = program.command('init');
+
+		init.argument('[dir]');
+		init.option('--pm <name>').option('--dry-run');
+
+		init.action(() => {});
+
+		program.parse(['node', 'jss-devtools', 'init', '', '--dry-run'], { from: 'node' });
+
+		expect(applyCommandLineOf(init)).toBe("jss-devtools init ''");
+	});
+
+	it('quotes a word with a space or a quote in the apply line', () => {
+		const line = applyCommandLineOf(commandThrough(['harness', 'update', '--dry-run', 'some value']));
+
+		expect(line).toBe("jss-devtools harness update 'some value'");
+	});
+});
 
 const gitState = vi.hoisted(() => {
 	return {
@@ -231,28 +287,5 @@ describe('the config merge', () => {
 			'curator.archiveDays'
 		]);
 		expect(missingConfigKeys(`${JSON.stringify(DEFAULTS, null, '\t')}\n`)).toEqual([]);
-	});
-});
-
-describe('the update apply command line', () => {
-	const commandWith = (rawArgs: readonly string[]): Command => {
-		return {
-			name: () => {
-				return 'update';
-			},
-			parent: { rawArgs }
-		} as unknown as Command;
-	};
-
-	it('keeps an empty argument quoted in the apply line', () => {
-		const line = applyCommandLineOf(commandWith(['node', 'jss-devtools', 'update', '']));
-
-		expect(line).toBe("jss-devtools update ''");
-	});
-
-	it('leaves plain words unquoted', () => {
-		const line = applyCommandLineOf(commandWith(['node', 'jss-devtools', 'update', '-y']));
-
-		expect(line).toBe('jss-devtools update -y');
 	});
 });
