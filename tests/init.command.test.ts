@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -166,6 +166,54 @@ describe('the init command', () => {
 
 		expect(stdout).toBe(HELP_BLOCK);
 		expect(process.exitCode).toBe(0);
+	});
+
+	it('rejects a bad folder before asking for a package manager', async () => {
+		const dir = await useCwd();
+		const target = join(dir, 'my-app');
+
+		mkdirSync(target, { recursive: true });
+		writeFileSync(join(target, 'keep.txt'), 'x\n');
+		interactivity.enabled = true;
+		selectCalls.length = 0;
+
+		const { stderr } = await runInit(target);
+
+		expect(selectCalls).toHaveLength(0);
+		expect(stderr).toContain(`Folder ${target} is not empty`);
+		expect(stderr).not.toContain('\u001b');
+		expect(process.exitCode).toBe(1);
+	});
+
+	it('names the file a failed write hit, counts what came before it, and exits 1', async () => {
+		const dir = await useCwd();
+
+		await setupExistingProject(dir);
+		writeFileSync(join(dir, 'eslint.config.mjs'), 'old\n');
+		chmodSync(join(dir, 'eslint.config.mjs'), 0o444);
+		interactivity.enabled = true;
+		answers.confirm = true;
+
+		const { stderr } = await runInit('-f');
+
+		expect(stderr).toContain('Could not write eslint.config.mjs');
+		expect(stderr).toContain('Wrote ');
+		expect(stderr).toContain('Fix the permission');
+		expect(stderr).not.toContain('\u001b');
+		expect(stderr).not.toMatch(/^\s*at /m);
+		expect(process.exitCode).toBe(1);
+	});
+
+	it('says a dry run without --pm assumed npm, and stays quiet when --pm is given', async () => {
+		await useCwd();
+
+		const { stdout } = await runInit('my-app', '--dry-run');
+
+		expect(stdout).toContain('Assumed npm for this plan; pass --pm to pick another');
+
+		const { stdout: pinned } = await runInit('my-app', '--dry-run', '--pm', 'pnpm');
+
+		expect(pinned).not.toContain('Assumed npm');
 	});
 
 	it('exits 1 without a terminal when a question would be asked', async () => {

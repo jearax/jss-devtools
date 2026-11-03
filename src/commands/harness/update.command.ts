@@ -7,6 +7,7 @@ import { confirm, intro, isCancel, log, outro } from '@clack/prompts';
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
 import { isInteractive, nextStepBlock } from '@/core/ui/terminal.ui';
+import { shellQuote } from '@/core/utils/shell-quote.util';
 import {
 	clearUpdateSession,
 	loadResolutions,
@@ -36,12 +37,8 @@ const typedWordsOf = (command: Command): readonly string[] => {
 	});
 };
 
-const applyCommandLineOf = (command: Command): string => {
+export const applyCommandLineOf = (command: Command): string => {
 	return [PACKAGE.name, ...typedWordsOf(command)].map(shellQuote).join(' ');
-};
-
-const shellQuote = (word: string): string => {
-	return /[^A-Za-z0-9_@%+=:,./-]/.test(word) ? `'${word.replace(/'/g, `'\\''`)}'` : word;
 };
 
 const runAbort = (cwd: string): void => {

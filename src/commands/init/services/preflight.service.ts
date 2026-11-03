@@ -7,6 +7,7 @@ import { agentKitVersion } from '@/core/adapters/agent-kit.adapter';
 import { gitHooksPath, gitTopLevel, gitVersion } from '@/core/adapters/git.adapter';
 import { detectPackageManager, isYarnBerry, packageManagerVersion } from '@/core/adapters/package-manager.adapter';
 import { CliError } from '@/core/errors/cli.error';
+import { shellQuote } from '@/core/utils/shell-quote.util';
 import {
 	CLAUDE_MD,
 	CLAUDE_SETTINGS,
@@ -17,11 +18,19 @@ import {
 } from '@/modules/harness/constants/harness-paths.constant';
 
 import { mergePnpmWorkspaceYaml } from './merge.service';
-import { shellQuote } from './shell-quote.service';
 
 import type { PackageManagerName } from '@/commands/init/templates/package-json.template';
 import type { InitOptions } from '@/commands/init/types/init-options.type';
-import type { InitPreflight } from '@/commands/init/types/init-plan.type';
+import type { InitMode, InitPreflight } from '@/commands/init/types/init-plan.type';
+import type { DetectResult } from 'package-manager-detector';
+
+export type PreflightFolderChecks = {
+	mode: InitMode;
+	targetDir: string;
+	projectName: string;
+	detected: DetectResult | null;
+	parsed: Record<string, unknown> | undefined;
+};
 
 const SUPPORTED_AGENTS = new Set<string>(PACKAGE_MANAGERS);
 
@@ -84,26 +93,17 @@ const installedVersion = async (pm: PackageManagerName, cwd: string, create: boo
 	return version;
 };
 
-const preflightCreate = async (dirArg: string, options: InitOptions): Promise<InitPreflight> => {
+const preflightCreateFolder = async (dirArg: string): Promise<PreflightFolderChecks> => {
 	const targetDir = ensureEmptyTarget(dirArg);
 
 	await ensureGitInstalled();
-
-	const pm = options.pm ?? 'npm';
-	const pmVersion = await installedVersion(pm, process.cwd(), true);
-
-	if (isYarnBerry(pm, pmVersion)) {
-		throw new CliError(`Only yarn 1 is supported, found yarn ${pmVersion}`, {
-			hint: 'Pick another with --pm'
-		});
-	}
 
 	return {
 		mode: 'create',
 		targetDir,
 		projectName: basename(targetDir),
-		pm,
-		pmVersion
+		detected: null,
+		parsed: undefined
 	};
 };
 
@@ -214,7 +214,7 @@ const harnessConflicts = (cwd: string): readonly string[] => {
 	return found;
 };
 
-const preflightExisting = async (cwd: string, options: InitOptions): Promise<InitPreflight> => {
+const preflightExistingFolder = async (cwd: string): Promise<PreflightFolderChecks> => {
 	const parsed = parsePackageJson(cwd);
 
 	if ('workspaces' in parsed || isMonorepoWorkspace(cwd)) {
@@ -256,13 +256,45 @@ const preflightExisting = async (cwd: string, options: InitOptions): Promise<Ini
 
 	const detected = await detectPackageManager(cwd);
 
-	if (detected !== null && !SUPPORTED_AGENTS.has(detected.agent)) {
-		throw new CliError(`Package manager ${detected.agent} is not supported`, {
+	return {
+		mode: 'existing',
+		targetDir: cwd,
+		projectName: basename(cwd),
+		detected,
+		parsed
+	};
+};
+
+const completeCreate = async (folder: PreflightFolderChecks, options: InitOptions): Promise<InitPreflight> => {
+	const pm = options.pm ?? 'npm';
+	const pmVersion = await installedVersion(pm, process.cwd(), true);
+
+	if (isYarnBerry(pm, pmVersion)) {
+		throw new CliError(`Only yarn 1 is supported, found yarn ${pmVersion}`, {
+			hint: 'Pick another with --pm'
+		});
+	}
+
+	return {
+		mode: folder.mode,
+		targetDir: folder.targetDir,
+		projectName: folder.projectName,
+		pm,
+		pmVersion
+	};
+};
+
+const completeExisting = async (folder: PreflightFolderChecks, options: InitOptions): Promise<InitPreflight> => {
+	const cwd = folder.targetDir;
+	const parsed = folder.parsed;
+
+	if (folder.detected !== null && !SUPPORTED_AGENTS.has(folder.detected.agent)) {
+		throw new CliError(`Package manager ${folder.detected.agent} is not supported`, {
 			hint: `Supported: ${SUPPORTED_LIST}`
 		});
 	}
 
-	const pm = (detected === null ? 'npm' : detected.name) as PackageManagerName;
+	const pm = (folder.detected === null ? 'npm' : folder.detected.name) as PackageManagerName;
 	const pmVersion = await installedVersion(pm, cwd, false);
 
 	if (pm === 'pnpm' && existsSync(join(cwd, 'pnpm-workspace.yaml'))) {
@@ -284,7 +316,7 @@ const preflightExisting = async (cwd: string, options: InitOptions): Promise<Ini
 	const keyConflicts = (['eslint', 'prettier', 'commitlint'] as const).flatMap((tool) => {
 		return CONFIG_NAMES[tool].packageJsonKeys
 			.filter((key) => {
-				return parsed[key] !== undefined;
+				return parsed !== undefined && parsed[key] !== undefined;
 			})
 			.map((key) => {
 				return `package.json "${key}" key`;
@@ -307,23 +339,21 @@ const preflightExisting = async (cwd: string, options: InitOptions): Promise<Ini
 		});
 	}
 
-	const preflight: InitPreflight = {
+	return {
 		mode: 'existing',
 		targetDir: cwd,
-		projectName: basename(cwd),
+		projectName: folder.projectName,
 		pm,
 		pmVersion,
-		packageJson: { parsed }
+		...(parsed === undefined ? {} : { packageJson: { parsed } })
 	};
-
-	return preflight;
 };
 
-export const preflightInit = async (
+export const preflightFolderChecks = async (
 	cwd: string,
 	positional: readonly string[],
 	options: InitOptions
-): Promise<InitPreflight> => {
+): Promise<PreflightFolderChecks> => {
 	const dir = positional[0];
 
 	const agentKitCheck =
@@ -335,5 +365,20 @@ export const preflightInit = async (
 		});
 	}
 
-	return dir === undefined ? preflightExisting(cwd, options) : preflightCreate(dir, options);
+	return dir === undefined ? preflightExistingFolder(cwd) : preflightCreateFolder(dir);
+};
+
+export const completePreflight = async (
+	folder: PreflightFolderChecks,
+	options: InitOptions
+): Promise<InitPreflight> => {
+	return folder.mode === 'create' ? completeCreate(folder, options) : completeExisting(folder, options);
+};
+
+export const preflightInit = async (
+	cwd: string,
+	positional: readonly string[],
+	options: InitOptions
+): Promise<InitPreflight> => {
+	return completePreflight(await preflightFolderChecks(cwd, positional, options), options);
 };

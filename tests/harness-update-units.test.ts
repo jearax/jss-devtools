@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { applyCommandLineOf } from '@/commands/harness/update.command';
 import { hasConflictMarkers } from '@/modules/harness/services/block-region.service';
 import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/services/config-merge.service';
 import { mergeThreeWay } from '@/modules/harness/services/three-way-merge.service';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
+
+import type { Command } from 'commander';
 
 const gitState = vi.hoisted(() => {
 	return {
@@ -228,5 +231,28 @@ describe('the config merge', () => {
 			'curator.archiveDays'
 		]);
 		expect(missingConfigKeys(`${JSON.stringify(DEFAULTS, null, '\t')}\n`)).toEqual([]);
+	});
+});
+
+describe('the update apply command line', () => {
+	const commandWith = (rawArgs: readonly string[]): Command => {
+		return {
+			name: () => {
+				return 'update';
+			},
+			parent: { rawArgs }
+		} as unknown as Command;
+	};
+
+	it('keeps an empty argument quoted in the apply line', () => {
+		const line = applyCommandLineOf(commandWith(['node', 'jss-devtools', 'update', '']));
+
+		expect(line).toBe("jss-devtools update ''");
+	});
+
+	it('leaves plain words unquoted', () => {
+		const line = applyCommandLineOf(commandWith(['node', 'jss-devtools', 'update', '-y']));
+
+		expect(line).toBe('jss-devtools update -y');
 	});
 });
