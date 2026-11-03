@@ -39,16 +39,6 @@ the one an interactive run would build.
   (one line, beside the plan).
 - Test: `init <dir> --dry-run` prints the line; with `--pm pnpm` it does not.
 
-## npm hooks stay off the registry
-
-The generated npm hooks run `npx lint-staged` and `npx commitlint`; plain `npx` can fetch an
-unpinned package when the local bin is missing, against decision 0030 ("Versions are pinned, not
-fetched").
-
-- For npm, the local-bin command is `npx --no-install <bin>`. Other managers unchanged.
-- Test: the generated `.husky/pre-commit` and `commit-msg` for npm use `npx --no-install`; the
-  snapshot follows.
-
 ## Acceptance
 
 - Each test fails before the fix and passes after.
