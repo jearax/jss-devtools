@@ -167,3 +167,13 @@ Three smaller notes from the review that are left as they are:
 - `git --version` that is killed by a signal now reports "Git is not installed" rather than
   "failed", because a failure without an exit code is `null` and that maps to "missing". Cosmetic
   and rare.
+
+## User decisions on the open notes (2026-11-03)
+
+- Byte-exact base hash under `core.autocrlf`: left as it is. Windows is supported only through WSL
+  (decision 0030). "OK, bỏ qua" (user, 2026-11-03).
+- Path check does not follow symlinks: left as it is. The related rule is decision 0031, where
+  `CLAUDE.md` or `.claude/settings.json` being a symlink exits 1 at init. "tôi nghĩ giữ nguyên"
+  (user, 2026-11-03).
+- The four smaller notes (cursor unit, recovery rolling the manifest back, the third git process,
+  the signal-killed `git --version`): left as they are.
