@@ -257,7 +257,15 @@ describe('the harness install plan', () => {
 		expect(off).not.toContain('AgentKit');
 
 		expect(on).toContain(`${harnessBullet}\n${agentKitBullets}`);
-		expect(on.replace(`\n${agentKitBullets}`, '')).toBe(off);
+
+		const planRow = /^\| Work spanning sessions.*\n/m;
+		const planBullet = /^- Work spanning sessions:.*\n/m;
+
+		const withoutPlan = (content: string) => {
+			return content.replace(planRow, '').replace(planBullet, '');
+		};
+
+		expect(withoutPlan(on.replace(`\n${agentKitBullets}`, ''))).toBe(withoutPlan(off));
 	});
 
 	it('mentions AgentKit in no folder README', () => {
@@ -299,6 +307,87 @@ describe('the harness install plan', () => {
 
 		expect(entryFor(entries, '.harness/bin/hooks.mjs')?.content.length).toBeGreaterThan(0);
 		expect(entryFor(entries, '.harness/bin/harness-hook.mjs')?.content).toBe(hookShimTemplate(PACKAGE.nodeFloor));
+	});
+
+	it('gives the plans README to the repository when AgentKit is on, and keeps it managed otherwise', () => {
+		const entries = harnessInstallEntries(createInput());
+		const withAgentKit = harnessInstallEntries(createInput({ agentKit: true }));
+
+		const kindOf = (list: ReturnType<typeof harnessInstallEntries>, path: string) => {
+			return list.find((entry) => {
+				return entry.path === path;
+			})?.kind;
+		};
+
+		const manifestPathsOf = (list: ReturnType<typeof harnessInstallEntries>) => {
+			const manifest = JSON.parse(entryFor(list, '.harness/core/manifest.json')?.content ?? '{}') as {
+				files: Array<{ path: string }>;
+			};
+
+			return manifest.files.map((file) => {
+				return file.path;
+			});
+		};
+
+		expect(kindOf(entries, '.harness/plans/README.md')).toBe('managed');
+		expect(kindOf(withAgentKit, '.harness/plans/README.md')).toBe('seed');
+
+		expect(manifestPathsOf(entries)).toContain('.harness/plans/README.md');
+		expect(manifestPathsOf(withAgentKit)).not.toContain('.harness/plans/README.md');
+	});
+
+	it('teaches the same plan paths without AgentKit as it did before the AgentKit fix', () => {
+		const entries = harnessInstallEntries(createInput());
+
+		const taught = [
+			entryFor(entries, 'CLAUDE.md')?.content ?? '',
+			entryFor(entries, '.harness/plans/README.md')?.content ?? '',
+			entryFor(entries, '.harness/templates/README.md')?.content ?? '',
+			entryFor(entries, '.harness/templates/plan.md')?.content ?? ''
+		];
+
+		expect(taught.join('\n')).toMatchSnapshot();
+	});
+
+	it('teaches the AgentKit plan layout, and no path of the harness-only layout, when AgentKit is on', () => {
+		const entries = harnessInstallEntries(createInput({ agentKit: true }));
+
+		const taught = [
+			entryFor(entries, 'CLAUDE.md')?.content ?? '',
+			entryFor(entries, '.harness/plans/README.md')?.content ?? '',
+			entryFor(entries, '.harness/templates/README.md')?.content ?? '',
+			entryFor(entries, '.harness/templates/plan.md')?.content ?? ''
+		];
+
+		for (const content of taught) {
+			expect(content).not.toContain('plans/active');
+			expect(content).not.toContain('completed/');
+		}
+
+		expect(taught[0]).not.toMatch(/^\| Work spanning sessions/m);
+		expect(taught[0]).toContain('- AgentKit owns `.harness/{docs,plans}/`');
+		expect(taught[0]).toContain('- Work spanning sessions: a plan, as the skill that owns the plan folder says.');
+		expect(taught[3]).toContain('`.harness/plans/<YYMMDD>-<HHMM>-<slug>/plan.md`');
+	});
+
+	it('teaches no plan path in either README when AgentKit is on', () => {
+		const entries = harnessInstallEntries(createInput({ agentKit: true }));
+
+		const plansReadme = entryFor(entries, '.harness/plans/README.md')?.content ?? '';
+		const templatesReadme = entryFor(entries, '.harness/templates/README.md')?.content ?? '';
+
+		for (const content of [plansReadme, templatesReadme]) {
+			expect(content).not.toContain('<YYMMDD>');
+			expect(content).not.toContain('HHMM');
+			expect(content).not.toContain('reports/');
+		}
+
+		expect(plansReadme).not.toContain('../plans/');
+		expect(templatesReadme).not.toContain('../plans/<');
+		expect(plansReadme).toContain('The plan skill that owns this folder');
+		expect(plansReadme).toContain('add or remove a row in the same change as the plan');
+		expect(templatesReadme).toContain('the plan the plan skill writes');
+		expect(templatesReadme).toContain('`../plans/README.md`');
 	});
 
 	it('installs the decided config defaults', () => {

@@ -17,9 +17,15 @@ export type HarnessRecordedFile = {
 	content: string;
 };
 
+export type HarnessSeedFile = {
+	path: string;
+	content: string;
+};
+
 export type HarnessRelease = {
 	version: string;
 	files: readonly HarnessRecordedFile[];
+	seeds?: readonly HarnessSeedFile[];
 };
 
 export type UpdateActionKind = 'create' | 'update' | 'delete' | 'conflict';

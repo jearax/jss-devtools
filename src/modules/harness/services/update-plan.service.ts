@@ -20,6 +20,12 @@ export const planHarnessUpdate = async (
 		})
 	);
 
+	const seedByPath = new Map(
+		(release.seeds ?? []).map((seed) => {
+			return [seed.path, seed.content];
+		})
+	);
+
 	const paths = [
 		...new Set([
 			...manifest.files.map((file) => {
@@ -37,6 +43,43 @@ export const planHarnessUpdate = async (
 
 		if (path === CLAUDE_SETTINGS) {
 			continue;
+		}
+
+		const seedContent = seedByPath.get(path);
+
+		if (seedContent !== undefined) {
+			const upstream = upstreamByPath.get(path) ?? null;
+
+			if (upstream === null) {
+				// The path left the managed set and is a seed now: the repository owns its content. An
+				// untouched file takes the current seed, an edited one is left alone.
+				const local = readLiveFile(cwd, path);
+				const base = readBaseCopy(cwd, path);
+
+				if (local !== null && local === base) {
+					actions.push({
+						path,
+						kind: 'update',
+						reason: 'the file is a seed now',
+						content: seedContent
+					});
+				}
+
+				continue;
+			}
+
+			if (recorded === null && readLiveFile(cwd, path) === seedContent) {
+				// The path entered the managed set and the repository still holds the seed it wrote
+				// before: the harness takes the file over instead of reporting a conflict.
+				actions.push({
+					path,
+					kind: 'update',
+					reason: 'the file is managed now',
+					content: upstream
+				});
+
+				continue;
+			}
 		}
 
 		const override = overrides?.get(path);

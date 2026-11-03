@@ -126,9 +126,12 @@ phase 4. Decisions: [0030](./decisions/0030-init-node-preset.md) (amended),
   manifest and base copies), three `harness-*` skills and the five hook entries in
   `.claude/settings.json`. `--no-harness` writes exactly what init wrote before; `--agent-kit`
   only runs `ak init --docs-dir .harness/docs --plans-dir .harness/plans` after the install and
-  decides the `CLAUDE.md` block variant, changing no other harness file. Every harness check runs
+  decides the `CLAUDE.md` block variant — with AgentKit the block drops its plan row and the two
+  folder READMEs teach no plan path at all, the plan skill owns the layout — changing no other
+  harness file. Every harness check runs
   in preflight, before the first write. See
-  [0034](./decisions/0034-claude-block-follows-agentkit.md).
+  [0034](./decisions/0034-claude-block-follows-agentkit.md) and
+  [0035](./decisions/0035-plan-paths-follow-the-agentkit-setting.md).
 
 ## Done: harness update
 

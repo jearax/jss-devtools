@@ -1,7 +1,7 @@
 import { PACKAGE } from '@/core/constants/package.constant';
 
 import { usesAgentKit } from './agent-kit.service';
-import { harnessRecordedFiles } from './install-plan.service';
+import { harnessRecordedFiles, harnessSeedRefreshes } from './install-plan.service';
 
 import type { HarnessRelease } from '@/modules/harness/types/update.type';
 
@@ -30,8 +30,11 @@ export const compareHarnessVersions = (left: string, right: string): number => {
 };
 
 export const harnessRelease = (root: string): HarnessRelease => {
+	const agentKit = usesAgentKit(root);
+
 	return {
 		version: PACKAGE.version,
-		files: harnessRecordedFiles(usesAgentKit(root))
+		files: harnessRecordedFiles(agentKit),
+		seeds: harnessSeedRefreshes()
 	};
 };

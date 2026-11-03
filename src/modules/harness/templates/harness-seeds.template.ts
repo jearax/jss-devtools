@@ -29,7 +29,9 @@ Knowledge longer than one line of [\`../MEMORY.md\`](../MEMORY.md). Pick the tem
 | Doc | Kind | Summary |
 | --- | ---- | ------- |\n`;
 
-export const harnessPlansReadmeTemplate = `# Plans
+export const harnessPlansReadmeTemplate = (agentKit: boolean): string => {
+	if (agentKit === false) {
+		return `# Plans
 
 Work that spans sessions. One file per plan; its folder is its state.
 
@@ -39,3 +41,15 @@ Work that spans sessions. One file per plan; its folder is its state.
 Start from [\`../templates/plan.md\`](../templates/plan.md). When done, fill its Result and
 \`git mv\` it to \`completed/\`. A user decision goes to \`../decisions/\`, lasting knowledge to
 \`../docs/\` or \`../MEMORY.md\`.\n`;
+	}
+
+	return `# Plans
+
+Work that spans sessions. The plan skill that owns this folder decides the layout: a plan is a
+folder with its plan and its phase files.
+
+Keep this file the index of the folder: add or remove a row in the same change as the plan.
+
+| Plan | Status | Summary |
+| ---- | ------ | ------- |\n`;
+};

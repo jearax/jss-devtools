@@ -1,16 +1,31 @@
-export const harnessTemplatesReadmeTemplate = `# Templates
+import { markdownTable } from '@/core/utils/markdown-table.util';
+
+const templatesTable = (agentKit: boolean): string => {
+	return markdownTable(
+		['Template', 'For', 'Index to update'],
+		[
+			['[decision.md](./decision.md)', '`../decisions/NNNN-<slug>.md`', '`../decisions/README.md`'],
+			['[docs/topic.md](./docs/topic.md)', '`../docs/<topic>.md`', '`../docs/README.md`'],
+			['[docs/architecture.md](./docs/architecture.md)', '`../docs/architecture.md`', '`../docs/README.md`'],
+			['[docs/runbook.md](./docs/runbook.md)', '`../docs/runbook-<operation>.md`', '`../docs/README.md`'],
+			[
+				'[plan.md](./plan.md)',
+				agentKit === false ? '`../plans/active/<YYMMDD>-<slug>.md`' : 'the plan the plan skill writes',
+				agentKit === false ? 'none' : '`../plans/README.md`'
+			],
+			['[skill.md](./skill.md)', '`.claude/skills/<name>/SKILL.md`', 'none']
+		]
+	);
+};
+
+export const harnessTemplatesReadmeTemplate = (agentKit: boolean): string => {
+	return `# Templates
 
 Each template holds the rules and the format for one kind of file: read it before writing one.
 \`jss-devtools harness update\` replaces them; do not edit them here.
 
-| Template                                       | For                                  | Index to update          |
-| ---------------------------------------------- | ------------------------------------ | ------------------------ |
-| [decision.md](./decision.md)                   | \`../decisions/NNNN-<slug>.md\`        | \`../decisions/README.md\` |
-| [docs/topic.md](./docs/topic.md)               | \`../docs/<topic>.md\`                 | \`../docs/README.md\`      |
-| [docs/architecture.md](./docs/architecture.md) | \`../docs/architecture.md\`            | \`../docs/README.md\`      |
-| [docs/runbook.md](./docs/runbook.md)           | \`../docs/runbook-<operation>.md\`     | \`../docs/README.md\`      |
-| [plan.md](./plan.md)                           | \`../plans/active/<YYMMDD>-<slug>.md\` | none                     |
-| [skill.md](./skill.md)                         | \`.claude/skills/<name>/SKILL.md\`     | none                     |\n`;
+${templatesTable(agentKit)}\n`;
+};
 
 export const harnessDecisionTemplateTemplate = `# Template: decision
 
@@ -108,7 +123,9 @@ metadata:
 - The command or observation that proves it worked.
 \`\`\`\n`;
 
-export const harnessPlanTemplateTemplate = `# Template: plan
+export const harnessPlanTemplateTemplate = (agentKit: boolean): string => {
+	if (agentKit === false) {
+		return `# Template: plan
 
 For \`.harness/plans/active/<YYMMDD>-<slug>.md\`: work that spans sessions. A bounded change needs no
 plan.
@@ -158,6 +175,26 @@ The smallest coherent sequence; revise it when evidence changes it.
 
 Verified outcome, limits, follow-ups. Filled before moving to \`completed/\`.
 \`\`\`\n`;
+	}
+
+	return `# Template: plan
+
+For \`.harness/plans/<YYMMDD>-<HHMM>-<slug>/plan.md\`: work that spans sessions. A bounded change
+needs no plan.
+
+The AgentKit plan skill owns \`.harness/plans/\`: it writes the plan and its phase files and owns
+their lifecycle. Follow that skill for the format; the fields below are what a plan carries.
+
+- **Outcome**: the observable result the work must produce.
+- **Context**: the decisions, docs, code and tests it depends on.
+- **Scope**: what is in, what is out.
+- **Approach**: the smallest coherent sequence; revised when the evidence changes it.
+- **Risks**: risk, mitigation, rollback.
+- **Progress**: the steps, ticked as they land.
+- **Validation**: the command run, and what it showed.
+- **Result**: the verified outcome, its limits and the follow-ups.
+- A user decision goes to \`../decisions/\`; lasting knowledge to \`../docs/\` or \`../MEMORY.md\`.\n`;
+};
 
 export const harnessDocsTopicTemplateTemplate = `# Template: topic doc
 

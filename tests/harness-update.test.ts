@@ -78,6 +78,16 @@ const manifestVersionOf = (dir: string): string => {
 	return (JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as { version: string }).version;
 };
 
+const manifestPathsOf = (dir: string): string[] => {
+	const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as {
+		files: Array<{ path: string }>;
+	};
+
+	return manifest.files.map((file) => {
+		return file.path;
+	});
+};
+
 const ageManifest = (dir: string, version = '0.0.0'): void => {
 	const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as { version: string };
 
@@ -1090,5 +1100,79 @@ describe('harness update, the AgentKit lines of the CLAUDE block', () => {
 		await runUpdate(dir, { yes: true });
 
 		expect(readLive(dir, 'CLAUDE.md') ?? '').toContain(AGENT_KIT_LINES);
+	});
+
+	it('writes the AgentKit plan paths into the managed plan files on update', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		writeAgentKitConfig(dir);
+
+		await runUpdate(dir, { yes: true });
+
+		const managed = [
+			readLive(dir, '.harness/plans/README.md') ?? '',
+			readLive(dir, '.harness/templates/README.md') ?? '',
+			readLive(dir, '.harness/templates/plan.md') ?? ''
+		];
+
+		for (const content of managed) {
+			expect(content).not.toContain('plans/active');
+			expect(content).not.toContain('completed/');
+		}
+
+		expect(managed[0]).toContain('The plan skill that owns this folder');
+		expect(managed[0]).not.toContain('<YYMMDD>');
+		expect(readLive(dir, 'CLAUDE.md') ?? '').not.toMatch(/^\| Work spanning sessions/m);
+	});
+
+	it('leaves the plans README of a repository with AgentKit to the repository', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir, null, true);
+		writeAgentKitConfig(dir);
+		ageManifest(dir);
+
+		const readme = readLive(dir, '.harness/plans/README.md') ?? '';
+
+		writeFile(dir, '.harness/plans/README.md', `${readme}| 261103-1500-example | Completed | a plan that ran |\n`);
+
+		await runUpdate(dir, { yes: true });
+
+		expect(readLive(dir, '.harness/plans/README.md') ?? '').toContain('261103-1500-example');
+	});
+
+	it('keeps an edited plans README when it becomes a seed, and drops it from the manifest', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeAgentKitConfig(dir);
+		ageManifest(dir);
+
+		const readme = readLive(dir, '.harness/plans/README.md') ?? '';
+
+		writeFile(dir, '.harness/plans/README.md', `${readme}\nthe agent wrote this\n`);
+
+		await runUpdate(dir, { yes: true });
+
+		expect(readLive(dir, '.harness/plans/README.md') ?? '').toContain('the agent wrote this');
+		expect(manifestPathsOf(dir)).not.toContain('.harness/plans/README.md');
+	});
+
+	it('takes the current seed for an untouched plans README and drops it from the manifest', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeAgentKitConfig(dir);
+		ageManifest(dir);
+
+		await runUpdate(dir, { yes: true });
+
+		const readme = readLive(dir, '.harness/plans/README.md') ?? '';
+
+		expect(readme).toContain('The plan skill that owns this folder');
+		expect(readme).not.toContain('plans/active');
+		expect(manifestPathsOf(dir)).not.toContain('.harness/plans/README.md');
 	});
 });

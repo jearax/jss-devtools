@@ -1,3 +1,5 @@
+import { markdownTable } from '@/core/utils/markdown-table.util';
+
 const ownershipBullets = (agentKit: boolean): string => {
 	const harness =
 		'- Do not edit what an update replaces; put a correction in a learned skill or a memory line instead:\n' +
@@ -12,6 +14,38 @@ const ownershipBullets = (agentKit: boolean): string => {
 - AgentKit owns \`.harness/{docs,plans}/\`: follow its skills there. It also works in \`.harness/decisions/\`.`;
 };
 
+const knowledgeTable = (agentKit: boolean): string => {
+	const rows: string[][] = [
+		['Fact, trap, convention, user correction', 'one line in `.harness/MEMORY.md`', 'its header'],
+		[
+			'Topic longer than a line',
+			'`.harness/docs/<topic>.md`, and a memory line pointing to it',
+			'`.harness/docs/README.md`'
+		],
+		['User decision', '`.harness/decisions/NNNN-<slug>.md`, quoting the user', '`.harness/templates/decision.md`']
+	];
+
+	if (agentKit === false) {
+		rows.push(['Work spanning sessions', '`.harness/plans/active/<YYMMDD>-<slug>.md`', '`.harness/plans/README.md`']);
+	}
+
+	rows.push([
+		'Reusable procedure',
+		'`.claude/skills/<name>/SKILL.md`, a learned skill',
+		'`.harness/templates/skill.md`'
+	]);
+
+	return markdownTable(['Kind', 'Write to', 'Start from'], rows);
+};
+
+const processBullets = (agentKit: boolean): string => {
+	if (agentKit === false) {
+		return '- Work spanning sessions: a plan, as the table above says.';
+	}
+
+	return '- Work spanning sessions: a plan, as the skill that owns the plan folder says.';
+};
+
 export const harnessClaudeBlockTemplate = (agentKit: boolean): string => {
 	return `<!-- HARNESS:BEGIN -->
 
@@ -22,13 +56,7 @@ with them. Read an index first, then only the file the task needs.
 
 ## Where knowledge goes
 
-| Kind                                    | Write to                                                     | Start from                       |
-| --------------------------------------- | ------------------------------------------------------------ | -------------------------------- |
-| Fact, trap, convention, user correction | one line in \`.harness/MEMORY.md\`                             | its header                       |
-| Topic longer than a line                | \`.harness/docs/<topic>.md\`, and a memory line pointing to it | \`.harness/docs/README.md\`        |
-| User decision                           | \`.harness/decisions/NNNN-<slug>.md\`, quoting the user        | \`.harness/templates/decision.md\` |
-| Work spanning sessions                  | \`.harness/plans/active/<YYMMDD>-<slug>.md\`                   | \`.harness/plans/README.md\`       |
-| Reusable procedure                      | \`.claude/skills/<name>/SKILL.md\`, a learned skill            | \`.harness/templates/skill.md\`    |
+${knowledgeTable(agentKit)}
 
 - Add or remove the row in the folder's \`README.md\` in the same change as the file.
 - Learned skills are yours to create, patch and archive without asking; use one when it matches the
@@ -40,7 +68,7 @@ ${ownershipBullets(agentKit)}
 
 - Question, review, diagnosis: read only, answer with evidence, change nothing.
 - Bounded change: read the affected code and tests, make the smallest change, run the checks.
-- Work spanning sessions: a plan, as the table above says.
+${processBullets(agentKit)}
 
 ## Hooks
 
