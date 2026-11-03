@@ -23,6 +23,11 @@ and tested here, and the image copies it.
 `index.html`. It carries the install command, the Node requirement and the repository link, and no
 version text. `install.sh` is `scripts/install.sh` in the repository.
 
+The static page was replaced on 2026-11-03: the home page is now the React single page application
+in `site/`, built by CI into `site/dist/` and copied into the image. Decision
+[0027](./0027-react-spa-landing-page.md) supersedes this one. The rest of the decision stands —
+the page still carries no version text, and `install.sh` still lives in `scripts/`.
+
 ## In the user's words
 
 > "Chỉ để tạm nginx home, install.sh nằm trong scripts/install.sh" (user, 2026-10-19)

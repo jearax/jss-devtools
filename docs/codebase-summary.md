@@ -5,25 +5,26 @@ and is reachable from a command in [../README.md](../README.md).
 
 ## Root
 
-| Path                                                   | Purpose                                                                                                                        |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `package.json`                                         | Name `@jjuidev/jss-devtools`, ESM, `bin` points at `dist/cli.mjs`, scripts, `engines`, `packageManager`, exact dependency pins |
-| `tsconfig.json`                                        | Strict TypeScript, `Bundler` resolution, the `@/` alias to `src/`, `noEmit`                                                    |
-| `tsdown.config.ts`                                     | Bundles `src/cli.ts` to `dist/cli.mjs`, ESM, target Node 24, runtime dependencies inlined                                      |
-| `vitest.config.ts`                                     | Node environment, `tests/**/*.test.ts`, injects the package facts, resolves the alias, wires global setup                      |
-| `eslint.config.mjs`                                    | Flat config: recommended plus autofix, `import-x`, `prefer-arrow-functions`, typed TS rules, Prettier, the `../` import ban    |
-| `commitlint.config.mjs`                                | Conventional Commits                                                                                                           |
-| `.prettierrc.json`, `.prettierignore`, `.editorconfig` | Formatting: shared facts in `.editorconfig`, Prettier-only ones in `.prettierrc.json`; `plans/` and the lockfile excluded      |
-| `.vscode/settings.json`, `.vscode/extensions.json`     | Editor agreement: format on save, ESLint fix on save, recommended extensions                                                   |
-| `.husky/pre-commit`, `.husky/commit-msg`               | `lint-staged` and `commitlint`                                                                                                 |
-| `pnpm-workspace.yaml`                                  | `strictPeerDependencies`, `allowBuilds`, supply-chain age allow-list                                                           |
-| `pnpm-lock.yaml`                                       | Resolved versions of all packages                                                                                              |
-| `.github/workflows/ci.yml`                             | The full check sequence on exactly the `engines.node` floor, the site image, and the Dokploy deploy                            |
-| `.dockerignore`                                        | Allow-list of what reaches the site image build context                                                                        |
-| `.gitignore`                                           | `dist/`, `release/` and the usual artifacts                                                                                    |
+| Path                                                   | Purpose                                                                                                                                        |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `package.json`                                         | Name `@jjuidev/jss-devtools`, ESM, `bin` points at `dist/cli.mjs`, scripts, `engines`, `packageManager`, exact dependency pins                 |
+| `tsconfig.json`                                        | Strict TypeScript, `Bundler` resolution, the `@/` alias to `src/`, `noEmit`, excludes `site/`, which has its own project                       |
+| `tsdown.config.ts`                                     | Bundles `src/cli.ts` to `dist/cli.mjs`, ESM, target Node 24, runtime dependencies inlined                                                      |
+| `vitest.config.ts`                                     | Node environment, `tests/**/*.test.ts`, injects the package facts, resolves the alias, wires global setup                                      |
+| `eslint.config.mjs`                                    | Flat config: recommended plus autofix, `import-x`, `prefer-arrow-functions`, typed TS rules, Prettier, the `../` import ban, covers `site/src` |
+| `commitlint.config.mjs`                                | Conventional Commits                                                                                                                           |
+| `.prettierrc.json`, `.prettierignore`, `.editorconfig` | Formatting: shared facts in `.editorconfig`, Prettier-only ones in `.prettierrc.json`; `plans/` and the lockfile excluded                      |
+| `.vscode/settings.json`, `.vscode/extensions.json`     | Editor agreement: format on save, ESLint fix on save, recommended extensions                                                                   |
+| `.husky/pre-commit`, `.husky/commit-msg`               | `lint-staged` and `commitlint`                                                                                                                 |
+| `pnpm-workspace.yaml`                                  | `strictPeerDependencies`, `allowBuilds`, supply-chain age allow-list                                                                           |
+| `pnpm-lock.yaml`                                       | Resolved versions of all packages                                                                                                              |
+| `.github/workflows/ci.yml`                             | The full check sequence on exactly the `engines.node` floor, the site image, and the Dokploy deploy                                            |
+| `.dockerignore`                                        | Allow-list of what reaches the site image build context                                                                                        |
+| `.gitignore`                                           | `dist/`, `release/` and the usual artifacts                                                                                                    |
 
 There is no `.npmrc` and no `.nvmrc`. pnpm reads its settings from `pnpm-workspace.yaml`, and the
-only Node floor is `engines.node` in `package.json`, which `engineStrict` enforces at install.
+only Node floor is `engines.node` in `package.json`, which `engineStrict` enforces at install. The
+site is a separate project: `site/` has its own `pnpm-workspace.yaml` and lockfile.
 
 ## Source
 
@@ -61,13 +62,28 @@ enforces it. The rules are in [0024](./decisions/0024-core-and-command-layout.md
 | `scripts/stage-release.mjs`   | Stages `dist/cli.mjs` and its checksums into `release/`, the format `install.sh` reads                                                         |
 | `scripts/package-info.mjs`    | Reads the name, description, version and Node floor from `package.json`, once                                                                  |
 | `scripts/pin-node-preset.mjs` | Writes the pinned `node`-preset version table: latest stable, stepped down until every peer range holds, older than pnpm's `minimumReleaseAge` |
-| `docker/Dockerfile`           | `nginx:1.30.6-alpine` pinned by digest; copies config, page, installer, bundle; runs `nginx -t`                                                |
-| `docker/nginx.conf`           | The routing table: `/` home, `/install.sh`, `/releases/latest/`, 404 for everything else                                                       |
-| `docker/home.html`            | The temporary home page: install command, Node requirement, repository link, no version                                                        |
+| `docker/Dockerfile`           | `nginx:1.30.6-alpine` pinned by digest; copies config, built site, installer, bundle; runs `nginx -t`                                          |
+| `docker/nginx.conf`           | The routing table: `/` home, `/assets/`, `/install.sh`, `/releases/latest/`, 404 for everything else                                           |
 | `docker/docker-compose.yml`   | The service Dokploy runs: `pull_policy: always`, Traefik labels, healthcheck                                                                   |
 | `ci/smoke-site-image.sh`      | Proves the routing table against a running image and installs from it end to end                                                               |
 
 `release/` is git-ignored staging between `pnpm stage:release` and the image build.
+
+## Site
+
+| Path                       | Purpose                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `site/package.json`        | Standalone pnpm project: Vite, React and the vendored design system, every dependency pinned to an exact version |
+| `site/vite.config.ts`      | Builds the single page application into `site/dist/`                                                             |
+| `site/index.html`          | The document shell: sets the design system theme from the operating system preference before the first paint     |
+| `site/src/main.tsx`        | Loads the design system stylesheet and the site stylesheet, then mounts the React root                           |
+| `site/src/App.tsx`         | The home page content: install command, Node requirement, repository link, no version                            |
+| `site/src/styles/site.css` | The layout, using the design system tokens for colour and type                                                   |
+| `site/vendor/`             | The design system tarball the site installs from, so the build needs no registry                                 |
+
+`site/` is its own project: it keeps its own lockfile, never joins the CLI workspace and never
+enters the CLI bundle. `pnpm --dir site build` produces `site/dist/`, and CI builds it before the
+image build.
 
 ## Tests
 

@@ -374,7 +374,7 @@ One nginx image carries the install path end to end, and the server never builds
 ```
 push to main
   -> CI gate (checks, on the exact Node floor)
-  -> image job:  stage release/ -> build -> smoke the container -> push GHCR
+  -> image job:  build site/ -> stage release/ -> build -> smoke the container -> push GHCR
   -> deploy job: POST the push event to the Dokploy webhook
        -> Dokploy: pull :latest, run docker/docker-compose.yml behind Traefik
 ```
@@ -384,8 +384,12 @@ push to main
   `node cli.mjs --version`, and only then writes the bundle and the wrapper. Everything runs inside
   `main "$@"`, the last line, so a truncated `curl | sh` runs nothing.
 - `scripts/stage-release.mjs` is the one writer of the checksum format the installer reads.
-- `docker/Dockerfile` copies the built bundle; `docker/nginx.conf` is the routing table: the home
-  page at `/`, the installer and the release files, and 404 for everything else.
+- `docker/Dockerfile` copies the built site and the built bundle; `docker/nginx.conf` is the routing
+  table: the home page at `/`, the hashed site assets at `/assets/`, the installer and the release
+  files, and 404 for everything else.
+- `site/` is the home page: a Vite React single page application, its own pnpm project with its own
+  lockfile, outside the CLI workspace and outside the CLI bundle. CI builds it before the image
+  build, and the server never builds it.
 - `docker/docker-compose.yml` is what Dokploy runs: external `dokploy-network`, `pull_policy:
 always`, Traefik labels for `jss-devtools.jjuidev.com`, `wget` healthcheck.
 - `ci/smoke-site-image.sh` proves the routing table against a running image and installs from it end
@@ -412,7 +416,7 @@ One fact, one home. Nothing is written twice in two files that can drift.
 | Interactive-terminal rule      | `src/core/ui/terminal.ui.ts` `isInteractive`       | the terminal layer                                                       |
 | Banner art and colours         | `src/core/constants/banner.constant.ts`            | `src/core/ui/banner.ui.ts`                                               |
 | Exit codes                     | `src/core/constants/exit-code.constant.ts`         | `CliError`, the commands that end with their own code                    |
-| Installer and home-page floor  | `scripts/install.sh`, `docker/home.html`           | `tests/install.test.ts`, which proves both equal the floor               |
+| Installer and home-page floor  | `scripts/install.sh`, `site/src/App.tsx`           | `tests/install.test.ts`, which proves both equal the floor               |
 | Release checksum format        | `scripts/stage-release.mjs`                        | `scripts/install.sh`                                                     |
 | Site routing table             | `docker/nginx.conf`                                | `ci/smoke-site-image.sh`, as the real guard                              |
 | Package manager                | `package.json` `packageManager`                    | `pnpm/setup` in CI, pnpm locally                                         |

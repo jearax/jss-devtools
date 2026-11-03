@@ -60,6 +60,13 @@ expect_header "$base/releases/latest/checksums.txt" "Cache-Control" "no-cache"
 expect_status "$base/nope" "404"
 expect_status "$base/releases/latest/" "404"
 
+# The home page is a single page application, so it points at hashed assets that must be served.
+asset="$(curl -fsSL "$base/" | grep -o 'assets/[^"]*\.js' | head -n 1)"
+[ -n "$asset" ] || fail "the home page references no JavaScript asset"
+expect_status "$base/$asset" "200"
+expect_header "$base/$asset" "Cache-Control" "immutable"
+expect_status "$base/assets/there-is-no-such-asset.js" "404"
+
 curl -fsSL "$base/install.sh" -o "$sandbox/install.sh"
 HOME="$sandbox" \
 	JSS_DEVTOOLS_BASE_URL="$base/releases/latest" \

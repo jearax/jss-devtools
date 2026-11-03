@@ -1,0 +1,4 @@
+# The site is its own project: it keeps its own lockfile and never joins the CLI workspace.
+packages: []
+
+strictPeerDependencies: true

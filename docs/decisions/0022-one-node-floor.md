@@ -28,7 +28,7 @@ only Node version declared anywhere:
 - `devEngines` is removed.
 - `engineStrict: true` in `pnpm-workspace.yaml` makes pnpm refuse a Node below the floor. Without
   it, pnpm 11.24.0 only warns about the project's own `engines.node`.
-- `scripts/install.sh` and `docker/home.html` repeat the number, and `tests/install.test.ts` proves
+- `scripts/install.sh` and `site/src/App.tsx` repeat the number, and `tests/install.test.ts` proves
   both equal `engines.node`.
 - CI runs one Node: the `checks` job reads the floor from `package.json` and installs exactly that
   version, and the `image` job reuses it. The Node matrix and the separate `consumer-floor` job are

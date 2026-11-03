@@ -11,7 +11,7 @@ import tseslint from 'typescript-eslint';
 
 const { JAVASCRIPT_FILES, TYPESCRIPT_FILES, CODE_FILES, TEST_FILES } = (() => {
 	const TEST_FOLDERS = 'test{,s},__test{s,}__,spec{,s},e2e';
-	const SOURCE_FOLDERS = `src,lib{,s},bin{,s},script{,s},tool{,s},config{,s},type{,s},${TEST_FOLDERS}`;
+	const SOURCE_FOLDERS = `src,lib{,s},bin{,s},script{,s},tool{,s},config{,s},type{,s},site/src,${TEST_FOLDERS}`;
 
 	const JAVASCRIPT_EXTENSIONS = 'cjs,mjs,js,jsx';
 	const TYPESCRIPT_EXTENSIONS = 'cts,mts,ts,tsx';

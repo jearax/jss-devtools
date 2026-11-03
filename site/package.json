@@ -1,0 +1,26 @@
+{
+	"private": true,
+	"name": "@jjuidev/jss-devtools-site",
+	"version": "0.0.0",
+	"description": "Landing site cho jss-devtools",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build": "tsc --noEmit && vite build",
+		"dev": "vite",
+		"preview": "vite preview",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@jjuidev/design-system": "file:vendor/jjuidev-design-system-0.1.0.tgz",
+		"react": "19.3.1",
+		"react-dom": "19.3.1"
+	},
+	"devDependencies": {
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
+		"@vitejs/plugin-react": "6.1.2",
+		"typescript": "6.0.3",
+		"vite": "8.3.5"
+	}
+}

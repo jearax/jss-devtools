@@ -30,3 +30,5 @@ Thumbs.db
 .agentkit/
 
 *.tgz
+# The site vendors the design system as a tarball, so the build is reproducible without the registry.
+!site/vendor/*.tgz

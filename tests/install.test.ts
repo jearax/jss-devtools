@@ -196,7 +196,7 @@ describe('install.sh', () => {
 	});
 
 	it('shows the same Node floor on the home page', async () => {
-		const page = await readFile(resolve(projectRoot, 'docker/home.html'), 'utf8');
+		const page = await readFile(resolve(projectRoot, 'site/src/App.tsx'), 'utf8');
 
 		expect(page).toContain(`Node &gt;= ${manifest.engines.node.replace(/^>=/, '')}`);
 	});

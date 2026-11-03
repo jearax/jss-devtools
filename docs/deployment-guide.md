@@ -11,16 +11,16 @@ site. Nothing on the server builds.
 ```
 push to main
   -> checks          lint, typecheck, test, build, shellcheck   (exactly engines.node)
-  -> image           build the nginx image, smoke it, push to GHCR
+  -> image           build the site, build the nginx image, smoke it, push to GHCR
   -> deploy          POST the push event to the Dokploy webhook
        -> Dokploy    pull :latest, run it behind Traefik
 ```
 
-| Job      | Needs    | Runs on main | Does                                                                               |
-| -------- | -------- | ------------ | ---------------------------------------------------------------------------------- |
-| `checks` | -        | yes          | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, shellcheck on install.sh |
-| `image`  | `checks` | yes          | build the image, smoke every route against the container, push to GHCR             |
-| `deploy` | `image`  | yes          | call the Dokploy webhook, fail unless it answers 200                               |
+| Job      | Needs    | Runs on main | Does                                                                                   |
+| -------- | -------- | ------------ | -------------------------------------------------------------------------------------- |
+| `checks` | -        | yes          | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, shellcheck on install.sh     |
+| `image`  | `checks` | yes          | build the site, build the image, smoke every route against the container, push to GHCR |
+| `deploy` | `image`  | yes          | call the Dokploy webhook, fail unless it answers 200                                   |
 
 A pull request runs the same jobs and builds and smokes the image, but pushes nothing and deploys
 nothing. A red run ships nothing new, though Dokploy still restarts the current image (below).
@@ -34,15 +34,22 @@ smoke test runs against the exact bytes that later ship. The push step then tags
 The build context is an allow-list (`.dockerignore`), so nothing else in the repository reaches the
 server.
 
-| Path in the image                                     | Served at                        | Cache      |
-| ----------------------------------------------------- | -------------------------------- | ---------- |
-| `/usr/share/nginx/html/index.html`                    | `/`                              | default    |
-| `/usr/share/nginx/html/install.sh`                    | `/install.sh`                    | `no-cache` |
-| `/usr/share/nginx/html/releases/latest/cli.mjs`       | `/releases/latest/cli.mjs`       | `no-cache` |
-| `/usr/share/nginx/html/releases/latest/checksums.txt` | `/releases/latest/checksums.txt` | `no-cache` |
+| Path in the image                                     | Served at                        | Cache       |
+| ----------------------------------------------------- | -------------------------------- | ----------- |
+| `/usr/share/nginx/html/index.html`                    | `/`                              | default     |
+| `/usr/share/nginx/html/assets/*`                      | `/assets/*`                      | `immutable` |
+| `/usr/share/nginx/html/install.sh`                    | `/install.sh`                    | `no-cache`  |
+| `/usr/share/nginx/html/releases/latest/cli.mjs`       | `/releases/latest/cli.mjs`       | `no-cache`  |
+| `/usr/share/nginx/html/releases/latest/checksums.txt` | `/releases/latest/checksums.txt` | `no-cache`  |
 
 `/` serves the home page, and every other path — including the old `/vi/home` — answers 404. The
-host has exactly these four answers and nothing else.
+host has exactly these answers and nothing else; the asset names carry a content hash, so they can
+be cached forever.
+
+The home page is a React single page application built by Vite from `site/`. The `image` job
+installs and builds it before it builds the image, so the image carries the built assets and the
+server never builds anything. The site is a separate pnpm project: `site/` keeps its own lockfile
+and never joins the CLI workspace.
 
 The bundle in the image is the one the `checks` job built and tested, staged
 by `scripts/stage-release.mjs` into `release/` with the checksums file the installer verifies it
