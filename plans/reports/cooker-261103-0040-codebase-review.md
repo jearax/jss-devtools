@@ -136,3 +136,15 @@ Fix: parse only the first table, and require the first cell to be a decision id 
 - Should the init e2e suite (B4) run in the main CI job or in a separate one? It needs the network and four package managers, so it does not fit the current 15-minute `checks` job as it stands.
 - Is the memory guard meant to *prevent* an oversized `MEMORY.md` or only to report it? As a `PostToolUse` hook it can only report.
 - The generated npm hook runs plain `npx lint-staged` (verified: `src/commands/init/services/plan.service.ts:35-40` → `package-manager-detector` resolves `execute-local` to `npx`), while pnpm, yarn and bun resolve to their own local exec forms. Plain `npx` can fetch an unpinned `lint-staged` from the registry when the local bin is missing. Decision [0030](../docs/decisions/0030-init-node-preset.md) says "Versions are pinned, not fetched" — should the npm path use `npx --no-install`, or is the registry fallback intended?
+
+## User decisions on the findings (2026-11-03)
+
+- Fixed in [harness robustness](../261103-1021-harness-robustness/plan.md): B1, B3, B5, B6, B8, B9,
+  B10, the doctor Memory row, the hook error log, S3, S8. The memory guard stays a report.
+- Fixed in [init touch-ups](../261103-1021-init-touch-ups/plan.md): the failed-write message, the
+  package-manager question order, the dry-run note, S1.
+- Not changed: both `--force` findings ("nó đang mang ý nghĩa -f") and `npx --no-install` ("kệ
+  nó"); `--framework` stays as decision T3 has it.
+- Deferred, none planned: B4 (init e2e in CI), B7 (CRLF), S2 (preset seam), S4 and S5 (naming, a
+  size rule), S7 (a second runtime), the installer checksum origin: "tôi chọn không làm hết, để sau
+  hết" (user, 2026-11-03).
