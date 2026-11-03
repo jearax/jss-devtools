@@ -1,7 +1,7 @@
 import type { HarnessConfig } from '@/modules/harness/types/hook.type';
 
 export const HARNESS_CONFIG_DEFAULTS = {
-	review: { minToolCalls: 7 },
+	review: { minToolCalls: 10 },
 	memory: {
 		maxChars: 4800,
 		maxEntryChars: 300

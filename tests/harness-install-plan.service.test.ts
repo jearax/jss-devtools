@@ -271,7 +271,7 @@ describe('the harness install plan', () => {
 		const content = entryFor(harnessInstallEntries(createInput()), '.harness/config.json')?.content ?? '';
 
 		expect(JSON.parse(content)).toEqual({
-			review: { minToolCalls: 7 },
+			review: { minToolCalls: 10 },
 			memory: {
 				maxChars: 4800,
 				maxEntryChars: 300

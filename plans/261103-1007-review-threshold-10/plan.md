@@ -1,7 +1,7 @@
 ---
 title: "Review threshold 10"
 description: "The default review.minToolCalls that init writes to .harness/config.json becomes 10."
-status: pending
+status: completed
 priority: P2
 effort: 30m
 branch: main

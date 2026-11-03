@@ -345,7 +345,7 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
 - The `update` outro suggests no commit command (above).
 - The prototype's variant files stay. Superseded by "No variant files" below.
 
-## Config defaults for a medium project (2026-11-02, supersedes H0's values)
+## Config defaults for a medium project (2026-11-02, supersedes H0's values; `review.minToolCalls` superseded by "Review threshold 10" below)
 
 > "Tôi thấy context 3000 char có vẻ ít, tôi sợ ít." and "Chốt 7 / 4800 / 300 / 10 / 7 / 14 / 28,
 > lên plan thôi, không giao cooker." (user, 2026-11-02)
@@ -360,6 +360,18 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
 - `harness update` adds missing keys and keeps existing values, so repositories already installed
   keep their numbers; only new installs get these.
 - Plan: [261102-1045-harness-config-defaults](../261102-1045-harness-config-defaults/plan.md).
+
+## Review threshold 10 (2026-11-03, supersedes `review.minToolCalls` 7 above)
+
+> "Chốt: minToolCalls 10 nhé." (user, 2026-11-03)
+
+- `init` writes `review.minToolCalls: 10`. From the long-chain eval
+  ([eval-261103-0154-harness-long-chain](../../../jss-harness-eval/plans/reports/eval-261103-0154-harness-long-chain.md)):
+  a review-written decision carried to every later session at both 7 and 14 (20/20, baseline 5/20),
+  while 14 asked for 11 of 20 reviews against 20 of 20 at 7. 10 sits between the two measured
+  values; a failed tool call still always asks for a review.
+- Repositories already installed keep their value: `harness update` adds missing keys and keeps
+  existing ones.
 
 ## The CLAUDE block follows AgentKit (2026-11-02, narrows "No variant files")
 
