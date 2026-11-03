@@ -6,49 +6,76 @@ import { HARNESS_DECISIONS_DIR, HARNESS_DOCS_DIR } from '@/modules/harness/const
 import { usesAgentKit } from './agent-kit.service';
 import { decisionFileIds } from './decisions.service';
 
-const tableCells = (readme: string): string[][] => {
-	return readme
-		.split('\n')
-		.filter((line) => {
-			return line.startsWith('|');
-		})
-		.map((line) => {
-			return line
-				.split('|')
-				.slice(1, -1)
-				.map((cell) => {
-					return cell.trim();
-				});
+type Row = string[];
+
+const cellsOf = (line: string): Row => {
+	return line
+		.split('|')
+		.slice(1, -1)
+		.map((cell) => {
+			return cell.trim();
 		});
 };
 
-const rowNames = (readme: string): string[] => {
-	return tableCells(readme)
-		.filter((cells) => {
-			return cells.length >= 1;
-		})
-		.map((cells) => {
-			return cells[0] ?? '';
-		})
-		.filter((name) => {
-			return name !== '' && !/^-+$/.test(name) && name !== 'Doc' && name !== '#';
-		});
+const tablesOf = (readme: string): Row[][] => {
+	const tables: Row[][] = [];
+	let current: Row[] | null = null;
+
+	for (const line of readme.split('\n')) {
+		if (!line.startsWith('|')) {
+			current = null;
+
+			continue;
+		}
+
+		if (current === null) {
+			current = [];
+
+			tables.push(current);
+		}
+
+		current.push(cellsOf(line));
+	}
+
+	return tables;
+};
+
+const tableWithHeader = (readme: string, firstCell: string): Row[] => {
+	const table = tablesOf(readme).find((rows) => {
+		return rows[0]?.[0] === firstCell;
+	});
+
+	if (table === undefined) {
+		return [];
+	}
+
+	return table.slice(1).filter((cells) => {
+		return !/^-+$/.test(cells[0] ?? '');
+	});
+};
+
+const linkTextOf = (cell: string): string => {
+	return cell.replace(/^\[/, '').replace(/\]\([^)]*\)$/, '');
 };
 
 const decisionRows = (readme: string): string[] => {
-	return rowNames(readme)
-		.map((cell) => {
-			return cell.match(/\d{4}/)?.[0] ?? '';
+	return tableWithHeader(readme, '#')
+		.map((cells) => {
+			return linkTextOf(cells[0] ?? '');
 		})
 		.filter((id) => {
-			return id !== '';
+			return /^\d{4}$/.test(id);
 		});
 };
 
 const docRowNames = (readme: string): string[] => {
-	return rowNames(readme).map((cell) => {
-		return cell.replace(/^\[|\]\([^)]*\)$/g, '').replace(/\.md$/, '');
-	});
+	return tableWithHeader(readme, 'Doc')
+		.map((cells) => {
+			return linkTextOf(cells[0] ?? '').replace(/\.md$/, '');
+		})
+		.filter((name) => {
+			return name !== '';
+		});
 };
 
 const decisionsDrift = (root: string): string[] => {

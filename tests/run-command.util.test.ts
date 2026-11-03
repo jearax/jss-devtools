@@ -22,6 +22,15 @@ describe('running a command', () => {
 		expect(result.code).toBeNull();
 	});
 
+	it('keeps output larger than 1 MiB whole', async () => {
+		const size = 2 * 1024 * 1024;
+
+		const result = await runCommand('node', ['-e', `process.stdout.write("x".repeat(${size}))`]);
+
+		expect(result.code).toBe(0);
+		expect(result.stdout.length).toBe(size);
+	});
+
 	it('keeps the captured output when the stdio is not inherited', async () => {
 		const result = await runCommand('node', ['-e', 'console.log("captured")']);
 

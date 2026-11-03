@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { PACKAGE } from '@/core/constants/package.constant';
-import { HARNESS_BLOCK_BEGIN, HARNESS_BLOCK_END } from '@/modules/harness/constants/harness-paths.constant';
+import { HOOK_TIMEOUT_SECONDS } from '@/modules/harness/constants/harness-limits.constant';
+import {
+	HARNESS_BLOCK_BEGIN,
+	HARNESS_BLOCK_END,
+	HOOK_COMMAND
+} from '@/modules/harness/constants/harness-paths.constant';
 import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
 import { mergeHarnessSettings } from '@/modules/harness/services/merge.service';
 import { hookShimTemplate } from '@/modules/harness/templates/hook-shim.template';
@@ -205,6 +210,35 @@ describe('the harness install plan', () => {
 		expect(sessionStart[1]?.hooks[0]?.command).toContain('.harness/bin/harness-hook.mjs');
 
 		expect(mergeHarnessSettings(mergeHarnessSettings(raw))).toBe(mergeHarnessSettings(raw));
+	});
+
+	it('refreshes the timeout on a harness entry an earlier release wrote', () => {
+		const previous = JSON.stringify({
+			hooks: {
+				SessionStart: [
+					{
+						matcher: 'startup|resume|clear|compact',
+						hooks: [
+							{
+								type: 'command',
+								command: HOOK_COMMAND,
+								async: false
+							}
+						]
+					}
+				]
+			}
+		});
+
+		const merged = JSON.parse(mergeHarnessSettings(previous)) as {
+			hooks: Record<string, Array<{ hooks: Array<{ command: string; timeout?: number }> }>>;
+		};
+
+		const sessionStart = merged.hooks['SessionStart'] ?? [];
+
+		expect(sessionStart).toHaveLength(1);
+		expect(sessionStart[0]?.hooks[0]?.command).toBe(HOOK_COMMAND);
+		expect(sessionStart[0]?.hooks[0]?.timeout).toBe(HOOK_TIMEOUT_SECONDS);
 	});
 
 	it('puts the AgentKit lines in the CLAUDE block only when AgentKit is on', () => {

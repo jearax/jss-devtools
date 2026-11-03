@@ -14,6 +14,7 @@ export type HookPayload = {
 
 export type HookContext = {
 	fingerprint: string | null;
+	fingerprintFailed: boolean;
 };
 
 export type HookResult = {

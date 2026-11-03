@@ -22,6 +22,15 @@ const MODE_HANDLERS: Record<string, Record<string, Handler>> = {
 	'memory-guard': { PostToolUse: memoryGuardHook }
 };
 
+const fingerprintContext = async (root: string): Promise<HookContext> => {
+	const { hash, failed } = await worktreeFingerprint(root);
+
+	return {
+		fingerprint: hash,
+		fingerprintFailed: failed
+	};
+};
+
 export const runHook = async (root: string, raw: string, mode: string = ''): Promise<HookResult | null> => {
 	const payload = JSON.parse(raw) as HookPayload;
 	const event = payload.hook_event_name ?? '';
@@ -31,9 +40,12 @@ export const runHook = async (root: string, raw: string, mode: string = ''): Pro
 		return null;
 	}
 
-	const ctx: HookContext = {
-		fingerprint: FINGERPRINT_EVENTS.has(event) ? await worktreeFingerprint(root) : null
-	};
+	const ctx: HookContext = FINGERPRINT_EVENTS.has(event)
+		? await fingerprintContext(root)
+		: {
+				fingerprint: null,
+				fingerprintFailed: false
+			};
 
 	return handler(root, payload, ctx);
 };

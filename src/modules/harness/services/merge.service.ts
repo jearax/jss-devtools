@@ -32,15 +32,19 @@ export const mergeHarnessBlock = (raw: string | null, block: string): string => 
 type HooksObject = Record<string, unknown>;
 
 const hookEntryOf = (entry: HookSettingEntry): Record<string, unknown> => {
+	const handler: Record<string, unknown> = {
+		type: 'command',
+		command: entry.command,
+		async: entry.async
+	};
+
+	if (entry.timeout !== null) {
+		handler['timeout'] = entry.timeout;
+	}
+
 	return {
 		matcher: entry.matcher === null ? undefined : entry.matcher,
-		hooks: [
-			{
-				type: 'command',
-				command: entry.command,
-				async: entry.async
-			}
-		]
+		hooks: [handler]
 	};
 };
 
@@ -88,6 +92,38 @@ const commandsOf = (list: unknown): Set<string> => {
 	);
 };
 
+const handlersOf = (item: unknown): Record<string, unknown>[] => {
+	const inner = (item as { hooks?: unknown })?.hooks;
+
+	return (Array.isArray(inner) ? inner : []).filter((hook): hook is Record<string, unknown> => {
+		return typeof hook === 'object' && hook !== null;
+	});
+};
+
+// An entry the CLI already wrote keeps its place and takes the fields of the current release,
+// so a settings.json written by an older release reaches the new shape without a full replace.
+const refreshKnownHandlers = (current: readonly unknown[], additions: readonly unknown[]): void => {
+	const fresh = additions.flatMap((item) => {
+		return handlersOf(item);
+	});
+
+	for (const item of current) {
+		for (const handler of handlersOf(item)) {
+			const replacement = fresh.find((candidate) => {
+				return candidate['command'] === handler['command'];
+			});
+
+			if (replacement === undefined) {
+				continue;
+			}
+
+			for (const [key, value] of Object.entries(replacement)) {
+				handler[key] = value;
+			}
+		}
+	}
+};
+
 const mergeIntoSettings = (parsed: Record<string, unknown>, hooks: HooksObject): Record<string, unknown> => {
 	const existing = parsed['hooks'];
 
@@ -99,11 +135,11 @@ const mergeIntoSettings = (parsed: Record<string, unknown>, hooks: HooksObject):
 		const current = Array.isArray(merged[event]) ? (merged[event] as unknown[]) : [];
 		const known = commandsOf(current);
 
-		const fresh = (additions as unknown[]).filter((item) => {
-			const itemHooks = (item as { hooks?: unknown })?.hooks;
+		refreshKnownHandlers(current, additions as unknown[]);
 
-			const commands = (Array.isArray(itemHooks) ? itemHooks : []).map((hook) => {
-				return (hook as { command?: unknown })?.command;
+		const fresh = (additions as unknown[]).filter((item) => {
+			const commands = handlersOf(item).map((hook) => {
+				return hook['command'];
 			});
 
 			return !commands.some((command) => {

@@ -119,7 +119,7 @@ const akSkillIssues = async (root: string): Promise<readonly HealthIssue[]> => {
 
 	const changes = await gitWorktreeChanges(root);
 
-	if (changes === null) {
+	if (changes.kind !== 'ok') {
 		return [];
 	}
 

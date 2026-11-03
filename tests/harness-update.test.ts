@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,13 +9,15 @@ import { createProgram, runProgram } from '@/cli';
 import { runHarnessUpdate } from '@/commands/harness/update.command';
 import { buildInitPlan } from '@/commands/init/services/plan.service';
 import { applyInitPlan } from '@/commands/init/services/write.service';
+import { CliError } from '@/core/errors/cli.error';
+import { HOOK_TIMEOUT_SECONDS } from '@/modules/harness/constants/harness-limits.constant';
 import {
 	HARNESS_MANIFEST,
 	HARNESS_UPDATE_DIR,
 	HARNESS_UPDATE_LOCK,
 	HARNESS_UPDATE_SESSION
 } from '@/modules/harness/constants/harness-paths.constant';
-import { harnessInstallEntries, harnessRecordedFiles } from '@/modules/harness/services/install-plan.service';
+import { harnessInstallEntries, harnessRecordedFiles, sha256 } from '@/modules/harness/services/install-plan.service';
 
 import { capture } from './support/capture-stream';
 import { snapshotDir } from './support/fs-snapshot';
@@ -95,6 +97,20 @@ const ageManifest = (dir: string, version = '0.0.0'): void => {
 
 const ageBase = (dir: string, path: string, content: string): void => {
 	writeFile(dir, `.harness/core/base/${path}`, content);
+
+	const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as {
+		files: Array<{ path: string; sha256: string }>;
+	};
+
+	const entry = manifest.files.find((file) => {
+		return file.path === path;
+	});
+
+	if (entry !== undefined) {
+		entry.sha256 = sha256(content);
+	}
+
+	writeFile(dir, HARNESS_MANIFEST, `${JSON.stringify(manifest, null, '\t')}\n`);
 };
 
 const stubbedRelease = (edits: Record<string, string>, version = '0.9.0') => {
@@ -604,6 +620,222 @@ describe('harness update, preflight', () => {
 
 		expect(manifestVersionOf(dir)).toBe('0.9.0');
 		expectForeignFilesUntouched(dir);
+	});
+});
+
+describe('harness update, the manifest paths', () => {
+	const escapedUpdate = async (
+		template: string
+	): Promise<{ failure: unknown; path: string; outside: string | null; before: string; after: string }> => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+
+		const badPath = template.replace('escaped.txt', `escaped-${basename(dir)}.txt`);
+
+		const baseCopy = resolve(dir, `.harness/core/base/${badPath}`);
+
+		mkdirSync(dirname(baseCopy), {
+			recursive: true
+		});
+
+		writeFileSync(baseCopy, 'untouched\n');
+
+		const outside = isAbsolute(badPath) ? null : resolve(dir, badPath);
+
+		if (outside !== null) {
+			writeFileSync(outside, 'untouched\n');
+		}
+
+		const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as { files: unknown[] };
+
+		manifest.files.push({
+			path: badPath,
+			kind: 'managed',
+			sha256: '0'.repeat(64)
+		});
+
+		writeFile(dir, HARNESS_MANIFEST, `${JSON.stringify(manifest, null, '\t')}\n`);
+
+		const before = snapshotDir(dir);
+
+		const failure = await runUpdate(dir, { yes: true }).catch((error: unknown) => {
+			return error;
+		});
+
+		const content = outside === null ? null : readFileSync(outside, 'utf8');
+
+		if (outside !== null) {
+			rmSync(outside, {
+				force: true
+			});
+		}
+
+		return {
+			failure,
+			path: badPath,
+			outside: content,
+			before,
+			after: snapshotDir(dir)
+		};
+	};
+
+	it('refuses a path that climbs out of the repository', async () => {
+		const result = await escapedUpdate('../escaped.txt');
+
+		expect(result.failure).toBeInstanceOf(CliError);
+		expect((result.failure as CliError).message).toContain(result.path);
+		expect(result.outside).toBe('untouched\n');
+		expect(result.after).toBe(result.before);
+	});
+
+	it('refuses a path that climbs out through a folder', async () => {
+		const result = await escapedUpdate('a/../../escaped.txt');
+
+		expect(result.failure).toBeInstanceOf(CliError);
+		expect((result.failure as CliError).message).toContain(result.path);
+		expect(result.outside).toBe('untouched\n');
+		expect(result.after).toBe(result.before);
+	});
+
+	it('refuses an absolute path', async () => {
+		const result = await escapedUpdate('/etc/jss-devtools-escape');
+
+		expect(result.failure).toBeInstanceOf(CliError);
+		expect((result.failure as CliError).message).toContain(result.path);
+		expect(result.after).toBe(result.before);
+	});
+});
+
+describe('harness update, a corrupt staged session', () => {
+	it('aborts it, and refuses to update or continue', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		writeFile(dir, HARNESS_UPDATE_SESSION, '{"schema": 1, "conf');
+
+		await expect(runUpdate(dir, { yes: true })).rejects.toThrow(HARNESS_UPDATE_SESSION);
+		await expect(runUpdate(dir, { continue: true })).rejects.toThrow(HARNESS_UPDATE_SESSION);
+
+		await runUpdate(dir, { abort: true });
+
+		expect(existsSync(join(dir, HARNESS_UPDATE_DIR))).toBe(false);
+	});
+});
+
+describe('harness update, the base copies', () => {
+	it('refuses to update when a base copy does not match the manifest', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		writeFile(dir, `.harness/core/base/${MANAGED}`, 'edited after the install\n');
+
+		const before = snapshotDir(dir);
+
+		const failure = await runUpdate(dir, { yes: true }).catch((error: unknown) => {
+			return error;
+		});
+
+		expect(failure).toBeInstanceOf(CliError);
+		expect((failure as CliError).message).toContain(MANAGED);
+		expect((failure as CliError).hint).toContain('git checkout .harness/core');
+		expect(snapshotDir(dir)).toBe(before);
+	});
+});
+
+type SettingsHooks = Record<string, Array<{ hooks: Array<{ command: string; async: boolean; timeout?: number }> }>>;
+
+const harnessHookEntries = (dir: string): Array<{ command: string; async: boolean; timeout?: number }> => {
+	const settings = JSON.parse(readFileSync(join(dir, '.claude/settings.json'), 'utf8')) as { hooks: SettingsHooks };
+
+	return Object.values(settings.hooks).flatMap((group) => {
+		return group.flatMap((item) => {
+			return item.hooks;
+		});
+	});
+};
+
+const withoutTimeouts = (value: unknown): unknown => {
+	if (Array.isArray(value)) {
+		return value.map(withoutTimeouts);
+	}
+
+	if (typeof value === 'object' && value !== null) {
+		return Object.fromEntries(
+			Object.entries(value as Record<string, unknown>)
+				.filter(([key]) => {
+					return key !== 'timeout';
+				})
+				.map(([key, entry]) => {
+					return [key, withoutTimeouts(entry)];
+				})
+		);
+	}
+
+	return value;
+};
+
+describe('harness update, the hook timeouts', () => {
+	const splitByAsync = (
+		entries: ReadonlyArray<{ async: boolean; timeout?: number }>
+	): { sync: Array<{ async: boolean; timeout?: number }>; background: Array<{ async: boolean; timeout?: number }> } => {
+		return {
+			sync: entries.filter((entry) => {
+				return !entry.async;
+			}),
+			background: entries.filter((entry) => {
+				return entry.async;
+			})
+		};
+	};
+
+	it('gives the three synchronous hooks a timeout and the async ones none', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const entries = harnessHookEntries(dir);
+		const { sync, background } = splitByAsync(entries);
+
+		expect(entries).toHaveLength(5);
+		expect(sync).toHaveLength(3);
+		expect(background).toHaveLength(2);
+
+		for (const entry of sync) {
+			expect(entry.timeout).toBe(HOOK_TIMEOUT_SECONDS);
+		}
+
+		for (const entry of background) {
+			expect(entry.timeout).toBeUndefined();
+		}
+	});
+
+	it('brings settings written by the previous release up to the new entries', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+
+		const settings = JSON.parse(readFileSync(join(dir, '.claude/settings.json'), 'utf8')) as unknown;
+
+		writeFile(dir, '.claude/settings.json', `${JSON.stringify(withoutTimeouts(settings), null, 2)}\n`);
+
+		await runUpdate(dir, { yes: true });
+
+		const { sync, background } = splitByAsync(harnessHookEntries(dir));
+
+		expect(sync).toHaveLength(3);
+
+		for (const entry of sync) {
+			expect(entry.timeout).toBe(HOOK_TIMEOUT_SECONDS);
+		}
+
+		for (const entry of background) {
+			expect(entry.timeout).toBeUndefined();
+		}
 	});
 });
 

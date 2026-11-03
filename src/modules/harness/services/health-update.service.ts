@@ -1,4 +1,5 @@
 import { PACKAGE } from '@/core/constants/package.constant';
+import { CliError } from '@/core/errors/cli.error';
 
 import { loadUpdateSession } from './staging.service';
 import { readBaseCopy, readLiveFile } from './update-manifest.service';
@@ -69,8 +70,16 @@ const stagedUpdateIssue = (root: string): HealthIssue | null => {
 
 	try {
 		session = loadUpdateSession(root);
-	} catch {
-		session = null;
+	} catch (error) {
+		return {
+			level: 'error',
+			label: 'Staged update',
+			detail:
+				error instanceof CliError
+					? error.message
+					: 'the staged update could not be read — `harness update` refuses to run',
+			nextStep: 'jss-devtools harness update --abort'
+		};
 	}
 
 	if (session === null) {

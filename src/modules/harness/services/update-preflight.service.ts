@@ -4,12 +4,14 @@ import { join } from 'node:path';
 import { gitTopLevel } from '@/core/adapters/git.adapter';
 import { CliError } from '@/core/errors/cli.error';
 import {
+	HARNESS_BASE_DIR,
 	HARNESS_CONFIG,
 	HARNESS_MANIFEST,
 	HARNESS_UPDATE_LOCK
 } from '@/modules/harness/constants/harness-paths.constant';
 
 import { missingConfigKeys } from './config-merge.service';
+import { sha256 } from './install-plan.service';
 import { loadUpdateSession } from './staging.service';
 import { readManifest } from './update-manifest.service';
 import { compareHarnessVersions, INSTALL_COMMAND_LINE } from './update-release.service';
@@ -72,7 +74,7 @@ export const parseConfigJson = (cwd: string): string => {
 
 const ensureBaseCopies = (cwd: string, manifest: InstalledManifest): void => {
 	const missing = manifest.files.filter((file) => {
-		return !existsSync(join(cwd, '.harness/core/base', file.path));
+		return !existsSync(join(cwd, HARNESS_BASE_DIR, file.path));
 	});
 
 	if (missing.length > 0) {
@@ -84,6 +86,27 @@ const ensureBaseCopies = (cwd: string, manifest: InstalledManifest): void => {
 				.join(', ')}`,
 			{
 				hint: 'Restore .harness/core from git, then rerun'
+			}
+		);
+	}
+
+	// A base copy that no longer matches the manifest is the merge base of a release that is
+	// not the installed one; merging against it silently applies the wrong file.
+	const drifted = manifest.files.filter((file) => {
+		const content = readFileSync(join(cwd, HARNESS_BASE_DIR, file.path), 'utf8');
+
+		return sha256(content) !== file.sha256;
+	});
+
+	if (drifted.length > 0) {
+		throw new CliError(
+			`Base copies do not match the manifest: ${drifted
+				.map((file) => {
+					return file.path;
+				})
+				.join(', ')}`,
+			{
+				hint: 'Run git checkout .harness/core, then rerun. If .harness/core is not in git, run jss-devtools init --force'
 			}
 		);
 	}

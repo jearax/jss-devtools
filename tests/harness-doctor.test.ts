@@ -171,6 +171,29 @@ describe('harness doctor, the check table', () => {
 		expect(exitCode).toBe(1);
 	});
 
+	it('names an unsafe manifest path instead of saying the manifest is missing', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as { files: unknown[] };
+
+		manifest.files.push({
+			path: '../escaped.txt',
+			kind: 'managed',
+			sha256: '0'.repeat(64)
+		});
+
+		writeFile(dir, HARNESS_MANIFEST, `${JSON.stringify(manifest, null, '\t')}\n`);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('names a path outside the repository');
+		expect(stdout).toContain('../escaped.txt');
+		expect(stdout).not.toContain('No harness manifest here');
+		expect(exitCode).toBe(1);
+	});
+
 	it('errors when the CLAUDE.md block markers are gone', async () => {
 		const dir = await makeRepo();
 
@@ -283,6 +306,8 @@ describe('harness doctor, the check table', () => {
 		const { stdout, exitCode } = await runCli(dir);
 
 		expect(stdout).toContain(`over the limit of ${MEMORY_LIMIT}`);
+		expect(stdout).toContain('✖ Memory');
+		expect(stdout).not.toContain('✔ Memory');
 		expect(exitCode).toBe(1);
 	});
 
@@ -311,6 +336,32 @@ describe('harness doctor, the check table', () => {
 
 		expect(stdout).toContain('docs/README.md is missing rows for: extra');
 		expect(exitCode).toBe(0);
+	});
+
+	it('errors when a base copy does not match the manifest', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeFile(dir, '.harness/core/base/.harness/templates/decision.md', 'edited after the install\n');
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('Base copies');
+		expect(stdout).toContain('.harness/templates/decision.md');
+		expect(exitCode).toBe(1);
+	});
+
+	it('errors when the staged update session is corrupt', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeFile(dir, '.harness/update/session.json', '{"schema": 1, "conf');
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('Staged update');
+		expect(stdout).toContain('session.json');
+		expect(exitCode).toBe(1);
 	});
 
 	it('warns when a decision has no quote of the user', async () => {

@@ -15,4 +15,5 @@ export type HealthContext = {
 	config: HarnessConfig;
 	today: string;
 	manifest: InstalledManifest | null;
+	manifestProblem: string | null;
 };

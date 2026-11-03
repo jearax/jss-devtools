@@ -79,19 +79,54 @@ export const gitMergeFile = async (
 	};
 };
 
-export const gitWorktreeChanges = async (cwd: string): Promise<{ status: string; diff: string } | null> => {
+export type GitWorktreeChanges =
+	{ kind: 'ok'; status: string; diff: string } | { kind: 'missing' } | { kind: 'failed'; problem: string };
+
+const failureOf = (what: string, result: { code: number | null; stderr: string }): string => {
+	const detail = result.stderr.trim();
+
+	return detail === '' ? `${what} failed with exit code ${result.code}` : `${what} failed: ${detail}`;
+};
+
+export const gitWorktreeChanges = async (cwd: string): Promise<GitWorktreeChanges> => {
+	if ((await gitTopLevel(cwd)) === null) {
+		return {
+			kind: 'missing'
+		};
+	}
+
 	const status = await runCommand('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], { cwd });
 
 	if (status.code !== 0) {
-		return null;
+		return {
+			kind: 'failed',
+			problem: failureOf('git status', status)
+		};
 	}
 
 	const diff = await runCommand('git', ['diff', 'HEAD', '--no-ext-diff'], { cwd });
 
-	return diff.code === 0
-		? {
+	if (diff.code !== 0) {
+		// A repository with no commit has no HEAD to diff against; the status still lists the tree.
+		const head = await runCommand('git', ['rev-parse', '--verify', '--quiet', 'HEAD'], { cwd });
+
+		if (head.code !== 0) {
+			return {
+				kind: 'ok',
 				status: status.stdout,
-				diff: diff.stdout
-			}
-		: null;
+				diff: ''
+			};
+		}
+
+		return {
+			kind: 'failed',
+			problem: failureOf('git diff', diff)
+		};
+	}
+
+	return {
+		kind: 'ok',
+		status: status.stdout,
+		diff: diff.stdout
+	};
 };

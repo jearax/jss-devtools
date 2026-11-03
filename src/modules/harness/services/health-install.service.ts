@@ -1,27 +1,54 @@
-import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
 	CLAUDE_MD,
 	CLAUDE_SETTINGS,
+	HARNESS_BASE_DIR,
 	HARNESS_BLOCK_BEGIN,
 	HARNESS_BLOCK_END,
 	HOOK_SHIM_PATH
 } from '@/modules/harness/constants/harness-paths.constant';
 
+import { sha256 } from './install-plan.service';
 import { missingHookEntries } from './merge.service';
 
 import type { HealthContext, HealthIssue } from '@/modules/harness/types/health-issue.type';
+import type { InstalledManifest } from '@/modules/harness/types/update.type';
 
 const HOOKS_BUNDLE = '.harness/bin/hooks.mjs';
 
-const sha256 = (text: string): string => {
-	return createHash('sha256').update(text, 'utf8').digest('hex');
-};
-
 const readOrNull = (path: string): string | null => {
 	return existsSync(path) ? readFileSync(path, 'utf8') : null;
+};
+
+const baseCopyIssues = (root: string, manifest: InstalledManifest | null): readonly HealthIssue[] => {
+	if (manifest === null) {
+		return [];
+	}
+
+	const broken = manifest.files.filter((file) => {
+		const base = readOrNull(join(root, HARNESS_BASE_DIR, file.path));
+
+		return base === null || sha256(base) !== file.sha256;
+	});
+
+	if (broken.length === 0) {
+		return [];
+	}
+
+	return [
+		{
+			level: 'error' as const,
+			label: 'Base copies',
+			detail: `${broken
+				.map((file) => {
+					return file.path;
+				})
+				.join(', ')} — the merge base does not match the manifest, so \`harness update\` refuses`,
+			nextStep: 'Run git checkout .harness/core, then rerun'
+		}
+	];
 };
 
 const installIssues = (context: HealthContext): readonly HealthIssue[] => {
@@ -29,12 +56,20 @@ const installIssues = (context: HealthContext): readonly HealthIssue[] => {
 	const issues: HealthIssue[] = [];
 
 	if (manifest === null) {
-		issues.push({
-			level: 'error',
-			label: 'Manifest',
-			detail: 'No harness manifest here',
-			nextStep: 'jss-devtools init'
-		});
+		if (context.manifestProblem === null) {
+			issues.push({
+				level: 'error',
+				label: 'Manifest',
+				detail: 'No harness manifest here',
+				nextStep: 'jss-devtools init'
+			});
+		} else {
+			issues.push({
+				level: 'error',
+				label: 'Manifest',
+				detail: context.manifestProblem
+			});
+		}
 	}
 
 	const claudeMd = readOrNull(join(root, CLAUDE_MD));
@@ -69,6 +104,8 @@ const installIssues = (context: HealthContext): readonly HealthIssue[] => {
 			nextStep: 'jss-devtools harness update'
 		});
 	}
+
+	issues.push(...baseCopyIssues(root, manifest));
 
 	return issues;
 };

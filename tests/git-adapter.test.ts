@@ -9,7 +9,21 @@ import { gitHooksPath, gitInit, gitTopLevel, gitVersion, gitWorktreeChanges } fr
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
 
+import type { GitWorktreeChanges } from '@/core/adapters/git.adapter';
+
 const run = promisify(execFile);
+
+const problemOf = (changes: GitWorktreeChanges): string => {
+	return changes.kind === 'failed' ? changes.problem : '';
+};
+
+const statusOf = (changes: GitWorktreeChanges): string => {
+	return changes.kind === 'ok' ? changes.status : '';
+};
+
+const diffOf = (changes: GitWorktreeChanges): string => {
+	return changes.kind === 'ok' ? changes.diff : '';
+};
 
 const dirs: string[] = [];
 
@@ -118,7 +132,7 @@ describe('the git adapter', () => {
 		expect(await gitTopLevel(plain)).toBeNull();
 	});
 
-	it('reads worktree changes, null without HEAD or outside a repository', async () => {
+	it('reads worktree changes, and says why it cannot', async () => {
 		const repo = await makeEmptyDir();
 		const plain = await makeEmptyDir();
 
@@ -126,13 +140,23 @@ describe('the git adapter', () => {
 
 		await run('git', ['init'], { cwd: repo });
 
-		expect(await gitWorktreeChanges(repo)).toBeNull();
+		// A repository with no commit has no HEAD to diff against, but it is not a failure.
+		expect(await gitWorktreeChanges(repo)).toEqual({
+			kind: 'ok',
+			status: '',
+			diff: ''
+		});
+
+		expect(await gitWorktreeChanges(plain)).toEqual({
+			kind: 'missing'
+		});
 
 		await run('git', ['config', 'user.email', 't@t'], { cwd: repo });
 		await run('git', ['config', 'user.name', 't'], { cwd: repo });
 		await run('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo });
 
 		expect(await gitWorktreeChanges(repo)).toEqual({
+			kind: 'ok',
 			status: '',
 			diff: ''
 		});
@@ -141,7 +165,15 @@ describe('the git adapter', () => {
 
 		const changes = await gitWorktreeChanges(repo);
 
-		expect(changes?.status).toContain('a.txt');
-		expect(changes?.diff).toBe('');
+		expect(changes.kind).toBe('ok');
+		expect(statusOf(changes)).toContain('a.txt');
+		expect(diffOf(changes)).toBe('');
+
+		await writeFile(resolve(repo, '.git/index'), 'not an index');
+
+		const broken = await gitWorktreeChanges(repo);
+
+		expect(broken.kind).toBe('failed');
+		expect(problemOf(broken)).toContain('git status failed');
 	});
 });

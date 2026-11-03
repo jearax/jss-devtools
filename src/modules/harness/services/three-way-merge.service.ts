@@ -41,8 +41,8 @@ export const mergeThreeWay = async (local: string, base: string, upstream: strin
 
 		const result = await gitMergeFile(paths.local, paths.base, paths.upstream);
 
-		if (result.code === null || (result.code < 0 && result.code !== -1) || result.code > 127) {
-			throw new CliError(`git merge-file failed: ${result.stderr.trim()}`);
+		if (result.code === null || result.code < 0 || result.code > 127) {
+			throw new CliError(`git merge-file failed: ${result.stderr.trim() || 'the command reported no exit code'}`);
 		}
 
 		return {

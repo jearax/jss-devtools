@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { basename } from 'node:path';
 import { styleText } from 'node:util';
 
@@ -10,6 +11,7 @@ import {
 	clearUpdateSession,
 	loadResolutions,
 	loadUpdateSession,
+	updateDirOf,
 	withUpdateLock
 } from '@/modules/harness/services/staging.service';
 import { applyUpdatePlan } from '@/modules/harness/services/update-apply.service';
@@ -43,7 +45,7 @@ const shellQuote = (word: string): string => {
 };
 
 const runAbort = (cwd: string): void => {
-	if (loadUpdateSession(cwd) === null) {
+	if (!existsSync(updateDirOf(cwd))) {
 		throw new CliError('No staged harness update to abort');
 	}
 

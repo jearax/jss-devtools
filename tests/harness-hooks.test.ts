@@ -1,11 +1,12 @@
 import { spawnSync, execFile } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 
+import { HOOK_ERROR_LOG_MAX_BYTES } from '@/modules/harness/constants/harness-limits.constant';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
@@ -25,6 +26,7 @@ let root = '';
 
 const makeRepo = async (config: unknown = DEFAULT_CONFIG): Promise<void> => {
 	root = await makeEmptyDir();
+	tmpDirs.push(root);
 	await exec('git', ['init', '-q', '-b', 'main'], { cwd: root });
 	await exec('git', ['config', 'user.email', 't@t'], { cwd: root });
 	await exec('git', ['config', 'user.name', 't'], { cwd: root });
@@ -64,6 +66,14 @@ const guard = (payload: object): { stdout: string; status: number } => {
 		stdout: result.stdout ?? '',
 		status: result.status ?? -1
 	};
+};
+
+const failHook = (): void => {
+	spawnSync(process.execPath, [HOOKS], {
+		cwd: root,
+		input: 'not json',
+		encoding: 'utf8'
+	});
 };
 
 const contextOf = (stdout: string): string => {
@@ -134,7 +144,6 @@ afterAll(async () => {
 
 beforeEach(async () => {
 	await makeRepo();
-	tmpDirs.push(root);
 });
 
 const decision = (id: string, title: string, status: string): void => {
@@ -230,6 +239,29 @@ describe('session start', () => {
 		write(root, '.harness/state/hook-errors.log', '2026-11-01T00:00:00Z boom\n');
 		expect(sessionStart()).toContain('boom');
 		expect(sessionStart()).not.toContain('boom');
+	});
+
+	it('caps the hook error log and reports only the errors after the trim', () => {
+		const line = `2026-11-01T00:00:00.000Z ${'e'.repeat(200)}\n`;
+
+		write(
+			root,
+			'.harness/state/hook-errors.log',
+			line.repeat(Math.ceil((HOOK_ERROR_LOG_MAX_BYTES * 1.5) / line.length))
+		);
+
+		sessionStart();
+
+		failHook();
+
+		const logPath = resolve(root, '.harness/state/hook-errors.log');
+
+		expect(statSync(logPath).size).toBeLessThanOrEqual(HOOK_ERROR_LOG_MAX_BYTES);
+		expect(readFileSync(logPath, 'utf8').endsWith('\n')).toBe(true);
+
+		const context = sessionStart();
+
+		expect(context.split('the hook error log recorded').length - 1).toBe(1);
 	});
 
 	it('appends a start line with the fingerprint baseline', () => {
@@ -422,6 +454,20 @@ describe('stop hook', () => {
 		expect(contextOf(stdout)).toBe('');
 	});
 
+	it('does not log a hook error in a repository with no commit', async () => {
+		await makeRepo({
+			...DEFAULT_CONFIG,
+			review: { minToolCalls: 1 }
+		});
+		await exec('rm', ['-rf', '.git'], { cwd: root });
+		await exec('git', ['init', '-q', '-b', 'main'], { cwd: root });
+		sessionStart();
+		hook(toolPayload('Bash', { command: 'pnpm test' }));
+		stop();
+
+		expect(existsSync(resolve(root, '.harness/state/hook-errors.log'))).toBe(false);
+	});
+
 	it('asks for curation on the interval with learned skills', async () => {
 		await makeRepo({
 			...DEFAULT_CONFIG,
@@ -494,5 +540,39 @@ describe('stop hook', () => {
 
 		expect(usage['harness-review']).toBe(dayOffset(0));
 		expect(existsSync(stale)).toBe(false);
+	});
+
+	it('survives a truncated skill-usage file and rewrites it', () => {
+		write(root, '.claude/skills/harness-review/SKILL.md', 'body\n');
+		write(root, '.harness/state/skill-usage.json', '{"harness-review": "2026-');
+
+		hook(toolPayload('Skill', { skill: 'harness-review' }));
+
+		const { status } = stop();
+
+		expect(status).toBe(0);
+
+		const usage = JSON.parse(readFileSync(resolve(root, '.harness/state/skill-usage.json'), 'utf8')) as Record<
+			string,
+			string
+		>;
+
+		expect(usage['harness-review']).toBe(dayOffset(0));
+	});
+
+	it('asks for review when the worktree fingerprint fails', async () => {
+		await makeRepo({
+			...DEFAULT_CONFIG,
+			review: { minToolCalls: 1 }
+		});
+
+		writeFileSync(resolve(root, '.git/index'), 'not an index');
+
+		sessionStart();
+		hook(toolPayload('Bash', { command: 'pnpm test' }));
+
+		const { stdout } = stop();
+
+		expect(contextOf(stdout)).toContain('harness-review');
 	});
 });

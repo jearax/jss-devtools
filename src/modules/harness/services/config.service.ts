@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { HARNESS_CONFIG } from '@/modules/harness/constants/harness-paths.constant';
+import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
 
 import type { HarnessConfig } from '@/modules/harness/types/hook.type';
 
@@ -13,15 +14,19 @@ const EMPTY_CONFIG: HarnessConfig = {
 
 const REPAIR_HINT = 'run "jss-devtools harness update" to restore the default keys';
 
-const NUMBER_KEYS = [
-	['review', 'minToolCalls'],
-	['memory', 'maxChars'],
-	['memory', 'maxEntryChars'],
-	['curator', 'minLearnedSkills'],
-	['curator', 'intervalDays'],
-	['curator', 'staleDays'],
-	['curator', 'archiveDays']
-] as const;
+type ConfigGroup = keyof HarnessConfig;
+
+const NUMBER_KEYS: readonly (readonly [ConfigGroup, string])[] = (
+	Object.keys(HARNESS_CONFIG_DEFAULTS) as ConfigGroup[]
+).flatMap((group) => {
+	return Object.entries(HARNESS_CONFIG_DEFAULTS[group])
+		.filter(([, value]) => {
+			return typeof value === 'number';
+		})
+		.map(([key]) => {
+			return [group, key] as const;
+		});
+});
 
 const groupOf = (config: unknown, group: string): Record<string, unknown> => {
 	const value = (config as Record<string, unknown> | null)?.[group];

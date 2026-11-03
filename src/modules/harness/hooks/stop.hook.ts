@@ -109,7 +109,8 @@ export const stopHook = (root: string, payload: HookPayload, ctx: HookContext): 
 				return line.type === 'fail';
 			});
 
-			const treeChanged = baseline !== null && ctx.fingerprint !== null && ctx.fingerprint !== baseline;
+			const treeChanged =
+				ctx.fingerprintFailed || (baseline !== null && ctx.fingerprint !== null && ctx.fingerprint !== baseline);
 
 			if ((treeChanged && calls >= minToolCalls) || failures) {
 				appendSessionEvent(root, sessionId, {

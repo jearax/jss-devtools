@@ -1,10 +1,12 @@
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 
+import { MAX_BUFFER_BYTES } from '@/core/constants/buffer.constant';
+
 const execFileAsync = promisify(execFile);
 
 export type RunResult = {
-	/** The exit code, or null when the command does not exist. */
+	/** The exit code, or null when the command did not run and report one. */
 	code: number | null;
 	stdout: string;
 	stderr: string;
@@ -15,12 +17,10 @@ export type RunOptions = {
 	onLine?: (line: string) => void;
 };
 
+// A failure without a numeric code is not an exit code: the command was missing, killed or
+// its output overflowed the buffer. Reporting null keeps it apart from "exited with 1".
 const exitCodeOf = (failure: { code?: unknown }): number | null => {
-	if (failure.code === 'ENOENT') {
-		return null;
-	}
-
-	return typeof failure.code === 'number' ? failure.code : 1;
+	return typeof failure.code === 'number' ? failure.code : null;
 };
 
 const feedLines = (buffer: string, chunk: string, onLine: (line: string) => void): string => {
@@ -81,7 +81,7 @@ const runStreamed = async (
 			}
 
 			resolve({
-				code: code ?? 1,
+				code: code ?? null,
 				stdout,
 				stderr
 			});
@@ -101,7 +101,8 @@ export const runCommand = async (
 	try {
 		const { stdout, stderr } = await execFileAsync(file, [...args], {
 			cwd: options.cwd,
-			encoding: 'utf8'
+			encoding: 'utf8',
+			maxBuffer: MAX_BUFFER_BYTES
 		});
 
 		return {

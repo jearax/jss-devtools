@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { CliError } from '@/core/errors/cli.error';
 import { HARNESS_BASE_DIR, HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
 
+import { assertRepositoryPath } from './path-safety.service';
+
 import type { InstalledManifest, ManifestFile } from '@/modules/harness/types/update.type';
 
 export const readManifest = (cwd: string): InstalledManifest => {
@@ -16,7 +18,23 @@ export const readManifest = (cwd: string): InstalledManifest => {
 		});
 	}
 
-	return JSON.parse(readFileSync(path, 'utf8')) as InstalledManifest;
+	const manifest = JSON.parse(readFileSync(path, 'utf8')) as InstalledManifest;
+
+	if (!Array.isArray(manifest.files)) {
+		throw new CliError(`${HARNESS_MANIFEST} has no file list`);
+	}
+
+	for (const file of manifest.files) {
+		const filePath = (file as { path?: unknown }).path;
+
+		if (typeof filePath !== 'string') {
+			throw new CliError(`${HARNESS_MANIFEST} has a file entry without a path`);
+		}
+
+		assertRepositoryPath(cwd, filePath, HARNESS_MANIFEST, 'Restore .harness/core from git, then rerun');
+	}
+
+	return manifest;
 };
 
 export const manifestEntryOf = (manifest: InstalledManifest, path: string): ManifestFile | null => {

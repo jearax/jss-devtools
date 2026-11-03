@@ -142,6 +142,11 @@ phase 5. Decision: [0032](./decisions/0032-harness-update.md).
   `.claude/settings.json` replaced with every other hook kept, the hook bundle always
   overwritten. Seeds, learned skills, `.harness/archive/`, `.harness/curator.json` and the
   toolchain are never touched, and the CLI never commits or suggests one.
+- The update trusts nothing the repository holds: a manifest path that leaves the repository, a base
+  copy that no longer matches the manifest and a staged session that is not valid JSON stop the run
+  before the first write, each naming the file and the next step.
+- The harness hook entries in `.claude/settings.json` carry a `timeout` of 30 seconds on the
+  synchronous ones (SessionStart, the memory guard, Stop) and none on the asynchronous ones.
 - With conflicts the live tree is untouched: base, local, upstream and a resolved copy are staged
   under `.harness/update/`, the run exits 1 naming `--continue` and `--abort`; `--continue`
   refuses copies that still hold markers, `--abort` discards. A conflict run asks no question,
@@ -155,11 +160,13 @@ phase 7. Decision: [0033](./decisions/0033-harness-doctor.md).
 - `jss-devtools harness doctor` checks the harness installed in the current repository, read-only:
   the manifest, the `CLAUDE.md` block, the harness hook entries in `.claude/settings.json`, the
   hook files under `.harness/bin`, `config.json`, memory limits, index drift, decision records,
-  secrets in `.harness/`, learned skills, managed-file drift, staged updates, the installed harness
-  version against the running CLI and, with AgentKit, uncommitted `ak-*` skill edits. It prints a
-  summary plus one row per issue and exits 1 when any issue is an error; `--help` lists the checks
-  and the exit codes. Every rule lives once in
-  `src/modules/harness/services/health-*.service.ts`, shared with the hooks and `harness update`.
+  secrets in `.harness/`, learned skills, managed-file drift, the base copies against the manifest,
+  staged updates, the installed harness version against the running CLI and, with AgentKit,
+  uncommitted `ak-*` skill edits. It prints a summary plus one row per issue and exits 1 when any
+  issue is an error; `--help` lists the checks and the exit codes. The Memory summary row takes the
+  worst level of the memory issues, so a broken memory never shows a tick next to a cross. Every
+  rule lives once in `src/modules/harness/services/health-*.service.ts`, shared with the hooks and
+  `harness update`.
 
 ## Not started
 

@@ -1,7 +1,7 @@
 ---
 title: "Harness robustness: distrust what the repository holds"
 description: "Fix the harness bugs the codebase review verified: unchecked manifest paths, 1 MiB output truncation, unguarded JSON state, stale base copies, a false index-drift row, and smaller doctor, log and hook-timeout gaps."
-status: pending
+status: completed
 priority: P1
 effort: 1d
 branch: main

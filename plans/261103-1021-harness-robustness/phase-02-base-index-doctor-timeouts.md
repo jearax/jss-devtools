@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Base copies, index drift, doctor, log, timeouts"
-status: pending
+status: completed
 priority: P2
 effort: 4h
 dependencies: [1]

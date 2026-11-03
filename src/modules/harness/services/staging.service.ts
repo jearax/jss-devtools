@@ -3,14 +3,18 @@ import { dirname, join } from 'node:path';
 
 import { CliError } from '@/core/errors/cli.error';
 import {
+	HARNESS_MANIFEST,
 	HARNESS_UPDATE_DIR,
 	HARNESS_UPDATE_LOCK,
 	HARNESS_UPDATE_SESSION
 } from '@/modules/harness/constants/harness-paths.constant';
 
 import { extractBlockUnit, hasConflictMarkers } from './block-region.service';
+import { assertRepositoryPath } from './path-safety.service';
 
 import type { HarnessRecordedKind, UpdateSession } from '@/modules/harness/types/update.type';
+
+const STAGING_HINT = 'Discard the staged update with jss-devtools harness update --abort';
 
 export const updateDirOf = (cwd: string): string => {
 	return join(cwd, HARNESS_UPDATE_DIR);
@@ -23,7 +27,13 @@ export const loadUpdateSession = (cwd: string): UpdateSession | null => {
 		return null;
 	}
 
-	return JSON.parse(readFileSync(path, 'utf8')) as UpdateSession;
+	try {
+		return JSON.parse(readFileSync(path, 'utf8')) as UpdateSession;
+	} catch (error) {
+		throw new CliError(`${HARNESS_UPDATE_SESSION} is not valid JSON: ${(error as Error).message}`, {
+			hint: 'Run jss-devtools harness update --abort to discard the staged update'
+		});
+	}
 };
 
 export const clearUpdateSession = (cwd: string): void => {
@@ -91,6 +101,8 @@ export const stageConflicts = (cwd: string, session: UpdateSession, inputs: read
 	});
 
 	for (const input of inputs) {
+		assertRepositoryPath(cwd, input.path, HARNESS_MANIFEST, STAGING_HINT);
+
 		for (const [folder, content] of [
 			['base', input.base],
 			['local', input.local],
@@ -121,6 +133,8 @@ export const loadResolutions = (cwd: string, session: UpdateSession): Map<string
 	const overrides = new Map<string, string>();
 
 	for (const conflict of session.conflicts) {
+		assertRepositoryPath(cwd, conflict.path, HARNESS_UPDATE_SESSION, STAGING_HINT);
+
 		const path = join(root, 'resolved', conflict.path);
 
 		if (!existsSync(path)) {

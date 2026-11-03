@@ -72,7 +72,7 @@ const at = (path: string, kind: OwnedFile['kind'], content: string): OwnedFile =
 	};
 };
 
-const sha256 = (text: string): string => {
+export const sha256 = (text: string): string => {
 	return createHash('sha256').update(text, 'utf8').digest('hex');
 };
 

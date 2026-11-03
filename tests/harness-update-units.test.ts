@@ -1,9 +1,40 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { hasConflictMarkers } from '@/modules/harness/services/block-region.service';
 import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/services/config-merge.service';
 import { mergeThreeWay } from '@/modules/harness/services/three-way-merge.service';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
+
+const gitState = vi.hoisted(() => {
+	return {
+		failMerge: false
+	};
+});
+
+vi.mock('@/core/adapters/git.adapter', async (importOriginal) => {
+	const actual = await importOriginal<{
+		gitMergeFile: (
+			current: string,
+			base: string,
+			other: string
+		) => Promise<{ code: number | null; stdout: string; stderr: string }>;
+	}>();
+
+	return {
+		...actual,
+		gitMergeFile: async (current: string, base: string, other: string) => {
+			if (gitState.failMerge) {
+				return {
+					code: -1,
+					stdout: '',
+					stderr: 'fatal: cannot merge'
+				};
+			}
+
+			return actual.gitMergeFile(current, base, other);
+		}
+	};
+});
 
 const line = (text: string): string => {
 	return `${text}\n`;
@@ -60,6 +91,31 @@ describe('the three-way merge', () => {
 		expect(result.content).toContain('changed local');
 		expect(result.content).toContain('changed upstream');
 		expect(result.content).toContain('>>>>>>>');
+	});
+
+	it('keeps both edits in a file over 1 MiB', async () => {
+		const wide = `${'x'.repeat(3000)}\n`;
+		const base = wide.repeat(400);
+		const local = `LOCAL\n${wide.repeat(399)}`;
+		const upstream = `${wide.repeat(399)}UPSTREAM\n`;
+
+		expect(base.length).toBeGreaterThan(1024 * 1024);
+
+		const result = await mergeThreeWay(local, base, upstream);
+
+		expect(result.conflicted).toBe(false);
+		expect(result.content).toContain('LOCAL');
+		expect(result.content).toContain('UPSTREAM');
+	});
+
+	it('throws when git merge-file fails, instead of calling it a conflict', async () => {
+		gitState.failMerge = true;
+
+		try {
+			await expect(mergeThreeWay('a\n', 'b\n', 'c\n')).rejects.toThrow('git merge-file failed');
+		} finally {
+			gitState.failMerge = false;
+		}
 	});
 });
 
