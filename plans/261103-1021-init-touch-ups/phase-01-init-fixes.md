@@ -9,9 +9,6 @@ dependencies: []
 
 # Phase 1: init fixes
 
-Touch only `src/commands/init/**`, `src/core/adapters/package-manager.adapter.ts` and their tests;
-another cooker is editing the harness module.
-
 ## A failed write
 
 `applyInitPlan` (`src/commands/init/services/write.service.ts`) lets a write error escape to the

@@ -26,11 +26,13 @@ items: "Plan 2, đồng ý trừ 2 chỗ `--force`, vì đây là edges case và
 | #   | Phase                                                      | Depends on                                      |
 | --- | ---------------------------------------------------------- | ----------------------------------------------- |
 | 1   | [init fixes](./phase-01-init-fixes.md)                     | none                                            |
-| 2   | [Shared help helpers](./phase-02-shared-help-helpers.md)   | 1, and the harness robustness plan committed    |
+| 2   | [Shared help helpers](./phase-02-shared-help-helpers.md)   | 1                                               |
 
-Phase 2 edits `src/commands/harness/update.command.ts`, which the
-[harness robustness plan](../261103-1021-harness-robustness/plan.md) also edits; start it only when
-the planner says that plan is committed.
+The work runs on branch `init-touch-ups` in the worktree `/Users/tandm/Desktop/yyyy-init-touch-ups`,
+in parallel with the [harness robustness plan](../261103-1021-harness-robustness/plan.md) on `main`:
+"nếu sợ conflict thì nói glm code riêng branch, merge sau khi minimax xong" (user, 2026-11-03). Phase
+2 edits `src/commands/harness/update.command.ts`, which that plan also edits; the planner merges the
+branch after that plan is committed and resolves the overlap there.
 
 ## Acceptance
 

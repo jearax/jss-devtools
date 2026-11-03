@@ -9,7 +9,8 @@ dependencies: [1]
 
 # Phase 2: Shared help helpers
 
-Start only when the planner confirms the harness robustness plan is committed.
+Keep the change in `update.command.ts` to the helper swap, so the merge with the harness robustness
+plan stays small.
 
 - `examplesText` is the same function in `src/commands/init/init.command.ts` and
   `src/commands/harness/harness.command.ts`: move it to `src/core/ui/` and use it from both.
