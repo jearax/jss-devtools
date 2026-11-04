@@ -1,6 +1,8 @@
 import CodeBlock from '@/components/CodeBlock/CodeBlock';
+import Terminal from '@/components/Terminal/Terminal';
 import { INIT_OPTIONS } from '@/constants/reference.constant';
 import { INIT_PACKAGE_SCRIPTS } from '@/constants/snippets.constant';
+import { INIT_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import { INIT_FILES, INIT_PRESETS } from '@/pages/Docs/Docs.constant';
 
@@ -159,6 +161,7 @@ const Init = () => {
 								command prints the command line that would apply it.
 							</p>
 							<CodeBlock code="jss-devtools init my-app --pm pnpm --dry-run" language="sh" prompt="$" title="dry run" />
+							<Terminal label={TERMINAL_LABEL} lines={INIT_TRANSCRIPT} title="init --dry-run" />
 						</>
 					)
 				}

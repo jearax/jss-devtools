@@ -49,24 +49,3 @@ export const HARNESS_TRANSCRIPT: readonly string[] = [
  * this machine had, so the frame says so rather than presenting them as fixed output.
  */
 export const TERMINAL_LABEL = 'Example output';
-
-/**
- * The transcripts the hero switches between. Each one is a real run of the built CLI.
- */
-export const HERO_TABS = [
-	{
-		label: 'doctor',
-		command: 'jss-devtools doctor',
-		lines: DOCTOR_TRANSCRIPT
-	},
-	{
-		label: 'init --dry-run',
-		command: 'jss-devtools init my-app --pm pnpm --dry-run',
-		lines: INIT_TRANSCRIPT
-	},
-	{
-		label: 'harness doctor',
-		command: 'jss-devtools harness doctor',
-		lines: HARNESS_TRANSCRIPT
-	}
-] as const;

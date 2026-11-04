@@ -1,0 +1,7 @@
+/*
+ * The button sits beside the command it copies, so it keeps its own width and never pushes the
+ * command out of the layout.
+ */
+.root {
+	@apply shrink-0;
+}

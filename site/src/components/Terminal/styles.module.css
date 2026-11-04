@@ -58,8 +58,12 @@
 	font-variant-ligatures: none;
 }
 
+/*
+ * A command that is longer than the window wraps, the way a terminal with soft wrap does. A
+ * terminal that cut the command off would hide the one thing the reader came for.
+ */
 .command {
-	@apply mb-2 whitespace-nowrap text-default;
+	@apply mb-2 whitespace-pre-wrap break-words text-default;
 }
 
 .prompt {
@@ -109,6 +113,9 @@
 .root[data-variant='animated'] .command {
 	animation: terminal-type 700ms steps(var(--chars), end) forwards;
 	overflow: hidden;
+
+	/* The typing reads the command as one line, so it does not wrap while it is typed. */
+	white-space: nowrap;
 }
 
 .root[data-variant='animated'] .command::after {

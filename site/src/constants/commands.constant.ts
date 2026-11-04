@@ -4,7 +4,9 @@
  */
 export type CommandInfo = {
 	name: string;
-	/** The command line the card shows. */
+	/** The docs page that explains the command. */
+	slug: string;
+	/** The command line the reader runs. */
 	command: string;
 	summary: string;
 	details: string;
@@ -13,13 +15,15 @@ export type CommandInfo = {
 export const COMMANDS: readonly CommandInfo[] = [
 	{
 		name: 'init',
-		command: 'jss-devtools init my-app --pm pnpm --dry-run',
+		slug: 'init',
+		command: 'jss-devtools init my-app --pm pnpm',
 		summary: 'Create a project, or set up the current one.',
 		details:
 			'Writes the toolchain: TypeScript, ESLint, Prettier, commitlint, git hooks, the editor settings, and the harness. Every check runs before the first write, and the whole plan is shown before anything is written.'
 	},
 	{
 		name: 'doctor',
+		slug: 'doctor',
 		command: 'jss-devtools doctor',
 		summary: 'Check Node.js, git and the package managers.',
 		details:
@@ -27,6 +31,7 @@ export const COMMANDS: readonly CommandInfo[] = [
 	},
 	{
 		name: 'harness',
+		slug: 'harness',
 		command: 'jss-devtools harness doctor',
 		summary: 'Manage the repository harness.',
 		details:

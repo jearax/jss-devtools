@@ -1,0 +1,67 @@
+.root {
+	@apply reveal;
+}
+
+.inner {
+	@apply wrapper flex max-w-6xl flex-col gap-6 py-14 lg:py-20;
+}
+
+.head {
+	@apply flex flex-col gap-2;
+}
+
+.eyebrow {
+	@apply text-label-sm text-primary;
+}
+
+.title {
+	@apply text-heading-4xl text-default;
+}
+
+/* The second clause is the quieter half of the heading. */
+.titleMuted {
+	@apply text-muted;
+}
+
+/* Three cards in one row on a desktop, one above the other on a narrow viewport. */
+.row {
+	@apply grid grid-cols-3 gap-5 max-md:grid-cols-1;
+}
+
+.card {
+	@apply flex flex-col gap-3 rounded-xl border border-default bg-raised p-6 transition-transform duration-150 hover:-translate-y-1;
+}
+
+.cardHead {
+	@apply flex items-center gap-2.5;
+}
+
+.icon {
+	@apply text-primary;
+}
+
+.command {
+	@apply font-mono text-body-lg text-default;
+}
+
+.summary {
+	@apply text-body-base text-default;
+}
+
+.details {
+	@apply text-body-sm text-muted;
+}
+
+/* The link sits at the bottom of the card, so the cards line up however long their text is. */
+.link {
+	@apply focus-ring mt-auto inline-flex items-center gap-1 text-body-sm text-primary transition-colors duration-150 hover:text-primary-hover;
+}
+
+.arrow {
+	@apply transition-transform duration-150;
+}
+
+/* The arrow leans towards the link when the link is under the pointer. */
+.link:hover .arrow {
+	transform: translateX(0.125rem);
+}

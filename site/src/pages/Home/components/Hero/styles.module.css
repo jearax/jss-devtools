@@ -47,7 +47,7 @@
 }
 
 .inner {
-	@apply wrapper relative z-10 flex max-w-6xl flex-col gap-3 pt-8 pb-14 lg:pt-8 lg:pb-20;
+	@apply wrapper relative z-10 flex max-w-6xl flex-col gap-3 pt-8 pb-12 lg:pt-10 lg:pb-16;
 }
 
 .eyebrow {
@@ -75,8 +75,22 @@
 	@apply max-w-2xl text-body-lg text-muted lg:max-w-none;
 }
 
+/* The terminal is the product: the install command, in a window, as the thing to look at. */
+.visual {
+	@apply relative mt-4 flex flex-col gap-2;
+}
+
+.terminal {
+	@apply w-full;
+}
+
+/* The copy button sits under the window it copies. */
+.install {
+	@apply flex items-center gap-3;
+}
+
 .actions {
-	@apply mt-1 flex flex-wrap items-center gap-3;
+	@apply mt-2 flex flex-wrap items-center gap-3;
 }
 
 .primary {
@@ -85,37 +99,4 @@
 
 .secondary {
 	@apply focus-ring inline-flex h-11 items-center rounded-full border border-default px-5 font-medium text-default transition-colors duration-150 hover:bg-hover;
-}
-
-.install {
-	@apply mt-1 flex max-w-xl flex-col gap-2;
-}
-
-.floor {
-	@apply text-label-sm text-muted;
-}
-
-/* The terminal is the product visual: the widest thing on the page. */
-.visual {
-	@apply relative mt-3;
-}
-
-.terminal {
-	@apply w-full;
-}
-
-.worksWith {
-	@apply mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-default pt-5;
-}
-
-.worksLabel {
-	@apply text-label-sm uppercase tracking-widest text-muted;
-}
-
-.worksList {
-	@apply flex flex-wrap items-center gap-2;
-}
-
-.worksItem {
-	@apply rounded-full border border-default bg-raised px-3 py-1 font-mono text-body-sm text-default;
 }

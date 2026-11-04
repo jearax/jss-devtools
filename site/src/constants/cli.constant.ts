@@ -19,3 +19,9 @@ export const SOURCE_URL = 'https://github.com/jearax/jss-devtools';
 export const SOURCE_LABEL = 'github.com/jearax/jss-devtools';
 
 export const LICENSE = 'MIT';
+
+/**
+ * Where the CLI runs. Windows is not supported natively; WSL is Linux, and it is tested there.
+ * From the repository's README and decision 0030.
+ */
+export const PLATFORM_SCOPE = 'Linux and macOS · Windows through WSL';

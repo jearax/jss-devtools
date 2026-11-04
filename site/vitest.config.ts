@@ -18,6 +18,11 @@ const vitestConfig = defineConfig((env) => {
 		test: {
 			include: ['src/**/*.test.{ts,tsx}'],
 			setupFiles: ['./vitest.setup.ts'],
+			/*
+			 * The browser's clipboard belongs to the browser, not to a test file, so two files that
+			 * copy at the same time overwrite each other's value. The files run one after the other.
+			 */
+			fileParallelism: false,
 			browser: {
 				enabled: true,
 				headless: true,
