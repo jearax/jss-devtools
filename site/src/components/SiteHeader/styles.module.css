@@ -60,11 +60,6 @@
 	@apply hidden lg:block;
 }
 
-/* The header's small call to action, the way a download button sits in a tool's own header. */
-.cta {
-	@apply focus-ring hidden h-9 items-center rounded-full bg-primary px-4 font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary-hover lg:inline-flex;
-}
-
 .themeToggle {
 	@apply shrink-0;
 }

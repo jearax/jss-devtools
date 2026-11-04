@@ -3,17 +3,37 @@
 }
 
 .inner {
-	@apply wrapper flex max-w-3xl flex-wrap items-center gap-x-4 gap-y-1 py-6;
+	@apply wrapper flex flex-col gap-6 py-8;
 }
 
-.source {
-	@apply text-body-sm text-muted;
+/*
+ * The columns are plain and small: the footer names the real pages, it does not compete with
+ * the page above it. Two columns fit on a phone; the third joins on the wider layout.
+ */
+.columns {
+	@apply grid grid-cols-2 gap-6 sm:grid-cols-3;
 }
 
-.sourceLink {
-	@apply focus-ring text-body-sm text-primary underline underline-offset-4;
+.column {
+	@apply flex flex-col gap-2;
 }
 
-.license {
-	@apply text-body-sm text-muted;
+.heading {
+	@apply text-label-sm uppercase tracking-widest text-muted;
+}
+
+.list {
+	@apply flex flex-col gap-1.5;
+}
+
+.link {
+	@apply focus-ring w-fit text-body-sm text-muted no-underline transition-colors duration-150 hover:text-default;
+}
+
+.fine {
+	@apply flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-default pt-4 text-body-sm text-muted;
+}
+
+.fineLink {
+	@apply focus-ring text-primary underline underline-offset-4;
 }

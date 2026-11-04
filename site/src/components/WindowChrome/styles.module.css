@@ -1,0 +1,32 @@
+.bar {
+	@apply flex items-center gap-3 border-b border-default bg-raised px-4 py-2.5;
+}
+
+.dots {
+	@apply flex gap-1.5;
+}
+
+/* The window's dots carry the three status roles, the way a terminal window does. */
+.dot {
+	@apply size-2.5 rounded-full;
+}
+
+.dot[data-tone='error'] {
+	@apply bg-error;
+}
+
+.dot[data-tone='warning'] {
+	@apply bg-warning;
+}
+
+.dot[data-tone='success'] {
+	@apply bg-success;
+}
+
+.title {
+	@apply truncate font-mono text-body-sm text-muted;
+}
+
+.spacer {
+	@apply flex-1;
+}

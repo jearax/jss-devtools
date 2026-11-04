@@ -2,6 +2,7 @@ import { cn } from '@jjuidev/design-system';
 import { ComponentProps, ReactNode } from 'react';
 
 import { tokenizeLines } from '@/components/CodeBlock/highlight';
+import WindowChrome from '@/components/WindowChrome/WindowChrome';
 
 import styles from './styles.module.css';
 
@@ -54,13 +55,7 @@ const CodeBlock = ({
 
 	return (
 		<div className={cn(styles.root, className)} {...props}>
-			{title === undefined && headerAction === undefined ? null : (
-				<div className={styles.header}>
-					{title === undefined ? null : <span className={styles.title}>{title}</span>}
-					<span className={styles.spacer} />
-					{headerAction}
-				</div>
-			)}
+			<WindowChrome title={title}>{headerAction}</WindowChrome>
 			<pre className={styles.code} data-wrap={wrap ? 'true' : undefined}>
 				{prompt === undefined ? null : (
 					<span className={styles.prompt}>

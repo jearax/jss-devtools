@@ -32,12 +32,12 @@ describe('SiteHeader', () => {
 		await expect.element(nav.getByRole('link', { name: 'Docs' })).toHaveAttribute('href', '/docs');
 	});
 
-	it('offers a way into the install guide', async () => {
+	it('offers no install CTA; the docs nav routes the reader', async () => {
 		await page.viewport(1280, 720);
 
 		const screen = await render(<SiteHeader />, { wrapper });
 
-		await expect.element(screen.getByRole('link', { name: 'Install' })).toHaveAttribute('href', '/docs/install');
+		expect(screen.container.querySelector('a[href="/docs/install"]')).toBeNull();
 	});
 
 	it('offers a theme toggle', async () => {

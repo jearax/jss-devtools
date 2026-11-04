@@ -2,6 +2,7 @@ import { cn } from '@jjuidev/design-system';
 import { ComponentProps, CSSProperties, KeyboardEvent, useId, useState } from 'react';
 
 import CopyButton from '@/components/CopyButton/CopyButton';
+import WindowChrome from '@/components/WindowChrome/WindowChrome';
 
 import styles from './styles.module.css';
 
@@ -114,16 +115,9 @@ const Terminal = ({
 
 	return (
 		<div className={cn(styles.root, className)} data-variant={variant} {...props}>
-			<div className={styles.bar}>
-				<span className={styles.dots} aria-hidden="true">
-					<span className={styles.dot} data-tone="error" />
-					<span className={styles.dot} data-tone="warning" />
-					<span className={styles.dot} data-tone="success" />
-				</span>
-				{title === undefined ? null : <span className={styles.title}>{title}</span>}
-				<span className={styles.spacer} />
+			<WindowChrome title={title}>
 				{label === undefined ? null : <span className={styles.label}>{label}</span>}
-			</div>
+			</WindowChrome>
 
 			{tabs === undefined ? null : (
 				<div className={styles.tabs} role="tablist" aria-label={tabListLabel}>

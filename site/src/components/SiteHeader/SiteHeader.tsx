@@ -84,9 +84,6 @@ const SiteHeader = ({ className, ...props }: SiteHeaderProps) => {
 						<div className={styles.search}>
 							<SearchTrigger variant="desktop" />
 						</div>
-						<a className={styles.cta} href="/docs/install">
-							Install
-						</a>
 						<ThemeToggle className={styles.themeToggle} label={THEME_TOGGLE_LABEL} optionLabels={THEME_OPTION_LABELS} />
 						<Button
 							className={styles.menuButton}
