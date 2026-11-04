@@ -5,3 +5,8 @@
 .root {
 	@apply shrink-0;
 }
+
+/* The icon-only feedback keeps its status line for screen readers, out of sight. */
+.status {
+	@apply sr-only;
+}

@@ -3,5 +3,32 @@
  * the docs area states them too.
  */
 
+import { TerminalTab } from '@/components/Terminal/Terminal';
+import { INSTALL_COMMAND } from '@/constants/cli.constant';
+import { DOCTOR_TRANSCRIPT, INIT_TRANSCRIPT } from '@/constants/transcripts.constant';
+
 export const VALUE_LINE =
 	"Set up a JavaScript repository's toolchain, check that it works, and give your AI coding agent the rules — from one CLI.";
+
+/**
+ * The hero terminal's transcripts. The install tab types the one command; the doctor and init
+ * tabs replay the CLI's real captured output, so the window reads as a terminal running the
+ * CLI, not a marketing panel with a code block.
+ */
+export const HERO_TERMINAL_TABS: readonly TerminalTab[] = [
+	{
+		label: 'install',
+		command: INSTALL_COMMAND,
+		lines: []
+	},
+	{
+		label: 'doctor',
+		command: 'jss-devtools doctor',
+		lines: DOCTOR_TRANSCRIPT
+	},
+	{
+		label: 'init',
+		command: 'jss-devtools init',
+		lines: INIT_TRANSCRIPT
+	}
+];

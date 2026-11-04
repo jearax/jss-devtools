@@ -50,10 +50,6 @@
 	@apply wrapper relative z-10 flex max-w-6xl flex-col gap-3 pt-8 pb-12 lg:pt-10 lg:pb-16;
 }
 
-.eyebrow {
-	@apply text-label-sm text-primary;
-}
-
 .title {
 	@apply text-heading-6xl text-default;
 
@@ -75,28 +71,17 @@
 	@apply max-w-2xl text-body-lg text-muted lg:max-w-none;
 }
 
-/* The terminal is the product: the install command, in a window, as the thing to look at. */
+/*
+ * The terminal is the product: the CLI's own transcripts replay inside it. Its min-height holds
+ * the largest transcript, so switching tabs never shifts the page's layout.
+ */
 .visual {
-	@apply relative mt-4 flex flex-col gap-2;
+	@apply relative mt-4;
 }
 
 .terminal {
 	@apply w-full;
-}
 
-/* The copy button sits under the window it copies. */
-.install {
-	@apply flex items-center gap-3;
-}
-
-.actions {
-	@apply mt-2 flex flex-wrap items-center gap-3;
-}
-
-.primary {
-	@apply focus-ring inline-flex h-11 items-center rounded-full bg-primary px-5 font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary-hover;
-}
-
-.secondary {
-	@apply focus-ring inline-flex h-11 items-center rounded-full border border-default px-5 font-medium text-default transition-colors duration-150 hover:bg-hover;
+	/* The init transcript, the tallest one, sets the floor. */
+	min-height: 26rem;
 }

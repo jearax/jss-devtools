@@ -2,7 +2,6 @@ import { ThemeProvider } from '@jjuidev/design-system';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 
-import { LICENSE, NODE_FLOOR } from '@/constants/cli.constant';
 import { VALUE_LINE } from '@/pages/Home/Home.constant';
 
 import Home from './Home';
@@ -12,11 +11,16 @@ const renderHome = async () => {
 };
 
 describe('Home', () => {
-	it('shows the product name and the headline', async () => {
+	it('shows the headline without an eyebrow wordmark', async () => {
 		const screen = await renderHome();
 
 		await expect.element(screen.getByRole('heading', { name: /Set up the toolchain/ })).toBeInTheDocument();
-		await expect.element(screen.getByText('jss-devtools')).toBeInTheDocument();
+
+		// Decision 1: the name lives in the header's logo; the hero opens with the headline itself.
+		// The hero's inner wrapper is the first one on the page, so its first child is the h1.
+		const inner = screen.container.querySelector('[class*="inner"]');
+
+		expect(inner?.firstElementChild?.tagName).toBe('H1');
 	});
 
 	it('shows the value line', async () => {
@@ -34,13 +38,6 @@ describe('Home', () => {
 		expect(commands.length).toBe(2);
 	});
 
-	it('shows the facts band', async () => {
-		const screen = await renderHome();
-
-		await expect.element(screen.getByText(LICENSE)).toBeInTheDocument();
-		await expect.element(screen.getByText(`Node ${NODE_FLOOR}`)).toBeInTheDocument();
-	});
-
 	it('shows the three commands', async () => {
 		const screen = await renderHome();
 
@@ -49,11 +46,12 @@ describe('Home', () => {
 		}
 	});
 
-	it('offers a way into the docs', async () => {
+	it('offers a way into the docs from the getting started band', async () => {
 		const screen = await renderHome();
 
+		// The hero has no CTA row (decision 2); the getting started band routes the reader.
 		await expect
-			.element(screen.getByRole('link', { name: 'Get started' }))
+			.element(screen.getByRole('link', { name: 'Read the getting started guide' }))
 			.toHaveAttribute('href', '/docs/getting-started');
 	});
 });

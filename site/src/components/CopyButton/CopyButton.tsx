@@ -9,12 +9,17 @@ export type CopyButtonProps = Omit<ComponentProps<'button'>, 'value'> & {
 	value: string;
 	/** What the button copies, for the screen reader. */
 	label: string;
+	/**
+	 * `icon` shows the Copy/Check swap only, with the status as a screen-reader line, the way the
+	 * design system's `ButtonCopy` does it; the default shows the state as text beside the icon.
+	 */
+	feedback?: 'text' | 'icon';
 };
 
 /** How long the button says it copied, before it goes back to offering the copy. */
 const COPIED_FOR_MS = 2000;
 
-const CopyButton = ({ className, value, label, ...props }: CopyButtonProps) => {
+const CopyButton = ({ className, value, label, feedback = 'text', ...props }: CopyButtonProps) => {
 	const [isCopied, setIsCopied] = useState(false);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -46,20 +51,28 @@ const CopyButton = ({ className, value, label, ...props }: CopyButtonProps) => {
 		}, COPIED_FOR_MS);
 	};
 
+	const statusText = isCopied ? 'Copied' : 'Copy';
+	const ariaLabel = isCopied ? `Copied. ${label}` : label;
+
 	return (
 		<Button
 			className={cn(styles.root, className)}
 			variant="ghost"
-			size="sm"
+			size={feedback === 'icon' ? 'icon' : 'sm'}
 			icon={isCopied ? <Check size={14} /> : <Copy size={14} />}
 			iconPosition="start"
-			aria-label={isCopied ? `Copied. ${label}` : label}
+			aria-label={ariaLabel}
 			onClick={() => {
 				void copy();
 			}}
 			{...props}
 		>
-			{isCopied ? 'Copied' : 'Copy'}
+			{feedback === 'icon' ? null : statusText}
+			{feedback === 'icon' && isCopied ? (
+				<span className={styles.status} role="status">
+					Copied
+				</span>
+			) : null}
 		</Button>
 	);
 };

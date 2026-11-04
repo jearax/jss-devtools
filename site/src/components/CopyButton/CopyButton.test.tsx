@@ -39,4 +39,27 @@ describe('CopyButton', () => {
 
 		await expect.element(screen.getByText('Copied')).toBeInTheDocument();
 	});
+
+	it('in icon feedback shows the icon only, and still copies', async () => {
+		const screen = await render(<CopyButton feedback="icon" label="Copy the command" value="jss-devtools doctor" />, {
+			wrapper: ThemeProvider
+		});
+
+		const button = screen.getByRole('button', { name: 'Copy the command' });
+
+		await expect.element(button).toBeInTheDocument();
+
+		// Icon-only: the state lives in the accessible name and a screen-reader line, not as text.
+		expect(screen.container.querySelector('button')?.textContent).toBe('');
+
+		await button.click();
+
+		await expect
+			.poll(() => {
+				return navigator.clipboard.readText();
+			})
+			.toBe('jss-devtools doctor');
+
+		await expect.element(screen.getByRole('button', { name: 'Copied. Copy the command' })).toBeInTheDocument();
+	});
 });

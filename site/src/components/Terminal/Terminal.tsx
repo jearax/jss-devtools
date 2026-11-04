@@ -1,6 +1,8 @@
 import { cn } from '@jjuidev/design-system';
 import { ComponentProps, CSSProperties, KeyboardEvent, useId, useState } from 'react';
 
+import CopyButton from '@/components/CopyButton/CopyButton';
+
 import styles from './styles.module.css';
 
 export type TerminalTab = {
@@ -24,6 +26,12 @@ export type TerminalProps = ComponentProps<'div'> & {
 	tabListLabel?: string;
 	/** `animated` types the command and reveals the output; `static` shows the final state. */
 	variant?: 'static' | 'animated';
+	/**
+	 * Puts an icon-only copy button at the right end of the command row, copying the shown
+	 * command. The interaction follows the design system's `ButtonCopy` with `feedback="icon"`:
+	 * the icon swaps Copy→Check for two seconds, and a screen-reader line says so.
+	 */
+	commandCopy?: boolean;
 };
 
 const GLYPH_TONES = {
@@ -74,6 +82,7 @@ const Terminal = ({
 	tabs,
 	tabListLabel = 'Transcripts',
 	variant = 'static',
+	commandCopy = false,
 	...props
 }: TerminalProps) => {
 	const [active, setActive] = useState(0);
@@ -151,15 +160,29 @@ const Terminal = ({
 				aria-labelledby={tabs === undefined ? undefined : `${baseId}-tab-${active}`}
 			>
 				{shownCommand === undefined ? null : (
-					<p className={styles.command} style={{ '--chars': shownCommand.length + 3 } as CSSProperties}>
-						<span className={styles.prompt}>$</span> {shownCommand}
-					</p>
+					<div className={styles.commandRow}>
+						<p
+							key={shownCommand}
+							className={styles.command}
+							style={{ '--chars': shownCommand.length + 3 } as CSSProperties}
+						>
+							<span className={styles.prompt}>$</span> {shownCommand}
+						</p>
+						{commandCopy && shownCommand !== '' ? (
+							<CopyButton
+								className={styles.commandCopy}
+								feedback="icon"
+								label="Copy the command"
+								value={shownCommand}
+							/>
+						) : null}
+					</div>
 				)}
 				{shownLines.map((line, index) => {
 					const parts = split(line);
 
 					return (
-						<p key={`${line}-${index}`} className={styles.line} style={{ '--i': index } as CSSProperties}>
+						<p key={`${active}-${line}-${index}`} className={styles.line} style={{ '--i': index } as CSSProperties}>
 							{parts.box === '' ? null : <span className={styles.box}>{parts.box}</span>}
 							{parts.spaces}
 							{parts.glyph === '' ? null : (

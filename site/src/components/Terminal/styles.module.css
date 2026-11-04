@@ -61,9 +61,20 @@
 /*
  * A command that is longer than the window wraps, the way a terminal with soft wrap does. A
  * terminal that cut the command off would hide the one thing the reader came for.
+ *
+ * The copy button sits at the right end of the row, outside the animated element: the typing
+ * animation moves the command's width, so anything inside it would be clipped while it types.
  */
+.commandRow {
+	@apply mb-2 flex items-start gap-2;
+}
+
 .command {
-	@apply mb-2 whitespace-pre-wrap break-words text-default;
+	@apply flex-1 whitespace-pre-wrap break-words text-default;
+}
+
+.commandCopy {
+	@apply shrink-0;
 }
 
 .prompt {
@@ -141,6 +152,29 @@
 
 	to {
 		width: calc(var(--chars) * 1ch);
+	}
+}
+
+/*
+ * Below the sm breakpoint the longest command is wider than the window, and the typing holds the
+ * line on one row, so the window would cut off the one thing the reader came for. There the
+ * command fades in and wraps, the way a terminal with soft wrap does, and only the caret keeps
+ * the window alive.
+ */
+@media (max-width: 639px) {
+	.root[data-variant='animated'] .command {
+		animation: terminal-fade 300ms ease-out both;
+		white-space: normal;
+	}
+}
+
+@keyframes terminal-fade {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
 	}
 }
 
