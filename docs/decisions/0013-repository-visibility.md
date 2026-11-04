@@ -1,11 +1,15 @@
 ---
 id: 0013
 title: jss-devtools2 is a public repository
-status: accepted
+status: superseded
 date: 2026-10-19
 ---
 
 # 0013 jss-devtools2 is a public repository
+
+Superseded by [decision 0039](./0039-the-repository-and-the-image-are-jss-devtools.md): the
+repository was renamed to `jearax/jss-devtools`. The repository is still public; only the name
+changed. The content is kept as it was written.
 
 ## Context
 

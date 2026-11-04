@@ -1,11 +1,15 @@
 ---
 id: 0010
 title: New remote jearax/jss-devtools2
-status: accepted
+status: superseded
 date: 2026-10-19
 ---
 
 # 0010 New remote jearax/jss-devtools2
+
+Superseded by [decision 0039](./0039-the-repository-and-the-image-are-jss-devtools.md): the
+repository was renamed to `jearax/jss-devtools`. The decision to have a remote of its own stands;
+the name changed. The content is kept as it was written.
 
 ## Context
 

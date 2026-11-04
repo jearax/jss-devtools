@@ -16,14 +16,17 @@ push to main
        -> Dokploy    pull :latest, run it behind Traefik
 ```
 
-| Job      | Needs    | Runs on main | Does                                                                                   |
-| -------- | -------- | ------------ | -------------------------------------------------------------------------------------- |
-| `checks` | -        | yes          | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, shellcheck on install.sh     |
-| `image`  | `checks` | yes          | build the site, build the image, smoke every route against the container, push to GHCR |
-| `deploy` | `image`  | yes          | call the Dokploy webhook, fail unless it answers 200                                   |
+| Job      | Needs    | Runs on main | Does                                                                                                                             |
+| -------- | -------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `checks` | -        | yes          | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, the site's lint, typecheck and browser tests, shellcheck on install.sh |
+| `image`  | `checks` | yes          | build the site, build the image, smoke every route against the container, push to GHCR                                           |
+| `deploy` | `image`  | yes          | call the Dokploy webhook, fail unless it answers 200                                                                             |
 
 A pull request runs the same jobs and builds and smokes the image, but pushes nothing and deploys
 nothing. A red run ships nothing new, though Dokploy still restarts the current image (below).
+
+The `checks` job installs Chromium for the site's Vitest Browser Mode before the site's tests run,
+so the browser download is part of every CI run.
 
 The `image` job loads the image into the runner's Docker daemon instead of pushing it, so the
 smoke test runs against the exact bytes that later ship. The push step then tags that same image
@@ -36,13 +39,17 @@ server.
 
 | Path in the image                                     | Served at                        | Cache       |
 | ----------------------------------------------------- | -------------------------------- | ----------- |
-| `/usr/share/nginx/html/index.html`                    | `/`                              | default     |
+| `/usr/share/nginx/html/index.html`                    | `/`, `/docs`, `/docs/*`          | default     |
+| `/usr/share/nginx/html/robots.txt`                    | `/robots.txt`                    | default     |
 | `/usr/share/nginx/html/assets/*`                      | `/assets/*`                      | `immutable` |
 | `/usr/share/nginx/html/install.sh`                    | `/install.sh`                    | `no-cache`  |
 | `/usr/share/nginx/html/releases/latest/cli.mjs`       | `/releases/latest/cli.mjs`       | `no-cache`  |
 | `/usr/share/nginx/html/releases/latest/checksums.txt` | `/releases/latest/checksums.txt` | `no-cache`  |
 
-`/` serves the home page, and every other path — including the old `/vi/home` — answers 404. The
+`/` serves the home page, and `/docs` and every path under it serve the same shell, so a docs page
+survives a reload. `/robots.txt` is a real file, so a crawler reads the rules instead of the 404
+page. Every other path — including the old `/vi/home` and anything that merely starts
+with `/docs` — answers 404. The
 host has exactly these answers and nothing else; the asset names carry a content hash, so they can
 be cached forever.
 
@@ -60,10 +67,10 @@ against. The server never builds anything.
 | What                                                  | Where                                  | Why                                                                      |
 | ----------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
 | A Compose service reading `docker/docker-compose.yml` | Dokploy, `https://dokploy.jjuidev.com` | The service is what Dokploy redeploys                                    |
-| The GHCR package `ghcr.io/jearax/jss-devtools2`       | GitHub, package settings               | Dokploy pulls it without credentials, so it must be readable anonymously |
+| The GHCR package `ghcr.io/jearax/jss-devtools`        | GitHub, package settings               | Dokploy pulls it without credentials, so it must be readable anonymously |
 | `DOKPLOY_WEBHOOK_URL`                                 | The `main` GitHub environment          | The deploy job posts the push event there                                |
 
-The Compose service reads Git `https://github.com/jearax/jss-devtools2`, branch `main`, compose
+The Compose service reads Git `https://github.com/jearax/jss-devtools`, branch `main`, compose
 path `docker/docker-compose.yml`, through the GitHub App provider. Four fields matter:
 
 - **Auto Deploy is on.** The webhook the deploy job calls answers 400 "Automatic deployments are
@@ -79,6 +86,10 @@ path `docker/docker-compose.yml`, through the GitHub App provider. Four fields m
   second router on the same host.
 - **The custom Command is empty.** Dokploy's default `up -d --remove-orphans` is what removes a
   container whose service was renamed.
+- **The Git URL is the canonical repository.** The repository was renamed from `jss-devtools2` to
+  `jss-devtools` ([0039](./decisions/0039-the-repository-and-the-image-are-jss-devtools.md)).
+  GitHub redirects the old name, so a service still pointing at it keeps working, but the canonical
+  name is the one that survives the next rename. The user checks this field in Dokploy.
 
 Dokploy deploys only a GitHub push event for the service's branch, and answers anything else with
 301 "Branch Not Match". The deploy job therefore sends its own run's push event, with the
@@ -118,7 +129,7 @@ Point `image:` in `docker/docker-compose.yml` at an earlier commit's tag, which 
 40-character SHA (`git rev-parse <commit>`), and redeploy:
 
 ```yaml
-image: ghcr.io/jearax/jss-devtools2:sha-<full commit SHA>
+image: ghcr.io/jearax/jss-devtools:sha-<full commit SHA>
 ```
 
 Every green push publishes a `sha-<full commit SHA>` tag, so any earlier commit's image is still there. The

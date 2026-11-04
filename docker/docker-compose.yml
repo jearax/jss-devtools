@@ -4,7 +4,7 @@ networks:
 
 services:
   jss-devtools-web:
-    image: ghcr.io/jearax/jss-devtools2:latest
+    image: ghcr.io/jearax/jss-devtools:latest
     # Always pull, or the redeploy webhook keeps the old image.
     pull_policy: always
     container_name: jss-devtools-web
