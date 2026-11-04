@@ -32,19 +32,15 @@ const Pager = ({ className, ...props }: PagerProps) => {
 
 	return (
 		<nav className={cn(styles.root, className)} aria-label="The neighbouring pages" {...props}>
-			{previous === null ? (
-				<span />
-			) : (
-				<Link className={styles.link} to={docsHref(previous.slug)}>
-					<span className={styles.direction}>Previous</span>
+			{previous === null ? null : (
+				<Link className={cn(styles.link, styles.previous)} to={docsHref(previous.slug)}>
+					<span className={styles.direction}>← Previous</span>
 					<span className={styles.title}>{previous.title}</span>
 				</Link>
 			)}
-			{next === null ? (
-				<span />
-			) : (
+			{next === null ? null : (
 				<Link className={cn(styles.link, styles.next)} to={docsHref(next.slug)}>
-					<span className={styles.direction}>Next</span>
+					<span className={styles.direction}>Next →</span>
 					<span className={styles.title}>{next.title}</span>
 				</Link>
 			)}

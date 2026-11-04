@@ -1,19 +1,28 @@
+/*
+ * The VitePress pattern: a hairline above, then the two neighbouring pages pull apart — the
+ * previous page leans left with its direction label, the next leans right. The direction label
+ * is the quiet half; the title carries the link's weight and picks up the brand colour on hover.
+ */
 .root {
-	@apply mt-12 grid grid-cols-1 gap-4 border-t border-default pt-6 sm:grid-cols-2;
+	@apply mt-4 flex flex-col gap-3 border-t border-default pt-6;
 }
 
 .link {
-	@apply focus-ring flex flex-col gap-1 rounded-xl border border-default bg-raised p-4 transition-colors duration-150 hover:bg-hover;
+	@apply focus-ring flex flex-col gap-1 self-start rounded-md text-default no-underline transition-colors duration-150;
 }
 
 .next {
-	@apply sm:items-end sm:text-right;
+	@apply self-end text-right;
 }
 
 .direction {
-	@apply text-label-sm uppercase tracking-widest text-muted;
+	@apply text-label-sm uppercase tracking-widest text-muted transition-colors duration-150;
 }
 
 .title {
-	@apply font-medium text-default;
+	@apply font-medium text-lg text-default;
+}
+
+.link:hover .title {
+	@apply text-primary;
 }

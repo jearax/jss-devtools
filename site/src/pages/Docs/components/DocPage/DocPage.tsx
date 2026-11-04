@@ -1,7 +1,7 @@
 import { cn } from '@jjuidev/design-system';
 import { ComponentProps, ReactNode, useEffect, useRef, useState } from 'react';
-import { NavLink } from 'react-router';
 
+import Breadcrumbs from '@/pages/Docs/components/Breadcrumbs/Breadcrumbs';
 import Pager from '@/pages/Docs/components/Pager/Pager';
 
 import styles from './styles.module.css';
@@ -81,15 +81,7 @@ const DocPage = ({ className, title, summary, sections, ...props }: DocPageProps
 
 	return (
 		<article className={cn(styles.root, className)} {...props}>
-			<nav className={styles.breadcrumb} aria-label="Breadcrumb">
-				<NavLink className={styles.breadcrumbLink ?? ''} to="/docs">
-					Docs
-				</NavLink>
-				<span className={styles.breadcrumbSep} aria-hidden="true">
-					/
-				</span>
-				<span aria-current="page">{title}</span>
-			</nav>
+			<Breadcrumbs />
 
 			<h1 className={styles.title}>{title}</h1>
 			<p className={styles.summary}>{summary}</p>

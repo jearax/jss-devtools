@@ -2,18 +2,6 @@
 	@apply flex flex-col gap-4;
 }
 
-.breadcrumb {
-	@apply flex items-center gap-2 text-label-sm text-muted;
-}
-
-.breadcrumbLink {
-	@apply focus-ring rounded text-primary underline-offset-4 hover:underline;
-}
-
-.breadcrumbSep {
-	@apply text-muted;
-}
-
 .title {
 	@apply text-heading-4xl text-default;
 }

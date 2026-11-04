@@ -61,6 +61,26 @@ describe('the docs area', () => {
 		await expect.element(screen.getByRole('link', { name: 'Install' })).toHaveAttribute('aria-current', 'page');
 	});
 
+	it('groups the command pages under a header that is not a link', async () => {
+		const screen = await renderAt('/docs/install');
+
+		const sidebar = screen.getByRole('navigation', { name: 'The docs pages' });
+
+		// The group names its children; it never navigates and never enters the pager or the index.
+		await expect.element(sidebar.getByText('Commands')).toBeInTheDocument();
+		expect(screen.container.querySelector('a[href="/docs/Commands"]')).toBeNull();
+	});
+
+	it('shows the group in the breadcrumbs of a child page', async () => {
+		const screen = await renderAt('/docs/init');
+
+		const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+
+		await expect.element(crumbs.getByRole('link', { name: 'Docs' })).toHaveAttribute('href', '/docs');
+		await expect.element(crumbs.getByText('Commands')).toBeInTheDocument();
+		await expect.element(crumbs.getByText('init')).toHaveAttribute('aria-current', 'page');
+	});
+
 	it('offers the neighbouring pages', async () => {
 		const screen = await renderAt('/docs/install');
 

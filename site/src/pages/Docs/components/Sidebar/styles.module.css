@@ -6,9 +6,29 @@
 	@apply mb-3 hidden text-label-sm uppercase tracking-widest text-muted lg:block;
 }
 
-/* Below the lg breakpoint the pages are a row of chips; above it they are a column. */
+/* Below the lg breakpoint the pages are a row of chips; above it they are a column of groups. */
 .list {
-	@apply -mx-1 flex gap-2 overflow-x-auto px-1 pb-2 lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0;
+	@apply -mx-1 flex gap-2 overflow-x-auto px-1 pb-2 lg:mx-0 lg:flex-col lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0;
+}
+
+/*
+ * The group wrapper and its page list dissolve on the narrow layout, so every page stays one
+ * flat row of chips. On the wide layout they become a column with the group's header above it.
+ */
+.group {
+	@apply contents lg:flex lg:flex-col lg:gap-2;
+}
+
+.groupLabel {
+	@apply hidden text-label-sm uppercase tracking-widest text-muted lg:block;
+}
+
+.sublist {
+	@apply contents lg:flex lg:flex-col lg:gap-1 lg:pl-3;
+}
+
+.pages {
+	@apply contents lg:flex lg:flex-col lg:gap-1;
 }
 
 .link {
