@@ -1,5 +1,22 @@
+/*
+ * The sentinel sits at the very top of the page and has no height. The header watches it with an
+ * observer: while it is on screen the page is at the top, and when it leaves, the page has
+ * scrolled and the bar raises its surface.
+ */
+.sentinel {
+	@apply absolute top-0 left-0 h-px w-px;
+}
+
 .root {
-	@apply sticky top-0 z-20 border-b border-default bg-surface;
+	@apply sticky top-0 z-20 border-b border-default bg-surface transition-colors duration-150;
+}
+
+/*
+ * Once the page has scrolled, the bar sits over the content, so it takes a raised surface and a
+ * blur: the content behind it is out of focus instead of competing with the navigation.
+ */
+.root[data-scrolled='true'] {
+	@apply bg-raised/85 backdrop-blur-md;
 }
 
 .inner {
@@ -33,6 +50,14 @@
 
 .actions {
 	@apply flex shrink-0 items-center gap-2;
+}
+
+/*
+ * The search trigger is a wide field on a desktop, so it needs the room; on a narrow viewport the
+ * menu panel carries it instead and this one is out of the way.
+ */
+.search {
+	@apply hidden lg:block;
 }
 
 /* The header's small call to action, the way a download button sits in a tool's own header. */
@@ -69,6 +94,11 @@
 
 .panelLink {
 	@apply focus-ring rounded-md px-3 py-2 text-body-base text-default transition-colors duration-150 hover:bg-hover;
+}
+
+/* The panel carries the search trigger, so it is the full width of the panel's column. */
+.panelSearch {
+	@apply wrapper flex max-w-6xl pb-4;
 }
 
 @media (prefers-reduced-motion: reduce) {

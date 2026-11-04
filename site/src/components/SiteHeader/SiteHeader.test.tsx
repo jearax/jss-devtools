@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 
+import { SEARCH_TRIGGER_LABEL } from '@/constants/search.constant';
 import { THEME_TOGGLE_LABEL } from '@/constants/theme.constant';
 
 import SiteHeader from './SiteHeader';
@@ -67,5 +68,57 @@ describe('SiteHeader', () => {
 		await expect
 			.element(screen.getByRole('button', { name: 'Open the menu' }))
 			.toHaveAttribute('aria-expanded', 'false');
+	});
+
+	it('offers the search trigger on a wide viewport', async () => {
+		await page.viewport(1440, 900);
+
+		const screen = await render(<SiteHeader />, { wrapper });
+
+		/*
+		 * The header carries the trigger twice: once in the desktop bar and once in the narrow
+		 * panel. Both live in the DOM at every width, so the desktop one is picked by position.
+		 */
+		const trigger = screen.getByRole('button', { name: SEARCH_TRIGGER_LABEL }).first();
+
+		await expect.element(trigger).toBeVisible();
+	});
+
+	it('offers the search trigger inside the mobile panel', async () => {
+		await page.viewport(390, 720);
+
+		const screen = await render(<SiteHeader />, { wrapper });
+
+		await screen.getByRole('button', { name: 'Open the menu' }).click();
+
+		const panel = document.getElementById('site-menu');
+
+		expect(panel?.getAttribute('data-open')).toBe('true');
+		expect(panel?.querySelector(`button[aria-label="${SEARCH_TRIGGER_LABEL}"]`)).not.toBeNull();
+	});
+
+	it.each([1440, 390])('raises its surface once the page has scrolled past the top at %ipx', async (width) => {
+		await page.viewport(width, 720);
+
+		/*
+		 * The page needs to be taller than the viewport, otherwise there is nothing to scroll and
+		 * the sentinel can never leave the screen.
+		 */
+		const screen = await render(
+			<>
+				<SiteHeader />
+				<div style={{ height: '2000px' }} />
+			</>,
+			{ wrapper }
+		);
+
+		const banner = screen.getByRole('banner');
+
+		await expect.element(banner).not.toHaveAttribute('data-scrolled', 'true');
+
+		// The sentinel is the first thing on the page, so scrolling it out of view is the crossing.
+		window.scrollTo(0, 200);
+
+		await expect.element(banner).toHaveAttribute('data-scrolled', 'true');
 	});
 });

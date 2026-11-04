@@ -34,6 +34,37 @@ describe('the site skin', () => {
 			.toBe('#005b60');
 	});
 
+	it('paints the secondary as a companion grey-blue, not a second accent', async () => {
+		document.cookie = `jds-skin=${JSS_DEVTOOLS_SKIN.id}`;
+
+		await render(<div />, { wrapper });
+
+		await expect
+			.poll(() => {
+				return getComputedStyle(document.documentElement).getPropertyValue('--color-secondary-700').trim();
+			})
+			.toBe('#52585a');
+	});
+
+	it('keeps the status scales the package owns, so a failure still reads as one', async () => {
+		document.cookie = `jds-skin=${JSS_DEVTOOLS_SKIN.id}`;
+
+		await render(<div />, { wrapper });
+
+		const computed = getComputedStyle(document.documentElement);
+
+		await expect
+			.poll(() => {
+				return computed.getPropertyValue('--color-error-600').trim();
+			})
+			.toBe('#bb2a28');
+		await expect
+			.poll(() => {
+				return computed.getPropertyValue('--color-success-600').trim();
+			})
+			.toBe('#017b39');
+	});
+
 	it('is named the same in the document shell', async () => {
 		const shell = await fetch('/index.html').then((response) => {
 			return response.text();

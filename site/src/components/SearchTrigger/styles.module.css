@@ -1,0 +1,19 @@
+.root {
+	@apply focus-ring gap-2 rounded-md border border-default text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
+}
+
+.icon {
+	@apply shrink-0;
+}
+
+/*
+ * The word and the hint are what make the button a search field rather than an icon, so both
+ * stay. The hint is the shortcut, shown as a key the reader can press.
+ */
+.label {
+	@apply text-body-sm;
+}
+
+.shortcut {
+	@apply rounded-sm border border-default bg-raised px-1.5 py-0.5 font-mono text-label-xs text-muted;
+}

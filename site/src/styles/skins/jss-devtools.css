@@ -5,43 +5,59 @@
  * design system's theme, so the semantic mapping stays the package's and the page inherits its light and
  * dark step contracts. Unlayered, so it wins over the theme's `@layer theme` declarations.
  *
- * Two scales change, and only two:
+ * Three scales change, and only three:
  *
- *   primary  Signal teal, mean hue 195. The brand colour: buttons, links, the focus ring, the logo mark.
- *            The package's default is plum (mean hue 339); the site needs a palette of its own.
- *   neutral  Terminal graphite, mean hue 250, chroma at most 0.012. Text, borders, the dark surfaces.
- *            The package's default is warm parchment, which reads editorial; this site reads like a terminal.
+ *   primary    Signal teal, mean hue 196. The brand colour: buttons, links, the focus ring, the logo mark.
+ *              The package's default is plum (mean hue 339); the site needs a palette of its own.
+ *   secondary  Slate, mean hue 220, chroma at most 0.010. The package's default is olive (mean hue 112),
+ *              a second brand voice; the site paints one accent, so the secondary is a quiet companion
+ *              to the neutrals instead of a second hue beside the teal.
+ *   neutral    Terminal graphite, mean hue 252, chroma at most 0.012. Text, borders, the dark surfaces.
+ *              The package's default is warm parchment, which reads editorial; this site reads like a terminal.
  *
- * secondary and the four status scales are inherited from the package. They carry meaning rather than
- * brand: a status scale that changed with the site's palette would stop meaning "this is a failure".
+ * the four status scales are inherited from the package. They carry meaning rather than brand: a status
+ * scale that changed with the site's palette would stop meaning "this is a failure".
  *
  * The values are the package's own scale values, converted to OKLCH, rotated to the target hue and
  * converted back under a fixed WCAG relative luminance. Holding the luminance holds every contrast ratio
  * in the package's contract exactly, so the rotation cannot break the contract; it only changes the hue.
+ * The primary's hue is held near 196 along the scale rather than drifting, so the light end reads mint and
+ * the dark end teal, and the secondary is a companion grey-blue rather than a second accent.
  *
  * Steps run 50 (lightest) to 950 (darkest), as in the package's theme.
  */
 :root[data-skin='jss-devtools'] {
-	--color-primary-50: #e8f9f6;
-	--color-primary-100: #cbf0e9;
-	--color-primary-200: #a0e0d8;
-	--color-primary-300: #70c9c4;
-	--color-primary-400: #32b0ac;
-	--color-primary-500: #008989;
-	--color-primary-600: #007173;
+	--color-primary-50: #e5faf8;
+	--color-primary-100: #c6f0ee;
+	--color-primary-200: #9edfdd;
+	--color-primary-300: #6fc9c8;
+	--color-primary-400: #3daeaf;
+	--color-primary-500: #008a8d;
+	--color-primary-600: #007074;
 	--color-primary-700: #005b60;
-	--color-primary-800: #004549;
-	--color-primary-900: #003236;
-	--color-primary-950: #001d22;
-	--color-neutral-50: #f4f7fb;
-	--color-neutral-100: #e9edf3;
-	--color-neutral-200: #dce0e7;
-	--color-neutral-300: #c4cbd2;
-	--color-neutral-400: #a9b0b9;
-	--color-neutral-500: #8c949d;
-	--color-neutral-600: #737b84;
-	--color-neutral-700: #5a646c;
-	--color-neutral-800: #444c54;
-	--color-neutral-900: #2f363d;
-	--color-neutral-950: #12171c;
+	--color-primary-800: #004449;
+	--color-primary-900: #003136;
+	--color-primary-950: #011e22;
+	--color-secondary-50: #f4f7f8;
+	--color-secondary-100: #e6ebec;
+	--color-secondary-200: #d2d8da;
+	--color-secondary-300: #b9c1c3;
+	--color-secondary-400: #9ea6a9;
+	--color-secondary-500: #7b8385;
+	--color-secondary-600: #656b6e;
+	--color-secondary-700: #52585a;
+	--color-secondary-800: #3c4143;
+	--color-secondary-900: #2b2f30;
+	--color-secondary-950: #1a1c1d;
+	--color-neutral-50: #f4f7fa;
+	--color-neutral-100: #e9edf2;
+	--color-neutral-200: #dbe0e6;
+	--color-neutral-300: #c5cbd1;
+	--color-neutral-400: #aab0b7;
+	--color-neutral-500: #8e949b;
+	--color-neutral-600: #767b82;
+	--color-neutral-700: #5e636a;
+	--color-neutral-800: #474c52;
+	--color-neutral-900: #32363b;
+	--color-neutral-950: #15171b;
 }
