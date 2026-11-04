@@ -32,4 +32,12 @@ describe('SearchTrigger', () => {
 
 		window.removeEventListener(SEARCH_OPEN_EVENT, opened);
 	});
+
+	it('says where it sits, so the palette can fall back to it', async () => {
+		const screen = await render(<SearchTrigger />, { wrapper: ThemeProvider });
+
+		await expect
+			.element(screen.getByRole('button', { name: SEARCH_TRIGGER_LABEL }))
+			.toHaveAttribute('data-search-trigger', 'desktop');
+	});
 });

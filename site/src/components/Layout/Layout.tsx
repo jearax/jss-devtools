@@ -2,6 +2,7 @@ import { cn } from '@jjuidev/design-system';
 import { ComponentProps } from 'react';
 import { Outlet } from 'react-router';
 
+import SearchPalette from '@/components/SearchPalette/SearchPalette';
 import SiteFooter from '@/components/SiteFooter/SiteFooter';
 import SiteHeader from '@/components/SiteHeader/SiteHeader';
 
@@ -20,6 +21,7 @@ const Layout = ({ className, ...props }: LayoutProps) => {
 				<Outlet />
 			</main>
 			<SiteFooter />
+			<SearchPalette />
 		</div>
 	);
 };

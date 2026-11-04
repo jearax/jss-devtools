@@ -2,6 +2,7 @@ import { COMMANDS } from '@/constants/commands.constant';
 import { EXIT_CODES, INIT_OPTIONS, REFERENCE_LINKS } from '@/constants/reference.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import { INIT_FILES } from '@/pages/Docs/Docs.constant';
+import { meta } from '@/pages/Docs/pages/Reference/Reference.constant';
 
 const Reference = () => {
 	return (
@@ -10,8 +11,7 @@ const Reference = () => {
 			summary="The options, the presets and the exit codes."
 			sections={[
 				{
-					id: 'the-commands',
-					title: 'The commands',
+					...meta('the-commands'),
 					body: (
 						<table>
 							<thead>
@@ -36,8 +36,7 @@ const Reference = () => {
 					)
 				},
 				{
-					id: 'the-options',
-					title: 'The init options',
+					...meta('the-options'),
 					body: (
 						<table>
 							<thead>
@@ -62,8 +61,7 @@ const Reference = () => {
 					)
 				},
 				{
-					id: 'the-exit-codes',
-					title: 'The exit codes',
+					...meta('the-exit-codes'),
 					body: (
 						<>
 							<p>
@@ -103,8 +101,7 @@ const Reference = () => {
 					)
 				},
 				{
-					id: 'the-files',
-					title: 'The files init owns',
+					...meta('the-files'),
 					body: (
 						<>
 							<p>
@@ -124,8 +121,7 @@ const Reference = () => {
 					)
 				},
 				{
-					id: 'where-the-truth-lives',
-					title: 'Where the truth lives',
+					...meta('where-the-truth-lives'),
 					body: (
 						<>
 							<p>

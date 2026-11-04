@@ -1,5 +1,5 @@
 import { cn } from '@jjuidev/design-system';
-import { ComponentProps, ReactNode } from 'react';
+import { ComponentProps, ReactNode, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router';
 
 import Pager from '@/pages/Docs/components/Pager/Pager';
@@ -20,6 +20,65 @@ export interface DocPageProps extends ComponentProps<'article'> {
 }
 
 const DocPage = ({ className, title, summary, sections, ...props }: DocPageProps) => {
+	const [activeId, setActiveId] = useState<string | null>(null);
+	const proseRef = useRef<HTMLDivElement>(null);
+
+	/*
+	 * The pages build their sections on every render, so the observer watches the ids rather than
+	 * the array: the ids are what it reads, and they do not change while the page is open.
+	 */
+	const sectionIds = sections
+		.map((section) => {
+			return section.id;
+		})
+		.join(' ');
+
+	useEffect(() => {
+		const prose = proseRef.current;
+
+		if (prose === null) {
+			return;
+		}
+
+		const ids = sectionIds.split(' ').filter(Boolean);
+		const onScreen = new Set<string>();
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						onScreen.add(entry.target.id);
+					} else {
+						onScreen.delete(entry.target.id);
+					}
+				}
+
+				// The topmost heading that is on screen is the one the reader is at.
+				const active = ids.find((id) => {
+					return onScreen.has(id);
+				});
+
+				if (active !== undefined) {
+					setActiveId(active);
+				}
+			},
+			/* The band is the top of the viewport, under the sticky header. */
+			{ rootMargin: '-96px 0px -60% 0px' }
+		);
+
+		for (const id of ids) {
+			const target = prose.querySelector(`#${CSS.escape(id)}`);
+
+			if (target !== null) {
+				observer.observe(target);
+			}
+		}
+
+		return () => {
+			observer.disconnect();
+		};
+	}, [sectionIds]);
+
 	return (
 		<article className={cn(styles.root, className)} {...props}>
 			<nav className={styles.breadcrumb} aria-label="Breadcrumb">
@@ -36,7 +95,7 @@ const DocPage = ({ className, title, summary, sections, ...props }: DocPageProps
 			<p className={styles.summary}>{summary}</p>
 
 			<div className={styles.body}>
-				<div className={styles.prose}>
+				<div className={styles.prose} ref={proseRef}>
 					{sections.map((section) => {
 						return (
 							<section key={section.id} className={styles.section} id={section.id}>
@@ -54,7 +113,12 @@ const DocPage = ({ className, title, summary, sections, ...props }: DocPageProps
 							{sections.map((section) => {
 								return (
 									<li key={section.id}>
-										<a className={styles.tocLink} href={`#${section.id}`}>
+										<a
+											className={styles.tocLink}
+											href={`#${section.id}`}
+											aria-current={activeId === section.id ? 'location' : undefined}
+											data-active={activeId === section.id ? 'true' : undefined}
+										>
 											{section.title}
 										</a>
 									</li>

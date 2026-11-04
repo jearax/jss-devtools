@@ -2,6 +2,7 @@ import { cn } from '@jjuidev/design-system';
 import { ComponentProps } from 'react';
 import { Outlet } from 'react-router';
 
+import ScrollToHash from '@/pages/Docs/components/ScrollToHash/ScrollToHash';
 import Sidebar from '@/pages/Docs/components/Sidebar/Sidebar';
 
 import styles from './styles.module.css';
@@ -17,6 +18,7 @@ const Docs = ({ className, ...props }: DocsProps) => {
 					<Outlet />
 				</div>
 			</div>
+			<ScrollToHash />
 		</div>
 	);
 };

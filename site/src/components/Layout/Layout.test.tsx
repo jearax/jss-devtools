@@ -5,6 +5,8 @@ import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 
+import { SEARCH_TRIGGER_LABEL } from '@/constants/search.constant';
+
 import Layout from './Layout';
 
 const wrapper = ({ children }: { children: ReactNode }) => {
@@ -64,5 +66,24 @@ describe('Layout', () => {
 		);
 
 		await expect.element(screen.getByRole('main')).toContainElement(screen.getByText('The page'));
+	});
+
+	it('opens the search palette from the header trigger', async () => {
+		// The trigger in the bar is the wide layout's, so the viewport has to be wide.
+		await page.viewport(1280, 720);
+
+		const screen = await render(
+			<Routes>
+				<Route element={<Layout />}>
+					<Route index element={<p>The page</p>} />
+				</Route>
+			</Routes>,
+			{ wrapper }
+		);
+
+		// The header carries the trigger twice: once in the bar and once in the narrow panel.
+		await screen.getByRole('button', { name: SEARCH_TRIGGER_LABEL }).first().click();
+
+		await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
 	});
 });

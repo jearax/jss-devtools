@@ -14,3 +14,15 @@ export const SEARCH_HOTKEY = 'k';
 
 /** The hint the trigger shows, so the reader knows the shortcut before pressing it. */
 export const SEARCH_TRIGGER_LABEL = 'Search the docs';
+
+/** The name of the palette's dialog, for the screen reader. */
+export const SEARCH_PALETTE_TITLE = 'Search the docs';
+
+/** The name of the palette's input. */
+export const SEARCH_INPUT_LABEL = 'Search the docs';
+
+/** The name of the palette's result list. */
+export const SEARCH_LIST_LABEL = 'Search results';
+
+/** Where the palette offers a way in when nothing matched. */
+export const SEARCH_EMPTY_HREF = '/docs/getting-started';

@@ -4,6 +4,7 @@ import { HARNESS_HOOKS, HARNESS_LIMITS, HARNESS_SESSION_CONTEXT, HARNESS_SKILLS 
 import { HARNESS_SETTINGS_JSON } from '@/constants/snippets.constant';
 import { HARNESS_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
+import { meta } from '@/pages/Docs/pages/Harness/Harness.constant';
 
 const HOOK_TIMEOUT =
 	HARNESS_LIMITS.find((limit) => {
@@ -17,8 +18,7 @@ const Harness = () => {
 			summary="The repository harness, and the agent workflow it installs."
 			sections={[
 				{
-					id: 'what-it-is',
-					title: 'What it is',
+					...meta('what-it-is'),
 					body: (
 						<>
 							<p>
@@ -35,8 +35,7 @@ const Harness = () => {
 					)
 				},
 				{
-					id: 'the-hooks',
-					title: 'The hooks',
+					...meta('the-hooks'),
 					body: (
 						<>
 							<p>
@@ -70,8 +69,7 @@ const Harness = () => {
 					)
 				},
 				{
-					id: 'the-file',
-					title: 'The file it writes',
+					...meta('the-file'),
 					body: (
 						<>
 							<p>
@@ -83,8 +81,7 @@ const Harness = () => {
 					)
 				},
 				{
-					id: 'session-start',
-					title: 'At the start of a session',
+					...meta('session-start'),
 					body: (
 						<>
 							<p>
@@ -100,8 +97,7 @@ const Harness = () => {
 					)
 				},
 				{
-					id: 'the-skills',
-					title: 'The skills',
+					...meta('the-skills'),
 					body: (
 						<>
 							<p>The harness ships three skills, and installs them where the agent will find them.</p>
@@ -129,8 +125,7 @@ const Harness = () => {
 					)
 				},
 				{
-					id: 'the-commands',
-					title: 'The commands',
+					...meta('the-commands'),
 					body: (
 						<>
 							<p>
@@ -151,8 +146,7 @@ const Harness = () => {
 					)
 				},
 				{
-					id: 'the-limits',
-					title: 'The limits',
+					...meta('the-limits'),
 					body: (
 						<>
 							<p>

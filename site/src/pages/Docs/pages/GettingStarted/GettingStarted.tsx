@@ -3,6 +3,7 @@ import { INSTALL_COMMAND } from '@/constants/cli.constant';
 import { COMMANDS } from '@/constants/commands.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import RichText from '@/pages/Docs/components/RichText/RichText';
+import { meta } from '@/pages/Docs/pages/GettingStarted/GettingStarted.constant';
 
 const GettingStarted = () => {
 	return (
@@ -11,8 +12,7 @@ const GettingStarted = () => {
 			summary="What the CLI is, and what its three commands do."
 			sections={[
 				{
-					id: 'what-it-is',
-					title: 'What it is',
+					...meta('what-it-is'),
 					body: (
 						<>
 							<p>
@@ -30,8 +30,7 @@ const GettingStarted = () => {
 					)
 				},
 				{
-					id: 'the-commands',
-					title: 'The three commands',
+					...meta('the-commands'),
 					body: (
 						<table>
 							<thead>
@@ -60,8 +59,7 @@ const GettingStarted = () => {
 					)
 				},
 				{
-					id: 'first-run',
-					title: 'Your first run',
+					...meta('first-run'),
 					body: (
 						<>
 							<p>Install it. The installer checks the download against its checksum before it writes anything.</p>
@@ -80,8 +78,7 @@ const GettingStarted = () => {
 					)
 				},
 				{
-					id: 'next',
-					title: 'Where to go next',
+					...meta('next'),
 					body: (
 						<ul>
 							<li>

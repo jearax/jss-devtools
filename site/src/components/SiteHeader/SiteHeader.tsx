@@ -82,7 +82,7 @@ const SiteHeader = ({ className, ...props }: SiteHeaderProps) => {
 
 					<div className={styles.actions}>
 						<div className={styles.search}>
-							<SearchTrigger />
+							<SearchTrigger variant="desktop" />
 						</div>
 						<a className={styles.cta} href="/docs/install">
 							Install
@@ -126,7 +126,7 @@ const SiteHeader = ({ className, ...props }: SiteHeaderProps) => {
 							})}
 						</ul>
 						<div className={styles.panelSearch}>
-							<SearchTrigger />
+							<SearchTrigger variant="panel" />
 						</div>
 					</div>
 				</div>

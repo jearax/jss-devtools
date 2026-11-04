@@ -1,0 +1,106 @@
+.backdrop {
+	@apply overlay;
+}
+
+.popup {
+	@apply fixed top-[15vh] left-1/2 z-modal flex max-h-[70vh] w-[min(40rem,calc(100vw-2rem))] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-default bg-raised shadow-2xl transition duration-150 outline-none motion-reduce:transition-none max-sm:top-4 max-sm:max-h-[calc(100dvh-2rem)];
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+	@apply scale-[0.98] opacity-0;
+}
+
+/* The dialog is named for the screen reader; the reader sees the input instead. */
+.title {
+	@apply sr-only;
+}
+
+.field {
+	@apply flex items-center gap-3 border-b border-default px-4;
+}
+
+.fieldIcon {
+	@apply size-5 shrink-0 text-muted;
+}
+
+.input {
+	@apply h-14 min-w-0 flex-1 bg-transparent text-body-base text-default outline-none placeholder:text-muted;
+}
+
+.kbd {
+	@apply inline-flex min-w-6 items-center justify-center rounded-sm border border-default bg-hover px-1.5 font-mono text-label-xs text-muted;
+}
+
+.results {
+	@apply min-h-0 flex-1 overflow-y-auto overscroll-contain p-2;
+}
+
+/* The empty state keeps its place in the DOM so the announcement is reliable. */
+.empty {
+	@apply px-3 py-10 text-center text-body-sm text-muted;
+}
+
+.emptyText {
+	@apply text-body-sm text-muted;
+}
+
+.emptyLink {
+	@apply focus-ring mt-2 inline-block text-body-sm text-primary transition-colors duration-150 hover:text-primary-hover;
+}
+
+.listbox {
+	@apply outline-none;
+}
+
+.group + .group {
+	@apply mt-2;
+}
+
+.groupTitle {
+	@apply px-3 pt-2 pb-1 text-label-xs tracking-wide text-muted uppercase;
+}
+
+.option {
+	@apply flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-default;
+}
+
+.option[data-highlighted] {
+	@apply bg-raised-hover;
+}
+
+.optionIcon {
+	@apply size-4 shrink-0 text-muted;
+}
+
+.option[data-highlighted] .optionIcon {
+	@apply text-primary;
+}
+
+.optionText {
+	@apply flex min-w-0 flex-1 flex-col;
+}
+
+.optionTitle {
+	@apply truncate text-body-sm;
+}
+
+.optionDetail {
+	@apply truncate text-label-xs text-muted;
+}
+
+.optionEnter {
+	@apply invisible size-4 shrink-0 text-muted;
+}
+
+.option[data-highlighted] .optionEnter {
+	@apply visible;
+}
+
+.footer {
+	@apply flex items-center gap-4 border-t border-default px-4 py-2 text-label-xs text-muted max-sm:hidden;
+}
+
+.count {
+	@apply ml-auto tabular-nums;
+}

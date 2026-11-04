@@ -5,6 +5,7 @@ import { INIT_PACKAGE_SCRIPTS } from '@/constants/snippets.constant';
 import { INIT_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import { INIT_FILES, INIT_PRESETS } from '@/pages/Docs/Docs.constant';
+import { meta } from '@/pages/Docs/pages/Init/Init.constant';
 
 const Init = () => {
 	return (
@@ -13,8 +14,7 @@ const Init = () => {
 			summary="Create a project, or set up the folder you are in."
 			sections={[
 				{
-					id: 'what-it-does',
-					title: 'What it does',
+					...meta('what-it-does'),
 					body: (
 						<>
 							<p>
@@ -27,8 +27,7 @@ const Init = () => {
 					)
 				},
 				{
-					id: 'the-flow',
-					title: 'The flow',
+					...meta('the-flow'),
 					body: (
 						<>
 							<p>Every check runs before the first write, so a failure never leaves a half-written project behind.</p>
@@ -54,8 +53,7 @@ const Init = () => {
 					)
 				},
 				{
-					id: 'the-options',
-					title: 'The options',
+					...meta('the-options'),
 					body: (
 						<table>
 							<thead>
@@ -80,8 +78,7 @@ const Init = () => {
 					)
 				},
 				{
-					id: 'the-files',
-					title: 'The files it writes',
+					...meta('the-files'),
 					body: (
 						<>
 							<p>
@@ -108,8 +105,7 @@ const Init = () => {
 					)
 				},
 				{
-					id: 'the-scripts',
-					title: 'The scripts it writes',
+					...meta('the-scripts'),
 					body: (
 						<>
 							<p>
@@ -121,8 +117,7 @@ const Init = () => {
 					)
 				},
 				{
-					id: 'the-presets',
-					title: 'The presets',
+					...meta('the-presets'),
 					body: (
 						<>
 							<p>
@@ -152,8 +147,7 @@ const Init = () => {
 					)
 				},
 				{
-					id: 'the-dry-run',
-					title: 'The dry run',
+					...meta('the-dry-run'),
 					body: (
 						<>
 							<p>

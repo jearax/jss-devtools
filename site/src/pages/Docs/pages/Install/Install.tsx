@@ -1,6 +1,7 @@
 import CodeBlock from '@/components/CodeBlock/CodeBlock';
 import { INSTALL_COMMAND, NODE_FLOOR, REQUIREMENTS } from '@/constants/cli.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
+import { meta } from '@/pages/Docs/pages/Install/Install.constant';
 
 const INSTALL_PATHS: readonly { label: string; value: string }[] = [
 	{
@@ -35,8 +36,7 @@ const Install = () => {
 			summary="The install command, what it needs, and what it writes."
 			sections={[
 				{
-					id: 'the-command',
-					title: 'The command',
+					...meta('the-command'),
 					body: (
 						<>
 							<p>
@@ -52,8 +52,7 @@ const Install = () => {
 					)
 				},
 				{
-					id: 'what-it-needs',
-					title: 'What it needs',
+					...meta('what-it-needs'),
 					body: (
 						<>
 							<ul>
@@ -70,8 +69,7 @@ const Install = () => {
 					)
 				},
 				{
-					id: 'what-it-writes',
-					title: 'What it writes',
+					...meta('what-it-writes'),
 					body: (
 						<>
 							<p>Two paths, both under your home directory. Nothing else on the machine is touched.</p>
@@ -107,8 +105,7 @@ const Install = () => {
 					)
 				},
 				{
-					id: 'moving-it',
-					title: 'Moving it',
+					...meta('moving-it'),
 					body: (
 						<>
 							<p>Three environment variables move the locations:</p>
@@ -136,8 +133,7 @@ const Install = () => {
 					)
 				},
 				{
-					id: 'uninstall',
-					title: 'Uninstall',
+					...meta('uninstall'),
 					body: (
 						<p>
 							Remove the two paths above: <code>~/.local/bin/jss-devtools</code> and <code>~/.jss-devtools</code>. The
@@ -146,8 +142,7 @@ const Install = () => {
 					)
 				},
 				{
-					id: 'the-floor',
-					title: 'The Node floor',
+					...meta('the-floor'),
 					body: (
 						<p>
 							The floor is <code>{NODE_FLOOR}</code>. It is declared once, in the package manifest, and the served

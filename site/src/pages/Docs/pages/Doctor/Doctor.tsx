@@ -2,6 +2,7 @@ import Terminal from '@/components/Terminal/Terminal';
 import { DOCTOR_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import { DOCTOR_CHECKS } from '@/pages/Docs/Docs.constant';
+import { meta } from '@/pages/Docs/pages/Doctor/Doctor.constant';
 
 const Doctor = () => {
 	return (
@@ -10,8 +11,7 @@ const Doctor = () => {
 			summary="Check Node.js, git and the package managers."
 			sections={[
 				{
-					id: 'what-it-checks',
-					title: 'What it checks',
+					...meta('what-it-checks'),
 					body: (
 						<>
 							<p>
@@ -40,8 +40,7 @@ const Doctor = () => {
 					)
 				},
 				{
-					id: 'the-output',
-					title: 'The output',
+					...meta('the-output'),
 					body: (
 						<>
 							<p>Each line is one check, with its own detail and its own note. The last line is the summary.</p>
@@ -50,8 +49,7 @@ const Doctor = () => {
 					)
 				},
 				{
-					id: 'the-glyphs',
-					title: 'The glyphs',
+					...meta('the-glyphs'),
 					body: (
 						<>
 							<p>Three marks, three meanings, and they mean the same thing everywhere the CLI prints.</p>
@@ -75,8 +73,7 @@ const Doctor = () => {
 					)
 				},
 				{
-					id: 'the-exit-code',
-					title: 'The exit code',
+					...meta('the-exit-code'),
 					body: (
 						<>
 							<p>

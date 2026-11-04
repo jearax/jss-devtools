@@ -55,6 +55,11 @@
 	@apply focus-ring rounded text-body-sm text-muted transition-colors duration-150 hover:text-default;
 }
 
+/* The heading the reader is at is the one that is spoken and the one that is lit. */
+.tocLink[data-active='true'] {
+	@apply text-default;
+}
+
 /*
  * The prose styles. A docs page writes plain semantic HTML and the template styles it, so the six
  * pages share one set of rules instead of six copies.
