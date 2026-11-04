@@ -1,9 +1,10 @@
 ---
 id: 0027
 title: the landing page is a React SPA built by Vite, the design system is vendored as a tarball
-status: accepted
+status: partly superseded
 date: 2026-11-03
 supersedes: 0021
+partially_superseded_by: [0036, 0037]
 ---
 
 # 0027: the landing page is a React SPA built by Vite, the design system is vendored as a tarball
@@ -14,6 +15,15 @@ Decision [0021](./0021-temporary-nginx-home-and-install-script-location.md) made
 single static file, `docker/home.html`, copied into the nginx image. It called the page temporary
 on purpose: a content site, more languages and a design system would each need their own plan.
 This is that plan.
+
+> **Partly superseded** by [0036](./0036-site-runs-the-design-system-as-a-package.md): the styling
+> entry and the component-import rules changed. The single page application, the vendored tarball,
+> the content of the page and the CI build order still stand.
+>
+> **Partly superseded** by [0037](./0037-the-site-carries-its-own-host-skin.md): the content of the
+> page and its language changed. The page is one English page with the product's real surface, and
+> it runs the site's own host skin. The single page application, the vendored tarball and the CI
+> build order still stand.
 
 The user wants the introduction site built with React, and the design system to be part of it. The
 design system, `@jjuidev/design-system`, lives in another repository and is not published to a
@@ -40,6 +50,8 @@ imported, so the design system's component runtime never reaches the bundle.
 **The page keeps the content of the old page.** Title, tagline, the install command, the Node
 requirement, the note about `~/.local/bin/jss-devtools` and `PATH`, and the GitHub link. The
 design system supplies the colours and the font through its tokens; the layout is the same.
+(Since partly superseded by [0037](./0037-the-site-carries-its-own-host-skin.md): the page now
+states the product's real surface and is in English.)
 
 **Dark mode follows the operating system.** The design system keeps its dark palette behind the
 `[data-theme=dark]` attribute, so `site/index.html` sets that attribute before the first paint

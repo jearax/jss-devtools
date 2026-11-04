@@ -1,0 +1,47 @@
+/*
+ * SKIN "jss-devtools" (Signal Teal & Terminal Graphite).
+ *
+ * Scale values only: `:root[data-skin='<name>']` replaces the `--color-<scale>-<step>` values of the
+ * design system's theme, so the semantic mapping stays the package's and the page inherits its light and
+ * dark step contracts. Unlayered, so it wins over the theme's `@layer theme` declarations.
+ *
+ * Two scales change, and only two:
+ *
+ *   primary  Signal teal, mean hue 195. The brand colour: buttons, links, the focus ring, the logo mark.
+ *            The package's default is plum (mean hue 339); the site needs a palette of its own.
+ *   neutral  Terminal graphite, mean hue 250, chroma at most 0.012. Text, borders, the dark surfaces.
+ *            The package's default is warm parchment, which reads editorial; this site reads like a terminal.
+ *
+ * secondary and the four status scales are inherited from the package. They carry meaning rather than
+ * brand: a status scale that changed with the site's palette would stop meaning "this is a failure".
+ *
+ * The values are the package's own scale values, converted to OKLCH, rotated to the target hue and
+ * converted back under a fixed WCAG relative luminance. Holding the luminance holds every contrast ratio
+ * in the package's contract exactly, so the rotation cannot break the contract; it only changes the hue.
+ *
+ * Steps run 50 (lightest) to 950 (darkest), as in the package's theme.
+ */
+:root[data-skin='jss-devtools'] {
+	--color-primary-50: #e8f9f6;
+	--color-primary-100: #cbf0e9;
+	--color-primary-200: #a0e0d8;
+	--color-primary-300: #70c9c4;
+	--color-primary-400: #32b0ac;
+	--color-primary-500: #008989;
+	--color-primary-600: #007173;
+	--color-primary-700: #005b60;
+	--color-primary-800: #004549;
+	--color-primary-900: #003236;
+	--color-primary-950: #001d22;
+	--color-neutral-50: #f4f7fb;
+	--color-neutral-100: #e9edf3;
+	--color-neutral-200: #dce0e7;
+	--color-neutral-300: #c4cbd2;
+	--color-neutral-400: #a9b0b9;
+	--color-neutral-500: #8c949d;
+	--color-neutral-600: #737b84;
+	--color-neutral-700: #5a646c;
+	--color-neutral-800: #444c54;
+	--color-neutral-900: #2f363d;
+	--color-neutral-950: #12171c;
+}

@@ -1,0 +1,109 @@
+.root {
+	@apply flex flex-col gap-4;
+}
+
+.breadcrumb {
+	@apply flex items-center gap-2 text-label-sm text-muted;
+}
+
+.breadcrumbLink {
+	@apply focus-ring rounded text-primary underline-offset-4 hover:underline;
+}
+
+.breadcrumbSep {
+	@apply text-muted;
+}
+
+.title {
+	@apply text-heading-4xl text-default;
+}
+
+.summary {
+	@apply max-w-2xl text-body-lg text-muted;
+}
+
+/* The content and the table of contents sit side by side on a wide viewport. */
+.body {
+	@apply grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-14;
+}
+
+.prose {
+	@apply flex min-w-0 flex-col gap-8;
+}
+
+.section {
+	@apply flex scroll-mt-24 flex-col gap-3;
+}
+
+.heading {
+	@apply text-heading-2xl text-default;
+}
+
+.aside {
+	@apply hidden lg:sticky lg:top-24 lg:block lg:self-start;
+}
+
+.asideLabel {
+	@apply mb-3 text-label-sm uppercase tracking-widest text-muted;
+}
+
+.toc {
+	@apply flex flex-col gap-2 border-l border-default pl-4;
+}
+
+.tocLink {
+	@apply focus-ring rounded text-body-sm text-muted transition-colors duration-150 hover:text-default;
+}
+
+/*
+ * The prose styles. A docs page writes plain semantic HTML and the template styles it, so the six
+ * pages share one set of rules instead of six copies.
+ */
+.prose p {
+	@apply text-body-base text-muted;
+}
+
+.prose ul {
+	@apply flex list-disc flex-col gap-2 pl-5 text-body-base text-muted;
+}
+
+.prose ol {
+	@apply flex list-decimal flex-col gap-2 pl-5 text-body-base text-muted;
+}
+
+.prose strong {
+	@apply font-medium text-default;
+}
+
+.prose code {
+	@apply rounded bg-raised px-1.5 py-0.5 font-mono text-body-sm text-default;
+}
+
+/* A command must not break across lines: a column that wraps mid-word is unreadable. */
+.prose td code {
+	@apply whitespace-nowrap;
+}
+
+.prose a {
+	@apply focus-ring rounded text-primary underline underline-offset-4 hover:no-underline;
+}
+
+.prose h3 {
+	@apply mt-2 text-heading-sm text-default;
+}
+
+.prose table {
+	@apply w-full border-collapse text-body-sm;
+}
+
+.prose th {
+	@apply border-b border-default pb-2 text-left font-medium text-default;
+}
+
+.prose td {
+	@apply border-b border-default py-2 align-top text-muted;
+}
+
+.prose :is(th, td) {
+	@apply pr-4 last:pr-0;
+}

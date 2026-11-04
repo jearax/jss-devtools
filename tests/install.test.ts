@@ -195,9 +195,11 @@ describe('install.sh', () => {
 		expect(floor).toBe(manifest.engines.node.replace(/^>=/, ''));
 	});
 
-	it('shows the same Node floor on the home page', async () => {
-		const page = await readFile(resolve(projectRoot, 'site/src/App.tsx'), 'utf8');
+	it('shows the same Node floor on the site', async () => {
+		const page = await readFile(resolve(projectRoot, 'site/src/constants/cli.constant.ts'), 'utf8');
+		const floor = /^export const NODE_FLOOR = '([^']+)';$/m.exec(page)?.[1];
 
-		expect(page).toContain(`Node &gt;= ${manifest.engines.node.replace(/^>=/, '')}`);
+		expect(floor).toBeDefined();
+		expect(floor?.replace(/\s+/g, '')).toBe(manifest.engines.node.replace(/\s+/g, ''));
 	});
 });

@@ -1,0 +1,121 @@
+.root {
+	@apply relative overflow-hidden;
+}
+
+/*
+ * The dot pattern and the glow are brand art, not components, so they take a raw palette step:
+ * the pattern is the brand's primary at low alpha, and the glow the same hue fading out. Both sit
+ * behind the content and neither is seen by a reader.
+ */
+.root::before {
+	background-image: radial-gradient(
+		color-mix(in oklab, var(--color-primary-400) 30%, transparent) 1px,
+		transparent 1px
+	);
+	background-size: 26px 26px;
+	content: '';
+	inset: 0;
+
+	/* The pattern fades down and softens at the right edge, so it never ends on a hard line. */
+	mask-composite: intersect;
+	mask-image: linear-gradient(to bottom, black, transparent 58%), linear-gradient(to right, black 94%, transparent);
+	opacity: 0.35;
+	pointer-events: none;
+	position: absolute;
+}
+
+.root::after {
+	background: radial-gradient(
+		54% 46% at 72% 2%,
+		color-mix(in oklab, var(--color-primary-400) 28%, transparent),
+		transparent 72%
+	);
+	content: '';
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+}
+
+/*
+ * The brand mark, blown up and faint, in the corner. The scale grows the mark in every
+ * direction, so it is anchored at the top right corner: from there it grows down and left, and
+ * the hero's overflow never cuts it. It is a wide-viewport flourish: on a phone it would sit
+ * behind the headline.
+ */
+.mark {
+	@apply pointer-events-none absolute top-0 right-0 hidden origin-top-right scale-[6] opacity-[0.1] lg:block;
+}
+
+.inner {
+	@apply wrapper relative z-10 flex max-w-6xl flex-col gap-3 pt-8 pb-14 lg:pt-8 lg:pb-20;
+}
+
+.eyebrow {
+	@apply text-label-sm text-primary;
+}
+
+.title {
+	@apply text-heading-6xl text-default;
+
+	/*
+	 * The package's type scale stops at 1.875rem, so the hero's display step is fluid here: one line
+	 * on a desktop, four on a phone, and never bigger than the design system's own 6xl step.
+	 */
+	font-size: clamp(2.25rem, 5.6vw, 3.75rem);
+	letter-spacing: -0.03em;
+}
+
+/* The second clause is the quieter half of the headline. */
+.titleMuted {
+	@apply text-muted;
+}
+
+/* The value line is one line on a wide viewport, and the reading column below it. */
+.value {
+	@apply max-w-2xl text-body-lg text-muted lg:max-w-none;
+}
+
+.actions {
+	@apply mt-1 flex flex-wrap items-center gap-3;
+}
+
+.primary {
+	@apply focus-ring inline-flex h-11 items-center rounded-full bg-primary px-5 font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary-hover;
+}
+
+.secondary {
+	@apply focus-ring inline-flex h-11 items-center rounded-full border border-default px-5 font-medium text-default transition-colors duration-150 hover:bg-hover;
+}
+
+.install {
+	@apply mt-1 flex max-w-xl flex-col gap-2;
+}
+
+.floor {
+	@apply text-label-sm text-muted;
+}
+
+/* The terminal is the product visual: the widest thing on the page. */
+.visual {
+	@apply relative mt-3;
+}
+
+.terminal {
+	@apply w-full;
+}
+
+.worksWith {
+	@apply mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-default pt-5;
+}
+
+.worksLabel {
+	@apply text-label-sm uppercase tracking-widest text-muted;
+}
+
+.worksList {
+	@apply flex flex-wrap items-center gap-2;
+}
+
+.worksItem {
+	@apply rounded-full border border-default bg-raised px-3 py-1 font-mono text-body-sm text-default;
+}

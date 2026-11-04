@@ -1,0 +1,19 @@
+.inner {
+	@apply wrapper mx-auto flex max-w-3xl flex-col items-start gap-3 py-24;
+}
+
+.code {
+	@apply font-mono text-heading-3xl text-primary;
+}
+
+.title {
+	@apply text-heading-lg text-default;
+}
+
+.text {
+	@apply max-w-xl text-body-base text-muted;
+}
+
+.link {
+	@apply focus-ring text-body-base text-primary underline underline-offset-4;
+}

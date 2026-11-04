@@ -1,0 +1,21 @@
+.root {
+	@apply lg:sticky lg:top-24 lg:self-start;
+}
+
+.label {
+	@apply mb-3 hidden text-label-sm uppercase tracking-widest text-muted lg:block;
+}
+
+/* Below the lg breakpoint the pages are a row of chips; above it they are a column. */
+.list {
+	@apply -mx-1 flex gap-2 overflow-x-auto px-1 pb-2 lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0;
+}
+
+.link {
+	@apply focus-ring inline-flex shrink-0 items-center rounded-full border border-default bg-raised px-3 py-1.5 text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:text-default lg:w-full lg:rounded-md lg:border-transparent lg:bg-transparent lg:px-3 lg:py-1.5 lg:hover:bg-hover;
+}
+
+/* NavLink sets aria-current on the active page; the active chip carries the brand's colour. */
+.link[aria-current='page'] {
+	@apply border-primary bg-primary/10 text-primary lg:bg-primary/10;
+}

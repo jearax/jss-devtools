@@ -20,12 +20,27 @@ pnpm format       # eslint --fix, then prettier --write
 pnpm format:check # prettier --check, reporting only
 ```
 
+The site is a second project with its own commands:
+
+```bash
+pnpm --dir site lint      # ESLint and Stylelint, the design system's rules
+pnpm --dir site typecheck # tsc --noEmit
+pnpm --dir site test      # Vitest Browser Mode, headless Chromium
+pnpm --dir site build     # tsc --noEmit && vite build
+```
+
 ## Before claiming something is done
 
 Run the narrowest check that covers the change, then the full sequence before reporting:
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm test && pnpm build
+```
+
+A change under `site/` runs the site's own sequence instead:
+
+```bash
+pnpm --dir site lint && pnpm --dir site typecheck && pnpm --dir site test && pnpm --dir site build
 ```
 
 `pnpm lint` covers formatting, so `pnpm format:check` is only needed when you want to check without
@@ -60,20 +75,22 @@ state, not a result to assume.
 
 ## Where things are
 
-| Path                        | What                                                                                       |
-| --------------------------- | ------------------------------------------------------------------------------------------ |
-| `src/cli.ts`                | The only entry point: builds the commander program, owns all process-level decisions       |
-| `src/core/`                 | Shared code no command owns: the terminal layer, the error type, the exit codes, the utils |
-| `src/commands/`             | One folder per command; the file suffix says what the file is                              |
-| `src/modules/harness/`      | The repository-harness hook program; `harness-hook.entry.ts` is the entry Claude Code runs |
-| `tests/`                    | vitest suites; `support/` holds scanners and helpers, `fixtures/` holds negative fixtures  |
-| `scripts/install.sh`        | The installer the site serves; POSIX sh, shellchecked in CI, exercised by `tests/`         |
-| `scripts/stage-release.mjs` | Stages the built bundle and its checksums into `release/` for the site image               |
-| `scripts/package-info.mjs`  | Reads the package facts the CLI is built with, once                                        |
-| `docker/`                   | The site image: nginx config, home page, Dockerfile, and the compose file Dokploy runs     |
-| `ci/`                       | The smoke test the image job runs against the container                                    |
-| `docs/`                     | Project docs and the decision records                                                      |
-| `plans/`                    | Plans and research reports. Canonical working state, owned by planning tooling             |
+| Path                        | What                                                                                           |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `src/cli.ts`                | The only entry point: builds the commander program, owns all process-level decisions           |
+| `src/core/`                 | Shared code no command owns: the terminal layer, the error type, the exit codes, the utils     |
+| `src/commands/`             | One folder per command; the file suffix says what the file is                                  |
+| `src/modules/harness/`      | The repository-harness hook program; `harness-hook.entry.ts` is the entry Claude Code runs     |
+| `tests/`                    | vitest suites; `support/` holds scanners and helpers, `fixtures/` holds negative fixtures      |
+| `scripts/install.sh`        | The installer the site serves; POSIX sh, shellchecked in CI, exercised by `tests/`             |
+| `scripts/stage-release.mjs` | Stages the built bundle and its checksums into `release/` for the site image                   |
+| `scripts/package-info.mjs`  | Reads the package facts the CLI is built with, once                                            |
+| `site/`                     | The landing site: its own pnpm project, its own lint and tests, the design system as a package |
+| `docker/`                   | The site image: nginx config, home page, Dockerfile, and the compose file Dokploy runs         |
+| `ci/`                       | The smoke test the image job runs against the container                                        |
+| `docs/`                     | Project docs and the decision records                                                          |
+| `docs/site/`                | The conventions the site follows, adapted from the design system                               |
+| `plans/`                    | Plans and research reports. Canonical working state, owned by planning tooling                 |
 
 ## Config files
 

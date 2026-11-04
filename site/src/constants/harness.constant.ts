@@ -1,0 +1,96 @@
+export type HarnessHook = {
+	event: string;
+	/** The tools the hook is limited to; a null matcher means every call. */
+	matcher: string | null;
+	note: string;
+};
+
+/**
+ * The hooks the harness installs into `.claude/settings.json`, and what each one does. From
+ * `src/modules/harness/constants/hook-settings.constant.ts` and the hooks in
+ * `src/modules/harness/hooks/`.
+ */
+export const HARNESS_HOOKS: readonly HarnessHook[] = [
+	{
+		event: 'SessionStart',
+		matcher: 'startup, resume, clear, compact',
+		note: 'Loads the harness memory with its character budget, the decisions in force, the index drift and the onboarding notice.'
+	},
+	{
+		event: 'PostToolUse',
+		matcher: 'Write, Edit, MultiEdit',
+		note: 'The memory guard: blocks a write to the harness memory that would break its character budget.'
+	},
+	{
+		event: 'PostToolUse',
+		matcher: null,
+		note: 'The tool log: appends every tool call to the session log, with the skills the call used.'
+	},
+	{
+		event: 'PostToolUseFailure',
+		matcher: null,
+		note: 'Appends the failure to the session log, with the error’s secrets redacted.'
+	},
+	{
+		event: 'Stop',
+		matcher: null,
+		note: 'Prunes the old sessions, folds the session’s skill usage, and asks for onboarding, a review or a curation when one is due.'
+	}
+];
+
+/**
+ * What the harness tells the agent when a session starts. From
+ * `src/modules/harness/hooks/session-start.hook.ts`.
+ */
+export const HARNESS_SESSION_CONTEXT: readonly string[] = [
+	'The harness memory, and how much of its character budget is used',
+	'The decision records in force',
+	'The index drift, as a warning',
+	'The onboarding notice, until the harness has been seeded'
+];
+
+export type HarnessSkill = {
+	skill: string;
+	what: string;
+};
+
+/**
+ * The skills the harness ships. From `src/modules/harness/`.
+ */
+export const HARNESS_SKILLS: readonly HarnessSkill[] = [
+	{
+		skill: 'harness-onboard',
+		what: 'Fills the harness memory with what the repository is and how it works.'
+	},
+	{
+		skill: 'harness-curate',
+		what: 'Folds what the sessions learned into the memory, and prunes what is stale.'
+	},
+	{
+		skill: 'harness-review',
+		what: 'Reviews the work in the session against the decisions in force.'
+	}
+];
+
+/**
+ * The hooks' shared limits. From `src/modules/harness/constants/harness-limits.constant.ts` and
+ * `src/modules/harness/templates/harness-config.template.ts`.
+ */
+export const HARNESS_LIMITS: readonly { label: string; value: string }[] = [
+	{
+		label: 'Memory budget',
+		value: '4800 characters, 300 per entry'
+	},
+	{
+		label: 'Hook timeout',
+		value: '30 seconds'
+	},
+	{
+		label: 'Session log',
+		value: '7 days'
+	},
+	{
+		label: 'Hook error log',
+		value: '64 kB'
+	}
+];

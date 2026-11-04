@@ -1,0 +1,54 @@
+/*
+ * A brand-tinted band: the pale end of the brand scale in the light theme, the deep end in the
+ * dark one, where the pale end would be brighter than the page itself. The primitive steps are
+ * the skin's own, and the reason they are used here is this band.
+ */
+.root {
+	@apply relative overflow-hidden border-y border-default bg-primary-50;
+}
+
+:global(html[data-theme='dark']) .root {
+	@apply bg-primary-900;
+}
+
+/* The brand art, the same dot pattern the hero wears, at the band's own scale. */
+.root::before {
+	background-image: radial-gradient(
+		color-mix(in oklab, var(--color-primary-700) 26%, transparent) 1px,
+		transparent 1px
+	);
+	background-size: 26px 26px;
+	content: '';
+	inset: 0;
+	mask-composite: intersect;
+	mask-image: linear-gradient(to bottom, black, transparent 82%), linear-gradient(to right, black 88%, transparent);
+	opacity: 0.3;
+	pointer-events: none;
+	position: absolute;
+}
+
+.inner {
+	@apply wrapper relative z-10 mx-auto flex max-w-5xl flex-col gap-5 py-16 lg:py-24;
+}
+
+.eyebrow {
+	@apply text-label-sm uppercase tracking-widest text-primary;
+}
+
+.statement {
+	@apply max-w-4xl text-heading-4xl text-default;
+
+	/* The statement is the band's one display size, between the section headings and the hero. */
+	font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+	letter-spacing: -0.02em;
+	line-height: 1.15;
+}
+
+/* The second clause is the quieter half, the way the hero's headline is. */
+.statementMuted {
+	@apply text-muted;
+}
+
+.text {
+	@apply max-w-2xl text-body-lg text-muted;
+}

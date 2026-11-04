@@ -12,11 +12,15 @@
 		"noFallthroughCasesInSwitch": true,
 		"exactOptionalPropertyTypes": true,
 		"isolatedModules": true,
-		"verbatimModuleSyntax": true,
+		"verbatimModuleSyntax": false,
+		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"noEmit": true
+		"noEmit": true,
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
-	"include": ["src", "vite.config.ts"],
+	"include": ["src", "vite", "vite.config.ts", "vitest.config.ts", "vitest.setup.ts"],
 	"exclude": ["dist", "node_modules"]
 }

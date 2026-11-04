@@ -1,0 +1,19 @@
+.root {
+	@apply border-t border-default;
+}
+
+.inner {
+	@apply wrapper flex max-w-3xl flex-wrap items-center gap-x-4 gap-y-1 py-6;
+}
+
+.source {
+	@apply text-body-sm text-muted;
+}
+
+.sourceLink {
+	@apply focus-ring text-body-sm text-primary underline underline-offset-4;
+}
+
+.license {
+	@apply text-body-sm text-muted;
+}

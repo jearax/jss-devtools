@@ -20,7 +20,7 @@ lowest release of that line every pinned package accepts: tsdown 0.23.1 and roll
 0.28.8 need `^24.11.0` or newer, and no other package in the lockfile asks for more.
 
 This supersedes decision 0022. Its rule stands: one floor, declared once in `engines.node`, repeated
-only in `scripts/install.sh` and `site/src/App.tsx`, and proved equal to `engines.node` by
+only in `scripts/install.sh` and `site/src/pages/Home/Home.tsx`, and proved equal to `engines.node` by
 `tests/install.test.ts`. Only the number changes.
 
 ## In the user's words

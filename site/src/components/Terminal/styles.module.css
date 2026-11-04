@@ -1,0 +1,172 @@
+.root {
+	@apply overflow-hidden rounded-xl border border-default bg-raised shadow-2xl;
+}
+
+.bar {
+	@apply flex items-center gap-3 border-b border-default bg-raised px-4 py-2.5;
+}
+
+.dots {
+	@apply flex gap-1.5;
+}
+
+/* The window's dots carry the three status roles, the way a terminal window does. */
+.dot {
+	@apply size-2.5 rounded-full;
+}
+
+.dot[data-tone='error'] {
+	@apply bg-error;
+}
+
+.dot[data-tone='warning'] {
+	@apply bg-warning;
+}
+
+.dot[data-tone='success'] {
+	@apply bg-success;
+}
+
+.tabs {
+	@apply flex flex-wrap gap-1 border-b border-default px-3 pt-3;
+}
+
+.tab {
+	@apply focus-ring rounded-md px-3 py-1.5 font-mono text-body-sm text-muted transition-colors duration-150 hover:text-default;
+}
+
+.tab[data-selected='true'] {
+	@apply bg-hover text-default;
+}
+
+.title {
+	@apply truncate font-mono text-body-sm text-muted;
+}
+
+.spacer {
+	@apply flex-1;
+}
+
+.label {
+	@apply shrink-0 font-mono text-label-sm text-muted;
+}
+
+/* The mono stack turns >= into the ≥ ligature; the CLI prints >=. */
+.body {
+	@apply max-h-96 overflow-auto p-4 font-mono text-body-sm;
+
+	font-variant-ligatures: none;
+}
+
+.command {
+	@apply mb-2 whitespace-nowrap text-default;
+}
+
+.prompt {
+	@apply text-primary;
+}
+
+.line {
+	@apply whitespace-pre text-default;
+}
+
+.box {
+	@apply text-muted;
+}
+
+.text {
+	@apply text-default;
+}
+
+/* The glyph carries the role: the CLI's own success, error, warning and quiet marks. */
+.glyph {
+	@apply text-default;
+}
+
+.glyph[data-tone='success'] {
+	@apply text-success;
+}
+
+.glyph[data-tone='error'] {
+	@apply text-error;
+}
+
+.glyph[data-tone='warning'] {
+	@apply text-warning;
+}
+
+.glyph[data-tone='muted'] {
+	@apply text-muted;
+}
+
+/*
+ * The animated variant types the command and reveals the output line by line. The static variant
+ * shows the final state, and so does the reduced-motion one: the content is never hidden behind an
+ * animation that may not run.
+ */
+
+/* The width stays automatic unless the animation runs, so a broken animation never hides the command. */
+.root[data-variant='animated'] .command {
+	animation: terminal-type 700ms steps(var(--chars), end) forwards;
+	overflow: hidden;
+}
+
+.root[data-variant='animated'] .command::after {
+	animation: terminal-caret 1s steps(2, jump-none) infinite;
+	background: var(--color-primary);
+	content: '';
+	display: inline-block;
+	height: 1.05em;
+	margin-left: 1px;
+	vertical-align: text-bottom;
+	width: 0.5em;
+}
+
+.root[data-variant='animated'] .line {
+	animation: terminal-reveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+	animation-delay: calc(700ms + var(--i) * 70ms);
+}
+
+@keyframes terminal-type {
+	from {
+		width: 0;
+	}
+
+	to {
+		width: calc(var(--chars) * 1ch);
+	}
+}
+
+@keyframes terminal-caret {
+	50% {
+		opacity: 0;
+	}
+}
+
+@keyframes terminal-reveal {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.root[data-variant='animated'] .command {
+		animation: none;
+		overflow: visible;
+	}
+
+	.root[data-variant='animated'] .command::after {
+		animation: none;
+		content: none;
+	}
+
+	.root[data-variant='animated'] .line {
+		animation: none;
+	}
+}

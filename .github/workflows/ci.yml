@@ -39,12 +39,18 @@ jobs:
             pnpm-lock.yaml
             site/pnpm-lock.yaml
 
-      # The site is linted by the root ESLint config, so its own dependencies must be present.
+      # The site is its own project with its own lint and test stack, so its own dependencies must be present.
       - run: pnpm --dir site install --frozen-lockfile
+
+      # The site's tests run in a real Chromium through Vitest Browser Mode.
+      - name: Install Chromium for the site's browser tests
+        run: pnpm --dir site exec playwright install --with-deps chromium
 
       - run: pnpm lint
       - run: pnpm typecheck
+      - run: pnpm --dir site lint
       - run: pnpm --dir site typecheck
+      - run: pnpm --dir site test
       - run: pnpm test
       - run: pnpm build
 

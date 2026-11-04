@@ -48,7 +48,9 @@ Plan:
 How it runs: [deployment-guide.md](./deployment-guide.md).
 
 - `curl -fsSL https://jss-devtools.jjuidev.com/install.sh | sh` installs the CLI, and
-  `https://jss-devtools.jjuidev.com/` answers with a minimal page.
+  `https://jss-devtools.jjuidev.com/` answers with the landing page: one English page with the
+  product's real surface, on the site's own skin
+  ([decision 0037](./decisions/0037-the-site-carries-its-own-host-skin.md)).
 - The installer checks the Node floor, verifies the sha256 and writes the wrapper; the install suite
   runs it against a local release server.
 - One nginx image carries the page, the installer and the bundle CI tested. CI smoke-runs every

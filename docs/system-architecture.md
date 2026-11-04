@@ -388,8 +388,11 @@ push to main
   table: the home page at `/`, the hashed site assets at `/assets/`, the installer and the release
   files, and 404 for everything else.
 - `site/` is the home page: a Vite React single page application, its own pnpm project with its own
-  lockfile, outside the CLI workspace and outside the CLI bundle. CI builds it before the image
-  build, and the server never builds it.
+  lockfile, outside the CLI workspace and outside the CLI bundle. It runs Tailwind v4 itself and
+  imports the design system's source entry, so the tokens, the theme provider and the conventions
+  come from the package. It has its own ESLint, Stylelint and Vitest Browser Mode; the root ESLint
+  configuration no longer globs it. CI builds it before the image build, and the server never builds
+  it.
 - `docker/docker-compose.yml` is what Dokploy runs: external `dokploy-network`, `pull_policy:
 always`, Traefik labels for `jss-devtools.jjuidev.com`, `wget` healthcheck.
 - `ci/smoke-site-image.sh` proves the routing table against a running image and installs from it end
@@ -406,23 +409,23 @@ The details, the one-time setup and rollback are in
 
 One fact, one home. Nothing is written twice in two files that can drift.
 
-| Fact                           | Declared in                                        | Read by                                                                  |
-| ------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------ |
-| CLI name, description, version | `package.json`, read by `scripts/package-info.mjs` | `__JSS_PACKAGE__`, injected by `tsdown.config.ts` and `vitest.config.ts` |
-| Import alias                   | `tsconfig.json` `paths`, `@/*` to `src/*`          | every import that leaves its folder, ESLint, the architecture scanner    |
-| Dependencies to inline         | `package.json` `dependencies`                      | `tsdown.config.ts` `deps.alwaysBundle`                                   |
-| Runtime dependencies bundled   | Same list                                          | `tests/bundle.test.ts`, as the real guard                                |
-| Node floor                     | `package.json` `engines.node`, `>=24.11.0`         | pnpm (`engineStrict`), consumers, both CI jobs, `PACKAGE.nodeFloor`      |
-| Interactive-terminal rule      | `src/core/ui/terminal.ui.ts` `isInteractive`       | the terminal layer                                                       |
-| Banner art and colours         | `src/core/constants/banner.constant.ts`            | `src/core/ui/banner.ui.ts`                                               |
-| Exit codes                     | `src/core/constants/exit-code.constant.ts`         | `CliError`, the commands that end with their own code                    |
-| Installer and home-page floor  | `scripts/install.sh`, `site/src/App.tsx`           | `tests/install.test.ts`, which proves both equal the floor               |
-| Release checksum format        | `scripts/stage-release.mjs`                        | `scripts/install.sh`                                                     |
-| Site routing table             | `docker/nginx.conf`                                | `ci/smoke-site-image.sh`, as the real guard                              |
-| Package manager                | `package.json` `packageManager`                    | `pnpm/setup` in CI, pnpm locally                                         |
-| Shared formatting              | `.editorconfig`                                    | Prettier, EditorConfig-aware editors                                     |
-| Other formatting               | `.prettierrc.json`                                 | Prettier, `pnpm lint`, `pnpm format:check`                               |
-| pnpm behaviour                 | `pnpm-workspace.yaml`                              | pnpm                                                                     |
+| Fact                           | Declared in                                          | Read by                                                                  |
+| ------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------ |
+| CLI name, description, version | `package.json`, read by `scripts/package-info.mjs`   | `__JSS_PACKAGE__`, injected by `tsdown.config.ts` and `vitest.config.ts` |
+| Import alias                   | `tsconfig.json` `paths`, `@/*` to `src/*`            | every import that leaves its folder, ESLint, the architecture scanner    |
+| Dependencies to inline         | `package.json` `dependencies`                        | `tsdown.config.ts` `deps.alwaysBundle`                                   |
+| Runtime dependencies bundled   | Same list                                            | `tests/bundle.test.ts`, as the real guard                                |
+| Node floor                     | `package.json` `engines.node`, `>=24.11.0`           | pnpm (`engineStrict`), consumers, both CI jobs, `PACKAGE.nodeFloor`      |
+| Interactive-terminal rule      | `src/core/ui/terminal.ui.ts` `isInteractive`         | the terminal layer                                                       |
+| Banner art and colours         | `src/core/constants/banner.constant.ts`              | `src/core/ui/banner.ui.ts`                                               |
+| Exit codes                     | `src/core/constants/exit-code.constant.ts`           | `CliError`, the commands that end with their own code                    |
+| Installer and home-page floor  | `scripts/install.sh`, `site/src/pages/Home/Home.tsx` | `tests/install.test.ts`, which proves both equal the floor               |
+| Release checksum format        | `scripts/stage-release.mjs`                          | `scripts/install.sh`                                                     |
+| Site routing table             | `docker/nginx.conf`                                  | `ci/smoke-site-image.sh`, as the real guard                              |
+| Package manager                | `package.json` `packageManager`                      | `pnpm/setup` in CI, pnpm locally                                         |
+| Shared formatting              | `.editorconfig`                                      | Prettier, EditorConfig-aware editors                                     |
+| Other formatting               | `.prettierrc.json`                                   | Prettier, `pnpm lint`, `pnpm format:check`                               |
+| pnpm behaviour                 | `pnpm-workspace.yaml`                                | pnpm                                                                     |
 
 There is one Node floor, and CI reads it from `package.json` and installs exactly that version
 instead of naming a version in the workflow. See

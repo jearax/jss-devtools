@@ -1,0 +1,78 @@
+.root {
+	@apply sticky top-0 z-20 border-b border-default bg-surface;
+}
+
+.inner {
+	@apply wrapper flex max-w-6xl items-center justify-between gap-6 py-3;
+}
+
+.brand {
+	@apply shrink-0;
+}
+
+/* The navigation collapses into the menu below the lg breakpoint. */
+.nav {
+	@apply hidden lg:block;
+}
+
+.navList {
+	@apply flex items-center gap-1;
+}
+
+.navItem {
+	@apply list-none;
+}
+
+.navLink {
+	@apply focus-ring rounded-md px-3 py-2 text-body-base text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
+}
+
+.navLink[aria-current='page'] {
+	@apply text-default;
+}
+
+.actions {
+	@apply flex shrink-0 items-center gap-2;
+}
+
+/* The header's small call to action, the way a download button sits in a tool's own header. */
+.cta {
+	@apply focus-ring hidden h-9 items-center rounded-full bg-primary px-4 font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary-hover lg:inline-flex;
+}
+
+.themeToggle {
+	@apply shrink-0;
+}
+
+.menuButton {
+	@apply lg:hidden;
+}
+
+/* The panel is a disclosure, not a modal: it opens below the header and the page keeps its place. */
+.panel {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel[data-open='true'] {
+	grid-template-rows: 1fr;
+}
+
+.panelInner {
+	@apply overflow-hidden;
+}
+
+.panelList {
+	@apply wrapper flex max-w-6xl flex-col gap-1 pb-4;
+}
+
+.panelLink {
+	@apply focus-ring rounded-md px-3 py-2 text-body-base text-default transition-colors duration-150 hover:bg-hover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.panel {
+		transition: none;
+	}
+}

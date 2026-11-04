@@ -1,0 +1,3 @@
+# The whole site is public. The crawler needs the answer before it reads anything else.
+User-agent: *
+Allow: /

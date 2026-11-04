@@ -1,15 +1,53 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>jss-devtools</title>
+		<meta
+			name="description"
+			content="jss-devtools sets up a JavaScript repository's toolchain and teaches your coding agent the rules — from one CLI: init, doctor and the repository harness."
+		/>
+		<title>jss-devtools — JavaScript stack dev tools CLI</title>
 		<script>
-			// The design system keeps its dark palette behind [data-theme=dark], so the attribute is set
-			// before the first paint to follow the operating system preference.
-			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				document.documentElement.dataset.theme = 'dark';
-			}
+			// The design system resolves the theme from the jds-theme cookie and then from the operating system, and
+			// writes it to data-theme on <html>. The same rule runs before the first paint, so the page never shows
+			// the wrong theme.
+			//
+			// The skin follows the same rule. The design system resolves the skin from the jds-skin cookie and falls
+			// back to the platform's default skin, so the site's own skin is written to the cookie when it is absent
+			// and never overwritten when it is there. The provider reads the same cookie and resolves the same skin,
+			// so the page never shows the platform palette.
+			(() => {
+				const storedTheme = document.cookie.match(/(?:^|;\s*)jds-theme=([^;]*)/)?.[1] ?? null;
+				const dark =
+					storedTheme === 'dark' ||
+					(storedTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+				document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+
+				const storedSkin = document.cookie.match(/(?:^|;\s*)jds-skin=([^;]*)/)?.[1] ?? null;
+
+				if (storedSkin === null) {
+					// Host-only on purpose. A Domain attribute would make this site's default skin a preference
+					// every other host on jjuidev.com would read, and it was never the reader's choice.
+					const attributes = ['Path=/', 'SameSite=Lax'];
+
+					if (location.protocol === 'https:') {
+						attributes.push('Secure');
+					}
+
+					document.cookie = `jds-skin=jss-devtools; ${attributes.join('; ')}`;
+				}
+
+				const skin = storedSkin ?? 'jss-devtools';
+
+				// No attribute is the default skin, so the default output stays exactly as it is.
+				if (skin === 'default') {
+					delete document.documentElement.dataset.skin;
+				} else {
+					document.documentElement.dataset.skin = skin;
+				}
+			})();
 		</script>
 	</head>
 	<body>

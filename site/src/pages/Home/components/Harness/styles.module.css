@@ -1,0 +1,127 @@
+/*
+ * A brand-tinted band: the pale end of the brand scale in the light theme, the deep end in the
+ * dark one, where the pale end would be brighter than the page itself. The primitive steps are
+ * the skin's own, and the reason they are used here is this band.
+ */
+.root {
+	@apply relative overflow-hidden border-y border-default bg-primary-50;
+}
+
+:global(html[data-theme='dark']) .root {
+	@apply bg-primary-900;
+}
+
+/* The brand art, the same dot pattern the hero wears, at the band's own scale. */
+.root::before {
+	background-image: radial-gradient(
+		color-mix(in oklab, var(--color-primary-700) 26%, transparent) 1px,
+		transparent 1px
+	);
+	background-size: 26px 26px;
+	content: '';
+	inset: 0;
+	mask-composite: intersect;
+	mask-image: linear-gradient(to bottom, black, transparent 88%), linear-gradient(to right, black 88%, transparent);
+	opacity: 0.28;
+	pointer-events: none;
+	position: absolute;
+}
+
+.inner {
+	@apply wrapper relative z-10 mx-auto flex max-w-6xl flex-col gap-10 py-16 lg:gap-12 lg:py-24;
+}
+
+.head {
+	@apply reveal flex flex-col gap-4;
+}
+
+.eyebrow {
+	@apply text-label-sm uppercase tracking-widest text-primary;
+}
+
+.title {
+	@apply text-heading-3xl text-default;
+}
+
+/* The second clause is the quieter half, the way the hero's headline is. */
+.titleMuted {
+	@apply text-muted;
+}
+
+.lead {
+	@apply max-w-2xl text-body-lg text-muted;
+}
+
+.inlineCode {
+	@apply font-mono text-body-base text-default;
+}
+
+/* The hooks and the file they are written to, side by side. */
+.split {
+	@apply grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)];
+}
+
+.hooksCard,
+.codeCard {
+	@apply reveal flex flex-col gap-4 rounded-2xl border border-default bg-surface p-6;
+}
+
+.cardTitle {
+	@apply text-heading-sm text-default;
+}
+
+.hooks {
+	@apply flex flex-col;
+}
+
+.hook {
+	@apply flex flex-col gap-1 border-t border-default py-3 first:border-t-0 first:pt-0 last:pb-0;
+}
+
+.hookHead {
+	@apply flex flex-wrap items-center gap-2;
+}
+
+.hookEvent {
+	@apply rounded bg-primary/10 px-2 py-0.5 font-mono text-body-sm text-primary;
+}
+
+.hookMatcher {
+	@apply font-mono text-body-sm text-muted;
+}
+
+.hookNote {
+	@apply text-body-base text-muted;
+}
+
+.code {
+	@apply w-full;
+
+	/* The settings file is long: the band shows the top of it and scrolls the rest. */
+	--code-max-height: 24rem;
+}
+
+.codeNote {
+	@apply text-body-sm text-muted;
+}
+
+.bottom {
+	@apply grid grid-cols-1 gap-8 border-t border-default pt-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)];
+}
+
+.context,
+.skills {
+	@apply reveal flex flex-col gap-3;
+}
+
+.label {
+	@apply text-label-sm uppercase tracking-widest text-muted;
+}
+
+.chips {
+	@apply flex flex-wrap gap-2;
+}
+
+.chip {
+	@apply rounded-xl border border-default bg-surface px-4 py-2.5 text-body-base text-default;
+}

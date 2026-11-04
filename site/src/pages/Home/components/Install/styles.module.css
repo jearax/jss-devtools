@@ -1,0 +1,97 @@
+.root {
+	@apply bg-surface;
+}
+
+.inner {
+	@apply wrapper mx-auto flex max-w-6xl flex-col gap-8 py-16 lg:py-24;
+}
+
+.head {
+	@apply reveal flex flex-col gap-3;
+}
+
+.eyebrow {
+	@apply text-label-sm text-primary;
+}
+
+.title {
+	@apply text-heading-3xl text-default;
+}
+
+/* The second clause is the quieter half, the way the hero's headline is. */
+.titleMuted {
+	@apply text-muted;
+}
+
+/*
+ * One wide tile and two narrow ones, so it reads as a bento and not as three equal boxes. The
+ * wide tile takes the whole first row, so the grid has no hole.
+ */
+.bento {
+	@apply grid grid-cols-1 gap-4 lg:grid-cols-2;
+}
+
+.tile {
+	@apply reveal flex flex-col gap-3 rounded-2xl border border-default bg-raised p-6;
+}
+
+.tile[data-wide='true'] {
+	@apply lg:col-span-2;
+}
+
+.tileTitle {
+	@apply flex items-center gap-2.5;
+}
+
+/* The icon carries the tile's part of the work, not its title. */
+.icon {
+	@apply flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary;
+}
+
+.tileHeading {
+	@apply text-heading-sm text-default;
+}
+
+.tileNote {
+	@apply text-body-base text-muted;
+}
+
+.code {
+	@apply w-full;
+}
+
+.inlineCode {
+	@apply font-mono text-body-sm text-default;
+}
+
+.paths {
+	@apply flex flex-col gap-3;
+}
+
+.path {
+	@apply flex flex-col gap-1;
+}
+
+.pathLabel {
+	@apply text-label-sm text-muted;
+}
+
+.pathValue {
+	@apply font-mono text-body-sm text-default;
+}
+
+.env {
+	@apply flex flex-col gap-2;
+}
+
+.envItem {
+	@apply flex flex-col gap-0.5;
+}
+
+.envName {
+	@apply font-mono text-body-sm text-primary;
+}
+
+.envMeaning {
+	@apply text-body-sm text-muted;
+}

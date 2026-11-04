@@ -4,6 +4,9 @@ dist/
 coverage/
 *.tsbuildinfo
 
+# The Vitest browser mode writes its failure screenshots here.
+.vitest/
+
 # The staging directory the site image is built from.
 release/
 

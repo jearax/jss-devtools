@@ -1,0 +1,11 @@
+.root {
+	@apply bg-surface;
+}
+
+.layout {
+	@apply wrapper mx-auto grid max-w-6xl grid-cols-1 gap-10 py-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 lg:py-14;
+}
+
+.content {
+	@apply min-w-0;
+}

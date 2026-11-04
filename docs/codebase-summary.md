@@ -5,22 +5,22 @@ and is reachable from a command in [../README.md](../README.md).
 
 ## Root
 
-| Path                                                   | Purpose                                                                                                                                        |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `package.json`                                         | Name `@jjuidev/jss-devtools`, ESM, `bin` points at `dist/cli.mjs`, scripts, `engines`, `packageManager`, exact dependency pins                 |
-| `tsconfig.json`                                        | Strict TypeScript, `Bundler` resolution, the `@/` alias to `src/`, `noEmit`, excludes `site/`, which has its own project                       |
-| `tsdown.config.ts`                                     | Bundles `src/cli.ts` to `dist/cli.mjs`, ESM, target Node 24, runtime dependencies inlined                                                      |
-| `vitest.config.ts`                                     | Node environment, `tests/**/*.test.ts`, injects the package facts, resolves the alias, wires global setup                                      |
-| `eslint.config.mjs`                                    | Flat config: recommended plus autofix, `import-x`, `prefer-arrow-functions`, typed TS rules, Prettier, the `../` import ban, covers `site/src` |
-| `commitlint.config.mjs`                                | Conventional Commits                                                                                                                           |
-| `.prettierrc.json`, `.prettierignore`, `.editorconfig` | Formatting: shared facts in `.editorconfig`, Prettier-only ones in `.prettierrc.json`; `plans/` and the lockfile excluded                      |
-| `.vscode/settings.json`, `.vscode/extensions.json`     | Editor agreement: format on save, ESLint fix on save, recommended extensions                                                                   |
-| `.husky/pre-commit`, `.husky/commit-msg`               | `lint-staged` and `commitlint`                                                                                                                 |
-| `pnpm-workspace.yaml`                                  | `strictPeerDependencies`, `allowBuilds`, supply-chain age allow-list                                                                           |
-| `pnpm-lock.yaml`                                       | Resolved versions of all packages                                                                                                              |
-| `.github/workflows/ci.yml`                             | The full check sequence on exactly the `engines.node` floor, the site image, and the Dokploy deploy                                            |
-| `.dockerignore`                                        | Allow-list of what reaches the site image build context                                                                                        |
-| `.gitignore`                                           | `dist/`, `release/` and the usual artifacts                                                                                                    |
+| Path                                                   | Purpose                                                                                                                                   |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `package.json`                                         | Name `@jjuidev/jss-devtools`, ESM, `bin` points at `dist/cli.mjs`, scripts, `engines`, `packageManager`, exact dependency pins            |
+| `tsconfig.json`                                        | Strict TypeScript, `Bundler` resolution, the `@/` alias to `src/`, `noEmit`, excludes `site/`, which has its own project                  |
+| `tsdown.config.ts`                                     | Bundles `src/cli.ts` to `dist/cli.mjs`, ESM, target Node 24, runtime dependencies inlined                                                 |
+| `vitest.config.ts`                                     | Node environment, `tests/**/*.test.ts`, injects the package facts, resolves the alias, wires global setup                                 |
+| `eslint.config.mjs`                                    | Flat config: recommended plus autofix, `import-x`, `prefer-arrow-functions`, typed TS rules, Prettier, the `../` import ban, the CLI only |
+| `commitlint.config.mjs`                                | Conventional Commits                                                                                                                      |
+| `.prettierrc.json`, `.prettierignore`, `.editorconfig` | Formatting: shared facts in `.editorconfig`, Prettier-only ones in `.prettierrc.json`; `plans/` and the lockfile excluded                 |
+| `.vscode/settings.json`, `.vscode/extensions.json`     | Editor agreement: format on save, ESLint fix on save, recommended extensions                                                              |
+| `.husky/pre-commit`, `.husky/commit-msg`               | `lint-staged` and `commitlint`                                                                                                            |
+| `pnpm-workspace.yaml`                                  | `strictPeerDependencies`, `allowBuilds`, supply-chain age allow-list                                                                      |
+| `pnpm-lock.yaml`                                       | Resolved versions of all packages                                                                                                         |
+| `.github/workflows/ci.yml`                             | The full check sequence on exactly the `engines.node` floor, the site image, and the Dokploy deploy                                       |
+| `.dockerignore`                                        | Allow-list of what reaches the site image build context                                                                                   |
+| `.gitignore`                                           | `dist/`, `release/` and the usual artifacts                                                                                               |
 
 There is no `.npmrc` and no `.nvmrc`. pnpm reads its settings from `pnpm-workspace.yaml`, and the
 only Node floor is `engines.node` in `package.json`, which `engineStrict` enforces at install. The
@@ -71,19 +71,31 @@ enforces it. The rules are in [0024](./decisions/0024-core-and-command-layout.md
 
 ## Site
 
-| Path                       | Purpose                                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `site/package.json`        | Standalone pnpm project: Vite, React and the vendored design system, every dependency pinned to an exact version |
-| `site/vite.config.ts`      | Builds the single page application into `site/dist/`                                                             |
-| `site/index.html`          | The document shell: sets the design system theme from the operating system preference before the first paint     |
-| `site/src/main.tsx`        | Loads the design system stylesheet and the site stylesheet, then mounts the React root                           |
-| `site/src/App.tsx`         | The home page content: install command, Node requirement, repository link, no version                            |
-| `site/src/styles/site.css` | The layout, using the design system tokens for colour and type                                                   |
-| `site/vendor/`             | The design system tarball the site installs from, so the build needs no registry                                 |
+| Path                         | Purpose                                                                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `site/package.json`          | Standalone pnpm project: Vite, React, Tailwind and the vendored design system, every dependency pinned to an exact version |
+| `site/vite.config.ts`        | Builds the single page application into `site/dist/`; Tailwind, React and the `@/` alias                                   |
+| `site/vite/`                 | The `tailwindAutoReference` plugin, so a CSS Module can `@apply` the theme's tokens                                        |
+| `site/eslint.config.mjs`     | The site's own ESLint rules, ported from the design system                                                                 |
+| `site/stylelint.config.mjs`  | The site's own Stylelint rules: the standard config, CSS Modules and camelCase class names                                 |
+| `site/vitest.config.ts`      | Vitest Browser Mode: headless Chromium, the Vite config merged in, stable CSS Module names                                 |
+| `site/index.html`            | The document shell: applies the theme rule and the skin rule before the first paint                                        |
+| `site/src/main.tsx`          | The theme provider with the site's own skin, the router, then the React root                                               |
+| `site/src/pages/Home/`       | The home page: the bands under `components/`, the page's own words, the styles, the tests                                  |
+| `site/src/pages/Docs/`       | The docs area: the layout, the routes, the page template, the sidebar, the pager, and one folder per docs page             |
+| `site/src/pages/NotFound/`   | The view for a path the router does not know                                                                               |
+| `site/src/components/`       | The parts two routes share: the router, the layout shell, the header, the footer, the terminal and the code block          |
+| `site/src/constants/`        | The facts two routes state: the CLI's own facts, the commands, the harness, the options, the routes, the transcripts       |
+| `site/src/styles/styles.css` | The Tailwind entry: the engine, the design system's source entry, then the site's skin                                     |
+| `site/src/styles/skins/`     | The site's own skin: the scale values, the typed definition, and the test that holds the id to the document shell          |
+| `site/vendor/`               | The design system tarball the site installs from, so the build needs no registry                                           |
 
 `site/` is its own project: it keeps its own lockfile, never joins the CLI workspace and never
 enters the CLI bundle. `pnpm --dir site build` produces `site/dist/`, and CI builds it before the
-image build.
+image build. The site has its own lint, typecheck and test commands; the root ESLint configuration
+no longer globs `site/src`. The tarball is packed from the design system's `core` branch, and the
+site copies nothing from the design system: `cn` and `tv` come from the package, and the site's own
+skin is its palette, held to the package's contract by `npx jds skin check`.
 
 ## Tests
 

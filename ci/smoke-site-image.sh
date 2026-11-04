@@ -48,8 +48,14 @@ done
 
 expect_status "$base/" "200"
 expect_header "$base/" "Content-Type" "text/html"
-# Only four paths answer: the home page, the installer and the two release files.
+# The docs paths are answered with the same shell, so a docs page survives a reload.
+expect_status "$base/docs" "200"
+expect_header "$base/docs" "Content-Type" "text/html"
+expect_status "$base/docs/" "200"
+expect_status "$base/docs/install" "200"
+# Only the home page, the docs, the robots file, the installer and the two release files answer.
 expect_status "$base/vi/home" "404"
+expect_status "$base/docsomething" "404"
 expect_status "$base/install.sh" "200"
 expect_header "$base/install.sh" "Content-Type" "text/plain"
 expect_header "$base/install.sh" "Cache-Control" "no-cache"
@@ -57,6 +63,7 @@ expect_status "$base/releases/latest/cli.mjs" "200"
 expect_header "$base/releases/latest/cli.mjs" "Cache-Control" "no-cache"
 expect_status "$base/releases/latest/checksums.txt" "200"
 expect_header "$base/releases/latest/checksums.txt" "Cache-Control" "no-cache"
+expect_status "$base/robots.txt" "200"
 expect_status "$base/nope" "404"
 expect_status "$base/releases/latest/" "404"
 

@@ -1,0 +1,19 @@
+.root {
+	@apply mt-12 grid grid-cols-1 gap-4 border-t border-default pt-6 sm:grid-cols-2;
+}
+
+.link {
+	@apply focus-ring flex flex-col gap-1 rounded-xl border border-default bg-raised p-4 transition-colors duration-150 hover:bg-hover;
+}
+
+.next {
+	@apply sm:items-end sm:text-right;
+}
+
+.direction {
+	@apply text-label-sm uppercase tracking-widest text-muted;
+}
+
+.title {
+	@apply font-medium text-default;
+}
