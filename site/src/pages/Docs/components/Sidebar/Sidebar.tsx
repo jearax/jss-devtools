@@ -34,7 +34,9 @@ const Sidebar = ({ className, ...props }: SidebarProps) => {
 			<p className={styles.label}>Docs</p>
 			<ul className={styles.list}>
 				{DOCS_SIDEBAR_GROUPS.map((group) => {
-					return <Group indented={group.label !== null} group={group} key={group.label ?? 'top'} />;
+					// The label names the group; the labelless top-level groups take their first page's
+					// slug, so no two groups ever share a key.
+					return <Group indented={group.label !== null} group={group} key={group.label ?? group.pages[0]?.slug} />;
 				})}
 			</ul>
 		</nav>
