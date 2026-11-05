@@ -1,6 +1,7 @@
 import { Logo, ThemeToggle, cn } from '@jjuidev/design-system';
 import { ComponentProps, useEffect, useRef, useState } from 'react';
 
+import ScrollProgress from '@/components/ScrollProgress/ScrollProgress';
 import SearchTrigger from '@/components/SearchTrigger/SearchTrigger';
 import { SOURCE_URL } from '@/constants/cli.constant';
 import { THEME_OPTION_LABELS, THEME_TOGGLE_LABEL } from '@/constants/theme.constant';
@@ -54,6 +55,7 @@ const SiteHeader = ({ className, ...props }: SiteHeaderProps) => {
 		<>
 			<div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
 			<header className={cn(styles.root, className)} data-scrolled={isScrolled ? 'true' : undefined} {...props}>
+				<ScrollProgress />
 				<div className={styles.inner}>
 					{/*
 					 * The link is named by the mark's own wordmark. An aria-label here would replace it, and

@@ -1,0 +1,12 @@
+/*
+ * Sits on the header's bottom border. `scaleX` reads the `--scroll-progress` variable the
+ * component writes, so the drawing stays on the compositor and the header never re-renders.
+ */
+.root {
+	@apply pointer-events-none absolute inset-x-0 -bottom-px h-0.5 origin-left scale-x-(--scroll-progress,0) bg-primary;
+}
+
+/* A page that cannot scroll has no progress to show. */
+.root[data-scrollable='false'] {
+	@apply hidden;
+}

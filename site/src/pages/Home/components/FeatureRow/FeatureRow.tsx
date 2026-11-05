@@ -1,5 +1,6 @@
 import { cn } from '@jjuidev/design-system';
 import { ComponentProps } from 'react';
+import { Link } from 'react-router';
 
 import { FEATURES } from '@/pages/Home/constants/feature.constant';
 
@@ -23,7 +24,17 @@ const FeatureRow = ({ className, ...props }: FeatureRowProps) => {
 						const Icon = feature.icon;
 
 						return (
-							<article key={feature.name} className={styles.card}>
+							/*
+							 * The card is the link: one interactive surface per command, named after the
+							 * docs affordance the card shows, so the accessible name stays short while
+							 * the whole card answers a click.
+							 */
+							<Link
+								key={feature.name}
+								to={feature.href}
+								className={styles.card}
+								aria-label={`Read the ${feature.name} docs`}
+							>
 								<div className={styles.cardHead}>
 									{Icon === undefined ? null : (
 										<span className={styles.icon} aria-hidden="true">
@@ -36,13 +47,13 @@ const FeatureRow = ({ className, ...props }: FeatureRowProps) => {
 								<p className={styles.summary}>{feature.summary}</p>
 								<p className={styles.details}>{feature.details}</p>
 
-								<a className={styles.link} href={feature.href}>
+								<span className={styles.link}>
 									Read the {feature.name} docs
 									<span className={styles.arrow} aria-hidden="true">
 										→
 									</span>
-								</a>
-							</article>
+								</span>
+							</Link>
 						);
 					})}
 				</div>

@@ -1,4 +1,6 @@
 import { ThemeProvider } from '@jjuidev/design-system';
+import { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 
@@ -6,9 +8,17 @@ import { COMMANDS } from '@/constants/commands.constant';
 
 import FeatureRow from './FeatureRow';
 
+const wrapper = ({ children }: { children: ReactNode }) => {
+	return (
+		<ThemeProvider>
+			<MemoryRouter>{children}</MemoryRouter>
+		</ThemeProvider>
+	);
+};
+
 describe('FeatureRow', () => {
 	it('shows the three commands and what each one does', async () => {
-		const screen = await render(<FeatureRow />, { wrapper: ThemeProvider });
+		const screen = await render(<FeatureRow />, { wrapper });
 
 		for (const command of COMMANDS) {
 			await expect.element(screen.getByRole('heading', { name: command.name })).toBeInTheDocument();
@@ -16,17 +26,16 @@ describe('FeatureRow', () => {
 		}
 	});
 
-	it('links every card to the docs page of its command', async () => {
-		const screen = await render(<FeatureRow />, { wrapper: ThemeProvider });
+	it('links every card to the docs page of its command, with no second link inside', async () => {
+		const screen = await render(<FeatureRow />, { wrapper });
 
-		await expect
-			.element(screen.getByRole('link', { name: 'Read the init docs' }))
-			.toHaveAttribute('href', '/docs/init');
-		await expect
-			.element(screen.getByRole('link', { name: 'Read the doctor docs' }))
-			.toHaveAttribute('href', '/docs/doctor');
-		await expect
-			.element(screen.getByRole('link', { name: 'Read the harness docs' }))
-			.toHaveAttribute('href', '/docs/harness');
+		for (const slug of ['init', 'doctor', 'harness']) {
+			await expect
+				.element(screen.getByRole('link', { name: `Read the ${slug} docs` }))
+				.toHaveAttribute('href', `/docs/${slug}`);
+		}
+
+		// One interactive surface per card: three links on the page, one per card.
+		expect(screen.container.querySelectorAll('a').length).toBe(3);
 	});
 });

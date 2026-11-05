@@ -28,8 +28,12 @@
 	@apply grid grid-cols-3 gap-5 max-md:grid-cols-1;
 }
 
+/*
+ * The card is one link to the command's docs page: it takes the pointer, the focus ring and the
+ * hover surface, so every pixel of it answers a click and a keyboard focus lands on the card.
+ */
 .card {
-	@apply flex flex-col gap-3 rounded-xl border border-default bg-raised p-6 transition-transform duration-150 hover:-translate-y-1;
+	@apply focus-ring flex cursor-pointer flex-col gap-3 rounded-xl border border-default bg-raised p-6 transition-[transform,border-color,background-color] duration-150 hover:-translate-y-1 hover:border-strong hover:bg-hover;
 }
 
 .cardHead {
@@ -52,16 +56,24 @@
 	@apply text-body-sm text-muted;
 }
 
-/* The link sits at the bottom of the card, so the cards line up however long their text is. */
+/*
+ * The docs affordance is a label, not a link: the card is the only interactive surface, so the
+ * line keeps its look without offering a second tab stop inside the card.
+ */
 .link {
-	@apply focus-ring mt-auto inline-flex items-center gap-1 text-body-sm text-primary transition-colors duration-150 hover:text-primary-hover;
+	@apply mt-auto inline-flex items-center gap-1 text-body-sm text-primary;
 }
 
 .arrow {
 	@apply transition-transform duration-150;
 }
 
-/* The arrow leans towards the link when the link is under the pointer. */
-.link:hover .arrow {
+/* The arrow leans towards the docs while the card is under the pointer. */
+.card:hover .arrow {
 	transform: translateX(0.125rem);
+}
+
+/* The affordance answers the card's hover, so the whole surface reads as one thing. */
+.card:hover .link {
+	@apply text-primary-hover;
 }

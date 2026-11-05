@@ -76,9 +76,32 @@
 	@apply text-muted;
 }
 
-/* The value line is the reading column under the triangle: centered, and the narrowest of the three. */
+/*
+ * The value block sits inside the triangle: centered under the headline, its own lines capped
+ * tighter line over line, so the silhouette keeps narrowing through the whole opening.
+ */
 .value {
-	@apply mx-auto max-w-lg text-center text-body-lg text-muted;
+	@apply text-center text-body-lg text-muted;
+}
+
+/*
+ * One block per line of copy, each cap a step tighter than the previous, so wherever the lines
+ * still fit on one rendered line the narrowing holds without trusting the copy's own length.
+ */
+.valueLine {
+	@apply mx-auto block;
+}
+
+.valueLine:nth-child(1) {
+	@apply max-w-lg;
+}
+
+.valueLine:nth-child(2) {
+	@apply max-w-md;
+}
+
+.valueLine:nth-child(3) {
+	@apply max-w-sm;
 }
 
 /*
@@ -94,4 +117,18 @@
 
 	/* The init transcript, the tallest one, sets the floor. */
 	min-height: 26rem;
+}
+
+/* The CTA row sits at the section's end, centered under the terminal. */
+.cta {
+	@apply flex justify-center pt-6;
+}
+
+/*
+ * The package's solid large button, applied to a router link: the recipe is the Button's own
+ * (variants.ts + styles.module.css), so the link reads as the component without the site
+ * authoring a component or a token.
+ */
+.ctaButton {
+	@apply focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-6 text-label-lg text-primary-foreground transition-colors duration-150 hover:bg-primary-hover active:bg-primary-active motion-reduce:transition-none;
 }
