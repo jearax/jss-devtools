@@ -56,7 +56,7 @@ const CodeBlock = ({
 	return (
 		<div className={cn(styles.root, className)} {...props}>
 			<WindowChrome title={title}>{headerAction}</WindowChrome>
-			<pre className={styles.code} data-wrap={wrap ? 'true' : undefined}>
+			<pre className={styles.code} data-wrap={wrap}>
 				{prompt === undefined ? null : (
 					<span className={styles.prompt}>
 						{prompt} {renderLine(0)}
@@ -67,11 +67,7 @@ const CodeBlock = ({
 					const number = index + (prompt === undefined ? 1 : 2);
 
 					return (
-						<span
-							key={`${line}-${index}`}
-							className={styles.line}
-							data-highlighted={highlighted.includes(number) ? 'true' : undefined}
-						>
+						<span key={`${line}-${index}`} className={styles.line} data-highlighted={highlighted.includes(number)}>
 							{renderLine(index + (prompt === undefined ? 0 : 1))}
 							{index === lines.length - (prompt === undefined ? 1 : 2) ? null : '\n'}
 						</span>

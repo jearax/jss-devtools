@@ -139,7 +139,7 @@ const Terminal = ({
 								aria-controls={`${baseId}-panel-${index}`}
 								tabIndex={index === active ? 0 : -1}
 								className={styles.tab}
-								data-selected={index === active ? 'true' : undefined}
+								data-selected={index === active}
 								onClick={() => {
 									setActive(index);
 								}}

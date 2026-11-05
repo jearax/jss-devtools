@@ -54,7 +54,7 @@ const SiteHeader = ({ className, ...props }: SiteHeaderProps) => {
 	return (
 		<>
 			<div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
-			<header className={cn(styles.root, className)} data-scrolled={isScrolled ? 'true' : undefined} {...props}>
+			<header className={cn(styles.root, className)} data-scrolled={isScrolled} {...props}>
 				<ScrollProgress />
 				<div className={styles.inner}>
 					{/*

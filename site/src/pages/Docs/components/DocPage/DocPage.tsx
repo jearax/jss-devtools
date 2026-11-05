@@ -109,7 +109,7 @@ const DocPage = ({ className, title, summary, sections, ...props }: DocPageProps
 											className={styles.tocLink}
 											href={`#${section.id}`}
 											aria-current={activeId === section.id ? 'location' : undefined}
-											data-active={activeId === section.id ? 'true' : undefined}
+											data-active={activeId === section.id}
 										>
 											{section.title}
 										</a>
