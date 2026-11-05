@@ -57,6 +57,16 @@
 }
 
 /*
+ * The card's copy renders through RichText, so a literal in it reads as code with the docs'
+ * chip recipe. The card sits on bg-raised, so the chip takes bg-surface — one step from the
+ * surface beneath, the same relationship the docs' raised chip has to the page.
+ */
+.summary code,
+.details code {
+	@apply rounded bg-surface px-1.5 py-0.5 font-mono text-body-sm text-default;
+}
+
+/*
  * The docs affordance is a label, not a link: the card is the only interactive surface, so the
  * line keeps its look without offering a second tab stop inside the card.
  */
