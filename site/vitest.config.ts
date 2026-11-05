@@ -15,6 +15,15 @@ const vitestConfig = defineConfig((env) => {
 				}
 			}
 		},
+		/*
+		 * Discovered late by the render path, `react-dom/client` would otherwise be optimized
+		 * mid-run: Vite reloads the tester iframes, and the one loading at that moment never
+		 * reports ready — the CI suite dies on an iframe timeout. Declared here, the optimizer
+		 * warms it before the first iframe loads.
+		 */
+		optimizeDeps: {
+			include: ['react-dom/client']
+		},
 		test: {
 			include: ['src/**/*.test.{ts,tsx}'],
 			setupFiles: ['./vitest.setup.ts'],
