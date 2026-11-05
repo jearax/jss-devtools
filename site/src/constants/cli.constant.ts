@@ -12,7 +12,12 @@ export const INSTALL_COMMAND = 'curl -fsSL https://jss-devtools.jjuidev.com/inst
 
 export const NODE_FLOOR = '>= 24.11.0';
 
-export const REQUIREMENTS = [`Node ${NODE_FLOOR}`, 'curl or wget', 'sha256sum or shasum', '~/.local/bin on PATH'];
+export const REQUIREMENTS = [
+	`Node \`${NODE_FLOOR}\``,
+	'`curl` or `wget`',
+	'`sha256sum` or `shasum`',
+	'`~/.local/bin` on `PATH`'
+];
 
 export const SOURCE_URL = 'https://github.com/jearax/jss-devtools';
 

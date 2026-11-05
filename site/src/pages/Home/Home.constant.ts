@@ -20,23 +20,27 @@ export const VALUE_LINES: readonly string[] = [
 ];
 
 /**
- * The hero terminal's transcripts. The install tab types the one command; the doctor and init
- * tabs replay the CLI's real captured output, so the window reads as a terminal running the
- * CLI, not a marketing panel with a code block.
+ * The hero terminal's transcripts. Each tab is named after the working directory a real session
+ * would sit in, and its purpose moves into the transcript as a shell comment; the doctor and
+ * init tabs replay the CLI's real captured output, so the window reads as a terminal running
+ * the CLI, not a marketing panel with a code block.
  */
 export const HERO_TERMINAL_TABS: readonly TerminalTab[] = [
 	{
-		label: 'install',
+		label: '~',
+		comment: 'Install the CLI once, anywhere',
 		command: INSTALL_COMMAND,
 		lines: []
 	},
 	{
-		label: 'doctor',
+		label: '~',
+		comment: 'Check the environment',
 		command: 'jss-devtools doctor',
 		lines: DOCTOR_TRANSCRIPT
 	},
 	{
-		label: 'init',
+		label: '~/projects/my-app',
+		comment: 'Set up a project',
 		command: 'jss-devtools init',
 		lines: INIT_TRANSCRIPT
 	}

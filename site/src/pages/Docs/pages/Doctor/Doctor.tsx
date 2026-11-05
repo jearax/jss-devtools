@@ -1,6 +1,7 @@
 import Terminal from '@/components/Terminal/Terminal';
 import { DOCTOR_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
+import RichText from '@/pages/Docs/components/RichText/RichText';
 import { DOCTOR_CHECKS } from '@/pages/Docs/Docs.constant';
 import { meta } from '@/pages/Docs/pages/Doctor/Doctor.constant';
 
@@ -29,8 +30,12 @@ const Doctor = () => {
 									{DOCTOR_CHECKS.map((check) => {
 										return (
 											<tr key={check.label}>
-												<td>{check.label}</td>
-												<td>{check.what}</td>
+												<td>
+													<RichText text={check.label} />
+												</td>
+												<td>
+													<RichText text={check.what} />
+												</td>
 											</tr>
 										);
 									})}
@@ -44,7 +49,12 @@ const Doctor = () => {
 					body: (
 						<>
 							<p>Each line is one check, with its own detail and its own note. The last line is the summary.</p>
-							<Terminal label={TERMINAL_LABEL} lines={DOCTOR_TRANSCRIPT} title="doctor" />
+							<Terminal
+								label={TERMINAL_LABEL}
+								comment="Check the environment"
+								lines={DOCTOR_TRANSCRIPT}
+								title="doctor"
+							/>
 						</>
 					)
 				},

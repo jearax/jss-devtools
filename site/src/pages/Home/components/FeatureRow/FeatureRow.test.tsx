@@ -21,8 +21,11 @@ describe('FeatureRow', () => {
 		const screen = await render(<FeatureRow />, { wrapper });
 
 		for (const command of COMMANDS) {
+			// The card renders the summary through RichText, so the code between backticks is markup.
+			const summary = command.summary.replaceAll('`', '');
+
 			await expect.element(screen.getByRole('heading', { name: command.name })).toBeInTheDocument();
-			await expect.element(screen.getByText(command.summary)).toBeInTheDocument();
+			await expect.element(screen.getByText(summary)).toBeInTheDocument();
 		}
 	});
 

@@ -2,6 +2,7 @@ import { ThemeProvider } from '@jjuidev/design-system';
 import { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 
 import { INSTALL_COMMAND, PRODUCT_NAME } from '@/constants/cli.constant';
@@ -37,8 +38,21 @@ describe('Hero', () => {
 		await expect.element(screen.getByText(PRODUCT_NAME)).toBeInTheDocument();
 		await expect.element(screen.getByText(/jss-devtools\.jjuidev\.com\/install\.sh/)).toBeInTheDocument();
 
-		for (const tab of HERO_TERMINAL_TABS) {
-			await expect.element(screen.getByRole('tab', { name: tab.label })).toBeInTheDocument();
+		// The tabs are named after working directories, so two can share the label `~`.
+		const tabs = [...screen.container.querySelectorAll('button[role="tab"]')];
+
+		expect(tabs.length).toBe(HERO_TERMINAL_TABS.length);
+
+		const labels = tabs.map((tab) => {
+			return tab.textContent;
+		});
+
+		for (const label of new Set(
+			HERO_TERMINAL_TABS.map((tab) => {
+				return tab.label;
+			})
+		)) {
+			expect(labels).toContain(label);
 		}
 	});
 
@@ -64,7 +78,14 @@ describe('Hero', () => {
 	it('replays the transcript when the reader switches tabs', async () => {
 		const screen = await render(<Hero />, { wrapper });
 
-		await screen.getByRole('tab', { name: 'doctor' }).click();
+		// The doctor tab is the second `~`: the doctor session sits in the home directory too.
+		const doctorTab = screen.container.querySelectorAll('button[role="tab"]')[1];
+
+		if (doctorTab === undefined) {
+			throw new Error('the hero terminal has no second tab');
+		}
+
+		await userEvent.click(doctorTab);
 
 		await expect.element(screen.getByText(/Ready: Node\.js, git and 4 package managers/)).toBeInTheDocument();
 	});

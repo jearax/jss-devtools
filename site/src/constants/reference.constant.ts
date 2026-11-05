@@ -13,20 +13,21 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 	},
 	{
 		flag: '--framework <name>',
-		meaning: 'The preset to apply. Only node works today; react, rn, next and nest are declared but not implemented.'
+		meaning:
+			'The preset to apply. Only `node` works today; `react`, `rn`, `next` and `nest` are declared but not implemented.'
 	},
 	{
 		flag: '--pm <name>',
-		meaning: 'The package manager for a new project: bun, pnpm, yarn or npm. Defaults to npm.'
+		meaning: 'The package manager for a new project: `bun`, `pnpm`, `yarn` or `npm`. Defaults to `npm`.'
 	},
 	{
 		flag: '--force, -f',
 		meaning:
-			'Replace the existing ESLint, Prettier, commitlint and editor configs. Without it, init stops and lists them.'
+			'Replace the existing ESLint, Prettier, commitlint and editor configs. Without it, `init` stops and lists them.'
 	},
 	{
 		flag: '--no-vscode',
-		meaning: 'Do not write .vscode/. It is written by default.'
+		meaning: 'Do not write `.vscode/`. It is written by default.'
 	},
 	{
 		flag: '--no-harness',
@@ -34,7 +35,7 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 	},
 	{
 		flag: '--agent-kit',
-		meaning: 'Point AgentKit at .harness/docs and .harness/plans. Needs ak.'
+		meaning: 'Point AgentKit at `.harness/docs` and `.harness/plans`. Needs `ak`.'
 	},
 	{
 		flag: '--yes, -y',

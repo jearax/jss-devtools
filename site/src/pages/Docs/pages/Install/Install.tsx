@@ -1,6 +1,7 @@
 import CodeBlock from '@/components/CodeBlock/CodeBlock';
 import { INSTALL_COMMAND, NODE_FLOOR, REQUIREMENTS } from '@/constants/cli.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
+import RichText from '@/pages/Docs/components/RichText/RichText';
 import { meta } from '@/pages/Docs/pages/Install/Install.constant';
 
 const INSTALL_PATHS: readonly { label: string; value: string }[] = [
@@ -57,7 +58,11 @@ const Install = () => {
 						<>
 							<ul>
 								{REQUIREMENTS.map((requirement) => {
-									return <li key={requirement}>{requirement}</li>;
+									return (
+										<li key={requirement}>
+											<RichText text={requirement} />
+										</li>
+									);
 								})}
 							</ul>
 							<p>
@@ -123,7 +128,9 @@ const Install = () => {
 												<td>
 													<code>{entry.name}</code>
 												</td>
-												<td>{entry.meaning}</td>
+												<td>
+													<RichText text={entry.meaning} />
+												</td>
 											</tr>
 										);
 									})}

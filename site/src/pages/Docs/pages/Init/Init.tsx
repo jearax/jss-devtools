@@ -4,6 +4,7 @@ import { INIT_OPTIONS } from '@/constants/reference.constant';
 import { INIT_PACKAGE_SCRIPTS } from '@/constants/snippets.constant';
 import { INIT_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
+import RichText from '@/pages/Docs/components/RichText/RichText';
 import { INIT_FILES, INIT_PRESETS } from '@/pages/Docs/Docs.constant';
 import { meta } from '@/pages/Docs/pages/Init/Init.constant';
 
@@ -69,7 +70,9 @@ const Init = () => {
 											<td>
 												<code>{option.flag}</code>
 											</td>
-											<td>{option.meaning}</td>
+											<td>
+												<RichText text={option.meaning} />
+											</td>
 										</tr>
 									);
 								})}
@@ -155,7 +158,12 @@ const Init = () => {
 								command prints the command line that would apply it.
 							</p>
 							<CodeBlock code="jss-devtools init my-app --pm pnpm --dry-run" language="sh" prompt="$" title="dry run" />
-							<Terminal label={TERMINAL_LABEL} lines={INIT_TRANSCRIPT} title="init --dry-run" />
+							<Terminal
+								label={TERMINAL_LABEL}
+								comment="Set up a project, without writing anything"
+								lines={INIT_TRANSCRIPT}
+								title="init --dry-run"
+							/>
 						</>
 					)
 				}

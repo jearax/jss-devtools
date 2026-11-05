@@ -13,12 +13,12 @@ export type HarnessHook = {
 export const HARNESS_HOOKS: readonly HarnessHook[] = [
 	{
 		event: 'SessionStart',
-		matcher: 'startup, resume, clear, compact',
+		matcher: '`startup`, `resume`, `clear`, `compact`',
 		note: 'Loads the harness memory with its character budget, the decisions in force, the index drift and the onboarding notice.'
 	},
 	{
 		event: 'PostToolUse',
-		matcher: 'Write, Edit, MultiEdit',
+		matcher: '`Write`, `Edit`, `MultiEdit`',
 		note: 'The memory guard: blocks a write to the harness memory that would break its character budget.'
 	},
 	{

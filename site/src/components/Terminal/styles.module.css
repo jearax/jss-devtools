@@ -1,5 +1,24 @@
 .root {
 	@apply overflow-hidden rounded-xl border border-default bg-raised shadow-2xl;
+
+	/*
+	 * The glyphs read like a real terminal's, not like the site's status colours: a true green, red
+	 * and yellow against the Terminal's own surface. The site rule that a utility never names a
+	 * colour value bends here on purpose — the reference is the CLI's output, not the palette — and
+	 * the values are pinned per theme against bg-raised (white in light, neutral-900 in dark), each
+	 * clearing 4.5:1 for small text.
+	 */
+	--terminal-success: #1a7f37;
+	--terminal-error: #cf222e;
+	--terminal-warning: #9a6700;
+	--terminal-comment: #57606a;
+}
+
+:global(html[data-theme='dark']) .root {
+	--terminal-success: #3fb950;
+	--terminal-error: #ff7b72;
+	--terminal-warning: #d29922;
+	--terminal-comment: #98a1ab;
 }
 
 .tabs {
@@ -60,25 +79,33 @@
 	@apply text-default;
 }
 
-/* The glyph carries the role: the CLI's own success, error, warning and quiet marks. */
+/* The glyph carries the role: the CLI's own success, error, warning and quiet marks. Real output
+ * is bold as well as coloured, so the weight comes with the hue. */
 .glyph {
-	@apply text-default;
+	@apply font-bold text-default;
 }
 
 .glyph[data-tone='success'] {
-	@apply text-success;
+	color: var(--terminal-success);
 }
 
 .glyph[data-tone='error'] {
-	@apply text-error;
+	color: var(--terminal-error);
 }
 
 .glyph[data-tone='warning'] {
-	@apply text-warning;
+	color: var(--terminal-warning);
 }
 
 .glyph[data-tone='muted'] {
 	@apply text-muted;
+}
+
+/* The purpose line reads as a shell comment: quieter than the output, in the terminal's own voice. */
+.comment {
+	@apply mb-2 whitespace-pre-wrap;
+
+	color: var(--terminal-comment);
 }
 
 /*
@@ -110,6 +137,11 @@
 .root[data-variant='animated'] .line {
 	animation: terminal-reveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 	animation-delay: calc(700ms + var(--i) * 70ms);
+}
+
+/* The comment is revealed, never typed: the purpose is there before the command starts. */
+.root[data-variant='animated'] .comment {
+	animation: terminal-reveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes terminal-type {
@@ -175,6 +207,10 @@
 	}
 
 	.root[data-variant='animated'] .line {
+		animation: none;
+	}
+
+	.root[data-variant='animated'] .comment {
 		animation: none;
 	}
 }

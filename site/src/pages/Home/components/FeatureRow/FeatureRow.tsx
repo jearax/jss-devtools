@@ -2,6 +2,7 @@ import { cn } from '@jjuidev/design-system';
 import { ComponentProps } from 'react';
 import { Link } from 'react-router';
 
+import RichText from '@/pages/Docs/components/RichText/RichText';
 import { FEATURES } from '@/pages/Home/constants/feature.constant';
 
 import styles from './styles.module.css';
@@ -44,8 +45,12 @@ const FeatureRow = ({ className, ...props }: FeatureRowProps) => {
 									<h3 className={styles.command}>{feature.name}</h3>
 								</div>
 
-								<p className={styles.summary}>{feature.summary}</p>
-								<p className={styles.details}>{feature.details}</p>
+								<p className={styles.summary}>
+									<RichText text={feature.summary} />
+								</p>
+								<p className={styles.details}>
+									<RichText text={feature.details} />
+								</p>
 
 								<span className={styles.link}>
 									Read the {feature.name} docs

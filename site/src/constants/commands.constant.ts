@@ -25,7 +25,7 @@ export const COMMANDS: readonly CommandInfo[] = [
 		name: 'doctor',
 		slug: 'doctor',
 		command: 'jss-devtools doctor',
-		summary: 'Check Node.js, git and the package managers.',
+		summary: 'Check Node.js, `git` and the package managers.',
 		details:
 			'Reads the machine and reports every check with its own fix. A package manager that is only missing is shown, not failed. Exits 1 when a check fails.'
 	},

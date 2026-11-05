@@ -7,7 +7,10 @@ import WindowChrome from '@/components/WindowChrome/WindowChrome';
 import styles from './styles.module.css';
 
 export type TerminalTab = {
+	/** The simulated working directory the tab shows, the way a real terminal tab names its cwd. */
 	label: string;
+	/** The shell comment the transcript opens with: the tab's purpose, in the terminal's own voice. */
+	comment?: string;
 	command?: string;
 	lines: readonly string[];
 };
@@ -19,6 +22,8 @@ export type TerminalProps = ComponentProps<'div'> & {
 	label?: string;
 	/** The command line, typed out in the animated variant. */
 	command?: string;
+	/** The shell comment above the command, for a window with a single transcript. */
+	comment?: string;
 	/** The CLI's output, one string per line, with its real glyphs. */
 	lines?: readonly string[];
 	/** The transcripts the reader switches between. */
@@ -79,6 +84,7 @@ const Terminal = ({
 	title,
 	label,
 	command,
+	comment,
 	lines,
 	tabs,
 	tabListLabel = 'Transcripts',
@@ -90,6 +96,7 @@ const Terminal = ({
 	const baseId = useId();
 	const tab = tabs?.[active];
 	const shownCommand = tab?.command ?? command;
+	const shownComment = tab?.comment ?? comment;
 	const shownLines = tab?.lines ?? lines ?? [];
 
 	const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
@@ -124,7 +131,7 @@ const Terminal = ({
 					{tabs.map((item, index) => {
 						return (
 							<button
-								key={item.label}
+								key={`${index}-${item.label}`}
 								type="button"
 								role="tab"
 								id={`${baseId}-tab-${index}`}
@@ -153,6 +160,11 @@ const Terminal = ({
 				id={tabs === undefined ? undefined : `${baseId}-panel-${active}`}
 				aria-labelledby={tabs === undefined ? undefined : `${baseId}-tab-${active}`}
 			>
+				{shownComment === undefined ? null : (
+					<p key={shownComment} className={styles.comment}>
+						{`# ${shownComment}`}
+					</p>
+				)}
 				{shownCommand === undefined ? null : (
 					<div className={styles.commandRow}>
 						<p

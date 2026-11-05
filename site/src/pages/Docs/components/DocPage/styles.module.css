@@ -40,12 +40,21 @@
 }
 
 .tocLink {
-	@apply focus-ring rounded text-body-sm text-muted transition-colors duration-150 hover:text-default;
+	@apply focus-ring relative block rounded text-body-sm text-muted transition-colors duration-150 hover:text-default;
 }
 
-/* The heading the reader is at is the one that is spoken and the one that is lit. */
+/*
+ * The heading the reader is at is the one that is spoken and the one that is lit, in the brand
+ * colour, with an accent segment on the TOC's left border aligned to the link — the sidebar
+ * pattern the reader already knows from the docs sites they use. The border is 1px at the ul's
+ * edge and the links start 16px in, so the marker sits at -17px, over the border line.
+ */
 .tocLink[data-active='true'] {
-	@apply text-default;
+	@apply text-primary;
+}
+
+.tocLink[data-active='true']::before {
+	@apply absolute top-0.5 bottom-0.5 left-[-17px] w-0.5 rounded bg-primary content-[''];
 }
 
 /*

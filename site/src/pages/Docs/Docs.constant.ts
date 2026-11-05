@@ -86,10 +86,10 @@ export const DOCTOR_CHECKS: readonly { label: string; what: string }[] = [
 	},
 	{
 		label: 'Git',
-		what: 'That git is installed, with its version. Fails with the fix.'
+		what: 'That `git` is installed, with its version. Fails with the fix.'
 	},
 	{
-		label: 'bun, pnpm, yarn, npm',
+		label: '`bun`, `pnpm`, `yarn`, `npm`',
 		what: 'Each package manager, probed outside any project so a project’s own field cannot change the answer.'
 	}
 ];

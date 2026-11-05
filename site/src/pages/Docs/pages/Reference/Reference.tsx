@@ -1,6 +1,7 @@
 import { COMMANDS } from '@/constants/commands.constant';
 import { EXIT_CODES, INIT_OPTIONS } from '@/constants/reference.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
+import RichText from '@/pages/Docs/components/RichText/RichText';
 import { INIT_FILES } from '@/pages/Docs/Docs.constant';
 import { meta } from '@/pages/Docs/pages/Reference/Reference.constant';
 
@@ -27,7 +28,9 @@ const Reference = () => {
 											<td>
 												<code>jss-devtools {command.name}</code>
 											</td>
-											<td>{command.summary}</td>
+											<td>
+												<RichText text={command.summary} />
+											</td>
 										</tr>
 									);
 								})}
@@ -52,7 +55,9 @@ const Reference = () => {
 											<td>
 												<code>{option.flag}</code>
 											</td>
-											<td>{option.meaning}</td>
+											<td>
+												<RichText text={option.meaning} />
+											</td>
 										</tr>
 									);
 								})}
@@ -84,11 +89,11 @@ const Reference = () => {
 													<code>{exit.code}</code>
 												</td>
 												<td>
-													{exit.meaning}
+													<RichText text={exit.meaning} />
 													{exit.also === undefined ? null : (
 														<>
 															<br />
-															<code>{exit.also.command}</code> {exit.also.meaning}
+															<code>{exit.also.command}</code> <RichText text={exit.also.meaning} />
 														</>
 													)}
 												</td>

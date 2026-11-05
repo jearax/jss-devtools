@@ -72,6 +72,32 @@ describe('Terminal', () => {
 			.toBe(COMMAND);
 	});
 
+	it('opens a tab transcript with the shell comment the tab carries', async () => {
+		const screen = await render(
+			<Terminal
+				tabs={[
+					{
+						label: '~',
+						comment: 'Check the environment',
+						command: COMMAND,
+						lines: []
+					}
+				]}
+			/>,
+			{ wrapper: ThemeProvider }
+		);
+
+		await expect.element(screen.getByText('# Check the environment')).toBeInTheDocument();
+	});
+
+	it('shows a window-level comment for a window with a single transcript', async () => {
+		const screen = await render(<Terminal comment="Check the environment" command={COMMAND} lines={[]} />, {
+			wrapper: ThemeProvider
+		});
+
+		await expect.element(screen.getByText('# Check the environment')).toBeInTheDocument();
+	});
+
 	it('copies the active tab command, and a tab switch retypes the transcript', async () => {
 		const screen = await render(
 			<Terminal

@@ -4,6 +4,7 @@ import { HARNESS_HOOKS, HARNESS_LIMITS, HARNESS_SESSION_CONTEXT, HARNESS_SKILLS 
 import { HARNESS_SETTINGS_JSON } from '@/constants/snippets.constant';
 import { HARNESS_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
+import RichText from '@/pages/Docs/components/RichText/RichText';
 import { meta } from '@/pages/Docs/pages/Harness/Harness.constant';
 
 const HOOK_TIMEOUT =
@@ -57,8 +58,10 @@ const Harness = () => {
 												<td>
 													<code>{hook.event}</code>
 												</td>
-												<td>{hook.matcher ?? 'every tool'}</td>
-												<td>{hook.note}</td>
+												<td>{hook.matcher === null ? 'every tool' : <RichText text={hook.matcher} />}</td>
+												<td>
+													<RichText text={hook.note} />
+												</td>
 											</tr>
 										);
 									})}
@@ -115,7 +118,9 @@ const Harness = () => {
 												<td>
 													<code>{skill.skill}</code>
 												</td>
-												<td>{skill.what}</td>
+												<td>
+													<RichText text={skill.what} />
+												</td>
 											</tr>
 										);
 									})}
@@ -133,7 +138,12 @@ const Harness = () => {
 								entries, the hook files, the memory limits, the index drift, the decision records, the secrets in{' '}
 								<code>.harness/</code>, the learned skills, and the managed-file drift.
 							</p>
-							<Terminal label={TERMINAL_LABEL} lines={HARNESS_TRANSCRIPT} title="harness doctor" />
+							<Terminal
+								label={TERMINAL_LABEL}
+								comment="Check the harness installed in this repository"
+								lines={HARNESS_TRANSCRIPT}
+								title="harness doctor"
+							/>
 							<p>It exits 0 when the harness is healthy or has warnings only, and 1 when any check fails.</p>
 							<p>
 								<code>harness update</code> brings the harness to the installed CLI version and keeps your edits. When a

@@ -47,7 +47,7 @@ const GettingStarted = () => {
 												<code>jss-devtools {row.name}</code>
 											</td>
 											<td>
-												{row.summary}
+												<RichText text={row.summary} />
 												<br />
 												<RichText text={row.details} />
 											</td>
