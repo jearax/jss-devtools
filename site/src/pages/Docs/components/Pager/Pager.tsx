@@ -1,4 +1,5 @@
 import { cn } from '@jjuidev/design-system';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ComponentProps } from 'react';
 import { Link, useLocation } from 'react-router';
 
@@ -34,13 +35,19 @@ const Pager = ({ className, ...props }: PagerProps) => {
 		<nav className={cn(styles.root, className)} aria-label="The neighbouring pages" {...props}>
 			{previous === null ? null : (
 				<Link className={cn(styles.link, styles.previous)} to={docsHref(previous.slug)}>
-					<span className={styles.direction}>← Previous</span>
+					<span className={styles.direction}>
+						<ArrowLeft size={14} strokeWidth={2} aria-hidden="true" />
+						Previous
+					</span>
 					<span className={styles.title}>{previous.title}</span>
 				</Link>
 			)}
 			{next === null ? null : (
 				<Link className={cn(styles.link, styles.next)} to={docsHref(next.slug)}>
-					<span className={styles.direction}>Next →</span>
+					<span className={styles.direction}>
+						Next
+						<ArrowRight size={14} strokeWidth={2} aria-hidden="true" />
+					</span>
 					<span className={styles.title}>{next.title}</span>
 				</Link>
 			)}

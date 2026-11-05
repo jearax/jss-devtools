@@ -60,10 +60,10 @@ describe('Home', () => {
 		}
 	});
 
-	it('offers the way into the docs from the hero', async () => {
+	it('offers the way into the docs after the commands', async () => {
 		const screen = await render(<Home />, { wrapper });
 
-		// The getting started section is gone; the hero's own button routes the reader.
+		// The exit ramp sits after the commands section; one button routes the reader on.
 		await expect
 			.element(screen.getByRole('link', { name: 'Getting started' }))
 			.toHaveAttribute('href', '/docs/getting-started');

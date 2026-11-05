@@ -118,17 +118,3 @@
 	/* The init transcript, the tallest one, sets the floor. */
 	min-height: 26rem;
 }
-
-/* The CTA row sits at the section's end, centered under the terminal. */
-.cta {
-	@apply flex justify-center pt-6;
-}
-
-/*
- * The package's solid large button, applied to a router link: the recipe is the Button's own
- * (variants.ts + styles.module.css), so the link reads as the component without the site
- * authoring a component or a token.
- */
-.ctaButton {
-	@apply focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-6 text-label-lg text-primary-foreground transition-colors duration-150 hover:bg-primary-hover active:bg-primary-active motion-reduce:transition-none;
-}

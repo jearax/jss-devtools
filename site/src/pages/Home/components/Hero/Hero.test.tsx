@@ -54,13 +54,11 @@ describe('Hero', () => {
 			.toBe(INSTALL_COMMAND);
 	});
 
-	it('links to the getting started guide below the terminal', async () => {
+	it('does not route the reader anywhere itself', async () => {
 		const screen = await render(<Hero />, { wrapper });
 
-		// Decision 2: the getting started section is a button in the hero now.
-		await expect
-			.element(screen.getByRole('link', { name: 'Getting started' }))
-			.toHaveAttribute('href', '/docs/getting-started');
+		// The exit ramp lives after the commands section now; the hero is only the opening.
+		expect(screen.container.querySelector('a[href="/docs/getting-started"]')).toBeNull();
 	});
 
 	it('replays the transcript when the reader switches tabs', async () => {

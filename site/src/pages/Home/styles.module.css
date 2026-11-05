@@ -1,3 +1,17 @@
 .root {
 	@apply flex flex-col;
 }
+
+/* The page's exit ramp sits centered under the commands section, at the section rhythm's end. */
+.cta {
+	@apply flex justify-center pb-16 pt-2 lg:pb-24;
+}
+
+/*
+ * The package's solid large button, applied to a router link: the recipe is the Button's own
+ * (variants.ts + styles.module.css), so the link reads as the component without the site
+ * authoring a component or a token.
+ */
+.ctaButton {
+	@apply focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-6 text-label-lg text-primary-foreground transition-colors duration-150 hover:bg-primary-hover active:bg-primary-active motion-reduce:transition-none;
+}
