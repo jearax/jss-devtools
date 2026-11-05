@@ -18,7 +18,8 @@ const Hero = ({ className, ...props }: HeroProps) => {
 
 			<div className={styles.inner}>
 				<h1 className={styles.title}>
-					Set up the toolchain. <span className={styles.titleMuted}>Teach your agent.</span>
+					<span className={styles.titleLine}>Set up the toolchain.</span>
+					<span className={cn(styles.titleLine, styles.titleMuted)}>Teach your agent.</span>
 				</h1>
 				<p className={styles.value}>{VALUE_LINE}</p>
 

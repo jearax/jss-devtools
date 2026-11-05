@@ -50,8 +50,14 @@
 	@apply wrapper relative z-10 flex max-w-6xl flex-col gap-3 pt-8 pb-12 lg:pt-10 lg:pb-16;
 }
 
+/*
+ * The headline is a centered inverted triangle, after react-hook-form.com: each line is a block
+ * of its own, and each line is narrower than the one above it. The narrowing is the copy's own:
+ * the first clause is the widest line, the muted second clause shorter, and the value line
+ * below them is capped harder than both.
+ */
 .title {
-	@apply text-heading-6xl text-default;
+	@apply text-center text-heading-6xl text-default;
 
 	/*
 	 * The package's type scale stops at 1.875rem, so the hero's display step is fluid here: one line
@@ -61,14 +67,18 @@
 	letter-spacing: -0.03em;
 }
 
+.titleLine {
+	@apply block;
+}
+
 /* The second clause is the quieter half of the headline. */
 .titleMuted {
 	@apply text-muted;
 }
 
-/* The value line is one line on a wide viewport, and the reading column below it. */
+/* The value line is the reading column under the triangle: centered, and the narrowest of the three. */
 .value {
-	@apply max-w-2xl text-body-lg text-muted lg:max-w-none;
+	@apply mx-auto max-w-lg text-center text-body-lg text-muted;
 }
 
 /*

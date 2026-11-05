@@ -1,5 +1,5 @@
 import { COMMANDS } from '@/constants/commands.constant';
-import { EXIT_CODES, INIT_OPTIONS, REFERENCE_LINKS } from '@/constants/reference.constant';
+import { EXIT_CODES, INIT_OPTIONS } from '@/constants/reference.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import { INIT_FILES } from '@/pages/Docs/Docs.constant';
 import { meta } from '@/pages/Docs/pages/Reference/Reference.constant';
@@ -113,28 +113,6 @@ const Reference = () => {
 									return (
 										<li key={file}>
 											<code>{file}</code>
-										</li>
-									);
-								})}
-							</ul>
-						</>
-					)
-				},
-				{
-					...meta('where-the-truth-lives'),
-					body: (
-						<>
-							<p>
-								This page states what the CLI does. The repository states why, and the decision records state what was
-								chosen and by whom.
-							</p>
-							<ul>
-								{REFERENCE_LINKS.map((link) => {
-									return (
-										<li key={link.href}>
-											<a href={link.href} rel="noreferrer" target="_blank">
-												{link.label}
-											</a>
 										</li>
 									);
 								})}

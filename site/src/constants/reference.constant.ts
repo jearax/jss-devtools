@@ -1,5 +1,3 @@
-import { SOURCE_URL } from '@/constants/cli.constant';
-
 export type InitOption = {
 	flag: string;
 	meaning: string;
@@ -76,28 +74,5 @@ export const EXIT_CODES: readonly ExitCode[] = [
 			command: 'harness doctor',
 			meaning: 'returns 1 when any check fails.'
 		}
-	}
-];
-
-/**
- * Where the repository keeps what the page points at. The repository's address is the one
- * constant, so a link can never point at a name the repository has moved away from.
- */
-export const REFERENCE_LINKS: readonly { label: string; href: string }[] = [
-	{
-		label: 'The repository',
-		href: SOURCE_URL
-	},
-	{
-		label: 'The project overview',
-		href: `${SOURCE_URL}/blob/main/docs/project-overview-pdr.md`
-	},
-	{
-		label: 'The architecture',
-		href: `${SOURCE_URL}/blob/main/docs/system-architecture.md`
-	},
-	{
-		label: 'The decisions',
-		href: `${SOURCE_URL}/tree/main/docs/decisions`
 	}
 ];

@@ -10,17 +10,16 @@
 	@apply flex flex-col gap-2;
 }
 
-.eyebrow {
-	@apply text-label-sm text-primary;
-}
-
+/*
+ * The heading is the section's whole front door now the header nav is gone: it carries the
+ * docs on-ramp job, so it takes a display step of its own, fluid like the hero's but a step
+ * below it. Nothing sits above it in the section.
+ */
 .title {
-	@apply text-heading-4xl text-default;
-}
+	@apply text-heading-5xl text-default;
 
-/* The second clause is the quieter half of the heading. */
-.titleMuted {
-	@apply text-muted;
+	font-size: clamp(1.875rem, 3.6vw, 2.625rem);
+	letter-spacing: -0.02em;
 }
 
 .steps {

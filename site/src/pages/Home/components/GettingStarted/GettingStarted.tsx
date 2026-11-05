@@ -14,10 +14,7 @@ const GettingStarted = ({ className, ...props }: GettingStartedProps) => {
 		<section className={cn(styles.root, className)} {...props}>
 			<div className={styles.inner}>
 				<div className={styles.head}>
-					<p className={styles.eyebrow}>Getting started</p>
-					<h2 className={styles.title}>
-						Three commands, <span className={styles.titleMuted}>and you are set.</span>
-					</h2>
+					<h2 className={styles.title}>Getting started</h2>
 				</div>
 
 				<div className={styles.steps}>

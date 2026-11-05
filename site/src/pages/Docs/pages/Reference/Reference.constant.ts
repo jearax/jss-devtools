@@ -20,10 +20,6 @@ export const SECTIONS = [
 	{
 		id: 'the-files',
 		title: 'The files init owns'
-	},
-	{
-		id: 'where-the-truth-lives',
-		title: 'Where the truth lives'
 	}
 ] as const;
 
