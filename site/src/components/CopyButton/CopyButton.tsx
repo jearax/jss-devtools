@@ -59,6 +59,7 @@ const CopyButton = ({ className, value, label, feedback = 'text', ...props }: Co
 			className={cn(styles.root, className)}
 			variant="ghost"
 			size={feedback === 'icon' ? 'icon' : 'sm'}
+			data-copied={isCopied ? 'true' : undefined}
 			icon={isCopied ? <Check size={14} /> : <Copy size={14} />}
 			iconPosition="start"
 			aria-label={ariaLabel}
