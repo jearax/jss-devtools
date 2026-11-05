@@ -26,11 +26,16 @@
 }
 
 .tab {
-	@apply focus-ring rounded-md px-3 py-1.5 font-mono text-body-sm text-muted transition-colors duration-150 hover:text-default;
+	@apply focus-ring rounded-md border border-transparent px-3 py-1.5 font-mono text-body-sm text-muted transition-colors duration-150 hover:text-default;
 }
 
+/*
+ * The selected tab joins the pane: it wears the body's surface, drops its own bottom border and
+ * steps one pixel over the tab strip's rule, so the active tab reads as part of the transcript
+ * below it — the way a real terminal's active tab merges into its pane.
+ */
 .tab[data-selected='true'] {
-	@apply bg-hover text-default;
+	@apply -mb-px rounded-b-none border-default bg-raised text-default;
 }
 
 .label {

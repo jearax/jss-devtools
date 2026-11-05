@@ -15,8 +15,12 @@
 	@apply focus-ring flex flex-col gap-2 self-start rounded-md px-1 py-1 text-default no-underline transition-colors duration-150 max-md:w-full max-md:rounded-none max-md:px-0 max-md:py-4;
 }
 
+/*
+ * `ml-auto` keeps Next on the right even when Previous is missing (the first page), so the
+ * direction's position never moves as the reader walks the sequence.
+ */
 .next {
-	@apply self-end text-right max-md:self-start max-md:text-left;
+	@apply ml-auto self-end text-right max-md:ml-0 max-md:self-start max-md:text-left;
 }
 
 /*
