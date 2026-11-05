@@ -8,12 +8,13 @@
 
 /*
  * The word and the hint are what make the button a search field rather than an icon, so both
- * stay. The hint is the shortcut, shown as a key the reader can press.
+ * stay on a desktop. Below lg they fold away: the header row has no room for the field at a
+ * phone's width, and the hint names a key a phone does not have.
  */
 .label {
-	@apply text-body-sm;
+	@apply text-body-sm max-lg:hidden;
 }
 
 .shortcut {
-	@apply rounded-sm border border-default bg-raised px-1.5 py-0.5 font-mono text-label-xs text-muted;
+	@apply rounded-sm border border-default bg-raised px-1.5 py-0.5 font-mono text-label-xs text-muted max-lg:hidden;
 }

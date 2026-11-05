@@ -1,38 +1,3 @@
-import { SOURCE_URL } from '@/constants/cli.constant';
-
-export type NavItem = {
-	label: string;
-	href: string;
-	/** The item that marks the current route. */
-	current: boolean;
-	external: boolean;
-};
-
-/**
- * The header's navigation. The routes and their order live here, so the header, the sidebar and
- * the previous/next links cannot drift apart.
- */
-export const NAV_ITEMS: readonly NavItem[] = [
-	{
-		label: 'Home',
-		href: '/',
-		current: true,
-		external: false
-	},
-	{
-		label: 'Docs',
-		href: '/docs',
-		current: false,
-		external: false
-	},
-	{
-		label: 'GitHub',
-		href: SOURCE_URL,
-		current: false,
-		external: true
-	}
-];
-
 export type DocsPage = {
 	slug: string;
 	title: string;

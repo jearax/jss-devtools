@@ -1,0 +1,7 @@
+/*
+ * The button floats over the page: a raised disc in the page corner, quiet until hovered. It
+ * shows itself only once the page has scrolled, so the component renders nothing at the top.
+ */
+.root {
+	@apply focus-ring fixed right-4 bottom-4 z-30 flex size-11 items-center justify-center rounded-full border border-default bg-raised text-default shadow-sm transition-colors duration-150 hover:bg-hover;
+}

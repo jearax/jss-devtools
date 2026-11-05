@@ -27,77 +27,23 @@
 	@apply shrink-0;
 }
 
-/* The navigation collapses into the menu below the lg breakpoint. */
-.nav {
-	@apply hidden lg:block;
-}
-
-.navList {
-	@apply flex items-center gap-1;
-}
-
-.navItem {
-	@apply list-none;
-}
-
-.navLink {
-	@apply focus-ring rounded-md px-3 py-2 text-body-base text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
-}
-
-.navLink[aria-current='page'] {
-	@apply text-default;
-}
-
 .actions {
 	@apply flex shrink-0 items-center gap-2;
 }
 
 /*
- * The search trigger is a wide field on a desktop, so it needs the room; on a narrow viewport the
- * menu panel carries it instead and this one is out of the way.
+ * The search trigger serves every width now: on a desktop it is the wide field, on a phone the
+ * same button shrinks to its icon through its own stylesheet.
  */
 .search {
-	@apply hidden lg:block;
+	@apply min-w-0;
 }
 
-.themeToggle {
-	@apply shrink-0;
+/* The mark sits at the toggle's rhythm: same ghost surface, same hover, the same quiet row. */
+.github {
+	@apply focus-ring flex size-11 items-center justify-center rounded-md text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
 }
 
-.menuButton {
-	@apply lg:hidden;
-}
-
-/* The panel is a disclosure, not a modal: it opens below the header and the page keeps its place. */
-.panel {
-	display: grid;
-	grid-template-rows: 0fr;
-	transition: grid-template-rows 200ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.panel[data-open='true'] {
-	grid-template-rows: 1fr;
-}
-
-.panelInner {
-	@apply overflow-hidden;
-}
-
-.panelList {
-	@apply wrapper flex max-w-6xl flex-col gap-1 pb-4;
-}
-
-.panelLink {
-	@apply focus-ring rounded-md px-3 py-2 text-body-base text-default transition-colors duration-150 hover:bg-hover;
-}
-
-/* The panel carries the search trigger, so it is the full width of the panel's column. */
-.panelSearch {
-	@apply wrapper flex max-w-6xl pb-4;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.panel {
-		transition: none;
-	}
+.githubIcon {
+	@apply size-5;
 }
