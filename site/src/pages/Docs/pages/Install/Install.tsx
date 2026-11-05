@@ -1,4 +1,5 @@
 import CodeBlock from '@/components/CodeBlock/CodeBlock';
+import CopyButton from '@/components/CopyButton/CopyButton';
 import { INSTALL_COMMAND, NODE_FLOOR, REQUIREMENTS } from '@/constants/cli.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import RichText from '@/pages/Docs/components/RichText/RichText';
@@ -44,7 +45,14 @@ const Install = () => {
 								One line, no sudo, nothing else to run. The installer is a POSIX shell script the site serves; it
 								installs the CLI for the current user.
 							</p>
-							<CodeBlock code={INSTALL_COMMAND} language="sh" prompt="$" title="install.sh" wrap />
+							<CodeBlock
+								code={INSTALL_COMMAND}
+								language="sh"
+								prompt="$"
+								title="install.sh"
+								wrap
+								headerAction={<CopyButton feedback="icon" label="Copy the install command" value={INSTALL_COMMAND} />}
+							/>
 							<p>
 								The bundle it downloads is a single self-contained file. It carries its own runtime dependencies and
 								runs with nothing beside it, so there is no <code>node_modules</code> to install beside it.

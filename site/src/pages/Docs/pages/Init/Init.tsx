@@ -1,4 +1,5 @@
 import CodeBlock from '@/components/CodeBlock/CodeBlock';
+import CopyButton from '@/components/CopyButton/CopyButton';
 import Terminal from '@/components/Terminal/Terminal';
 import { INIT_OPTIONS } from '@/constants/reference.constant';
 import { INIT_PACKAGE_SCRIPTS } from '@/constants/snippets.constant';
@@ -22,8 +23,26 @@ const Init = () => {
 								With a folder name, <code>init</code> creates a new project. Without one, it sets up the folder you are
 								in. The two paths differ in what they read, not in what they write: the same toolchain either way.
 							</p>
-							<CodeBlock code="jss-devtools init my-app --pm pnpm" language="sh" prompt="$" title="a new project" />
-							<CodeBlock code="jss-devtools init" language="sh" prompt="$" title="the current folder" />
+							<CodeBlock
+								code="jss-devtools init my-app --pm pnpm"
+								language="sh"
+								prompt="$"
+								title="a new project"
+								headerAction={
+									<CopyButton
+										feedback="icon"
+										label="Copy the init command"
+										value="jss-devtools init my-app --pm pnpm"
+									/>
+								}
+							/>
+							<CodeBlock
+								code="jss-devtools init"
+								language="sh"
+								prompt="$"
+								title="the current folder"
+								headerAction={<CopyButton feedback="icon" label="Copy the init command" value="jss-devtools init" />}
+							/>
 						</>
 					)
 				},
@@ -157,7 +176,19 @@ const Init = () => {
 								<code>--dry-run</code> prints the plan and stops. Nothing is written, nothing is installed, and the
 								command prints the command line that would apply it.
 							</p>
-							<CodeBlock code="jss-devtools init my-app --pm pnpm --dry-run" language="sh" prompt="$" title="dry run" />
+							<CodeBlock
+								code="jss-devtools init my-app --pm pnpm --dry-run"
+								language="sh"
+								prompt="$"
+								title="dry run"
+								headerAction={
+									<CopyButton
+										feedback="icon"
+										label="Copy the init command"
+										value="jss-devtools init my-app --pm pnpm --dry-run"
+									/>
+								}
+							/>
 							<Terminal
 								label={TERMINAL_LABEL}
 								comment="Set up a project, without writing anything"

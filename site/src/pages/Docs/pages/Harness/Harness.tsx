@@ -1,4 +1,5 @@
 import CodeBlock from '@/components/CodeBlock/CodeBlock';
+import CopyButton from '@/components/CopyButton/CopyButton';
 import Terminal from '@/components/Terminal/Terminal';
 import { HARNESS_HOOKS, HARNESS_LIMITS, HARNESS_SESSION_CONTEXT, HARNESS_SKILLS } from '@/constants/harness.constant';
 import { HARNESS_SETTINGS_JSON } from '@/constants/snippets.constant';
@@ -150,8 +151,32 @@ const Harness = () => {
 								file conflicts, it stages the conflict and asks you to resolve it; your live files are never changed
 								behind your back.
 							</p>
-							<CodeBlock code="jss-devtools harness update --dry-run" language="sh" prompt="$" title="update" />
-							<CodeBlock code="jss-devtools harness update --continue" language="sh" prompt="$" title="resume" />
+							<CodeBlock
+								code="jss-devtools harness update --dry-run"
+								language="sh"
+								prompt="$"
+								title="update"
+								headerAction={
+									<CopyButton
+										feedback="icon"
+										label="Copy the harness update command"
+										value="jss-devtools harness update --dry-run"
+									/>
+								}
+							/>
+							<CodeBlock
+								code="jss-devtools harness update --continue"
+								language="sh"
+								prompt="$"
+								title="resume"
+								headerAction={
+									<CopyButton
+										feedback="icon"
+										label="Copy the harness update command"
+										value="jss-devtools harness update --continue"
+									/>
+								}
+							/>
 						</>
 					)
 				},

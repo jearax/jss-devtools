@@ -1,4 +1,5 @@
 import CodeBlock from '@/components/CodeBlock/CodeBlock';
+import CopyButton from '@/components/CopyButton/CopyButton';
 import { INSTALL_COMMAND } from '@/constants/cli.constant';
 import { COMMANDS } from '@/constants/commands.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
@@ -63,14 +64,41 @@ const GettingStarted = () => {
 					body: (
 						<>
 							<p>Install it. The installer checks the download against its checksum before it writes anything.</p>
-							<CodeBlock code={INSTALL_COMMAND} language="sh" prompt="$" title="install.sh" wrap />
+							<CodeBlock
+								code={INSTALL_COMMAND}
+								language="sh"
+								prompt="$"
+								title="install.sh"
+								wrap
+								headerAction={<CopyButton feedback="icon" label="Copy the install command" value={INSTALL_COMMAND} />}
+							/>
 							<p>Check the machine. Every check carries its own fix, and the command exits 1 when one fails.</p>
-							<CodeBlock code="jss-devtools doctor" language="sh" prompt="$" title="doctor" />
+							<CodeBlock
+								code="jss-devtools doctor"
+								language="sh"
+								prompt="$"
+								title="doctor"
+								headerAction={
+									<CopyButton feedback="icon" label="Copy the doctor command" value="jss-devtools doctor" />
+								}
+							/>
 							<p>
 								Then set up a project. The command asks which package manager to use, shows the whole plan before it
 								writes, and asks for a confirmation.
 							</p>
-							<CodeBlock code="jss-devtools init my-app --pm pnpm" language="sh" prompt="$" title="init" />
+							<CodeBlock
+								code="jss-devtools init my-app --pm pnpm"
+								language="sh"
+								prompt="$"
+								title="init"
+								headerAction={
+									<CopyButton
+										feedback="icon"
+										label="Copy the init command"
+										value="jss-devtools init my-app --pm pnpm"
+									/>
+								}
+							/>
 							<p>
 								Add <code>--dry-run</code> to any of them and nothing is written: the CLI prints the plan and stops.
 							</p>
