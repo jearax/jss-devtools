@@ -137,7 +137,7 @@ const eslintConfig = defineConfig(
 			'import-x/first': 'error',
 			'import-x/newline-after-import': 'error',
 			'import-x/no-duplicates': 'error',
-			'import-x/no-anonymous-default-export': 'error',
+			'import-x/no-anonymous-default-export': ['error', { allowCallExpression: false }],
 			'import-x/order': [
 				'error',
 				{
