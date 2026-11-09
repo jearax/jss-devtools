@@ -33,7 +33,7 @@
  * hover surface, so every pixel of it answers a click and a keyboard focus lands on the card.
  */
 .card {
-	@apply focus-ring flex cursor-pointer flex-col gap-3 rounded-xl border border-default bg-raised p-6 transition-[transform,border-color,background-color] duration-150 hover:-translate-y-1 hover:border-strong hover:bg-hover;
+	@apply focus-ring flex cursor-pointer flex-col gap-3 rounded-xl border border-default bg-raised p-6 transition-[transform,border-color,background-color] duration-150 hover:-translate-y-1 hover:border-strong hover:bg-hover active:translate-y-0 active:bg-active motion-reduce:hover:translate-y-0 motion-reduce:transition-none;
 }
 
 .cardHead {

@@ -2,3 +2,8 @@
 packages: []
 
 strictPeerDependencies: true
+
+# The vendored @jjuidev/react tarball declares @jjuidev/styles as ^0.0.1 after pnpm pack rewrote the
+# workspace range, which pnpm would fetch from the registry; pin it to the vendored tarball instead.
+overrides:
+  '@jjuidev/styles': 'file:vendor/jjuidev-styles-0.0.1.tgz'

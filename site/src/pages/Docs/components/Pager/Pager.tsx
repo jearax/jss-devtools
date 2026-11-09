@@ -1,4 +1,4 @@
-import { cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ComponentProps } from 'react';
 import { Link, useLocation } from 'react-router';

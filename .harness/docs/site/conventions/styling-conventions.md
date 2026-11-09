@@ -1,44 +1,51 @@
 # Styling Conventions
 
-> Adapted from `@jjuidev/design-system`'s `docs/conventions/component-conventions.md` (the styling
-> rules S1-S8) and `docs/conventions/design-tokens-conventions.md`. The site authors no token; it
-> uses the ones the package carries.
+> Adapted from the stable design system's `.harness/docs/styling-conventions.md` (in the design
+> system repository) and its decisions 0044–0053. The site authors no token; it uses the ones the
+> packages carry.
 
 ## The Stack
 
-The site runs Tailwind v4 itself and imports the design system's source entry:
+The site runs Tailwind v4 itself and imports the stable packages' entries:
 
 ```css
 /* site/src/styles/styles.css */
 @import 'tailwindcss';
-@import '@jjuidev/design-system/tailwind.css';
+@import '@jjuidev/styles/styles.css';
+@import '@jjuidev/react/styles.css';
 @import './skins/jss-devtools.css';
 ```
 
-- The engine comes first, the package second. The package's `tailwind.css` is the source entry:
-  tokens, semantic colours, skins, text roles, the page container and the base layer.
-- `@jjuidev/design-system/styles.css` is the precompiled entry and must never be imported next to
-  the source entry; the package warns when both are loaded.
+- The engine comes first, `@jjuidev/styles` second. Its `styles.css` is the package's one CSS
+  source entry and does not import Tailwind itself, so the host imports `tailwindcss` first and
+  controls its options.
+- `@jjuidev/react/styles.css` carries the component runtime's compiled styles. A component
+  imported from `@jjuidev/react` is unstyled without it; the import sits between the styles
+  package and the site's skin.
 - The site's own skin comes last. It declares scale values only, so it stays unlayered and wins
-  over the package's `@layer theme` whatever the import order.
-- No token, colour, skin or typography rule is copied into the site. The package is the only
-  source, except the site's own skin, which is the site's palette declared in the package's
-  shape and held to the package's own contract.
+  over the packages' `@layer theme` whatever the import order.
+- No token, colour, skin or typography rule is copied into the site. The packages are the only
+  source, except the site's own skin, which is the site's palette declared in the package's shape
+  and held to the package's own contract.
 
 ## The site's skin
 
 A skin is a set of scale values under `:root[data-skin='<id>']`, and nothing else. The site's
-skin lives in `site/src/styles/skins/<id>.css`, and it is checked by the package's own command:
+skin lives in `site/src/styles/skins/jss-devtools.css`, and the stable package's own command
+checks it against the contrast contract:
 
 ```bash
-npx jds skin check src/styles/skins/jss-devtools.css --separation
+pnpm --dir site exec skin-check src/styles/skins/jss-devtools.css
 ```
 
-The skin is registered with `defineSkin` in `site/src/styles/skins/<id>.skin.ts` and handed to the
-package's `ThemeProvider`. The `Register` augmentation makes the host's own skin id typed. The
-package resolves `data-skin` from the `jds-skin` cookie, so the document shell writes that cookie
-when it is absent, never overwrites a stored choice, and sets the same attribute the provider
-resolves. See [decision 0037](../../../decisions/0037-the-site-carries-its-own-host-skin.md).
+The skin is registered with `defineSkin` from `@jjuidev/styles/theme` in
+`site/src/styles/skins/jss-devtools.skin.ts` and handed to `ThemeProvider` from
+`@jjuidev/react`. The `Register` augmentation — `declare module '@jjuidev/styles/theme'` — makes
+the host's own skin id typed. The provider resolves `data-skin` from the `jds-skin` cookie, so
+the document shell writes that cookie when it is absent, never overwrites a stored choice, and
+sets the same attribute the provider resolves. See
+[decision 0037](../../../decisions/0037-the-site-carries-its-own-host-skin.md) and
+[decision 0041](../../../decisions/0041-the-site-runs-the-stable-design-system-packages.md).
 
 A skin's values are scale values, so a scale is replaced as a whole and the package's semantic
 mapping keeps pointing at it. The status scales are inherited: they carry meaning, not brand.
@@ -60,56 +67,98 @@ mapping keeps pointing at it. The status scales are inherited: they carry meanin
 
 - The dark palette lives behind `[data-theme=dark]`, which the theme provider writes on `<html>`.
   A utility never names a colour value, so a component needs no dark variant of its own.
-- `focus-ring` is the package's own focus indicator: a 2px outline in `ring-focus`, shown on
-  `:focus-visible`. An element the site owns that can be focused applies it, so the focus ring is
-  the package's colour rather than the browser's default.
-- The package carries no fonts. The stacks fall back to the system fonts, and the site loads no
-  web font.
+- The package carries no fonts. The site self-hosts its two families (`Be Vietnam Pro` for the
+  headline, `Cascadia Code` for the CLI's output) and points the `--font-*` tokens at them, with
+  the package's stacks as the fallback.
+
+## Interaction states
+
+Review enforces this contract on every control (links, buttons, cards, palette items). A stable
+decision sets it; the site follows it so every control answers the user the same way.
+
+- **States are tokens, not palette steps or alpha** (stable 0052): hover reads
+  `hover:bg-primary-hover`, `hover:bg-hover` or a border/text state token; press reads `active:`
+  plus the pressed token, or a small `scale`/`translate` press on buttons and cards. Never
+  `hover:bg-primary/90` where a state token exists.
+- **Timing** (stable durations): `duration-150` for hover, press and popups; `duration-200` for
+  backdrops and drawers; `duration-300` for icon swaps. The `transition` names the properties
+  that change; `transition: all` is never written.
+- **Reduced motion**: a `translate` or `scale` effect is off under `motion-reduce:`; colour
+  changes stay.
+- **Never hover-only reveal**: a control that appears on hover must also appear under
+  `(pointer: coarse)` and for the keyboard.
+
+## Touch targets
+
+A control smaller than 44px adds `pointer-coarse:h-11` (or `pointer-coarse:size-11`). A keyboard
+hint (`⌘ K`) is `pointer-coarse:hidden`, and copy around it reads as a sentence without it.
+
+## Z-index
+
+Use `z-<name>` from the nine layers the styles package defines in its `layers.css`. Never a bare
+`z-50` or an arbitrary value. Lowest first: `sticky`, `float`, `header`, `overlay`, `modal`,
+`popover`, `toast`, `tooltip`, `progress`. Whatever opens from a layer sits above that layer, and
+everything in the page sits below `overlay`, so the backdrop dims it.
+
+## Focus
+
+Focusable controls use `focus-ring` (2px outside) or `focus-ring-inset` (2px inside, for a text
+input's border or a clipped parent). Both draw an outline on `:focus-visible` only, in
+`ring-focus`. The outline is never removed without this replacement.
+
+## Alpha
+
+An alpha modifier never replaces a semantic token that covers the need: states, disabled,
+secondary text, strong borders and raised layers are tokens (stable 0052). Alpha stays for what
+no token covers — a tint, a translucent bar, a scrim — at the recommended steps `/10`, `/40` and
+`/90`; another value needs a reason written next to it. The modal scrim is the package's own
+exception: `bg-neutral-950/40`, the values the `SearchPalette` backdrop copies.
 
 ## Layout
 
 - The page container is the package's `wrapper` utility: the page gutter and the page width.
-- The reading column narrows it with `max-w-3xl`. A band that carries content (the header, the
-  main, the footer) applies both, so every band starts at the same line.
+- The reading column narrows it with `max-w-3xl`. A band that carries content applies both, so
+  every band starts at the same line.
 - The layout is written desktop first and narrowed with `max-*` breakpoints, never `sm:`.
-
-```css
-.main {
-  @apply wrapper flex max-w-3xl flex-1 flex-col gap-10 py-12;
-}
-```
 
 ## CSS Modules
 
 - A component's own styles live in `styles.module.css` and use `@apply`. No `@reference` is
   written: the `tailwindAutoReference` Vite plugin prepends `@reference "/src/styles/styles.css"`
   to every CSS file under `src/` that lacks one, so `@apply` can use the theme's tokens.
-- The outermost wrapper class is `.root`; the other classes are camelCase. Stylelint rejects a
-  kebab-case class in a module.
+- The outermost wrapper class is `.root`; the other classes are camelCase and semantic — they
+  name what the element is or does (`.sidebar`, `.searchButton`), never a tag name or a counter
+  (`.main1`) (stable 0045). Stylelint rejects a kebab-case class in a module.
 - No `@layer` in a CSS Module: module rules stay unlayered and beat every Tailwind layer.
 - State and props reach the CSS through `data-*` attributes and selectors.
+- **One `@apply` per breakpoint** (stable 0050): the desktop utilities go on the first `@apply`,
+  then one `@apply` per breakpoint that changes something, widest first (`max-2xl:` …
+  `max-sm:`), and each line holds only that breakpoint's utilities. An `@apply` never mixes
+  unprefixed utilities with `max-*` ones, and never holds two breakpoints.
+- A class name is never built from parts (`rounded-${name}`): Tailwind generates only classes it
+  finds whole in source. A value that varies goes through a CSS variable read by an arbitrary
+  utility.
+- A plain declaration is allowed only where Tailwind has no utility at all — a custom property,
+  an SVG presentation attribute, a third-party selector — with a one-line comment saying why.
 
-```css
-.root {
-  @apply flex items-center gap-3 rounded-lg border border-default bg-raised p-4 max-sm:flex-col max-sm:items-stretch;
-}
+## Text
 
-.command {
-  @apply min-w-0 flex-1 overflow-x-auto whitespace-nowrap font-mono text-body-sm text-default max-sm:flex-none;
-}
-```
+- A text role owns the size, the weight and the leading together: `text-heading-xl`,
+  `text-body-base`. `font-size`, `font-weight` and `line-height` are never set next to a role.
+- The scale stops at `3xl` (stable 0053): the largest heading on any page is
+  `text-display-3xl`. No `4xl` and no role above `3xl`.
+- Use `text-default`, `text-muted` or `text-disabled` for colour, never a scale step.
 
-## Utilities
+## Merging classes
 
-- `tv()` and `cn()` come from `@jjuidev/design-system`. They carry the merge config that knows the
-  design system's semantic text roles, so they are imported from the package and never copied.
-  `cn` merges a consumer's `className` with the component's own and resolves a conflicting
-  Tailwind class.
-- A Tailwind class string never appears in JSX. It belongs in a `variants.ts` built with `tv()`.
+`tv()` and `cn()` come from `@jjuidev/styles/variants`. They carry the merge config that knows
+the design system's semantic text roles, so they are imported from the package and never from
+`tailwind-merge` or `tailwind-variants` directly. A Tailwind class string never appears in JSX;
+it belongs in a `variants.ts` built with `tv()`.
 
 ## The site's own rules
 
-Three rules the site adds to the package's.
+Three rules the site adds to the packages'.
 
 **A band may be brand-tinted.** The pale end of the brand scale in the light theme, the deep end
 in the dark one, where the pale end would be brighter than the page itself. It is a primitive

@@ -1,7 +1,7 @@
 ---
 id: 0036
 title: the site runs the design system as a Tailwind v4 package, with the design system's own conventions
-status: accepted
+status: partly superseded by 0041
 date: 2026-11-03
 partially_supersedes: 0027
 ---

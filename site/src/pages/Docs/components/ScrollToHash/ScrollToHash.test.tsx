@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@jjuidev/design-system';
+import { ThemeProvider } from '@jjuidev/react';
 import { useEffect, useState } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';

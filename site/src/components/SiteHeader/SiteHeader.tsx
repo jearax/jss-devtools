@@ -1,4 +1,5 @@
-import { Logo, ThemeToggle, cn } from '@jjuidev/design-system';
+import { Logo, ThemeToggle } from '@jjuidev/react';
+import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps, useEffect, useRef, useState } from 'react';
 
 import ScrollProgress from '@/components/ScrollProgress/ScrollProgress';

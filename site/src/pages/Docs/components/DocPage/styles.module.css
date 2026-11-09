@@ -77,8 +77,12 @@
 	@apply font-medium text-default;
 }
 
+/*
+ * The inline code is the design system's chip: a full surface, not padding alone, so a literal
+ * never reads as stray spaces around itself.
+ */
 .prose code {
-	@apply rounded bg-raised px-1.5 py-0.5 font-mono text-body-sm text-default;
+	@apply rounded-sm bg-hover px-1.5 font-mono text-body-sm text-default;
 }
 
 /* A command must not break across lines: a column that wraps mid-word is unreadable. */
@@ -104,6 +108,11 @@
 
 .prose td {
 	@apply border-b border-default py-2 align-top text-muted;
+}
+
+/* A row answers the pointer so the eye can walk the table without losing its place. */
+.prose tbody tr {
+	@apply transition-colors duration-150 hover:bg-hover;
 }
 
 .prose :is(th, td) {

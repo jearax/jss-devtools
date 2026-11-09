@@ -1,4 +1,4 @@
-import { Logo, cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps } from 'react';
 
 import Terminal from '@/components/Terminal/Terminal';
@@ -12,10 +12,6 @@ export interface HeroProps extends ComponentProps<'section'> {}
 const Hero = ({ className, ...props }: HeroProps) => {
 	return (
 		<section className={cn(styles.root, className)} {...props}>
-			<div className={styles.mark} aria-hidden="true">
-				<Logo />
-			</div>
-
 			<div className={styles.inner}>
 				<h1 className={styles.title}>
 					<span className={styles.titleLine}>Set up the toolchain.</span>

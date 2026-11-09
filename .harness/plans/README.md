@@ -40,3 +40,4 @@ Keep this file the index of the folder: add or remove a row in the same change a
 | [261104-0016-site-rich-landing-page](./261104-0016-site-rich-landing-page) | pending | Rich one-page landing for jss-devtools |
 | [261104-0116-site-redesign-home-and-docs](./261104-0116-site-redesign-home-and-docs) | completed | Redesign the site: a bold Home and a Docs section |
 | [261109-1618-dogfood-harness-migration](./261109-1618-dogfood-harness-migration) | completed | Apply jss-devtools to its own repository |
+| [261109-1655-site-design-system-v2-and-ux-polish](./261109-1655-site-design-system-v2-and-ux-polish) | completed | Move the site to `@jjuidev/styles` and `@jjuidev/react`, and give every control hover, press and focus feedback |

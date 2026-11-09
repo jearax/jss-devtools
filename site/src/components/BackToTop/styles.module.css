@@ -1,12 +1,12 @@
 /*
- * The button floats over the page: a raised disc in the page corner. It stays mounted the whole
- * time and fades in only once the page has scrolled past a viewport, so its entrance is a
- * transition, not an insertion.
+ * The button floats in the page corner on the float layer, the way the design system's own
+ * back-to-top does: mounted the whole time, revealed by its data attribute once the page has
+ * scrolled past a viewport, so its entrance is a transition, not an insertion.
  */
-.root {
-	@apply focus-ring fixed right-4 bottom-4 z-30 flex size-11 translate-y-2 items-center justify-center rounded-full border border-default bg-raised text-default opacity-0 shadow-sm transition duration-150 hover:bg-hover motion-reduce:transition-none;
+.backToTop {
+	@apply invisible pointer-coarse:h-11 pointer-coarse:w-11 focus-ring fixed right-4 bottom-4 z-float inline-flex size-11 translate-y-2 items-center justify-center rounded-full border border-strong bg-raised text-default opacity-0 shadow-lg transition duration-150 hover:bg-raised-hover motion-reduce:transition-none max-sm:right-4 max-sm:bottom-4;
 }
 
-.root[data-visible='true'] {
-	@apply translate-y-0 opacity-100;
+.backToTop[data-visible='true'] {
+	@apply visible translate-y-0 opacity-100;
 }

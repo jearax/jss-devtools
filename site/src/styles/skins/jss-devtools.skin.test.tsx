@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@jjuidev/design-system';
+import { ThemeProvider } from '@jjuidev/react';
 import { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
@@ -57,12 +57,12 @@ describe('the site skin', () => {
 			.poll(() => {
 				return computed.getPropertyValue('--color-error-600').trim();
 			})
-			.toBe('#bb2a28');
+			.toBe('#b73503');
 		await expect
 			.poll(() => {
 				return computed.getPropertyValue('--color-success-600').trim();
 			})
-			.toBe('#017b39');
+			.toBe('#01786e');
 	});
 
 	it('is named the same in the document shell', async () => {

@@ -1,8 +1,8 @@
 /*
  * The site's Tailwind entry. The design system is a Tailwind v4 host: the engine comes first, the package's
  * source entry second, so the tokens, the semantic colours, the skins, the text roles and the base layer are
- * the package's, never a copy. `styles.css` is the precompiled entry and must not be imported next to this
- * one; the package warns when both are loaded.
+ * the package's, never a copy. `@jjuidev/styles/styles.css` is the package's one CSS entry and does not
+ * import Tailwind itself, so the app imports tailwindcss first and controls its options.
  *
  * The site's own skin comes last. It declares scale values only, so it stays unlayered and wins over the
  * package's `@layer theme` whatever the import order.
@@ -16,7 +16,8 @@
 @import '@fontsource/be-vietnam-pro/latin-600.css';
 @import '@fontsource-variable/cascadia-code/index.css';
 @import 'tailwindcss';
-@import '@jjuidev/design-system/tailwind.css';
+@import '@jjuidev/styles/styles.css';
+@import '@jjuidev/react/styles.css';
 @import './skins/jss-devtools.css';
 
 /*

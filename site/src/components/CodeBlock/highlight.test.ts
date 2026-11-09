@@ -43,11 +43,11 @@ describe('the tokenizer', () => {
 	});
 
 	it('reads a TypeScript snippet', () => {
-		const code = "import { cn } from '@jjuidev/design-system';\n\n// a note\nconst total = config.limit * 2;\n";
+		const code = "import { cn } from '@jjuidev/styles';\n\n// a note\nconst total = config.limit * 2;\n";
 		const tokens = tokenize(code, 'ts');
 
 		expect(values(tokens, 'keyword')).toEqual(['import', 'from', 'const']);
-		expect(values(tokens, 'string')).toEqual(["'@jjuidev/design-system'"]);
+		expect(values(tokens, 'string')).toEqual(["'@jjuidev/styles'"]);
 		expect(values(tokens, 'comment')).toEqual(['// a note']);
 		expect(values(tokens, 'number')).toEqual(['2']);
 		expect(values(tokens, 'property')).toEqual(['limit']);

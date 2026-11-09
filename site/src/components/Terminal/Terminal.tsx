@@ -1,4 +1,4 @@
-import { cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps, CSSProperties, KeyboardEvent, useId, useState } from 'react';
 
 import CopyButton from '@/components/CopyButton/CopyButton';

@@ -4,7 +4,16 @@
 
 /* The page's exit ramp sits centered under the commands section, at the section rhythm's end. */
 .cta {
-	@apply flex justify-center pb-16 pt-2 lg:pb-24;
+	@apply reveal wrapper flex justify-center pb-16 pt-2 lg:pb-24;
+}
+
+/* The closing band is a section of its own: one line of copy, then the button under it. */
+.ctaBand {
+	@apply flex flex-col items-center gap-4;
+}
+
+.ctaLine {
+	@apply text-center text-body-lg text-muted;
 }
 
 /*

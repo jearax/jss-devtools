@@ -5,6 +5,11 @@
  * The `init` transcript is the head of a dry run, and it is cut there on purpose: the run lists
  * fifty-two files, and the whole list would be noise. The line that says so is in the transcript.
  */
+export const INSTALL_TRANSCRIPT: readonly string[] = [
+	'jss-devtools-install: downloading from https://jss-devtools.jjuidev.com/releases/latest',
+	'jss-devtools-install: installed jss-devtools 0.0.1 to ~/.local/bin/jss-devtools'
+];
+
 export const DOCTOR_TRANSCRIPT: readonly string[] = [
 	'┌   jss-devtools doctor ',
 	'│  ✔ Node.js  v24.22.0  needs >= 24.11.0',

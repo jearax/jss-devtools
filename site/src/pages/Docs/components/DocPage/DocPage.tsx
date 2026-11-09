@@ -1,4 +1,4 @@
-import { cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps, ReactNode, useEffect, useRef, useState } from 'react';
 
 import Breadcrumbs from '@/pages/Docs/components/Breadcrumbs/Breadcrumbs';

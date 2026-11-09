@@ -21,30 +21,42 @@
 	--terminal-comment: #98a1ab;
 }
 
+/*
+ * The tab strip is one row that scrolls itself: a wrapped tab reads as two terminals. The
+ * scrollbar is hidden on purpose — the strip is short and the selected tab stays in view.
+ */
 .tabs {
-	@apply flex flex-wrap gap-1 border-b border-default px-3 pt-3;
+	@apply flex gap-1 border-b border-default px-3 pt-3;
+
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+	display: none;
 }
 
 .tab {
-	@apply focus-ring rounded-md border border-transparent px-3 py-1.5 font-mono text-body-sm text-muted transition-colors duration-150 hover:text-default;
+	@apply pointer-coarse:h-11 focus-ring shrink-0 rounded-md border border-transparent px-3 py-1.5 font-mono text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
 }
 
 /*
- * The selected tab joins the pane: it wears the body's surface, drops its own bottom border and
- * steps one pixel over the tab strip's rule, so the active tab reads as part of the transcript
- * below it — the way a real terminal's active tab merges into its pane.
+ * The selected tab reads at a glance: it takes the selected token, the one tint no other tab
+ * state uses, and keeps its one-pixel step over the tab strip's rule, so it still merges into
+ * the transcript below it.
  */
 .tab[data-selected='true'] {
-	@apply -mb-px rounded-b-none border-default bg-raised text-default;
+	@apply -mb-px border-default bg-selected text-default;
 }
 
 .label {
 	@apply shrink-0 font-mono text-label-sm text-muted;
 }
 
-/* The mono stack turns >= into the ≥ ligature; the CLI prints >=. */
+/* The mono stack turns >= into the ≥ ligature; the CLI prints >=. Lines wrap the way the command
+ * line does, so a phone reads the whole output without hunting a horizontal scrollbar. */
 .body {
-	@apply max-h-96 overflow-auto p-4 font-mono text-body-sm;
+	@apply min-w-0 max-w-full max-h-96 overflow-y-auto p-4 font-mono text-body-sm;
 
 	font-variant-ligatures: none;
 }
@@ -57,23 +69,24 @@
  * animation moves the command's width, so anything inside it would be clipped while it types.
  */
 .commandRow {
-	@apply mb-2 flex items-start gap-2;
+	@apply mb-1.5 flex items-start gap-2;
 }
 
 .command {
-	@apply flex-1 whitespace-pre-wrap break-words text-default;
+	@apply whitespace-pre-wrap break-words text-default;
 }
 
 .commandCopy {
-	@apply shrink-0;
+	@apply -mt-0.5 shrink-0;
 }
 
 .prompt {
 	@apply text-primary;
 }
 
+/* A transcript line wraps like the command line: cut output is worse than a broken box drawing. */
 .line {
-	@apply whitespace-pre text-default;
+	@apply whitespace-pre-wrap break-words text-default;
 }
 
 .box {

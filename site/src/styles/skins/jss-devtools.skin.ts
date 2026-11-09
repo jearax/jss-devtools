@@ -1,4 +1,4 @@
-import { defineSkin } from '@jjuidev/design-system';
+import { defineSkin } from '@jjuidev/styles/theme';
 
 /**
  * The site's own skin. The values live in `jss-devtools.css` next to this file; `defineSkin` only names
@@ -10,7 +10,7 @@ export const JSS_DEVTOOLS_SKIN = defineSkin({
 	label: 'jss-devtools'
 });
 
-declare module '@jjuidev/design-system' {
+declare module '@jjuidev/styles/theme' {
 	interface Register {
 		skins: [typeof JSS_DEVTOOLS_SKIN];
 	}

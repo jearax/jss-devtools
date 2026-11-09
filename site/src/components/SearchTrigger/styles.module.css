@@ -1,5 +1,5 @@
 .root {
-	@apply focus-ring gap-2 rounded-md border border-default text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
+	@apply pointer-coarse:h-11 focus-ring gap-2 rounded-md border border-default text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
 }
 
 .icon {
@@ -16,5 +16,5 @@
 }
 
 .shortcut {
-	@apply rounded-sm border border-default bg-raised px-1.5 py-0.5 font-mono text-label-xs text-muted max-lg:hidden;
+	@apply rounded-sm border border-default bg-raised px-1.5 py-0.5 font-mono text-label-xs text-muted pointer-coarse:hidden max-lg:hidden;
 }

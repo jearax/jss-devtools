@@ -1,4 +1,5 @@
-import { Button, cn } from '@jjuidev/design-system';
+import { Button } from '@jjuidev/react';
+import { cn } from '@jjuidev/styles/variants';
 import { Check, Copy } from 'lucide-react';
 import { ComponentProps, useEffect, useRef, useState } from 'react';
 

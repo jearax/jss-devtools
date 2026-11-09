@@ -1,9 +1,10 @@
-import { cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps } from 'react';
 import { Outlet } from 'react-router';
 
 import BackToTop from '@/components/BackToTop/BackToTop';
 import SearchPalette from '@/components/SearchPalette/SearchPalette';
+import SiteFooter from '@/components/SiteFooter/SiteFooter';
 import SiteHeader from '@/components/SiteHeader/SiteHeader';
 
 import styles from './styles.module.css';
@@ -20,6 +21,7 @@ const Layout = ({ className, ...props }: LayoutProps) => {
 			<main className={styles.main} id="main">
 				<Outlet />
 			</main>
+			<SiteFooter />
 			<BackToTop />
 			<SearchPalette />
 		</div>

@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@jjuidev/design-system';
+import { ThemeProvider } from '@jjuidev/react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';

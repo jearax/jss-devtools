@@ -10,6 +10,9 @@ coverage/
 # The staging directory the site image is built from.
 release/
 
+# Plan screenshots stay on disk for review; the repository never tracks the megabytes of PNGs.
+.harness/plans/**/screenshots/
+
 *.log
 pnpm-debug.log*
 

@@ -36,16 +36,6 @@
 	position: absolute;
 }
 
-/*
- * The brand mark, blown up and faint, in the corner. The scale grows the mark in every
- * direction, so it is anchored at the top right corner: from there it grows down and left, and
- * the hero's overflow never cuts it. It is a wide-viewport flourish: on a phone it would sit
- * behind the headline.
- */
-.mark {
-	@apply pointer-events-none absolute top-0 right-0 hidden origin-top-right scale-[6] opacity-[0.1] lg:block;
-}
-
 .inner {
 	@apply wrapper relative z-10 flex max-w-6xl flex-col gap-3 pt-8 pb-12 lg:pt-10 lg:pb-16;
 }
@@ -77,36 +67,17 @@
 }
 
 /*
- * The value block sits inside the triangle: centered under the headline, its own lines capped
- * tighter line over line, so the silhouette keeps narrowing through the whole opening.
+ * The value line sits centered under the headline and wraps naturally under its own cap, so a
+ * narrow viewport breaks the sentence where the words fit, never where the copy deck said.
  */
 .value {
-	@apply text-center text-body-lg text-muted;
+	@apply mx-auto max-w-xl text-center text-body-lg text-balance text-muted;
 }
 
 /*
- * One block per line of copy, each cap a step tighter than the previous, so wherever the lines
- * still fit on one rendered line the narrowing holds without trusting the copy's own length.
- */
-.valueLine {
-	@apply mx-auto block;
-}
-
-.valueLine:nth-child(1) {
-	@apply max-w-lg;
-}
-
-.valueLine:nth-child(2) {
-	@apply max-w-md;
-}
-
-.valueLine:nth-child(3) {
-	@apply max-w-sm;
-}
-
-/*
- * The terminal is the product: the CLI's own transcripts replay inside it. Its min-height holds
- * the largest transcript, so switching tabs never shifts the page's layout.
+ * The terminal is the product: the CLI's own transcripts replay inside it. The window sizes to
+ * its content, so the hero shows the transcript the tab carries and never a pane of empty
+ * surface; switching tabs may shift the page, and the tab that answers a click is worth the row.
  */
 .visual {
 	@apply relative mt-4;
@@ -114,7 +85,4 @@
 
 .terminal {
 	@apply w-full;
-
-	/* The init transcript, the tallest one, sets the floor. */
-	min-height: 26rem;
 }

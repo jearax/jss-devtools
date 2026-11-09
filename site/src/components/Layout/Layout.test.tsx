@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@jjuidev/design-system';
+import { ThemeProvider } from '@jjuidev/react';
 import { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { describe, expect, it } from 'vitest';

@@ -8,5 +8,5 @@
 }
 
 .skipLink {
-	@apply focus-ring sr-only rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-30;
+	@apply sr-only focus-ring rounded-md bg-primary px-4 py-2 text-label-sm text-primary-foreground transition-colors duration-150 focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-float;
 }

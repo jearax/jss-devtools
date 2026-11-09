@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@jjuidev/styles': file:vendor/jjuidev-styles-0.0.1.tgz
+
 importers:
 
   .:
@@ -17,9 +20,18 @@ importers:
       '@fontsource/be-vietnam-pro':
         specifier: 5.3.0
         version: 5.3.0
-      '@jjuidev/design-system':
-        specifier: file:vendor/jjuidev-design-system-0.1.0.tgz
-        version: file:vendor/jjuidev-design-system-0.1.0.tgz(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3)(vitest@5.0.3)
+      '@jjuidev/react':
+        specifier: file:vendor/jjuidev-react-0.0.1.tgz
+        version: file:vendor/jjuidev-react-0.0.1.tgz(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwind-merge@3.7.0)(tailwindcss@4.3.3)
+      '@jjuidev/styles':
+        specifier: file:vendor/jjuidev-styles-0.0.1.tgz
+        version: file:vendor/jjuidev-styles-0.0.1.tgz(tailwindcss@4.3.3)
+      '@mantine/hooks':
+        specifier: 9.7.4
+        version: 9.7.4(react@19.3.1)
+      colorjs.io:
+        specifier: 0.7.1
+        version: 0.7.1
       lucide-react:
         specifier: 1.66.0
         version: 1.66.0(@types/react@19.3.0)(react@19.3.1)
@@ -35,6 +47,12 @@ importers:
       react-router:
         specifier: 8.5.1
         version: 8.5.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      tailwind-merge:
+        specifier: 3.7.0
+        version: 3.7.0
+      tailwind-variants:
+        specifier: 3.3.1
+        version: 3.3.1(tailwind-merge@3.7.0)(tailwindcss@4.3.3)
     devDependencies:
       '@eslint/js':
         specifier: 9.39.5
@@ -353,18 +371,20 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@jjuidev/design-system@file:vendor/jjuidev-design-system-0.1.0.tgz':
-    resolution: {integrity: sha512-ys63sX21NmuQjIJRf9o/bvPQP1REXPUuFlJPNfx+DdCii8SAkm8wi3KXk1enKfEMr9MeVbvW271LFCi+QR0+uA==, tarball: file:vendor/jjuidev-design-system-0.1.0.tgz}
-    version: 0.1.0
-    engines: {node: '>=24'}
-    hasBin: true
+  '@jjuidev/react@file:vendor/jjuidev-react-0.0.1.tgz':
+    resolution: {integrity: sha512-hVmBjB65l4YJ8aziuEZNv7sFZG5wVZGUnPKGR0+q/Uaa9+z9ceE6nSrpyYcN9nFaNfcubz18iytBS6/KPeIWRQ==, tarball: file:vendor/jjuidev-react-0.0.1.tgz}
+    version: 0.0.1
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
-      vitest: '>=3'
-    peerDependenciesMeta:
-      vitest:
-        optional: true
+      tailwindcss: ^4.3.0
+
+  '@jjuidev/styles@file:vendor/jjuidev-styles-0.0.1.tgz':
+    resolution: {integrity: sha512-hx2+b6utBz3F7PV3lOvg2gE2wPzb02S0a81R8HrqnF8VP/MgclY2bM6BKxq3AM8Vlgf6zLWGdpYYINa0Bd1UJQ==, tarball: file:vendor/jjuidev-styles-0.0.1.tgz}
+    version: 0.0.1
+    hasBin: true
+    peerDependencies:
+      tailwindcss: ^4.3.0
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -1059,6 +1079,9 @@ packages:
 
   colord@2.10.0:
     resolution: {integrity: sha512-AidJptpBJmjTclAp9BkLwJi0T93fo5epJnbaZslpg6QVzpHjAiveF55mE9AcUJiGMqRHgMDY8soMsQtuNYMHfw==}
+
+  colorjs.io@0.7.1:
+    resolution: {integrity: sha512-LY7OHnJZxHwT5UlzNa9bbhHHDbzB6yE5+3MIPwJEQKRvSCt/T4G7epsj+9j2BExUIIfXFIJGsIXUKdfrK9Q5tA==}
 
   comment-parser@1.4.9:
     resolution: {integrity: sha512-+2AvZKjJaNq9GQljm3tr0utwrig5BL+jgJGvz5rDpGKNIp+ojcRXWUwBbh/sGIi1QCprR6PsKFakub+w1v+4hQ==}
@@ -2937,23 +2960,28 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@jjuidev/design-system@file:vendor/jjuidev-design-system-0.1.0.tgz(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3)(vitest@5.0.3)':
+  '@jjuidev/react@file:vendor/jjuidev-react-0.0.1.tgz(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwind-merge@3.7.0)(tailwindcss@4.3.3)':
     dependencies:
       '@base-ui/react': 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@jjuidev/styles': file:vendor/jjuidev-styles-0.0.1.tgz(tailwindcss@4.3.3)
       '@mantine/hooks': 9.7.4(react@19.3.1)
       lucide-react: 1.66.0(@types/react@19.3.0)(react@19.3.1)
-      postcss: 8.5.32
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
-      tailwind-merge: 3.7.0
       tailwind-variants: 3.3.1(tailwind-merge@3.7.0)(tailwindcss@4.3.3)
-    optionalDependencies:
-      vitest: 5.0.3(@vitest/browser-playwright@5.0.3)(@vitest/ui@5.0.3)(vite@8.3.5(jiti@2.7.0))
+      tailwindcss: 4.3.3
     transitivePeerDependencies:
       - '@date-fns/tz'
       - '@types/react'
       - date-fns
-      - tailwindcss
+      - tailwind-merge
+
+  '@jjuidev/styles@file:vendor/jjuidev-styles-0.0.1.tgz(tailwindcss@4.3.3)':
+    dependencies:
+      colorjs.io: 0.7.1
+      tailwind-merge: 3.7.0
+      tailwind-variants: 3.3.1(tailwind-merge@3.7.0)(tailwindcss@4.3.3)
+      tailwindcss: 4.3.3
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -3593,6 +3621,8 @@ snapshots:
   color-name@1.1.4: {}
 
   colord@2.10.0: {}
+
+  colorjs.io@0.7.1: {}
 
   comment-parser@1.4.9: {}
 

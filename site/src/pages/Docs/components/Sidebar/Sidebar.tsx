@@ -1,4 +1,4 @@
-import { cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps } from 'react';
 import { NavLink } from 'react-router';
 

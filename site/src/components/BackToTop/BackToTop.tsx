@@ -1,4 +1,4 @@
-import { cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import { ArrowUp } from 'lucide-react';
 import { ComponentProps, useEffect, useState } from 'react';
 
@@ -37,7 +37,7 @@ const BackToTop = ({ className, ...props }: BackToTopProps) => {
 	return (
 		<button
 			type="button"
-			className={cn(styles.root, className)}
+			className={cn(styles.backToTop, className)}
 			onClick={scrollToTop}
 			data-visible={visible}
 			aria-hidden={!visible}

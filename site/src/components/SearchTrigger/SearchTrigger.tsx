@@ -1,4 +1,5 @@
-import { Button, cn } from '@jjuidev/design-system';
+import { Button } from '@jjuidev/react';
+import { cn } from '@jjuidev/styles/variants';
 import { Search } from 'lucide-react';
 import { ComponentProps } from 'react';
 

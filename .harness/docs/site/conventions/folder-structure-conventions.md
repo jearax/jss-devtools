@@ -81,7 +81,7 @@ site/
 │   │       ├── jss-devtools.css
 │   │       ├── jss-devtools.skin.ts
 │   │       └── jss-devtools.skin.test.tsx
-└── vendor/                    # the design system tarball the site installs from
+└── vendor/                    # the design system tarballs the site installs from
 ```
 
 - `src/main.tsx` is the only file at the `src/` root. Everything else lives in a folder.
@@ -131,7 +131,7 @@ site/
 ```text
 // Do
 import Home from '@/pages/Home/Home';
-import { cn } from '@jjuidev/design-system';
+import { cn } from '@jjuidev/styles/variants';
 import styles from './styles.module.css';
 
 // Avoid

@@ -1,8 +1,9 @@
 # Component Conventions
 
-> Adapted from `@jjuidev/design-system`'s `docs/conventions/component-conventions.md`. The site
-> has no shared component library yet, no component catalog and no Storybook, so the parts about
-> publishing, cataloguing and snapshotting a shared component are left out.
+> Adapted from the stable design system's `.harness/docs/component-conventions.md` and its
+> decisions 0031, 0045, 0046. The site has no shared component library yet, no component catalog
+> and no Storybook, so the parts about publishing and cataloguing a shared component are left
+> out.
 
 ## Folder Anatomy
 
@@ -39,10 +40,15 @@ component then only composes them; it holds no markup of its own beyond the land
 
 ## The Design System's Components
 
-- A component the design system already ships is used from the package: `ThemeToggle` and `Logo`
-  come from `@jjuidev/design-system`. Nothing is reimplemented in the site.
+- A component the design system already ships is used from the package: `ThemeProvider`,
+  `Button`, `Logo`, `ThemeToggle`, `ButtonCopy`, `Dialog` and `Popover` come from
+  `@jjuidev/react`; `cn` comes from `@jjuidev/styles/variants`; `defineSkin` comes from
+  `@jjuidev/styles/theme`. Nothing is reimplemented in the site where the package's component
+  looks and behaves the same.
 - The page owns its layout around those components; the package owns their behaviour and their
-  styles.
+  styles. Where the site re-implements something the package ships (its own `CopyButton`, the
+  search palette's shell), the site's own component wins until the package's version can replace
+  it without changing the look.
 
 ## Component API
 
@@ -50,8 +56,12 @@ component then only composes them; it holds no markup of its own beyond the land
   never a hand-copied type.
 - Props that forward to an element are declared as an `interface` extending `ComponentProps`, so
   `extends` reports a conflicting member where an intersection would silently make it `never`.
+- **Destructuring order** (stable 0046): `children`, `ref`, `id`, `className`, variant props,
+  other props, `on*` handlers, then `...props` last. Leave out what the component does not use.
+- Copy never cites a decision number or a `.harness/` path (stable 0048): the sentence states the
+  rule itself. Decision numbers stay in code comments, `.harness/` docs and commit messages.
 - A component that forwards `...props` accepts a `className`; it merges it with `cn` from
-  `@jjuidev/design-system`, so a consumer class never replaces the component's own.
+  `@jjuidev/styles/variants`, so a consumer class never replaces the component's own.
 - Every component declares and exports its props type, so the next prop has a place to land.
 
 ```tsx
@@ -75,7 +85,7 @@ export interface HomeProps extends ComponentProps<'div'> {}
 - The custom styles live in `styles.module.css` and use `@apply`; see
   [styling-conventions.md](styling-conventions.md).
 - A Tailwind class string never appears in JSX. It belongs in a `variants.ts` next to the
-  component, built with `tv()` from `@jjuidev/design-system`. The site has no `variants.ts`
+  component, built with `tv()` from `@jjuidev/styles/variants`. The site has no `variants.ts`
   yet: the only page styles through its CSS Module.
 
 ```tsx

@@ -20,11 +20,11 @@
 }
 
 .groupLabel {
-	@apply hidden text-label-sm uppercase tracking-widest text-muted lg:block;
+	@apply hidden text-label-sm uppercase tracking-widest text-muted lg:block lg:pl-3;
 }
 
 .sublist {
-	@apply contents lg:flex lg:flex-col lg:gap-1 lg:pl-3;
+	@apply contents lg:flex lg:flex-col lg:gap-1;
 }
 
 .pages {
@@ -32,10 +32,18 @@
 }
 
 .link {
-	@apply focus-ring inline-flex shrink-0 items-center rounded-full border border-default bg-raised px-3 py-1.5 text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:text-default lg:w-full lg:rounded-md lg:border-transparent lg:bg-transparent lg:px-3 lg:py-1.5 lg:hover:bg-hover;
+	@apply pointer-coarse:h-11 focus-ring inline-flex shrink-0 items-center rounded-full border border-default bg-raised px-3 py-1.5 text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
+
+	@apply lg:w-full lg:rounded-md lg:border-transparent lg:bg-transparent lg:py-1.5 lg:hover:bg-hover;
 }
 
-/* NavLink sets aria-current on the active page; the active chip carries the brand's colour. */
+/*
+ * The active page carries the package's selected-item pattern: the selected token as the surface
+ * and the brand colour on the text, no alpha, and the hover stays the neutral one so the two
+ * states stay distinct.
+ */
 .link[aria-current='page'] {
-	@apply border-primary bg-primary/10 text-primary lg:bg-primary/10;
+	@apply border-primary bg-selected text-primary;
+
+	@apply lg:bg-selected lg:text-primary;
 }

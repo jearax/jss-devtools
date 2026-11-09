@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@jjuidev/design-system';
+import { ThemeProvider } from '@jjuidev/react';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 

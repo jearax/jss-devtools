@@ -1,5 +1,9 @@
+/*
+ * The overlay layer's scrim, the values of the package's own Dialog backdrop: the page under it dims
+ * to neutral-950 at 40 percent, the one alpha exception the palette's colors allow for a scrim.
+ */
 .backdrop {
-	@apply overlay;
+	@apply fixed inset-0 z-overlay bg-neutral-950/40 backdrop-blur-xs;
 }
 
 .popup {
@@ -65,7 +69,7 @@
 }
 
 .option {
-	@apply flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-default;
+	@apply flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-default transition-colors duration-150 active:bg-active;
 }
 
 .option[data-highlighted] {

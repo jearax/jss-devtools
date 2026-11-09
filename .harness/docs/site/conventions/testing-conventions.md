@@ -28,6 +28,10 @@ does before the suite runs.
   mocking it.
 - **T7** A part with no behaviour of its own is covered by the test of the page that composes it.
   The site has no snapshot convention, so a part is never pinned by a snapshot.
+- **T8** A test that writes the `jds-skin` or `jds-theme` cookie resets it in the test, or the
+  file order of a full run fails the next file that reads the theme. The design system's own site
+  resets both cookies before every test; the site's `vitest.setup.ts` does not, so the test that
+  writes a cookie clears it (stable `site-traps`).
 
 ```tsx
 it('links to the source repository', async () => {

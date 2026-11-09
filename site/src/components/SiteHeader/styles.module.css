@@ -8,7 +8,7 @@
 }
 
 .root {
-	@apply sticky top-0 z-20 border-b border-default bg-surface transition-colors duration-150;
+	@apply sticky top-0 z-header border-b border-default bg-surface transition-colors duration-150;
 }
 
 /*
@@ -24,7 +24,7 @@
 }
 
 .brand {
-	@apply shrink-0;
+	@apply focus-ring shrink-0 rounded-md transition-opacity duration-150 hover:opacity-80;
 }
 
 .actions {
@@ -41,7 +41,7 @@
 
 /* The mark sits at the toggle's rhythm: same ghost surface, same hover, the same quiet row. */
 .github {
-	@apply focus-ring flex size-11 items-center justify-center rounded-md text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
+	@apply focus-ring flex size-11 items-center justify-center rounded-md text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
 }
 
 .githubIcon {

@@ -1,7 +1,8 @@
 # Site conventions
 
-The rules the landing page in `site/` follows. Every file here is adapted from the design system's
-own conventions in `@jjuidev/design-system`; each one says what the site leaves out.
+The rules the landing page in `site/` follows. Every file here is adapted from the stable design
+system's conventions (its `.harness/docs/` in the design system repository, decisions
+0044–0053); each one says what the site leaves out.
 
 | Document                                                           | Covers                                                |
 | ------------------------------------------------------------------ | ----------------------------------------------------- |
@@ -16,5 +17,5 @@ Base UI, no `@mantine/hooks`, no Storybook, no end-to-end tests and no coverage 
 below say so where it matters.
 
 The design system is a package, so its tokens, colours, skins, text roles and class helpers are
-used, never copied. The package exports `cn` and `tv`, so the site imports them from
-`@jjuidev/design-system` and copies nothing.
+used, never copied. The packages export `cn` and `tv`, so the site imports them from
+`@jjuidev/styles/variants` and copies nothing.

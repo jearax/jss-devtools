@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@jjuidev/design-system';
+import { ThemeProvider } from '@jjuidev/react';
 import { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
@@ -9,7 +9,7 @@ import CodeBlock from './CodeBlock';
 
 const SHELL = '# install\nif [ -f file ]; then echo "ok" 42; fi';
 const JSON_SNIPPET = '{\n  "name": "jss",\n  "tags": ["a", "b"]\n}';
-const TS_SNIPPET = "import { cn } from '@jjuidev/design-system';\n\nconst limit = 2;";
+const TS_SNIPPET = "import { cn } from '@jjuidev/styles/variants';\n\nconst limit = 2;";
 
 /** A snippet that carries every role, so the contrast of each one is measured. */
 const EVERY_ROLE = 'const limit = config.max * 2; // a note\nconst name = "jss";';

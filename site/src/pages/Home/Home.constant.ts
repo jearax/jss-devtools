@@ -5,35 +5,32 @@
 
 import { TerminalTab } from '@/components/Terminal/Terminal';
 import { INSTALL_COMMAND } from '@/constants/cli.constant';
-import { DOCTOR_TRANSCRIPT, INIT_TRANSCRIPT } from '@/constants/transcripts.constant';
+import { DOCTOR_TRANSCRIPT, INIT_TRANSCRIPT, INSTALL_TRANSCRIPT } from '@/constants/transcripts.constant';
 
 /*
- * The value line, pre-broken into lines that shrink line over line so the hero reads as a
- * narrowing triangle together with the headline: the sentence is one copy deck, the breaks are
- * the design. Each line is capped in `Hero`'s stylesheet, each cap tighter than the previous,
- * so the narrowing survives wherever the lines still fit on one rendered line.
+ * The value line. One sentence, one copy deck: it wraps naturally under its own width cap, so a
+ * narrow viewport never renders a ragged forced break.
  */
 export const VALUE_LINES: readonly string[] = [
-	"Set up a JavaScript repository's toolchain, check",
-	'that it works, and give your AI coding agent',
-	'the rules — from one CLI.'
+	"Set up a JavaScript repository's toolchain, check that it works, and give your AI coding agent the rules — from one CLI."
 ];
 
 /**
  * The hero terminal's transcripts. Each tab is named after the working directory a real session
- * would sit in, and its purpose moves into the transcript as a shell comment; the doctor and
- * init tabs replay the CLI's real captured output, so the window reads as a terminal running
- * the CLI, not a marketing panel with a code block.
+ * would sit in — all distinct, so a reader can pick by name — and its purpose moves into the
+ * transcript as a shell comment; the transcripts replay the installer's and the CLI's real
+ * captured output, so the window reads as a terminal running the CLI, not a marketing panel with
+ * a code block.
  */
 export const HERO_TERMINAL_TABS: readonly TerminalTab[] = [
 	{
 		label: '~',
 		comment: 'Install the CLI once, anywhere',
 		command: INSTALL_COMMAND,
-		lines: []
+		lines: INSTALL_TRANSCRIPT
 	},
 	{
-		label: '~',
+		label: '~/jss-devtools',
 		comment: 'Check the environment',
 		command: 'jss-devtools doctor',
 		lines: DOCTOR_TRANSCRIPT
