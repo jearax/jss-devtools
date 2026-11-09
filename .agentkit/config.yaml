@@ -1,0 +1,4 @@
+# yaml-language-server: $schema=https://releases.agentkit.best/schemas/config/v1.json
+paths:
+    docs: .harness/docs
+    plans: .harness/plans

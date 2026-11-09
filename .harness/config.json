@@ -1,0 +1,15 @@
+{
+	"review": {
+		"minToolCalls": 14
+	},
+	"memory": {
+		"maxChars": 9600,
+		"maxEntryChars": 320
+	},
+	"curator": {
+		"minLearnedSkills": 10,
+		"intervalDays": 7,
+		"staleDays": 14,
+		"archiveDays": 28
+	}
+}

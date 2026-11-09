@@ -14,7 +14,6 @@ release/
 pnpm-debug.log*
 
 .env*
-!.env.example
 
 .vscode/*
 !.vscode/settings.json
@@ -29,9 +28,53 @@ Thumbs.db
 .eslintcache
 .cache/
 
-.claude/
-.agentkit/
+.claude/*
+!.claude/settings.json
+!.claude/skills/
 
 *.tgz
 # The site vendors the design system as a tarball, so the build is reproducible without the registry.
 !site/vendor/*.tgz
+.pnpm-store/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+build/
+out/
+.output/
+.next/
+.nuxt/
+.svelte-kit/
+.astro/
+.turbo/
+.vercel/
+.netlify/
+storybook-static/
+.nyc_output/
+playwright-report/
+test-results/
+blob-report/
+.parcel-cache/
+.stylelintcache
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.pid
+*.pid.lock
+.env
+.env.*
+!.env.example
+tmp/
+temp/
+!.vscode/launch.json
+!.vscode/tasks.json
+.history/
+*~
+._*
+desktop.ini

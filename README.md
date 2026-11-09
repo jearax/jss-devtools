@@ -4,22 +4,22 @@ A rewrite of `@jjuidev/jss-devtools`: a command-line tool for JavaScript-stack r
 
 The CLI exists and is tested; `jss-devtools doctor` is its first command and `jss-devtools init`
 its second, shipping the `node` preset. See
-[docs/project-roadmap.md](./docs/project-roadmap.md) for what comes next and
-[docs/system-architecture.md](./docs/system-architecture.md) for how the current code is put together.
+[docs/project-roadmap.md](.harness/docs/project-roadmap.md) for what comes next and
+[docs/system-architecture.md](.harness/docs/system-architecture.md) for how the current code is put together.
 
 ## Requirements
 
 Node >=24.11.0 (`engines.node`) both to develop this repo and to run the CLI, plus pnpm 11.24.0 to
 develop. It is the first release of the Node 24 LTS line, and every pinned package accepts it, so
 pnpm refuses an older Node at install (`engineStrict`). CI runs exactly this version and no other
-([decision 0026](./docs/decisions/0026-node-floor-24.md)).
+([decision 0026](.harness/decisions/0026-node-floor-24.md)).
 
 pnpm is pinned through `packageManager`, so `corepack` selects the right version. There is no
 `.npmrc` and no `.nvmrc`: pnpm reads its settings from `pnpm-workspace.yaml`, and the development
 runtime is declared once in `package.json`.
 
 Windows is not supported natively; use WSL (Windows Subsystem for Linux). The reasons are in
-[docs/decisions/0030-init-node-preset.md](./docs/decisions/0030-init-node-preset.md).
+[docs/decisions/0030-init-node-preset.md](.harness/decisions/0030-init-node-preset.md).
 
 ## What the CLI does today
 
@@ -47,7 +47,7 @@ and prints a `PATH` hint when that directory is not on your `PATH`. `JSS_DEVTOOL
 `JSS_DEVTOOLS_HOME` and `JSS_DEVTOOLS_BIN_DIR` move those locations.
 
 The site's home page is `https://jss-devtools.jjuidev.com/`. How it is deployed, and how to roll it
-back, is in [docs/deployment-guide.md](./docs/deployment-guide.md).
+back, is in [docs/deployment-guide.md](.harness/docs/deployment-guide.md).
 
 After the install, `jss-devtools doctor` checks the machine: the Node version against the floor,
 whether git is installed, and the package managers init supports (bun, pnpm, yarn 1 and npm). Each
@@ -60,8 +60,8 @@ existing TypeScript repository adds the same toolchain, merging what the user ow
 exit 1 and the list when a config init owns is already there (`--force` replaces them). Every check
 runs before the first write; after it, `git init`, the install and the `package.json` sort can each
 still exit 1, and nothing is rolled back.
-[decision 0030](./docs/decisions/0030-init-node-preset.md) records the flow; the full discussion
-history is the [decision log](./plans/261022-0141-init-flow-discussion/decision-log.md).
+[decision 0030](.harness/decisions/0030-init-node-preset.md) records the flow; the full discussion
+history is the [decision log](.harness/plans/261022-0141-init-flow-discussion/decision-log.md).
 
 ## Development
 
@@ -91,7 +91,7 @@ type. `.prettierrc.json` holds only the settings Prettier alone decides.
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) and are checked
 by a git hook. The repository history is a single line on `main`; push with
 `git push -u origin main`. A green push to `main` deploys the site, so read
-[docs/deployment-guide.md](./docs/deployment-guide.md) before you push.
+[docs/deployment-guide.md](.harness/docs/deployment-guide.md) before you push.
 
 ## License
 

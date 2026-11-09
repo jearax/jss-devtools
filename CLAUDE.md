@@ -6,7 +6,7 @@ Guidance for coding agents working in this repository.
 
 `@jjuidev/jss-devtools`, a rewrite of an existing CLI, built from scratch rather than forked. The
 old implementation lives elsewhere and is a source of lessons, not code to copy. The goal and the
-non-goals are in [docs/project-overview-pdr.md](./docs/project-overview-pdr.md).
+non-goals are in [.harness/docs/project-overview-pdr.md](.harness/docs/project-overview-pdr.md).
 
 ## Commands
 
@@ -52,12 +52,12 @@ state, not a result to assume.
 - **The repo is the authority.** If this file, the docs, or the code disagree with what you were
   told in chat, trust the repository and raise the conflict instead of guessing.
 - **A push to `main` deploys.** CI builds the site image, pushes it to GHCR and calls the Dokploy
-  webhook. Read [docs/deployment-guide.md](./docs/deployment-guide.md) before pushing, and say what a
+  webhook. Read [.harness/docs/deployment-guide.md](.harness/docs/deployment-guide.md) before pushing, and say what a
   push will do when you report the change.
 - **Architecture is tested, not documented.** Boundary rules live in
   [tests/support/architecture-rules.ts](./tests/support/architecture-rules.ts) with a negative
   fixture each. Add a rule and its fixture together. The layout and the role suffixes are in
-  [docs/decisions/0024](./docs/decisions/0024-core-and-command-layout.md).
+  [.harness/decisions/0024](.harness/decisions/0024-core-and-command-layout.md).
 - **Failures stay non-zero.** Only `src/cli.ts` may touch process exit or global process handlers;
   the architecture test enforces this, because the previous release shipped a handler that turned
   crashes into exit 0. The deliberate exception is a `*.entry.ts` under `src/modules/`: a hook must
@@ -88,9 +88,10 @@ state, not a result to assume.
 | `site/`                     | The landing site: its own pnpm project, its own lint and tests, the design system as a package |
 | `docker/`                   | The site image: nginx config, home page, Dockerfile, and the compose file Dokploy runs         |
 | `ci/`                       | The smoke test the image job runs against the container                                        |
-| `docs/`                     | Project docs and the decision records                                                          |
-| `docs/site/`                | The conventions the site follows, adapted from the design system                               |
-| `plans/`                    | Plans and research reports. Canonical working state, owned by planning tooling                 |
+| `.harness/`                 | The repository harness: memory, docs, decisions, plans, templates; managed by `jss-devtools`   |
+| `.harness/docs/`            | Project docs, plus the site conventions under `.harness/docs/site/`                            |
+| `.harness/decisions/`       | The decision records: product policy, quoting the user                                         |
+| `.harness/plans/`           | Plans and research reports. Canonical working state, owned by planning tooling                 |
 
 ## Config files
 
@@ -103,17 +104,73 @@ Every config file assigns to a named const and exports it, so the export line na
 
 ## Docs
 
-- [docs/code-standards.md](./docs/code-standards.md) — formatting, lint, naming, tests, commits
-- [docs/system-architecture.md](./docs/system-architecture.md) — entry point, build, test strategy
-- [docs/codebase-summary.md](./docs/codebase-summary.md) — the current tree, file by file
-- [docs/project-roadmap.md](./docs/project-roadmap.md) — what is done and what is not
-- [docs/decisions/](./docs/decisions/) — why each major choice was made, quoting the user
+- [.harness/docs/code-standards.md](.harness/docs/code-standards.md) — formatting, lint, naming, tests, commits
+- [.harness/docs/system-architecture.md](.harness/docs/system-architecture.md) — entry point, build, test strategy
+- [.harness/docs/codebase-summary.md](.harness/docs/codebase-summary.md) — the current tree, file by file
+- [.harness/docs/project-roadmap.md](.harness/docs/project-roadmap.md) — what is done and what is not
+- [.harness/decisions/](.harness/decisions/) — why each major choice was made, quoting the user
 
 What each piece of work actually found lives in
-[plans/journals/](./plans/journals/), one file per plan. Read the journal before the plan: it
+[.harness/plans/journals/](.harness/plans/journals/), one file per plan. Read the journal before the plan: it
 records the failures and the measurements that the plan itself does not.
 
-Background research lives in [plans/261019-1050-jss-devtools-rewrite/knowledge-base.md](./plans/261019-1050-jss-devtools-rewrite/knowledge-base.md),
+Background research lives in [.harness/plans/261019-1050-jss-devtools-rewrite/knowledge-base.md](.harness/plans/261019-1050-jss-devtools-rewrite/knowledge-base.md),
 and unresolved questions in
-[plans/261019-1050-jss-devtools-rewrite/open-questions.md](./plans/261019-1050-jss-devtools-rewrite/open-questions.md).
+[.harness/plans/261019-1050-jss-devtools-rewrite/open-questions.md](.harness/plans/261019-1050-jss-devtools-rewrite/open-questions.md).
 Ask a question when the plan reaches the step it blocks, never in a batch up front.
+
+The repository-harness block at the end of this file is managed by `jss-devtools harness update`;
+do not edit it by hand.
+
+<!-- HARNESS:BEGIN -->
+
+# Repository harness
+
+The code, tests and CI are the authority. `.harness/` records what agents learned about working
+with them. Read an index first, then only the file the task needs.
+
+## Where knowledge goes
+
+| Kind                                    | Write to                                                     | Start from                       |
+| --------------------------------------- | ------------------------------------------------------------ | -------------------------------- |
+| Fact, trap, convention, user correction | one line in `.harness/MEMORY.md`                             | its header                       |
+| Topic longer than a line                | `.harness/docs/<topic>.md`, and a memory line pointing to it | `.harness/docs/README.md`        |
+| User decision                           | `.harness/decisions/NNNN-<slug>.md`, quoting the user        | `.harness/templates/decision.md` |
+| Reusable procedure                      | `.claude/skills/<name>/SKILL.md`, a learned skill            | `.harness/templates/skill.md`    |
+
+- Add or remove the row in the folder's `README.md` in the same change as the file.
+- Learned skills are yours to create, patch and archive without asking; use one when it matches the
+  task, patch it when it is wrong.
+- Never write a secret. Name the variable or file that holds it.
+- Do not edit what an update replaces; put a correction in a learned skill or a memory line instead:
+  - `harness-*` skills, `.harness/{bin,core,templates}/`: `jss-devtools harness update`.
+  - `ak-*` skills, `.claude/{hooks,rules,agents,output-styles,scripts}/`: `ak update`.
+- AgentKit owns `.harness/{docs,plans}/`: follow its skills there. It also works in `.harness/decisions/`.
+
+## Match the process to the work
+
+- Question, review, diagnosis: read only, answer with evidence, change nothing.
+- Bounded change: read the affected code and tests, make the smallest change, run the checks.
+- Work spanning sessions: a plan, as the skill that owns the plan folder says.
+
+## Hooks
+
+Session start injects memory and the decisions in force. When the Stop hook asks for a review, run
+the `harness-review` skill.
+
+## Decisions
+
+- `.harness/decisions/` is the only product policy. Memory and code defaults are not policy.
+- Stop and ask before a change that sets policy no decision covers (limits, permissions, API
+  contracts, data retention, pricing), or when intent is unclear, recovery is hard, or the change
+  weakens tests, security or compatibility. Give the options and their consequences; do not pick.
+  Record the answer as a decision.
+- When a request contradicts a decision, name the decision first. Never edit an accepted decision:
+  write a new one that supersedes it.
+
+## Done means proven
+
+Claim done only with commands you ran and output you saw. Report what changed, how you checked it,
+what you did not check, and what harness knowledge changed. Commit harness changes with the work;
+the harness never commits.
+<!-- HARNESS:END -->

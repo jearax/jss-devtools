@@ -1,0 +1,62 @@
+{
+	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "startup|resume|clear|compact",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"$CLAUDE_PROJECT_DIR/.harness/bin/harness-hook.mjs\"",
+						"async": false,
+						"timeout": 30
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit|MultiEdit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"$CLAUDE_PROJECT_DIR/.harness/bin/harness-hook.mjs\" memory-guard",
+						"async": false,
+						"timeout": 30
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"$CLAUDE_PROJECT_DIR/.harness/bin/harness-hook.mjs\"",
+						"async": true
+					}
+				]
+			}
+		],
+		"PostToolUseFailure": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"$CLAUDE_PROJECT_DIR/.harness/bin/harness-hook.mjs\"",
+						"async": true
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"$CLAUDE_PROJECT_DIR/.harness/bin/harness-hook.mjs\"",
+						"async": false,
+						"timeout": 30
+					}
+				]
+			}
+		]
+	}
+}

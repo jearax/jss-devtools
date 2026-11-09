@@ -35,7 +35,16 @@ const { JAVASCRIPT_FILES, TYPESCRIPT_FILES, CODE_FILES, TEST_FILES } = (() => {
 })();
 
 // The site is a second project with its own ESLint configuration; the root config does not lint it.
-const IGNORED_PATHS = ['dist/**', 'coverage/**', 'node_modules/**', 'plans/**', '.agentkit/**', 'site/**'];
+const IGNORED_PATHS = [
+	'dist/**',
+	'coverage/**',
+	'node_modules/**',
+	'.harness/plans/**',
+	'.harness/bin/**',
+	'.harness/core/**',
+	'.agentkit/**',
+	'site/**'
+];
 
 const eslintConfig = defineConfig(
 	globalIgnores(IGNORED_PATHS),

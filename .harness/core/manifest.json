@@ -1,0 +1,80 @@
+{
+	"version": "0.0.1",
+	"files": [
+		{
+			"path": ".harness/.gitignore",
+			"kind": "managed",
+			"sha256": "a2ede2b69a65d4f19d585992343c1fe0d4e8367a75232804012e20581c9ae343"
+		},
+		{
+			"path": ".harness/config.json",
+			"kind": "config",
+			"sha256": "1804fc6f7927127c0e7d968630be79155a71a37b9edd92af7154476fbccf4f01"
+		},
+		{
+			"path": ".harness/templates/README.md",
+			"kind": "managed",
+			"sha256": "b9d0a5cdba25aedfc6bc928dff5759d08b85558ee1ad6cadd00c2ca2a6bf3441"
+		},
+		{
+			"path": ".harness/templates/decision.md",
+			"kind": "managed",
+			"sha256": "b9d70196ff2f25ae7b8b5ba93e7776476c0933d4f4706ecbf832cd223c041e9e"
+		},
+		{
+			"path": ".harness/templates/skill.md",
+			"kind": "managed",
+			"sha256": "54d83b126cb5a1aef22c277f1319267c86297a0f6c732168aa940583bf9a443f"
+		},
+		{
+			"path": ".harness/templates/plan.md",
+			"kind": "managed",
+			"sha256": "ef02d61b8a753a533625c97d8653fa98518f38c2f21c36df70bbe361dd778b1c"
+		},
+		{
+			"path": ".harness/templates/docs/topic.md",
+			"kind": "managed",
+			"sha256": "98aca57f50bba76267c9cdf8415ae9465db09a425db0a7330f9dc1986f69010e"
+		},
+		{
+			"path": ".harness/templates/docs/architecture.md",
+			"kind": "managed",
+			"sha256": "d5d096d555a0935fdfdc2a9436bdda28128072678166bb56d3615b6818567800"
+		},
+		{
+			"path": ".harness/templates/docs/runbook.md",
+			"kind": "managed",
+			"sha256": "eded8f417cd3ebdbeba5ec01d42220ade75e9cd79bb814942cf3786d9486fa89"
+		},
+		{
+			"path": ".claude/skills/harness-onboard/SKILL.md",
+			"kind": "managed",
+			"sha256": "0ed75a3930f5c396a838e1cc12a0a70d3c0b00b1ca6e18bfb3beb34c4f822fa8"
+		},
+		{
+			"path": ".claude/skills/harness-review/SKILL.md",
+			"kind": "managed",
+			"sha256": "79091d73002697f8e926ac2174203cef3c0019237ae7d302f29b26026901cabb"
+		},
+		{
+			"path": ".claude/skills/harness-curate/SKILL.md",
+			"kind": "managed",
+			"sha256": "f07f1552b6fbb8c43c840f8d8bf70356cc462457764cd852d23a75e87e7080cc"
+		},
+		{
+			"path": ".harness/bin/hooks.mjs",
+			"kind": "managed",
+			"sha256": "073a0a920dec0860027393cb8158da7a01e8460a3903a2f7b05298aaf6ede582"
+		},
+		{
+			"path": ".harness/bin/harness-hook.mjs",
+			"kind": "managed",
+			"sha256": "00fd4422b5d10c446f484fd26ce96d71a419c8eec7094844bfb6030d6f4151fc"
+		},
+		{
+			"path": "CLAUDE.md",
+			"kind": "block",
+			"sha256": "e0814538a748ec100d5e6ab6504287cc549ab116f35753f62d8a4c66d7c958e5"
+		}
+	]
+}
