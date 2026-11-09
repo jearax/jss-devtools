@@ -79,7 +79,7 @@ export const HARNESS_SKILLS: readonly HarnessSkill[] = [
 export const HARNESS_LIMITS: readonly { label: string; value: string }[] = [
 	{
 		label: 'Memory budget',
-		value: '4800 characters, 300 per entry'
+		value: '9600 characters, 320 per entry'
 	},
 	{
 		label: 'Hook timeout',

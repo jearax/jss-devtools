@@ -345,7 +345,7 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
 - The `update` outro suggests no commit command (above).
 - The prototype's variant files stay. Superseded by "No variant files" below.
 
-## Config defaults for a medium project (2026-11-02, supersedes H0's values; `review.minToolCalls` superseded by "Review threshold 10" below)
+## Config defaults for a medium project (2026-11-02, supersedes H0's values; `review.minToolCalls` and `memory` superseded by "Defaults from real use" below)
 
 > "Tôi thấy context 3000 char có vẻ ít, tôi sợ ít." and "Chốt 7 / 4800 / 300 / 10 / 7 / 14 / 28,
 > lên plan thôi, không giao cooker." (user, 2026-11-02)
@@ -361,7 +361,7 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
   keep their numbers; only new installs get these.
 - Plan: [261102-1045-harness-config-defaults](../261102-1045-harness-config-defaults/plan.md).
 
-## Review threshold 10 (2026-11-03, supersedes `review.minToolCalls` 7 above)
+## Review threshold 10 (2026-11-03, supersedes `review.minToolCalls` 7 above; superseded by "Defaults from real use" below)
 
 > "Chốt: minToolCalls 10 nhé." (user, 2026-11-03)
 
@@ -396,3 +396,12 @@ Answered with the option "Cảnh báo, update tự vá (Recommended)" (user, 202
   to `.harness/templates/skill.md`.
 - Documented in `docs/decisions/0034-claude-block-follows-agentkit.md` by the plan.
 - Plan: [261102-1247-scaffold-touchups](../261102-1247-scaffold-touchups/phase-03-agentkit-wording.md).
+
+## Defaults from real use (2026-11-09, supersedes `review.minToolCalls` 10 and `memory` 4800 / 300 above)
+
+> "Sau khi làm việc thực tế với \"harness\", tôi đề xuất sửa config …" and "Dùng 14, 9600, 320 luôn, commit, push
+> không bump version." (user, 2026-11-09)
+
+- `init` writes `review.minToolCalls` 14, `memory.maxChars` 9600, `memory.maxEntryChars` 320; the curator values stay.
+- Source: a design-system repository running the harness through its reset, where these values were tuned by hand.
+- `harness update` keeps a project's existing values; only missing keys take the new defaults.

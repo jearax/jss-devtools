@@ -37,7 +37,7 @@ export const INIT_TRANSCRIPT: readonly string[] = [
 export const HARNESS_TRANSCRIPT: readonly string[] = [
 	'┌   jss-devtools harness doctor ',
 	'│  ✔ Version         0.0.1',
-	'│  ✔ Memory          488/4800 chars, 5 entries',
+	'│  ✔ Memory          488/9600 chars, 5 entries',
 	'│  ✔ Decisions       0',
 	'│  ✔ Learned skills  0',
 	'│',
