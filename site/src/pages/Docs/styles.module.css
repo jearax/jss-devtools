@@ -1,9 +1,9 @@
-.root {
-	@apply bg-surface;
-}
+/* No surface here: the layout's frame and background own the page. */
 
 .layout {
-	@apply wrapper mx-auto grid max-w-6xl grid-cols-1 gap-10 py-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 lg:py-14;
+	@apply wrapper mx-auto grid grid-cols-[14rem_minmax(0,1fr)] gap-12 py-14;
+
+	@apply max-lg:grid-cols-1 max-lg:gap-10 max-lg:py-10;
 }
 
 .content {

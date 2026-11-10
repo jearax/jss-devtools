@@ -8,7 +8,13 @@
 
 export const PRODUCT_NAME = 'jss-devtools';
 
+// Injected by Vite's `define` from the repository's package.json; the tests share the same define.
+export const CLI_VERSION: string = __CLI_VERSION__;
+
 export const INSTALL_COMMAND = 'curl -fsSL https://jss-devtools.jjuidev.com/install.sh | sh';
+
+// The hero block's line; the docs pages keep their own phrasing in `PLATFORM_SCOPE`.
+export const INSTALL_PLATFORM_LABEL = 'macOS & Linux · WSL';
 
 export const NODE_FLOOR = '>= 24.11.0';
 

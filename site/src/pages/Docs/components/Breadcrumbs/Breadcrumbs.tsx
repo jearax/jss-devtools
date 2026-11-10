@@ -33,7 +33,7 @@ const Breadcrumbs = ({ className, ...props }: BreadcrumbsProps) => {
 			<NavLink className={styles.link ?? ''} to={DOCS_BASE_PATH}>
 				Docs
 			</NavLink>
-			{page.group === undefined ? null : (
+			{page.group && (
 				<>
 					<span className={styles.sep} aria-hidden="true">
 						/

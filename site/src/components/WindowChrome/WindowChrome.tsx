@@ -22,7 +22,7 @@ const WindowChrome = ({ className, title, children, ...props }: WindowChromeProp
 				<span className={styles.dot} data-tone="warning" />
 				<span className={styles.dot} data-tone="success" />
 			</span>
-			{title === undefined ? null : <span className={styles.title}>{title}</span>}
+			{title && <span className={styles.title}>{title}</span>}
 			<span className={styles.spacer} />
 			{children}
 		</div>

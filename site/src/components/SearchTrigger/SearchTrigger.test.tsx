@@ -1,8 +1,9 @@
 import { ThemeProvider } from '@jjuidev/react';
+import { formatForDisplay } from '@tanstack/react-hotkeys';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 
-import { SEARCH_OPEN_EVENT, SEARCH_TRIGGER_LABEL } from '@/constants/search.constant';
+import { SEARCH_HOTKEY, SEARCH_OPEN_EVENT, SEARCH_TRIGGER_LABEL } from '@/constants/search.constant';
 
 import SearchTrigger from './SearchTrigger';
 
@@ -16,7 +17,7 @@ describe('SearchTrigger', () => {
 	it('shows the keyboard hint', async () => {
 		const screen = await render(<SearchTrigger />, { wrapper: ThemeProvider });
 
-		await expect.element(screen.getByText('⌘K')).toBeInTheDocument();
+		await expect.element(screen.getByText(formatForDisplay(SEARCH_HOTKEY))).toBeInTheDocument();
 	});
 
 	it('asks the palette to open when it is pressed', async () => {

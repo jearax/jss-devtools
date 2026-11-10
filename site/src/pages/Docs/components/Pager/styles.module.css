@@ -4,7 +4,9 @@
  * is the quiet half; the title carries the link's weight and picks up the brand colour on hover.
  */
 .root {
-	@apply mt-4 flex justify-between gap-3 border-t border-default pt-8 max-md:flex-col max-md:gap-4 max-md:divide-y max-md:divide-default;
+	@apply mt-4 flex justify-between gap-3 border-t border-default pt-8;
+
+	@apply max-md:flex-col max-md:gap-4 max-md:divide-y max-md:divide-default;
 }
 
 /*
@@ -12,7 +14,9 @@
  * lands between the two touches, not under a thumb.
  */
 .link {
-	@apply pointer-coarse:h-11 focus-ring flex flex-col gap-2 self-start rounded-md px-1 py-1 text-default no-underline transition-colors duration-150 max-md:w-full max-md:rounded-none max-md:px-0 max-md:py-4;
+	@apply pointer-coarse:h-11 focus-ring flex flex-col gap-2 self-start rounded-md border border-default px-4 py-3 text-default no-underline transition-colors duration-150 hover:bg-hover active:bg-active;
+
+	@apply max-md:w-full max-md:rounded-none max-md:px-0 max-md:py-4;
 }
 
 /*
@@ -20,7 +24,9 @@
  * direction's position never moves as the reader walks the sequence.
  */
 .next {
-	@apply ml-auto self-end text-right max-md:ml-0 max-md:self-start max-md:text-left;
+	@apply ml-auto self-end text-right;
+
+	@apply max-md:ml-0 max-md:self-start max-md:text-left;
 }
 
 /*

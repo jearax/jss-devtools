@@ -58,6 +58,15 @@ describe('the docs area', () => {
 	it('marks the current page in the sidebar', async () => {
 		const screen = await renderAt('/docs/install');
 
+		// The disclosure may start folded at a narrow viewport; opening it reveals the links.
+		try {
+			const disclosure = page.getByRole('button', { name: 'Docs' });
+
+			await disclosure.click();
+		} catch {
+			// The wide nav shows its links outright; there is no disclosure to open.
+		}
+
 		await expect.element(screen.getByRole('link', { name: 'Install' })).toHaveAttribute('aria-current', 'page');
 	});
 

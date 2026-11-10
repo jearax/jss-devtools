@@ -58,13 +58,9 @@ const SiteHeader = ({ className, ...props }: SiteHeaderProps) => {
 			<header className={cn(styles.root, className)} data-scrolled={isScrolled} {...props}>
 				<ScrollProgress />
 				<div className={styles.inner}>
-					{/*
-					 * The link is named by the mark's own wordmark. An aria-label here would replace it, and
-					 * a name that does not contain the visible text is a mismatch a screen reader announces
-					 * as a different thing than the one on screen.
-					 */}
+					{/* Named by its own text, so the accessible name matches what is on screen. */}
 					<a className={styles.brand} href="/">
-						<Logo expanded />
+						<Logo expanded={!isScrolled} />
 					</a>
 
 					<div className={styles.actions}>

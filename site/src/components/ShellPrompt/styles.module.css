@@ -1,0 +1,23 @@
+.root {
+	@apply whitespace-pre font-bold;
+}
+
+.promptArrow {
+	@apply text-success;
+}
+
+.promptDir {
+	@apply text-primary;
+}
+
+.promptGit {
+	@apply text-info;
+}
+
+.promptBranch {
+	@apply text-error;
+}
+
+.promptDirty {
+	@apply text-warning;
+}

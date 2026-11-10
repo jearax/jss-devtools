@@ -1,5 +1,6 @@
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog } from '@base-ui/react/dialog';
+import { useHotkeys } from '@tanstack/react-hotkeys';
 import { CornerDownLeft, FileText, Hash, Search } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -79,30 +80,20 @@ const SearchPalette = () => {
 		};
 	}, [open]);
 
-	useEffect(() => {
-		const onKeyDown = (event: KeyboardEvent) => {
-			if (event.key.toLowerCase() !== SEARCH_HOTKEY || (!event.metaKey && !event.ctrlKey)) {
-				return;
+	useHotkeys([
+		{
+			hotkey: SEARCH_HOTKEY,
+			callback: () => {
+				if (isOpen) {
+					setIsOpen(false);
+
+					return;
+				}
+
+				open();
 			}
-
-			// The shortcut is only consumed when the reader asked for it.
-			event.preventDefault();
-
-			if (isOpen) {
-				setIsOpen(false);
-
-				return;
-			}
-
-			open();
-		};
-
-		window.addEventListener('keydown', onKeyDown);
-
-		return () => {
-			window.removeEventListener('keydown', onKeyDown);
-		};
-	}, [isOpen, open]);
+		}
+	]);
 
 	const results = useMemo(() => {
 		return searchEntries(SEARCH_ENTRIES, query);

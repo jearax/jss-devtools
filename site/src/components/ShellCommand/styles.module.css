@@ -1,0 +1,7 @@
+.root {
+	@apply whitespace-pre;
+}
+
+.program {
+	@apply text-success;
+}

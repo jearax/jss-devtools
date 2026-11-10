@@ -1,0 +1,19 @@
+.root {
+	@apply overflow-x-auto rounded-lg border border-default bg-raised p-4 font-mono text-body-sm;
+}
+
+.line {
+	@apply whitespace-pre text-muted;
+}
+
+.glyph {
+	@apply text-disabled;
+}
+
+.name {
+	@apply text-default;
+}
+
+.name[data-dir='true'] {
+	@apply text-primary;
+}

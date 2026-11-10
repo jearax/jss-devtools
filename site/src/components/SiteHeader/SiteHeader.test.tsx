@@ -20,13 +20,32 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 };
 
 describe('SiteHeader', () => {
-	it('carries no navigation links', async () => {
+	it('shows the expanded logo while the page sits at the top', async () => {
+		const screen = await render(<SiteHeader />, { wrapper });
+
+		await expect
+			.poll(() => {
+				return screen.container.querySelector('[data-expanded]')?.getAttribute('data-expanded');
+			})
+			.toBe('true');
+	});
+
+	it('keeps the minimal header free of page links', async () => {
 		await page.viewport(1280, 720);
 
 		const screen = await render(<SiteHeader />, { wrapper });
 
 		expect(screen.container.querySelector('nav')).toBeNull();
-		expect(screen.container.querySelector('a[href="/docs"]')).toBeNull();
+		expect(screen.getByRole('link', { name: 'Docs' }).query()).toBeNull();
+		expect(screen.getByRole('link', { name: 'Reference' }).query()).toBeNull();
+	});
+
+	it('keeps the minimal header free of an install button', async () => {
+		await page.viewport(1280, 720);
+
+		const screen = await render(<SiteHeader />, { wrapper });
+
+		expect(screen.getByRole('button', { name: 'Install' }).query()).toBeNull();
 	});
 
 	it('links the source repository through its icon', async () => {

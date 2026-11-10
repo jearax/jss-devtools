@@ -1,52 +1,37 @@
 .root {
-	@apply overflow-hidden rounded-xl border border-default bg-raised shadow-2xl;
-
-	/*
-	 * The glyphs read like a real terminal's, not like the site's status colours: a true green, red
-	 * and yellow against the Terminal's own surface. The site rule that a utility never names a
-	 * colour value bends here on purpose — the reference is the CLI's output, not the palette — and
-	 * the values are pinned per theme against bg-raised (white in light, neutral-900 in dark), each
-	 * clearing 4.5:1 for small text.
-	 */
-	--terminal-success: #1a7f37;
-	--terminal-error: #cf222e;
-	--terminal-warning: #9a6700;
-	--terminal-comment: #57606a;
-}
-
-:global(html[data-theme='dark']) .root {
-	--terminal-success: #3fb950;
-	--terminal-error: #ff7b72;
-	--terminal-warning: #d29922;
-	--terminal-comment: #98a1ab;
+	@apply overflow-hidden rounded-xl border border-default bg-raised;
 }
 
 /*
  * The tab strip is one row that scrolls itself: a wrapped tab reads as two terminals. The
- * scrollbar is hidden on purpose — the strip is short and the selected tab stays in view.
+ * scrollbar is hidden on purpose — the strip is short and the selected tab stays in view. The
+ * rule under it is a pseudo-element: a scroll container clips its own border, so the selected
+ * tab could not cover it.
  */
 .tabs {
-	@apply flex gap-1 border-b border-default px-3 pt-3;
-
-	overflow-x: auto;
-	scrollbar-width: none;
+	@apply relative flex overflow-x-auto px-3 pt-3 [scrollbar-width:none] before:absolute before:inset-x-0 before:bottom-0 before:border-b before:border-default;
 }
 
+/* WebKit ignores scrollbar-width; this hides its own bar for the same reason. */
 .tabs::-webkit-scrollbar {
-	display: none;
+	@apply hidden;
 }
 
 .tab {
-	@apply pointer-coarse:h-11 focus-ring shrink-0 rounded-md border border-transparent px-3 py-1.5 font-mono text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
+	@apply pointer-coarse:h-11 focus-ring shrink-0 rounded-t-md border border-transparent px-3 py-1.5 font-mono text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
 }
 
-/*
- * The selected tab reads at a glance: it takes the selected token, the one tint no other tab
- * state uses, and keeps its one-pixel step over the tab strip's rule, so it still merges into
- * the transcript below it.
- */
 .tab[data-selected='true'] {
-	@apply -mb-px border-default bg-selected text-default;
+	@apply relative border-default border-b-0 bg-selected text-default;
+}
+
+.replay {
+	/* The strip's top padding belongs to the tabs; the negative margin centres the button on the whole strip. */
+	@apply pointer-coarse:size-11 ml-auto -mt-3 focus-ring inline-flex size-8 shrink-0 items-center justify-center self-center rounded-md text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
+}
+
+.replayIcon {
+	@apply size-4;
 }
 
 .label {
@@ -56,9 +41,17 @@
 /* The mono stack turns >= into the ≥ ligature; the CLI prints >=. Lines wrap the way the command
  * line does, so a phone reads the whole output without hunting a horizontal scrollbar. */
 .body {
-	@apply min-w-0 max-w-full max-h-96 overflow-y-auto p-4 font-mono text-body-sm;
+	@apply relative min-w-0 max-w-full max-h-96 overflow-y-auto p-4 font-mono text-body-sm [font-variant-ligatures:none];
+}
 
-	font-variant-ligatures: none;
+/*
+ * The hero pins the body to the tallest transcript at the desktop, so the left column never
+ * moves when the reader switches tabs; below lg the window follows its content.
+ */
+.root[data-fixed-body='true'] .body {
+	@apply h-96;
+
+	@apply max-lg:h-auto;
 }
 
 /*
@@ -73,15 +66,26 @@
 }
 
 .command {
-	@apply whitespace-pre-wrap break-words text-default;
+	@apply overflow-x-auto whitespace-pre text-default [scrollbar-width:none];
+
+	@apply max-lg:mask-r-from-85%;
+}
+
+.prompt {
+	@apply shrink-0;
+}
+
+/* A program's own screen sits a line below the command that opened it, and takes the rest of the window. */
+.body:has(.screen) {
+	@apply flex flex-col;
+}
+
+.screen {
+	@apply mt-3 flex flex-1 flex-col;
 }
 
 .commandCopy {
 	@apply -mt-0.5 shrink-0;
-}
-
-.prompt {
-	@apply text-primary;
 }
 
 /* A transcript line wraps like the command line: cut output is worse than a broken box drawing. */
@@ -89,41 +93,43 @@
 	@apply whitespace-pre-wrap break-words text-default;
 }
 
-.box {
+.segment[data-color='muted'],
+.segment[data-dim] {
 	@apply text-muted;
 }
 
-.text {
-	@apply text-default;
+.segment[data-color='success'] {
+	@apply text-success;
 }
 
-/* The glyph carries the role: the CLI's own success, error, warning and quiet marks. Real output
- * is bold as well as coloured, so the weight comes with the hue. */
-.glyph {
-	@apply font-bold text-default;
+.segment[data-color='error'] {
+	@apply text-error;
 }
 
-.glyph[data-tone='success'] {
-	color: var(--terminal-success);
+.segment[data-color='warning'] {
+	@apply text-warning;
 }
 
-.glyph[data-tone='error'] {
-	color: var(--terminal-error);
+.segment[data-color='info'] {
+	@apply text-info;
 }
 
-.glyph[data-tone='warning'] {
-	color: var(--terminal-warning);
+.segment[data-color='primary'] {
+	@apply text-primary;
 }
 
-.glyph[data-tone='muted'] {
-	@apply text-muted;
+.segment[data-bold] {
+	@apply font-bold;
+}
+
+/* The CLI prints its title inverted; the design system's selection pair is the inverted text colour. */
+.segment[data-inverse] {
+	@apply bg-selection text-selection-foreground;
 }
 
 /* The purpose line reads as a shell comment: quieter than the output, in the terminal's own voice. */
 .comment {
-	@apply mb-2 whitespace-pre-wrap;
-
-	color: var(--terminal-comment);
+	@apply mb-2 whitespace-pre-wrap text-muted;
 }
 
 /*
@@ -133,33 +139,45 @@
  */
 
 /* The width stays automatic unless the animation runs, so a broken animation never hides the command. */
-.root[data-variant='animated'] .command {
-	animation: terminal-type 700ms steps(var(--chars), end) forwards;
-	overflow: hidden;
+.root[data-variant='animated'] .commandRow {
+	/* Each command appears when its turn comes: one step is the typing plus a short pause. */
+	@apply animate-[terminal-reveal_1ms_linear_both] [animation-delay:calc(var(--step,0)*1000ms)];
 
-	/* The typing reads the command as one line, so it does not wrap while it is typed. */
-	white-space: nowrap;
+	@apply motion-reduce:[animation:none];
 }
 
-.root[data-variant='animated'] .command::after {
-	animation: terminal-caret 1s steps(2, jump-none) infinite;
-	background: var(--color-primary);
-	content: '';
-	display: inline-block;
-	height: 1.05em;
-	margin-left: 1px;
-	vertical-align: text-bottom;
-	width: 0.5em;
+.root[data-variant='animated'] .command {
+	/* The typing reads the command as one line, so it does not wrap while it is typed. */
+	@apply overflow-hidden whitespace-nowrap animate-[terminal-type_700ms_steps(var(--chars),end)_both] [animation-delay:calc(var(--step,0)*1000ms)];
+
+	@apply motion-reduce:[animation:none] motion-reduce:overflow-visible;
+
+	@apply max-sm:animate-[terminal-fade_300ms_ease-out_both] max-sm:[animation-delay:calc(var(--step,0)*1000ms)];
+}
+
+/* Only the command typed last keeps the caret; the ones before it are finished. */
+.root[data-variant='animated'] .command[data-last='true']::after {
+	@apply inline-block animate-[terminal-caret_1s_steps(2,jump-none)_infinite] bg-primary content-[''] ml-px align-text-bottom [height:1.05em] [width:0.5em];
+
+	@apply motion-reduce:[animation:none] motion-reduce:content-none;
 }
 
 .root[data-variant='animated'] .line {
-	animation: terminal-reveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
-	animation-delay: calc(700ms + var(--i) * 70ms);
+	@apply animate-[terminal-reveal_260ms_cubic-bezier(0.16,1,0.3,1)_both] [animation-delay:calc(var(--steps,0)*1000ms+700ms+var(--i)*70ms)];
+
+	@apply motion-reduce:[animation:none];
+}
+
+/* A full-screen program takes a moment to start before it draws, as Claude Code does while its hooks run. */
+.root[data-variant='animated'] .screen {
+	@apply [animation-delay:calc(var(--steps,0)*1000ms+1600ms)];
 }
 
 /* The comment is revealed, never typed: the purpose is there before the command starts. */
 .root[data-variant='animated'] .comment {
-	animation: terminal-reveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+	@apply animate-[terminal-reveal_260ms_cubic-bezier(0.16,1,0.3,1)_both];
+
+	@apply motion-reduce:[animation:none];
 }
 
 @keyframes terminal-type {
@@ -172,19 +190,8 @@
 	}
 }
 
-/*
- * Below the sm breakpoint the longest command is wider than the window, and the typing holds the
- * line on one row, so the window would cut off the one thing the reader came for. There the
- * command fades in and wraps, the way a terminal with soft wrap does, and only the caret keeps
- * the window alive.
- */
-@media (width < 640px) {
-	.root[data-variant='animated'] .command {
-		animation: terminal-fade 300ms ease-out both;
-		white-space: normal;
-	}
-}
-
+/* Below sm the typed line would hold one row wider than the window, so it fades in instead;
+ * the row itself scrolls rather than wrapping mid-word. */
 @keyframes terminal-fade {
 	from {
 		opacity: 0;
@@ -210,25 +217,5 @@
 	to {
 		opacity: 1;
 		transform: none;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.root[data-variant='animated'] .command {
-		animation: none;
-		overflow: visible;
-	}
-
-	.root[data-variant='animated'] .command::after {
-		animation: none;
-		content: none;
-	}
-
-	.root[data-variant='animated'] .line {
-		animation: none;
-	}
-
-	.root[data-variant='animated'] .comment {
-		animation: none;
 	}
 }

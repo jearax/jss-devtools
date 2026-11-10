@@ -81,13 +81,13 @@ const DocPage = ({ className, title, summary, sections, ...props }: DocPageProps
 
 	return (
 		<article className={cn(styles.root, className)} {...props}>
-			<Breadcrumbs />
-
-			<h1 className={styles.title}>{title}</h1>
-			<p className={styles.summary}>{summary}</p>
-
 			<div className={styles.body}>
 				<div className={styles.prose} ref={proseRef}>
+					<Breadcrumbs />
+
+					<h1 className={styles.title}>{title}</h1>
+					<p className={styles.summary}>{summary}</p>
+
 					{sections.map((section) => {
 						return (
 							<section key={section.id} className={styles.section} id={section.id}>

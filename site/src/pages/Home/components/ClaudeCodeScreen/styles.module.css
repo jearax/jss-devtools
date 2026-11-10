@@ -1,0 +1,65 @@
+.root {
+	/* The header sits at the top and the prompt at the bottom, with the window's free height between them. */
+	@apply flex flex-1 flex-col justify-between gap-4 whitespace-pre-wrap text-default;
+}
+
+.foot {
+	@apply flex flex-col gap-4;
+}
+
+.head {
+	@apply flex flex-col;
+}
+
+.product {
+	@apply font-bold;
+}
+
+.muted {
+	@apply text-muted;
+}
+
+/* The prompt box spans the window, so its rules are borders, never a row of box-drawing characters. */
+.input {
+	@apply border-y border-default py-1.5;
+}
+
+.chevron {
+	@apply text-default;
+}
+
+.status {
+	@apply flex flex-col;
+}
+
+.cwd {
+	@apply text-info;
+}
+
+.branch {
+	@apply text-error;
+}
+
+.model {
+	@apply text-success;
+}
+
+.thinking {
+	@apply font-bold text-warning;
+}
+
+.context {
+	@apply text-primary;
+}
+
+.usage {
+	@apply text-info;
+}
+
+.usageValue {
+	@apply text-warning;
+}
+
+.mode {
+	@apply font-bold text-error;
+}

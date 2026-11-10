@@ -32,7 +32,7 @@ export const COMMANDS: readonly CommandInfo[] = [
 	{
 		name: 'harness',
 		slug: 'harness',
-		command: 'jss-devtools harness doctor',
+		command: 'jss-devtools harness',
 		summary: 'Manage the repository harness.',
 		details:
 			'Two subcommands: `harness doctor` checks the harness installed in this repository, `harness update` brings it to the installed CLI version and keeps your edits.'

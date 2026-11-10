@@ -1,9 +1,10 @@
 import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps } from 'react';
-import { Link } from 'react-router';
 
-import FeatureRow from '@/pages/Home/components/FeatureRow/FeatureRow';
+import CommandsBand from '@/pages/Home/components/CommandsBand/CommandsBand';
+import FileTree from '@/pages/Home/components/FileTree/FileTree';
 import Hero from '@/pages/Home/components/Hero/Hero';
+import { HARNESS_POINTS } from '@/pages/Home/constants/repository-tree.constant';
 
 import styles from './styles.module.css';
 
@@ -13,24 +14,28 @@ const Home = ({ className, ...props }: HomeProps) => {
 	return (
 		<div className={cn(styles.root, className)} {...props}>
 			<Hero />
-			<FeatureRow />
-			<div className={styles.cta}>
-				{/*
-				 * The closing band is a section of its own, named for the reader's moment rather than
-				 * the button in it, so the page ends with an invitation instead of a stray control.
-				 */}
-				<section className={styles.ctaBand} aria-label="Get started">
-					<p className={styles.ctaLine}>Set up your first repository with it in a minute.</p>
-					{/*
-					 * The package's Button has no link composition yet, so the link wears the package's
-					 * own solid large button recipe, utility by utility, and keeps the router's client
-					 * side navigation.
-					 */}
-					<Link className={styles.ctaButton} to="/docs/getting-started">
-						Getting started
-					</Link>
-				</section>
-			</div>
+			<CommandsBand />
+
+			<section className={styles.repository} aria-label="What lands in your repository">
+				<div className={styles.repositoryInner}>
+					<div className={styles.repositoryHead}>
+						<h2 className={styles.repositoryTitle}>
+							What lands in <span className={styles.repositoryTitleMuted}>your repository.</span>
+						</h2>
+						<ul className={styles.points}>
+							{HARNESS_POINTS.map((point) => {
+								return (
+									<li key={point.title} className={styles.point}>
+										<p className={styles.pointTitle}>{point.title}</p>
+										<p className={styles.pointText}>{point.text}</p>
+									</li>
+								);
+							})}
+						</ul>
+					</div>
+					<FileTree className={styles.tree} />
+				</div>
+			</section>
 		</div>
 	);
 };

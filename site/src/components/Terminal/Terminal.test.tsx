@@ -2,11 +2,17 @@ import { ThemeProvider } from '@jjuidev/react';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 
-import { DOCTOR_TRANSCRIPT, HARNESS_TRANSCRIPT, INIT_TRANSCRIPT } from '@/constants/transcripts.constant';
+import { stripAnsi } from '@/components/Terminal/ansi.util';
+import {
+	DOCTOR_TRANSCRIPT,
+	HARNESS_TRANSCRIPT,
+	INIT_RUN_TRANSCRIPT,
+	INIT_TRANSCRIPT
+} from '@/constants/transcripts.constant';
 
 import Terminal from './Terminal';
 
-const TRANSCRIPTS = [DOCTOR_TRANSCRIPT, INIT_TRANSCRIPT, HARNESS_TRANSCRIPT];
+const TRANSCRIPTS = [DOCTOR_TRANSCRIPT, INIT_TRANSCRIPT, INIT_RUN_TRANSCRIPT, HARNESS_TRANSCRIPT];
 
 const COMMAND = 'jss-devtools doctor';
 const OTHER = 'jss-devtools init';
@@ -20,14 +26,17 @@ describe('Terminal', () => {
 				return line.textContent;
 			});
 
-			expect(rendered).toEqual([...lines]);
+			expect(rendered).toEqual(
+				lines.map((line) => {
+					return stripAnsi(line);
+				})
+			);
 		}
 	});
 
-	it('colours the glyph by its role', async () => {
+	it('colours the glyph with the colour the CLI printed', async () => {
 		const screen = await render(<Terminal lines={DOCTOR_TRANSCRIPT} />, { wrapper: ThemeProvider });
 
-		// The window's dots carry a tone too, so the glyphs are the spans that hold a glyph.
 		const glyphs = [...screen.container.querySelectorAll('span')].filter((span) => {
 			return ['✔', '✖', '⚠', '◇'].includes(span.textContent ?? '');
 		});
@@ -35,7 +44,7 @@ describe('Terminal', () => {
 		expect(glyphs.length).toBeGreaterThan(0);
 
 		for (const glyph of glyphs) {
-			expect(glyph.getAttribute('data-tone')).toBe('success');
+			expect(glyph.getAttribute('data-color')).toBe('success');
 		}
 	});
 
@@ -47,6 +56,10 @@ describe('Terminal', () => {
 		});
 
 		expect(boxes.length).toBeGreaterThan(0);
+
+		for (const box of boxes) {
+			expect(box.getAttribute('data-color')).toBe('muted');
+		}
 	});
 
 	it('offers no copy button unless the window asks for one', async () => {

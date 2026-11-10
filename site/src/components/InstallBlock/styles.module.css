@@ -1,0 +1,21 @@
+.root {
+	@apply rounded-lg border border-default bg-raised px-4 py-3;
+}
+
+.row {
+	@apply flex items-center gap-2;
+}
+
+.command {
+	@apply min-w-0 font-mono text-body-sm overflow-x-auto whitespace-pre text-default [scrollbar-width:none];
+
+	@apply max-lg:mask-r-from-85%;
+}
+
+.copy {
+	@apply ml-auto shrink-0;
+}
+
+.note {
+	@apply mt-1.5 text-label-sm text-muted;
+}

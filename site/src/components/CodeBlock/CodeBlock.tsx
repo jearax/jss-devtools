@@ -57,7 +57,7 @@ const CodeBlock = ({
 		<div className={cn(styles.root, className)} {...props}>
 			<WindowChrome title={title}>{headerAction}</WindowChrome>
 			<pre className={styles.code} data-wrap={wrap}>
-				{prompt === undefined ? null : (
+				{prompt && (
 					<span className={styles.prompt}>
 						{prompt} {renderLine(0)}
 						{lines.length === 1 ? null : '\n'}

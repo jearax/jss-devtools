@@ -4,7 +4,9 @@
  * scrolled past a viewport, so its entrance is a transition, not an insertion.
  */
 .backToTop {
-	@apply invisible pointer-coarse:h-11 pointer-coarse:w-11 focus-ring fixed right-4 bottom-4 z-float inline-flex size-11 translate-y-2 items-center justify-center rounded-full border border-strong bg-raised text-default opacity-0 shadow-lg transition duration-150 hover:bg-raised-hover motion-reduce:transition-none max-sm:right-4 max-sm:bottom-4;
+	@apply invisible focus-ring fixed right-4 bottom-4 z-float inline-flex size-11 translate-y-2 items-center justify-center rounded-full border border-strong bg-raised text-default opacity-0 shadow-lg transition duration-150 hover:bg-raised-hover;
+
+	@apply motion-reduce:transition-none;
 }
 
 .backToTop[data-visible='true'] {

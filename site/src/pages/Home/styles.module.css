@@ -2,25 +2,51 @@
 	@apply flex flex-col;
 }
 
-/* The page's exit ramp sits centered under the commands section, at the section rhythm's end. */
-.cta {
-	@apply reveal wrapper flex justify-center pb-16 pt-2 lg:pb-24;
+/* The repository band: the tree left, the three points right, inside the page frame. */
+.repository {
+	/* The page's last band: the tail keeps the floating back-to-top off the final content. */
+	@apply reveal wrapper grid grid-cols-2 items-start gap-10 pt-10 pb-20;
+
+	@apply max-lg:grid-cols-1 max-lg:pb-14 max-sm:pb-24;
 }
 
-/* The closing band is a section of its own: one line of copy, then the button under it. */
-.ctaBand {
-	@apply flex flex-col items-center gap-4;
+.repositoryInner {
+	@apply contents;
 }
 
-.ctaLine {
-	@apply text-center text-body-lg text-muted;
+.repositoryHead {
+	@apply sticky top-24 flex flex-col gap-6 self-start;
+
+	/* Sticky serves the two-column desktop only; the stacked column must scroll with the tree. */
+	@apply max-lg:static;
 }
 
-/*
- * The package's solid large button, applied to a router link: the recipe is the Button's own
- * (variants.ts + styles.module.css), so the link reads as the component without the site
- * authoring a component or a token.
- */
-.ctaButton {
-	@apply focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-6 text-label-lg text-primary-foreground transition-colors duration-150 hover:bg-primary-hover active:bg-primary-active motion-reduce:transition-none;
+.repositoryTitle {
+	@apply text-heading-3xl text-default;
+
+	@apply max-sm:text-heading-2xl;
+}
+
+.repositoryTitleMuted {
+	@apply text-muted;
+}
+
+.points {
+	@apply m-0 flex list-none flex-col gap-4 p-0;
+}
+
+.point {
+	@apply flex flex-col gap-1;
+}
+
+.pointTitle {
+	@apply font-mono text-label-base text-primary;
+}
+
+.pointText {
+	@apply text-body-base text-muted;
+}
+
+.tree {
+	@apply min-w-0;
 }

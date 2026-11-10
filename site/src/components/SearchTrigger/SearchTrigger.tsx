@@ -1,9 +1,10 @@
 import { Button } from '@jjuidev/react';
 import { cn } from '@jjuidev/styles/variants';
+import { formatForDisplay } from '@tanstack/react-hotkeys';
 import { Search } from 'lucide-react';
 import { ComponentProps } from 'react';
 
-import { SEARCH_OPEN_EVENT, SEARCH_TRIGGER_LABEL } from '@/constants/search.constant';
+import { SEARCH_HOTKEY, SEARCH_OPEN_EVENT, SEARCH_TRIGGER_LABEL } from '@/constants/search.constant';
 
 import styles from './styles.module.css';
 
@@ -19,7 +20,12 @@ export interface SearchTriggerProps extends ComponentProps<'button'> {
  * palette stay independently mountable: the palette lives in the layout, the trigger in the
  * header, and neither imports the other.
  */
-const SearchTrigger = ({ className, shortcut = '⌘K', onClick, ...props }: SearchTriggerProps) => {
+const SearchTrigger = ({
+	className,
+	shortcut = formatForDisplay(SEARCH_HOTKEY),
+	onClick,
+	...props
+}: SearchTriggerProps) => {
 	return (
 		<Button
 			className={cn(styles.root, className)}

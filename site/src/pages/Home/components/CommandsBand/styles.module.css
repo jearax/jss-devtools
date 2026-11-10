@@ -1,0 +1,78 @@
+.root {
+	@apply wrapper flex flex-col gap-10 py-20;
+
+	@apply max-lg:py-14;
+}
+
+.head {
+	@apply flex flex-col gap-2;
+}
+
+.eyebrow {
+	@apply text-label-sm text-primary;
+}
+
+.title {
+	@apply text-heading-3xl text-default;
+
+	@apply max-sm:text-heading-2xl;
+}
+
+.titleMuted {
+	@apply text-muted;
+}
+
+/* One hairline-framed row; the columns divide each other, no floating cards. */
+.row {
+	@apply -mx-4 grid grid-cols-3 border-y border-default;
+
+	@apply max-md:grid-cols-1;
+}
+
+.column {
+	@apply pointer-coarse:h-auto focus-ring flex flex-col gap-3 px-6 py-6 text-default transition-colors duration-150 hover:bg-hover active:bg-active;
+
+	/* The frame owns the outer edges; the columns keep only the rules between them. */
+	@apply [&:not(:first-child)]:border-l;
+
+	@apply max-md:[&:not(:first-child)]:border-l-0 max-md:[&:not(:last-child)]:border-b;
+}
+
+.column .command {
+	@apply m-0 font-mono text-body-lg text-primary;
+}
+
+.summary {
+	@apply text-body-base text-muted;
+}
+
+.details {
+	@apply text-body-sm text-muted;
+}
+
+.link {
+	@apply mt-auto inline-flex items-center gap-1 text-body-sm text-primary;
+}
+
+.linkText {
+	@apply underline-offset-4;
+}
+
+.column:hover .linkText,
+.column:focus-visible .linkText {
+	@apply underline;
+}
+
+.arrow {
+	@apply transition-transform duration-150;
+}
+
+.column:hover .arrow {
+	@apply translate-x-0.5 motion-reduce:translate-x-0;
+}
+
+/* Literals render through RichText with the docs' chip recipe, one step off the column surface. */
+.summary code,
+.details code {
+	@apply rounded bg-surface px-1.5 py-0.5 font-mono text-body-sm text-default;
+}

@@ -1,5 +1,13 @@
 .root {
-	@apply flex min-h-dvh flex-col bg-surface text-default;
+	@apply isolate flex min-h-dvh flex-col bg-surface text-default relative;
+}
+
+/*
+ * Same wrapper utility the bands use, plus the frame's border: one element carries the page's
+ * two vertical rules, so no width step is mirrored here.
+ */
+.frame {
+	@apply pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 wrapper border-x border-default -z-1;
 }
 
 /* The page is full bleed: every band sets its own width. */

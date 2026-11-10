@@ -1,7 +1,21 @@
 import { cn } from '@jjuidev/styles/variants';
-import { ComponentProps, CSSProperties, KeyboardEvent, useId, useState } from 'react';
+import { RotateCcw } from 'lucide-react';
+import {
+	AnimationEvent,
+	ComponentProps,
+	CSSProperties,
+	KeyboardEvent,
+	useEffect,
+	useId,
+	ReactNode,
+	useRef,
+	useState
+} from 'react';
 
 import CopyButton from '@/components/CopyButton/CopyButton';
+import ShellCommand from '@/components/ShellCommand/ShellCommand';
+import ShellPrompt, { ShellPromptProps } from '@/components/ShellPrompt/ShellPrompt';
+import { parseAnsi } from '@/components/Terminal/ansi.util';
 import WindowChrome from '@/components/WindowChrome/WindowChrome';
 
 import styles from './styles.module.css';
@@ -12,8 +26,19 @@ export type TerminalTab = {
 	/** The shell comment the transcript opens with: the tab's purpose, in the terminal's own voice. */
 	comment?: string;
 	command?: string;
-	lines: readonly string[];
+	/** Where the command runs, when it is not inside the project. */
+	prompt?: Pick<ShellPromptProps, 'dir' | 'git'>;
+	/** Commands already run in this window, shown finished above the one being typed. */
+	history?: readonly { prompt?: Pick<ShellPromptProps, 'dir' | 'git'>; command: string }[];
+	lines?: readonly string[];
+	/** A full-screen program's view, shown after the command instead of output lines. */
+	screen?: ReactNode;
+	/** Moves to the next tab once this tab's replay has finished. */
+	advance?: boolean;
 };
+
+// How long a finished replay stays on screen before the window moves to the next tab.
+const ADVANCE_DELAY_MS = 800;
 
 export type TerminalProps = ComponentProps<'div'> & {
 	/** The window's title: the command, or the folder the terminal sits in. */
@@ -32,51 +57,16 @@ export type TerminalProps = ComponentProps<'div'> & {
 	tabListLabel?: string;
 	/** `animated` types the command and reveals the output; `static` shows the final state. */
 	variant?: 'static' | 'animated';
+	/** Shows a replay control; the animated variant only, the static one is already finished. */
+	replay?: boolean;
+	/** Pins the body to a fixed height at the desktop so switching tabs never shifts the page. */
+	fixedBody?: boolean;
 	/**
 	 * Puts an icon-only copy button at the right end of the command row, copying the shown
 	 * command. The interaction follows the design system's `ButtonCopy` with `feedback="icon"`:
 	 * the icon swaps Copy→Check for two seconds, and a screen-reader line says so.
 	 */
 	commandCopy?: boolean;
-};
-
-const GLYPH_TONES = {
-	'✔': 'success',
-	'✖': 'error',
-	'⚠': 'warning',
-	'◇': 'muted'
-} as const;
-
-type Tone = (typeof GLYPH_TONES)[keyof typeof GLYPH_TONES];
-
-type Parts = {
-	box: string;
-	/** The spaces between the box drawing and the glyph. */
-	spaces: string;
-	glyph: string;
-	tone: Tone | null;
-	text: string;
-};
-
-const BOX = /^[┌│└├─]*/;
-const SPACES = /^\s*/;
-
-const split = (line: string): Parts => {
-	const box = BOX.exec(line)?.[0] ?? '';
-	const rest = line.slice(box.length);
-	// The box drawing is followed by spaces, and the glyph comes after them.
-	const spaces = SPACES.exec(rest)?.[0] ?? '';
-	const afterSpaces = rest.slice(spaces.length);
-	const glyph = afterSpaces[0] ?? '';
-	const tone = glyph in GLYPH_TONES ? GLYPH_TONES[glyph as keyof typeof GLYPH_TONES] : null;
-
-	return {
-		box,
-		spaces: tone === null ? '' : spaces,
-		glyph: tone === null ? '' : glyph,
-		tone,
-		text: tone === null ? rest : afterSpaces.slice(1)
-	};
 };
 
 const Terminal = ({
@@ -87,17 +77,98 @@ const Terminal = ({
 	comment,
 	lines,
 	tabs,
-	tabListLabel = 'Transcripts',
+	tabListLabel = 'Replay transcripts',
 	variant = 'static',
+	replay = false,
+	fixedBody = false,
 	commandCopy = false,
 	...props
 }: TerminalProps) => {
 	const [active, setActive] = useState(0);
+	const [run, setRun] = useState(0);
 	const baseId = useId();
 	const tab = tabs?.[active];
 	const shownCommand = tab?.command ?? command;
 	const shownComment = tab?.comment ?? comment;
 	const shownLines = tab?.lines ?? lines ?? [];
+
+	// Commands type one after another; the output follows the last of them.
+	const commandRows = [
+		...(tab?.history ?? []),
+		...(shownCommand
+			? [
+					{
+						prompt: tab?.prompt,
+						command: shownCommand
+					}
+				]
+			: [])
+	];
+
+	const body = useRef<HTMLDivElement>(null);
+
+	// A replay starts at the top; under reduced motion it is already finished, so it shows the end.
+	useEffect(() => {
+		const element = body.current;
+
+		if (element === null || variant !== 'animated') {
+			return;
+		}
+
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		element.scrollTop = reduced ? element.scrollHeight : 0;
+	}, [variant, run, active]);
+
+	const advanceTimer = useRef<number | undefined>(undefined);
+
+	// A tab switch or a replay cancels the pending move, so a reader's own choice always wins.
+	useEffect(() => {
+		return () => {
+			window.clearTimeout(advanceTimer.current);
+		};
+	}, [active, run]);
+
+	// The last line's reveal ending is the replay ending; under reduced motion nothing animates, so nothing moves.
+	const onRevealEnd = (event: AnimationEvent<HTMLDivElement>) => {
+		const count = tabs?.length ?? 0;
+
+		if (!tab?.advance || count < 2 || event.target !== body.current?.lastElementChild) {
+			return;
+		}
+
+		advanceTimer.current = window.setTimeout(() => {
+			setActive((current) => {
+				return (current + 1) % count;
+			});
+		}, ADVANCE_DELAY_MS);
+	};
+
+	// Follows the output like a real terminal: each line that starts to appear is scrolled into view.
+	const onLineAppear = (event: AnimationEvent<HTMLDivElement>) => {
+		const element = body.current;
+		const line = event.target;
+
+		if (element === null || !(line instanceof HTMLElement) || !line.classList.contains(styles.line ?? '')) {
+			return;
+		}
+
+		const padding = Number.parseFloat(getComputedStyle(element).paddingBottom);
+		const bottom = line.offsetTop + line.offsetHeight + padding - element.clientHeight;
+
+		if (bottom > element.scrollTop) {
+			element.scrollTo({
+				top: bottom,
+				behavior: 'smooth'
+			});
+		}
+	};
+
+	const panelProps = tabs && {
+		role: 'tabpanel',
+		id: `${baseId}-panel-${active}`,
+		'aria-labelledby': `${baseId}-tab-${active}`
+	};
 
 	const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
 		const last = (tabs?.length ?? 0) - 1;
@@ -121,12 +192,10 @@ const Terminal = ({
 	};
 
 	return (
-		<div className={cn(styles.root, className)} data-variant={variant} {...props}>
-			<WindowChrome title={title}>
-				{label === undefined ? null : <span className={styles.label}>{label}</span>}
-			</WindowChrome>
+		<div className={cn(styles.root, className)} data-variant={variant} data-fixed-body={fixedBody} {...props}>
+			<WindowChrome title={title}>{label && <span className={styles.label}>{label}</span>}</WindowChrome>
 
-			{tabs === undefined ? null : (
+			{tabs && (
 				<div className={styles.tabs} role="tablist" aria-label={tabListLabel}>
 					{tabs.map((item, index) => {
 						return (
@@ -142,6 +211,9 @@ const Terminal = ({
 								data-selected={index === active}
 								onClick={() => {
 									setActive(index);
+									setRun((run) => {
+										return run + 1;
+									});
 								}}
 								onKeyDown={(event) => {
 									onTabKeyDown(event, index);
@@ -151,52 +223,94 @@ const Terminal = ({
 							</button>
 						);
 					})}
+					{replay && variant === 'animated' ? (
+						<button
+							type="button"
+							className={styles.replay}
+							aria-label="Replay the transcript"
+							onClick={() => {
+								setRun((run) => {
+									return run + 1;
+								});
+							}}
+						>
+							<RotateCcw className={styles.replayIcon} size={13} aria-hidden="true" />
+						</button>
+					) : null}
 				</div>
 			)}
 
 			<div
+				ref={body}
 				className={styles.body}
-				role={tabs === undefined ? undefined : 'tabpanel'}
-				id={tabs === undefined ? undefined : `${baseId}-panel-${active}`}
-				aria-labelledby={tabs === undefined ? undefined : `${baseId}-tab-${active}`}
+				style={{ '--steps': Math.max(commandRows.length - 1, 0) } as CSSProperties}
+				onAnimationStart={onLineAppear}
+				onAnimationEnd={onRevealEnd}
+				{...panelProps}
 			>
-				{shownComment === undefined ? null : (
-					<p key={shownComment} className={styles.comment}>
+				{shownComment && (
+					<p key={`${run}-${shownComment}`} className={styles.comment}>
 						{`# ${shownComment}`}
 					</p>
 				)}
-				{shownCommand === undefined ? null : (
-					<div className={styles.commandRow}>
-						<p
-							key={shownCommand}
-							className={styles.command}
-							style={{ '--chars': shownCommand.length + 3 } as CSSProperties}
+				{commandRows.map((entry, step) => {
+					const last = step === commandRows.length - 1;
+
+					return (
+						<div
+							key={`${run}-${active}-${step}`}
+							className={styles.commandRow}
+							style={{ '--step': step } as CSSProperties}
 						>
-							<span className={styles.prompt}>$</span> {shownCommand}
-						</p>
-						{commandCopy && shownCommand !== '' ? (
-							<CopyButton
-								className={styles.commandCopy}
-								feedback="icon"
-								label="Copy the command"
-								value={shownCommand}
-							/>
-						) : null}
+							<ShellPrompt className={styles.prompt} {...entry.prompt} />
+							<p
+								className={styles.command}
+								data-last={last}
+								style={{ '--chars': entry.command.length } as CSSProperties}
+							>
+								<ShellCommand command={entry.command} />
+							</p>
+							{commandCopy && last && (
+								<CopyButton
+									className={styles.commandCopy}
+									feedback="icon"
+									label="Copy the command"
+									value={entry.command}
+								/>
+							)}
+						</div>
+					);
+				})}
+				{tab?.screen && (
+					<div
+						key={`${run}-${active}-screen`}
+						className={cn(styles.line, styles.screen)}
+						style={{ '--i': 0 } as CSSProperties}
+					>
+						{tab.screen}
 					</div>
 				)}
 				{shownLines.map((line, index) => {
-					const parts = split(line);
-
 					return (
-						<p key={`${active}-${line}-${index}`} className={styles.line} style={{ '--i': index } as CSSProperties}>
-							{parts.box === '' ? null : <span className={styles.box}>{parts.box}</span>}
-							{parts.spaces}
-							{parts.glyph === '' ? null : (
-								<span className={styles.glyph} data-tone={parts.tone ?? 'default'}>
-									{parts.glyph}
-								</span>
-							)}
-							<span className={styles.text}>{parts.text}</span>
+						<p
+							key={`${run}-${active}-${index}-${line}`}
+							className={styles.line}
+							style={{ '--i': index } as CSSProperties}
+						>
+							{parseAnsi(line).map((segment, segmentIndex) => {
+								return (
+									<span
+										key={segmentIndex}
+										className={styles.segment}
+										data-color={segment.color ?? undefined}
+										data-dim={segment.dim || undefined}
+										data-bold={segment.bold || undefined}
+										data-inverse={segment.inverse || undefined}
+									>
+										{segment.text}
+									</span>
+								);
+							})}
 						</p>
 					);
 				})}

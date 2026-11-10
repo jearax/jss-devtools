@@ -9,8 +9,8 @@
  */
 export const SEARCH_OPEN_EVENT = 'jss-devtools:search-open';
 
-/** The key the palette opens on, in the notation the platform uses. */
-export const SEARCH_HOTKEY = 'k';
+/** The palette's shortcut; `Mod` is Command on macOS and Control elsewhere. */
+export const SEARCH_HOTKEY = 'Mod+K';
 
 /** The hint the trigger shows, so the reader knows the shortcut before pressing it. */
 export const SEARCH_TRIGGER_LABEL = 'Search the docs';

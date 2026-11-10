@@ -12,9 +12,13 @@
  * phone's width, and the hint names a key a phone does not have.
  */
 .label {
-	@apply text-body-sm max-lg:hidden;
+	@apply text-body-sm;
+
+	@apply max-lg:hidden;
 }
 
 .shortcut {
-	@apply rounded-sm border border-default bg-raised px-1.5 py-0.5 font-mono text-label-xs text-muted pointer-coarse:hidden max-lg:hidden;
+	@apply rounded-sm border border-default bg-raised px-1.5 py-0.5 font-mono text-label-xs text-muted;
+
+	@apply pointer-coarse:hidden max-lg:hidden;
 }

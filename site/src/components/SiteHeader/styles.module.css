@@ -16,11 +16,11 @@
  * blur: the content behind it is out of focus instead of competing with the navigation.
  */
 .root[data-scrolled='true'] {
-	@apply bg-raised/85 backdrop-blur-md;
+	@apply bg-raised/90 backdrop-blur-md;
 }
 
 .inner {
-	@apply wrapper flex max-w-6xl items-center justify-between gap-6 py-3;
+	@apply wrapper flex items-center justify-between gap-6 py-3;
 }
 
 .brand {

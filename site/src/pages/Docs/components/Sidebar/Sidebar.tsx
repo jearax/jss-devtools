@@ -1,5 +1,5 @@
 import { cn } from '@jjuidev/styles/variants';
-import { ComponentProps } from 'react';
+import { ComponentProps, useState } from 'react';
 import { NavLink } from 'react-router';
 
 import { DOCS_SIDEBAR_GROUPS, DocsSidebarGroup, docsHref } from '@/constants/routes.constant';
@@ -12,7 +12,7 @@ export interface SidebarProps extends ComponentProps<'nav'> {}
 const Group = ({ group, indented }: { group: DocsSidebarGroup; indented: boolean }) => {
 	return (
 		<li className={styles.group}>
-			{group.label === null ? null : <p className={styles.groupLabel}>{group.label}</p>}
+			{group.label && <p className={styles.groupLabel}>{group.label}</p>}
 			<ul className={indented ? styles.sublist : styles.pages}>
 				{group.pages.map((page) => {
 					return (
@@ -29,10 +29,27 @@ const Group = ({ group, indented }: { group: DocsSidebarGroup; indented: boolean
 };
 
 const Sidebar = ({ className, ...props }: SidebarProps) => {
+	const [open, setOpen] = useState(false);
+
 	return (
 		<nav className={cn(styles.root, className)} aria-label="The docs pages" {...props}>
-			<p className={styles.label}>Docs</p>
-			<ul className={styles.list}>
+			{/*
+			 * On the wide layout the nav shows outright; below lg the same content folds behind a
+			 * button, so no overlay layer is needed to reach every page.
+			 */}
+			<button
+				type="button"
+				className={styles.drawerSummary}
+				aria-expanded={open}
+				onClick={() => {
+					setOpen((value) => {
+						return !value;
+					});
+				}}
+			>
+				Docs
+			</button>
+			<ul className={styles.list} data-open={open}>
 				{DOCS_SIDEBAR_GROUPS.map((group) => {
 					// The label names the group; the labelless top-level groups take their first page's
 					// slug, so no two groups ever share a key.

@@ -10,9 +10,11 @@
 	@apply max-w-2xl text-body-lg text-muted;
 }
 
-/* The content and the table of contents sit side by side on a wide viewport. */
+/* The content and the table of contents sit side by side; below lg the column stacks. */
 .body {
-	@apply grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-14;
+	@apply grid grid-cols-[minmax(0,1fr)_12.5rem] gap-14;
+
+	@apply max-lg:grid-cols-1 max-lg:gap-10;
 }
 
 .prose {
@@ -28,7 +30,9 @@
 }
 
 .aside {
-	@apply hidden lg:sticky lg:top-24 lg:block lg:self-start;
+	@apply sticky top-24 block self-start;
+
+	@apply max-lg:hidden;
 }
 
 .asideLabel {
@@ -54,7 +58,7 @@
 }
 
 .tocLink[data-active='true']::before {
-	@apply absolute top-0.5 bottom-0.5 left-[-17px] w-0.5 rounded bg-primary content-[''];
+	@apply absolute top-0.5 bottom-0.5 -left-4 w-0.5 rounded bg-primary content-[''];
 }
 
 /*
@@ -103,11 +107,11 @@
 }
 
 .prose th {
-	@apply border-b border-default pb-2 text-left font-medium text-default;
+	@apply border-b border-default bg-hover px-2 pb-2 pt-1 text-left font-medium text-default;
 }
 
 .prose td {
-	@apply border-b border-default py-2 align-top text-muted;
+	@apply border-b border-default py-2 pl-2 align-top text-muted;
 }
 
 /* A row answers the pointer so the eye can walk the table without losing its place. */

@@ -3,9 +3,11 @@
  * the docs area states them too.
  */
 
+import { createElement } from 'react';
+
 import { TerminalTab } from '@/components/Terminal/Terminal';
-import { INSTALL_COMMAND } from '@/constants/cli.constant';
-import { DOCTOR_TRANSCRIPT, INIT_TRANSCRIPT, INSTALL_TRANSCRIPT } from '@/constants/transcripts.constant';
+import { HARNESS_TRANSCRIPT, INIT_RUN_TRANSCRIPT } from '@/constants/transcripts.constant';
+import ClaudeCodeScreen from '@/pages/Home/components/ClaudeCodeScreen/ClaudeCodeScreen';
 
 /*
  * The value line. One sentence, one copy deck: it wraps naturally under its own width cap, so a
@@ -15,30 +17,37 @@ export const VALUE_LINES: readonly string[] = [
 	"Set up a JavaScript repository's toolchain, check that it works, and give your AI coding agent the rules — from one CLI."
 ];
 
-/**
- * The hero terminal's transcripts. Each tab is named after the working directory a real session
- * would sit in — all distinct, so a reader can pick by name — and its purpose moves into the
- * transcript as a shell comment; the transcripts replay the installer's and the CLI's real
- * captured output, so the window reads as a terminal running the CLI, not a marketing panel with
- * a code block.
- */
 export const HERO_TERMINAL_TABS: readonly TerminalTab[] = [
 	{
-		label: '~',
-		comment: 'Install the CLI once, anywhere',
-		command: INSTALL_COMMAND,
-		lines: INSTALL_TRANSCRIPT
-	},
-	{
-		label: '~/jss-devtools',
-		comment: 'Check the environment',
-		command: 'jss-devtools doctor',
-		lines: DOCTOR_TRANSCRIPT
-	},
-	{
-		label: '~/projects/my-app',
+		label: 'init',
 		comment: 'Set up a project',
-		command: 'jss-devtools init',
-		lines: INIT_TRANSCRIPT
+		command: 'jss-devtools init my-app',
+		prompt: {
+			dir: '~',
+			git: false
+		},
+		lines: INIT_RUN_TRANSCRIPT,
+		advance: true
+	},
+	{
+		label: 'Claude Code',
+		comment: 'Open the project in Claude Code',
+		history: [
+			{
+				prompt: {
+					dir: '~',
+					git: false
+				},
+				command: 'cd my-app'
+			}
+		],
+		command: 'claude',
+		screen: createElement(ClaudeCodeScreen)
+	},
+	{
+		label: 'harness',
+		comment: 'Check the repository harness',
+		command: 'jss-devtools harness doctor',
+		lines: HARNESS_TRANSCRIPT
 	}
 ];

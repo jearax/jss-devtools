@@ -90,7 +90,7 @@ const Reference = () => {
 												</td>
 												<td>
 													<RichText text={exit.meaning} />
-													{exit.also === undefined ? null : (
+													{exit.also && (
 														<>
 															<br />
 															<code>{exit.also.command}</code> <RichText text={exit.also.meaning} />

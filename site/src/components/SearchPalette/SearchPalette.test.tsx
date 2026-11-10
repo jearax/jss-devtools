@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@jjuidev/react';
+import { detectPlatform } from '@tanstack/react-hotkeys';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
@@ -62,7 +63,9 @@ describe('SearchPalette', () => {
 	it('opens on the keyboard shortcut', async () => {
 		const screen = await renderPalette();
 
-		await userEvent.keyboard('{Control>}k{/Control}');
+		const modifier = detectPlatform() === 'mac' ? 'Meta' : 'Control';
+
+		await userEvent.keyboard(`{${modifier}>}k{/${modifier}}`);
 
 		await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
 	});

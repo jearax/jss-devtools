@@ -1,40 +1,70 @@
 .root {
-	@apply lg:sticky lg:top-24 lg:self-start;
+	@apply sticky top-24 self-start;
+
+	@apply max-lg:static;
 }
 
+/* The wide nav's own label; below lg the disclosure's summary names it instead. */
 .label {
-	@apply mb-3 hidden text-label-sm uppercase tracking-widest text-muted lg:block;
+	@apply mb-3 block text-label-sm uppercase tracking-widest text-muted;
+
+	@apply max-lg:hidden;
 }
 
-/* Below the lg breakpoint the pages are a row of chips; above it they are a column of groups. */
-.list {
-	@apply -mx-1 flex gap-2 overflow-x-auto px-1 pb-2 lg:mx-0 lg:flex-col lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0;
+/* The narrow disclosure: styled like the wide nav's label row, with the frame around the list. */
+.drawerSummary {
+	@apply hidden cursor-pointer px-3 py-2.5 font-mono text-label-sm uppercase tracking-widest text-muted select-none;
+
+	@apply max-lg:block;
 }
 
 /*
- * The group wrapper and its page list dissolve on the narrow layout, so every page stays one
- * flat row of chips. On the wide layout they become a column with the group's header above it.
+ * The pages are a column of groups on the wide layout; below it the groups dissolve and the
+ * pages become one flat row of chips.
+ */
+.list {
+	@apply mx-0 flex flex-col gap-4 overflow-visible px-0 pb-0;
+
+	@apply max-lg:-mx-1 max-lg:flex-row max-lg:gap-2 max-lg:overflow-x-auto max-lg:px-1 max-lg:pb-2;
+}
+
+/* The folded list hides below lg only; the wide nav never folds. */
+.list[data-open='false'] {
+	@apply max-lg:hidden;
+}
+
+/*
+ * The group wrapper and its page list take the layout above the narrow breakpoint and dissolve
+ * into the flat chip row below it.
  */
 .group {
-	@apply contents lg:flex lg:flex-col lg:gap-2;
+	@apply flex flex-col gap-2;
+
+	@apply max-lg:contents;
 }
 
 .groupLabel {
-	@apply hidden text-label-sm uppercase tracking-widest text-muted lg:block lg:pl-3;
+	@apply block pl-3 text-label-sm uppercase tracking-widest text-muted;
+
+	@apply max-lg:hidden;
 }
 
 .sublist {
-	@apply contents lg:flex lg:flex-col lg:gap-1;
+	@apply flex flex-col gap-1;
+
+	@apply max-lg:contents;
 }
 
 .pages {
-	@apply contents lg:flex lg:flex-col lg:gap-1;
+	@apply flex flex-col gap-1;
+
+	@apply max-lg:contents;
 }
 
 .link {
-	@apply pointer-coarse:h-11 focus-ring inline-flex shrink-0 items-center rounded-full border border-default bg-raised px-3 py-1.5 text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
+	@apply pointer-coarse:h-11 focus-ring relative inline-flex w-full shrink-0 items-center rounded-md border border-transparent bg-transparent pl-3 pr-3 py-1.5 text-body-sm whitespace-nowrap text-muted transition-colors duration-150 hover:bg-hover hover:text-default;
 
-	@apply lg:w-full lg:rounded-md lg:border-transparent lg:bg-transparent lg:py-1.5 lg:hover:bg-hover;
+	@apply max-lg:rounded-full max-lg:border-default max-lg:bg-raised;
 }
 
 /*
@@ -43,7 +73,10 @@
  * states stay distinct.
  */
 .link[aria-current='page'] {
-	@apply border-primary bg-selected text-primary;
+	@apply bg-selected text-primary;
 
-	@apply lg:bg-selected lg:text-primary;
+	/* The selected marker: the one accent bar, over the nav's own left edge. */
+	@apply before:absolute before:top-1 before:bottom-1 before:-left-2 before:w-0.5 before:rounded before:bg-primary before:content-[''];
+
+	@apply max-lg:border-primary max-lg:before:content-none;
 }
