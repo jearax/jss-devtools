@@ -46,3 +46,5 @@ from [`../templates/decision.md`](../templates/decision.md).
 | 0039 | [the repository and the image are jss-devtools](./0039-the-repository-and-the-image-are-jss-devtools.md)                                                 | accepted                  | 2026-11-04 |
 | 0040 | [The repository runs on its own harness](./0040-the-repository-runs-on-its-own-harness.md)                                                               | Accepted                  | 2026-11-09 |
 | 0041 | [the site runs the stable @jjuidev/styles and @jjuidev/react packages](./0041-the-site-runs-the-stable-design-system-packages.md)                        | accepted                  | 2026-11-09 |
+| 0042 | [Site UI work is delegated, but every value comes from the design system](./0042-site-ui-stays-inside-the-design-system.md)                              | Accepted                  | 2026-11-10 |
+| 0043 | [JSX renders optional parts with && and groups attributes that share one condition](./0043-conditional-rendering-in-jsx.md)                              | Accepted                  | 2026-11-10 |

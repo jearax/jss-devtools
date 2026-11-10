@@ -119,7 +119,23 @@ exception: `bg-neutral-950/40`, the values the `SearchPalette` backdrop copies.
 - The page container is the package's `wrapper` utility: the page gutter and the page width.
 - The reading column narrows it with `max-w-3xl`. A band that carries content applies both, so
   every band starts at the same line.
-- The layout is written desktop first and narrowed with `max-*` breakpoints, never `sm:`.
+
+## Responsive (R1–R5)
+
+The design system is desktop-first (stable decisions 0021 and 0050). The un-prefixed utilities
+are the wide layout; the narrow layouts are overrides, widest breakpoint first.
+
+- **R1** — a layout variant is only ever `max-2xl:` / `max-xl:` / `max-lg:` / `max-md:` /
+  `max-sm:`. The min-width variants (`sm:` `md:` `lg:` `xl:` `2xl:`) are never used for layout.
+- **R2** — plain CSS narrows with `@media (width < 64rem)`: rem steps from the package's
+  breakpoint tokens, never px, never `min-width`. A container query uses the `@max-*` form.
+- **R3** — in a CSS Module, one `@apply` holds the base utilities, then each breakpoint that
+  changes something gets its own `@apply` (`@apply max-lg:…`), ordered widest first (0050).
+  An `@apply` never mixes un-prefixed utilities with `max-*` ones and never holds two breakpoints.
+- **R4** — an element that differs at a narrow width states the narrow layout through the
+  override, so deleting every `max-*` line leaves the desktop layout intact.
+- **R5** — state and touch variants that the narrow layouts need (`pointer-coarse:`,
+  `motion-reduce:`) follow the same one-per-breakpoint line discipline.
 
 ## CSS Modules
 

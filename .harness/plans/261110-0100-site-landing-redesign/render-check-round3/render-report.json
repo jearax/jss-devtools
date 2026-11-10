@@ -1,0 +1,38 @@
+[
+  {
+    "viewport": "375x812",
+    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/render-check/375x812.png",
+    "outline": [
+      "div#content \"Your file couldn’t be accessed It may ha\" @ x0 y81 375x268",
+      "  div#main-frame-error.interstitial-wrapper \"Your file couldn’ @ x0 y81 375x268",
+      "    div#main-content \"Your file couldn’t be accessed It may ha\" @ x24 y81 327x268",
+      "      div#main-message \"Your file couldn’t be accessed It may ha\" @ x24 y205 327x104"
+    ],
+    "findings": [],
+    "height": 812
+  },
+  {
+    "viewport": "768x1024",
+    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/render-check/768x1024.png",
+    "outline": [
+      "div#content \"Your file couldn’t be accessed It may ha\" @ x8 y143 752x291",
+      "  div#main-frame-error.interstitial-wrapper \"Your file couldn’ @ x84 y143 600x291",
+      "    div#main-content \"Your file couldn’t be accessed It may ha\" @ x84 y143 600x224",
+      "      div#main-message \"Your file couldn’t be accessed It may ha\" @ x84 y261 600x106"
+    ],
+    "findings": [],
+    "height": 1024
+  },
+  {
+    "viewport": "1440x900",
+    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/render-check/1440x900.png",
+    "outline": [
+      "div#content \"Your file couldn’t be accessed It may ha\" @ x8 y126 1424x291",
+      "  div#main-frame-error.interstitial-wrapper \"Your file couldn’ @ x420 y126 600x291",
+      "    div#main-content \"Your file couldn’t be accessed It may ha\" @ x420 y126 600x224",
+      "      div#main-message \"Your file couldn’t be accessed It may ha\" @ x420 y244 600x106"
+    ],
+    "findings": [],
+    "height": 900
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "viewport": "375x812",
+    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/.harness/plans/261110-0100-site-landing-redesign/render-check/375x812.png",
+    "outline": [
+      "div#root \"Skip to the content jjuidev Joy·Journey·\" @ x0 y0 375x3541",
+      "  div.Layout__root--d-w1O \"Skip to the content jjuidev Joy·Jou @ x0 y0 375x3541",
+      "    div.Layout__frame--h16eg @ x0 y0 375x3541",
+      "    header.SiteHeader__root--c7Bpp \"jjuidev Joy·Journey·Understa @ x0 y34 375x79",
+      "      div.SiteHeader__inner--Q55fp \"jjuidev Joy·Journey·Understand @ x0 y34 375x78",
+      "    main#main.Layout__main---cGHz \"jss-devtools v0.0.1 Set up th @ x0 y79 375x3462",
+      "      div.Home__root--BhUsP \"jss-devtools v0.0.1 Set up the toolch @ x0 y79 375x3462"
+    ],
+    "findings": [
+      {
+        "severity": "error",
+        "type": "runtime-error",
+        "target": "",
+        "message": "Failed to load resource: the server responded with a status of 404 (Not Found) (http://localhost:5310/favicon.ico)"
+      },
+      {
+        "severity": "warn",
+        "type": "touching-text",
+        "target": "span._wordmarkLead_eq2oc_81 \"jjui\"",
+        "message": "runs into the next element span._wordmarkTail_eq2oc_85 \"dev\" with a 0.0px gap"
+      },
+      {
+        "severity": "warn",
+        "type": "clipped-text",
+        "target": "a.Layout__skipLink--ow-BA \"Skip to the content\"",
+        "message": "text is cut off by overflow without an ellipsis or line clamp"
+      },
+      {
+        "severity": "warn",
+        "type": "small-touch-target",
+        "target": "",
+        "message": "7 controls smaller than 44px; e.g. a.Layout__skipLink--ow-BA \"Skip to the content\"; button.SiteHeader__install--65Bv1 \"Install\"; button.inline-flex.items-center; button#_r_5_-tab-0.Terminal__tab--sWcP- \"init\""
+      }
+    ],
+    "height": 3541
+  },
+  {
+    "viewport": "768x1024",
+    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/.harness/plans/261110-0100-site-landing-redesign/render-check/768x1024.png",
+    "outline": [
+      "div#root \"Skip to the content jjuidev Joy·Journey·\" @ x0 y0 768x2887",
+      "  div.Layout__root--d-w1O \"Skip to the content jjuidev Joy·Jou @ x0 y0 768x2887",
+      "    div.Layout__frame--h16eg @ x0 y0 768x2887",
+      "    header.SiteHeader__root--c7Bpp \"jjuidev Joy·Journey·Understa @ x0 y0 768x79",
+      "      div.SiteHeader__inner--Q55fp \"jjuidev Joy·Journey·Understand @ x0 y0 768x78",
+      "    main#main.Layout__main---cGHz \"jss-devtools v0.0.1 Set up th @ x0 y79 768x2808",
+      "      div.Home__root--BhUsP \"jss-devtools v0.0.1 Set up the toolch @ x0 y79 768x2808"
+    ],
+    "findings": [
+      {
+        "severity": "warn",
+        "type": "touching-text",
+        "target": "span._wordmarkLead_eq2oc_81 \"jjui\"",
+        "message": "runs into the next element span._wordmarkTail_eq2oc_85 \"dev\" with a 0.0px gap"
+      },
+      {
+        "severity": "warn",
+        "type": "clipped-text",
+        "target": "a.Layout__skipLink--ow-BA \"Skip to the content\"",
+        "message": "text is cut off by overflow without an ellipsis or line clamp"
+      }
+    ],
+    "height": 2887
+  },
+  {
+    "viewport": "1440x900",
+    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/.harness/plans/261110-0100-site-landing-redesign/render-check/1440x900.png",
+    "outline": [
+      "div#root \"Skip to the content jjuidev Joy·Journey·\" @ x0 y0 1440x2289",
+      "  div.Layout__root--d-w1O \"Skip to the content jjuidev Joy·Jou @ x0 y0 1440x2289",
+      "    div.Layout__frame--h16eg @ x60 y0 1320x2289",
+      "    header.SiteHeader__root--c7Bpp \"jjuidev Joy·Journey·Understa @ x0 y0 1440x79",
+      "      div.SiteHeader__inner--Q55fp \"jjuidev Joy·Journey·Understand @ x60 y0 1320x78",
+      "    main#main.Layout__main---cGHz \"jss-devtools v0.0.1 Set up th @ x0 y79 1440x2210",
+      "      div.Home__root--BhUsP \"jss-devtools v0.0.1 Set up the toolch @ x0 y79 1440x2210"
+    ],
+    "findings": [
+      {
+        "severity": "warn",
+        "type": "touching-text",
+        "target": "span._wordmarkLead_eq2oc_81 \"jjui\"",
+        "message": "runs into the next element span._wordmarkTail_eq2oc_85 \"dev\" with a 0.0px gap"
+      },
+      {
+        "severity": "warn",
+        "type": "clipped-text",
+        "target": "a.Layout__skipLink--ow-BA \"Skip to the content\"",
+        "message": "text is cut off by overflow without an ellipsis or line clamp"
+      }
+    ],
+    "height": 2289
+  }
+]

@@ -78,6 +78,9 @@ export interface HomeProps extends ComponentProps<'div'> {}
   intent and overrides anything the component sets.
 - State and props reach the CSS through `data-*` attributes and selectors. Any other conditional
   class goes through `cn`'s object syntax, never a ternary, a template string or `&&`.
+- An optional element renders with `{value && <Element />}`; compare explicitly only when the left
+  side can be `0`. Attributes that share one condition are built once as an object and spread, not
+  one ternary each. A single conditional attribute may stay inline. Decision 0043.
 
 ## Styling
 
