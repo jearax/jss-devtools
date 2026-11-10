@@ -1,7 +1,7 @@
 ---
 id: 0020
 title: The version stays 0.0.1 through development and testing
-status: accepted
+status: Superseded by 0044
 date: 2026-10-19
 ---
 

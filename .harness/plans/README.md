@@ -42,3 +42,4 @@ Keep this file the index of the folder: add or remove a row in the same change a
 | [261109-1618-dogfood-harness-migration](./261109-1618-dogfood-harness-migration) | completed | Apply jss-devtools to its own repository |
 | [261109-1655-site-design-system-v2-and-ux-polish](./261109-1655-site-design-system-v2-and-ux-polish) | completed | Move the site to `@jjuidev/styles` and `@jjuidev/react`, and give every control hover, press and focus feedback |
 | [261110-0100-site-landing-redesign](./261110-0100-site-landing-redesign) | completed | Redesign the site as a CLI product landing with mini docs |
+| [261110-1533-site-replay-loop-and-version-bump](./261110-1533-site-replay-loop-and-version-bump) | completed | The hero's replay restores the tab loop, and the version moves to 0.1.0 |

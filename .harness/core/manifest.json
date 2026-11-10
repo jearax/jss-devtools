@@ -1,5 +1,5 @@
 {
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"files": [
 		{
 			"path": ".harness/.gitignore",
@@ -74,7 +74,7 @@
 		{
 			"path": "CLAUDE.md",
 			"kind": "block",
-			"sha256": "e0814538a748ec100d5e6ab6504287cc549ab116f35753f62d8a4c66d7c958e5"
+			"sha256": "4a0b05e6f262a04701df2c1575d9d75ed0d5c392dfc7032fa20f5d1cfdded3e3"
 		}
 	]
 }

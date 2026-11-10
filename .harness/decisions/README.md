@@ -24,7 +24,7 @@ from [`../templates/decision.md`](../templates/decision.md).
 | 0017 | [Formatting facts shared by Prettier and editors live only in .editorconfig](./0017-shared-formatting-lives-in-editorconfig.md)                          | accepted                  | 2026-10-19 |
 | 0018 | [The installed artifact is a JavaScript bundle that runs on Node](./0018-javascript-bundle-artifact.md)                                                  | accepted                  | 2026-10-19 |
 | 0019 | [The release artifact lives in the site image, not in GitHub Releases](./0019-artifact-lives-in-the-site-image.md)                                       | accepted                  | 2026-10-19 |
-| 0020 | [The version stays 0.0.1 through development and testing](./0020-version-0-0-1-during-development.md)                                                    | accepted                  | 2026-10-19 |
+| 0020 | [The version stays 0.0.1 through development and testing](./0020-version-0-0-1-during-development.md)                                                    | Superseded by 0044        | 2026-10-19 |
 | 0021 | [The home page is a temporary nginx page and install.sh lives in scripts/](./0021-temporary-nginx-home-and-install-script-location.md)                   | accepted                  | 2026-10-19 |
 | 0022 | [One Node floor, and CI runs only that version](./0022-one-node-floor.md)                                                                                | superseded                | 2026-10-19 |
 | 0023 | [Exit codes 0 and 1, and CliError for an expected failure](./0023-exit-codes.md)                                                                         | accepted                  | 2026-10-21 |
@@ -48,3 +48,4 @@ from [`../templates/decision.md`](../templates/decision.md).
 | 0041 | [the site runs the stable @jjuidev/styles and @jjuidev/react packages](./0041-the-site-runs-the-stable-design-system-packages.md)                        | accepted                  | 2026-11-09 |
 | 0042 | [Site UI work is delegated, but every value comes from the design system](./0042-site-ui-stays-inside-the-design-system.md)                              | Accepted                  | 2026-11-10 |
 | 0043 | [JSX renders optional parts with && and groups attributes that share one condition](./0043-conditional-rendering-in-jsx.md)                              | Accepted                  | 2026-11-10 |
+| 0044 | [The version moves to 0.1.0 for the first feature release](./0044-the-version-moves-to-0-1-0.md)                                                         | Accepted                  | 2026-11-10 |

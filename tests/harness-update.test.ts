@@ -524,7 +524,7 @@ describe('harness update, settings and config', () => {
 
 		await runUpdate(clean, {});
 
-		expect(manifestVersionOf(clean)).toBe('0.0.1');
+		expect(manifestVersionOf(clean)).toBe('0.1.0');
 	});
 });
 
@@ -537,7 +537,7 @@ describe('harness update, preflight', () => {
 
 		await runUpdate(dir, {});
 
-		expect(manifestVersionOf(dir)).toBe('0.0.1');
+		expect(manifestVersionOf(dir)).toBe('0.1.0');
 		expectForeignFilesUntouched(dir);
 		expect(existsSync(join(dir, HARNESS_UPDATE_DIR))).toBe(false);
 	});
@@ -552,7 +552,7 @@ describe('harness update, preflight', () => {
 		installHarness(downgrade);
 		ageManifest(downgrade, '9.0.0');
 
-		await expect(runUpdate(downgrade, { yes: true })).rejects.toThrow('refusing downgrade 9.0.0 -> 0.0.1');
+		await expect(runUpdate(downgrade, { yes: true })).rejects.toThrow('refusing downgrade 9.0.0 -> 0.1.0');
 
 		const noBase = await makeRepo();
 

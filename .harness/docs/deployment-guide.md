@@ -141,6 +141,6 @@ Rolling forward is a new push: a green run republishes `latest` and redeploys.
 ## What a push to main means
 
 A push to `main` is a deploy. CI gates it, so a broken commit never reaches the server, but a
-force-push does deploy. The version in `package.json` is `0.0.1` throughout development
-([0020](../decisions/0020-version-0-0-1-during-development.md)), so the trigger is a push rather
+force-push does deploy. The version in `package.json` moves with the releases
+([0044](../decisions/0044-the-version-moves-to-0-1-0.md)), but the trigger is still a push rather
 than a tag, and the image tag `sha-<full commit SHA>` is what a rollback points at.

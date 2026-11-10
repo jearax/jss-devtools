@@ -7,7 +7,9 @@
  */
 export const INSTALL_TRANSCRIPT: readonly string[] = [
 	'jss-devtools-install: downloading from https://jss-devtools.jjuidev.com/releases/latest',
-	'jss-devtools-install: installed jss-devtools 0.0.1 to ~/.local/bin/jss-devtools'
+	// The installer writes the bundle to the versioned home and the shim to the bin dir; the
+	// message names the versioned home.
+	'jss-devtools-install: installed jss-devtools 0.1.0 to ~/.jss-devtools/0.1.0'
 ];
 
 export const DOCTOR_TRANSCRIPT: readonly string[] = [
@@ -76,7 +78,7 @@ export const INIT_RUN_TRANSCRIPT: readonly string[] = [
 
 export const HARNESS_TRANSCRIPT: readonly string[] = [
 	'\u001b[90m┌\u001b[39m  \u001b[7m jss-devtools harness doctor \u001b[27m',
-	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Version         0.0.1',
+	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Version         0.1.0',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Memory          488/9600 chars, 5 entries',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Decisions       0',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Learned skills  0',
@@ -90,7 +92,7 @@ export const HARNESS_TRANSCRIPT: readonly string[] = [
  */
 export const HARNESS_ONBOARDED_TRANSCRIPT: readonly string[] = [
 	'\u001b[90m┌\u001b[39m  \u001b[7m jss-devtools harness doctor \u001b[27m',
-	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Version         0.0.1',
+	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Version         0.1.0',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Memory          833/9600 chars, 8 entries',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Decisions       1',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Learned skills  0',
