@@ -12,8 +12,8 @@ system's conventions (its `.harness/docs/` in the design system repository, deci
 | [styling-conventions.md](styling-conventions.md)                   | CSS Modules, `@apply`, the tokens the package carries |
 | [testing-conventions.md](testing-conventions.md)                   | Vitest Browser Mode, what a test asserts              |
 
-The site leaves out what it does not have: no router, no feature flags, no authentication, no
-Base UI, no `@mantine/hooks`, no Storybook, no end-to-end tests and no coverage gate. The files
+The site leaves out what it does not have: no feature flags, no authentication, no Base UI, no
+Storybook, no end-to-end tests and no coverage gate. The files
 below say so where it matters.
 
 The design system is a package, so its tokens, colours, skins, text roles and class helpers are

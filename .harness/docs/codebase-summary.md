@@ -71,24 +71,24 @@ enforces it. The rules are in [0024](../decisions/0024-core-and-command-layout.m
 
 ## Site
 
-| Path                         | Purpose                                                                                                                    |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `site/package.json`          | Standalone pnpm project: Vite, React, Tailwind and the vendored design system, every dependency pinned to an exact version |
-| `site/vite.config.ts`        | Builds the single page application into `site/dist/`; Tailwind, React and the `@/` alias                                   |
-| `site/vite/`                 | The `tailwindAutoReference` plugin, so a CSS Module can `@apply` the theme's tokens                                        |
-| `site/eslint.config.mjs`     | The site's own ESLint rules, ported from the design system                                                                 |
-| `site/stylelint.config.mjs`  | The site's own Stylelint rules: the standard config, CSS Modules and camelCase class names                                 |
-| `site/vitest.config.ts`      | Vitest Browser Mode: headless Chromium, the Vite config merged in, stable CSS Module names                                 |
-| `site/index.html`            | The document shell: applies the theme rule and the skin rule before the first paint                                        |
-| `site/src/main.tsx`          | The theme provider with the site's own skin, the router, then the React root                                               |
-| `site/src/pages/Home/`       | The home page: the bands under `components/`, the page's own words, the styles, the tests                                  |
-| `site/src/pages/Docs/`       | The docs area: the layout, the routes, the page template, the sidebar, the pager, and one folder per docs page             |
-| `site/src/pages/NotFound/`   | The view for a path the router does not know                                                                               |
-| `site/src/components/`       | The parts two routes share: the router, the layout shell, the header, the footer, the terminal and the code block          |
-| `site/src/constants/`        | The facts two routes state: the CLI's own facts, the commands, the harness, the options, the routes, the transcripts       |
-| `site/src/styles/styles.css` | The Tailwind entry: the engine, the design system's source entry, then the site's skin                                     |
-| `site/src/styles/skins/`     | The site's own skin: the scale values, the typed definition, and the test that holds the id to the document shell          |
-| `site/vendor/`               | The design system tarball the site installs from, so the build needs no registry                                           |
+| Path                         | Purpose                                                                                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `site/package.json`          | Standalone pnpm project: Vite, React, Tailwind and the vendored design system, every dependency pinned to an exact version                                       |
+| `site/vite.config.ts`        | Builds the single page application into `site/dist/`; Tailwind, React and the `@/` alias                                                                         |
+| `site/vite/`                 | The `tailwindAutoReference` plugin, so a CSS Module can `@apply` the theme's tokens                                                                              |
+| `site/eslint.config.mjs`     | The site's own ESLint rules, ported from the design system                                                                                                       |
+| `site/stylelint.config.mjs`  | The site's own Stylelint rules: the standard config, CSS Modules and camelCase class names                                                                       |
+| `site/vitest.config.ts`      | Vitest Browser Mode: headless Chromium, the Vite config merged in, stable CSS Module names                                                                       |
+| `site/index.html`            | The document shell: applies the theme rule and the skin rule before the first paint                                                                              |
+| `site/src/main.tsx`          | The theme provider with the site's own skin, the router, then the React root                                                                                     |
+| `site/src/pages/Home/`       | The home page: the bands under `components/`, the page's own words, the styles, the tests                                                                        |
+| `site/src/pages/Docs/`       | The docs area: the layout, the routes, the page template, the sidebar, the pager, the URL hash that follows the section being read, and one folder per docs page |
+| `site/src/pages/NotFound/`   | The view for a path the router does not know                                                                                                                     |
+| `site/src/components/`       | The parts two routes share: the router, the layout shell, the header and search, the terminal, the shell prompt and the code block                               |
+| `site/src/constants/`        | The facts two routes state: the CLI's own facts, the commands, the harness, the options, the routes, the transcripts                                             |
+| `site/src/styles/styles.css` | The Tailwind entry: the engine, the design system's source entry, then the site's skin                                                                           |
+| `site/src/styles/skins/`     | The site's own skin: the scale values, the typed definition, and the test that holds the id to the document shell                                                |
+| `site/vendor/`               | The design system tarballs the site installs from, so the build needs no registry                                                                                |
 
 `site/` is its own project: it keeps its own lockfile, never joins the CLI workspace and never
 enters the CLI bundle. `pnpm --dir site build` produces `site/dist/`, and CI builds it before the

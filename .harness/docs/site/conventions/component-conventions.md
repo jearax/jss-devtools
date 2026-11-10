@@ -95,11 +95,9 @@ export interface HomeProps extends ComponentProps<'div'> {}
 const Home = ({ className, ...props }: HomeProps) => {
   return (
     <div className={cn(styles.root, className)} {...props}>
-      <SiteHeader />
-      <main className={styles.main}>
-        <Hero />
-      </main>
-      <SiteFooter />
+      <Hero />
+      <CommandsBand />
+      <FileTree className={styles.tree} />
     </div>
   );
 };

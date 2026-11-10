@@ -190,4 +190,6 @@ element's cover, so a tall block is already opaque while it is still entering.
 **A snippet says its language.** `CodeBlock` takes a `language` and colours the snippet with the
 hand-written tokenizer in `CodeBlock/highlight.ts` — `sh`, `json` and `ts`, and nothing else. The
 roles come from the package's semantic layer, and each one clears 4.5:1 against the block in both
-themes. A snippet with no language prints as plain text.
+themes. A snippet with no language prints as plain text. A snippet with a `prompt` is a command: it
+is typed at the `ShellPrompt` and coloured by `ShellCommand`, as the hero terminal is, so a command
+looks the same wherever the site shows one.

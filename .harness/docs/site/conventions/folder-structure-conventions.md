@@ -18,60 +18,38 @@ site/
 ├── index.html                 # the document shell; sets the theme and the skin before the first paint
 ├── src/
 │   ├── main.tsx               # the only file at the src/ root: the theme provider, the router, the React root
-│   ├── components/            # the parts two routes share, one PascalCase folder each
+│   ├── components/            # the parts two routes share, one PascalCase folder each; `ls` lists the rest
 │   │   ├── AppRouter/         # the route tree: the layout, the home page, the docs area, the 404
 │   │   ├── CodeBlock/         # a file or shell snippet, with the hand-written colouring
-│   │   ├── Layout/            # the shell: the skip link, the header, the outlet, the footer
-│   │   ├── SiteFooter/
+│   │   ├── Layout/            # the shell: the skip link, the header, the outlet, the search palette
+│   │   ├── ShellPrompt/       # the robbyrussell prompt every command is typed at
+│   │   ├── ShellCommand/      # a command coloured as zsh colours it
 │   │   ├── SiteHeader/
 │   │   └── Terminal/          # a terminal window with the CLI's real output
 │   ├── constants/             # the facts two routes state, one file per group of values
 │   │   ├── cli.constant.ts    # the product's own facts: the name, the install command, the Node floor
-│   │   ├── commands.constant.ts
-│   │   ├── harness.constant.ts
-│   │   ├── reference.constant.ts
 │   │   ├── routes.constant.ts # the routes, the navigation and the docs pages, in one place
-│   │   ├── snippets.constant.ts # the files the CLI writes, from a real run
-│   │   ├── theme.constant.ts  # the theme toggle's labels
-│   │   └── transcripts.constant.ts
+│   │   └── transcripts.constant.ts # the CLI's real output, captured from the built bundle
 │   ├── pages/                 # route-level components, one PascalCase folder each
 │   │   ├── Home/
 │   │   │   ├── Home.tsx
-│   │   │   ├── Home.constant.ts     # the page's own words: the product line, the value line
+│   │   │   ├── Home.constant.ts     # the page's own words and the hero terminal's tabs
 │   │   │   ├── Home.test.tsx
 │   │   │   ├── styles.module.css
+│   │   │   ├── constants/           # values that outgrew Home.constant.ts
 │   │   │   └── components/          # the page's own components, one PascalCase folder each
-│   │   │       ├── Closing/         # the closing call to action band
-│   │   │       ├── Commands/        # the three commands, as a bento of tiles
-│   │   │       ├── Gap/             # the statement band between the hero and the commands
-│   │   │       ├── Harness/         # the harness band: the hooks, the skills, the session context
-│   │   │       ├── Hero/            # the hero: the headline, the calls to action, the terminal
-│   │   │       ├── Install/         # the install band: the command, the paths, the environment
-│   │   │       ├── Reference/       # the reference band: the options, the exit codes
-│   │   │       └── Requirements/    # what the CLI needs
+│   │   │       ├── ClaudeCodeScreen/ # the Claude Code session the hero terminal shows
+│   │   │       ├── CommandsBand/    # the three commands
+│   │   │       ├── FileTree/        # what init writes into a repository
+│   │   │       └── Hero/            # the headline, the install block, the terminal
 │   │   ├── Docs/
 │   │   │   ├── Docs.tsx             # the docs layout: the sidebar and the outlet
 │   │   │   ├── Docs.route.ts        # the docs routes, lazy one by one, built fresh for every router
 │   │   │   ├── Docs.constant.ts     # the facts only the docs state
 │   │   │   ├── Docs.test.tsx
-│   │   │   ├── components/          # the sidebar, the page template, the pager
-│   │   │   │   ├── DocPage/         # the page template: breadcrumb, title, sections, contents, pager
-│   │   │   │   ├── Pager/
-│   │   │   │   ├── RichText/        # the code between the backticks a constant carries
-│   │   │   │   └── Sidebar/
+│   │   │   ├── components/          # the page template, the sidebar, the pager, the jump to a hash
+│   │   │   ├── hooks/               # the section being read, and the URL hash that follows it
 │   │   │   └── pages/               # one folder per docs page
-│   │   │       ├── Doctor/
-│   │   │       │   └── Doctor.tsx
-│   │   │       ├── GettingStarted/
-│   │   │       │   └── GettingStarted.tsx
-│   │   │       ├── Harness/
-│   │   │       │   └── Harness.tsx
-│   │   │       ├── Init/
-│   │   │       │   └── Init.tsx
-│   │   │       ├── Install/
-│   │   │       │   └── Install.tsx
-│   │   │       └── Reference/
-│   │   │           └── Reference.tsx
 │   │   └── NotFound/
 │   │       ├── NotFound.tsx
 │   │       └── styles.module.css
@@ -107,13 +85,13 @@ site/
 
 ## File Naming
 
-| Kind                                                       | Pattern              | Example                          |
-| ---------------------------------------------------------- | -------------------- | -------------------------------- |
-| A page or a component folder                               | `<Name>/<Name>.tsx`  | `pages/Home/Home.tsx`            |
-| A file inside a folder named after the folder's own module | `<Name>.<kind>.tsx`  | `pages/Home/Home.test.tsx`       |
-| The constants of a page                                    | `<Name>.constant.ts` | `pages/Home/Home.constant.ts`    |
-| Every other file                                           | `<name>.<kind>.ts`   | `constants/commands.constant.ts` |
-| Hooks                                                      | `use<Name>.ts`       | not used yet                     |
+| Kind                                                       | Pattern              | Example                                |
+| ---------------------------------------------------------- | -------------------- | -------------------------------------- |
+| A page or a component folder                               | `<Name>/<Name>.tsx`  | `pages/Home/Home.tsx`                  |
+| A file inside a folder named after the folder's own module | `<Name>.<kind>.tsx`  | `pages/Home/Home.test.tsx`             |
+| The constants of a page                                    | `<Name>.constant.ts` | `pages/Home/Home.constant.ts`          |
+| Every other file                                           | `<name>.<kind>.ts`   | `constants/commands.constant.ts`       |
+| Hooks                                                      | `use<Name>.ts`       | `pages/Docs/hooks/useActiveSection.ts` |
 
 - The kind is the singular of the folder it lives in: a file in a `utils/` folder is a
   `<name>.util.ts`.
