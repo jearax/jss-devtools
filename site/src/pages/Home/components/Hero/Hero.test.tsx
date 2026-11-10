@@ -18,6 +18,22 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 	);
 };
 
+/*
+ * The site's browser tests run with reduced motion, so the reveal animation never ends on its own.
+ * The test ends the reveal the way the animated run does: on the element the terminal marks as the
+ * end of the transcript, or on the last revealed line.
+ */
+const endTheReveal = (screen: { container: Element }) => {
+	const body = screen.container.querySelector('[role="tabpanel"]');
+	const end = body?.querySelector('[data-reveal-end]') ?? body?.lastElementChild;
+
+	if (!(end instanceof HTMLElement)) {
+		throw new Error('the terminal has no revealed element to end');
+	}
+
+	end.dispatchEvent(new AnimationEvent('animationend', { bubbles: true }));
+};
+
 describe('Hero', () => {
 	it('shows the version eyebrow, the two-tone headline and the value line', async () => {
 		const screen = await render(<Hero />, { wrapper });
@@ -121,5 +137,54 @@ describe('Hero', () => {
 		await screen.getByRole('tab', { name: 'harness' }).click();
 
 		await expect.element(screen.getByText(/Harness is healthy/)).toBeInTheDocument();
+	});
+
+	it('resumes the tab loop when the reader replays after picking a tab', async () => {
+		const screen = await render(<Hero />, { wrapper });
+
+		// The reader's own pick wins: the window stays where they put it.
+		await screen.getByRole('tab', { name: 'Claude Code' }).click();
+		await screen.getByRole('button', { name: 'Replay the transcript' }).click();
+
+		endTheReveal(screen);
+
+		await expect
+			.element(screen.getByRole('tab', { name: 'harness' }), { timeout: 5000 })
+			.toHaveAttribute('aria-selected', 'true');
+	});
+
+	it('keeps the loop advancing when the reader replays while it plays', async () => {
+		const screen = await render(<Hero />, { wrapper });
+
+		await screen.getByRole('button', { name: 'Replay the transcript' }).click();
+
+		endTheReveal(screen);
+
+		await expect
+			.element(screen.getByRole('tab', { name: 'Claude Code' }), { timeout: 8000 })
+			.toHaveAttribute('aria-selected', 'true');
+	});
+
+	it('shows the finished transcript and stays put under reduced motion', async () => {
+		const screen = await render(<Hero />, { wrapper });
+
+		const body = screen.container.querySelector('[role="tabpanel"]');
+		const line = [...(body?.querySelectorAll('p') ?? [])].at(-1);
+
+		if (line === undefined) {
+			throw new Error('the terminal shows no transcript line');
+		}
+
+		const style = line.ownerDocument.defaultView?.getComputedStyle(line);
+
+		// Nothing animates, so the line is shown whole and the window never moves on its own.
+		expect(style?.opacity).toBe('1');
+		expect(style?.animationName).toBe('none');
+
+		await new Promise((resolve) => {
+			setTimeout(resolve, 600);
+		});
+
+		await expect.element(screen.getByRole('tab', { name: 'init' })).toHaveAttribute('aria-selected', 'true');
 	});
 });

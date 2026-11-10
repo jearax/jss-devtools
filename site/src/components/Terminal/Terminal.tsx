@@ -251,6 +251,8 @@ const Terminal = ({
 							className={styles.replay}
 							aria-label="Replay the transcript"
 							onClick={() => {
+								// A replay is a "play again": it puts the loop back where the reader stopped it.
+								autoplay.current = true;
 								setRun((run) => {
 									return run + 1;
 								});
