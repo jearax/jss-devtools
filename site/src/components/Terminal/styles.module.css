@@ -75,7 +75,6 @@
 	@apply shrink-0;
 }
 
-/* A program's own screen sits a line below the command that opened it, and takes the rest of the window. */
 .body:has(.screen) {
 	@apply flex flex-col;
 }
@@ -169,8 +168,10 @@
 }
 
 /* A full-screen program takes a moment to start before it draws, as Claude Code does while its hooks run. */
+
+/* `--screen-at` is when the screen appears; the program's own animations count from it. */
 .root[data-variant='animated'] .screen {
-	@apply [animation-delay:calc(var(--steps,0)*1000ms+1600ms)];
+	@apply [--screen-at:calc(var(--steps,0)*1000ms+1600ms)] [animation-delay:var(--screen-at)];
 }
 
 /* The comment is revealed, never typed: the purpose is there before the command starts. */

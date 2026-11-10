@@ -85,6 +85,20 @@ export const HARNESS_TRANSCRIPT: readonly string[] = [
 ];
 
 /**
+ * `harness doctor` in the same project after onboarding: a real run, once onboarding with sample
+ * answers had added three memory lines and one decision and removed `.harness/BOOTSTRAP.md`.
+ */
+export const HARNESS_ONBOARDED_TRANSCRIPT: readonly string[] = [
+	'\u001b[90m┌\u001b[39m  \u001b[7m jss-devtools harness doctor \u001b[27m',
+	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Version         0.0.1',
+	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Memory          833/9600 chars, 8 entries',
+	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Decisions       1',
+	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Learned skills  0',
+	'\u001b[90m│\u001b[39m',
+	'\u001b[90m└\u001b[39m  Harness is healthy'
+];
+
+/**
  * The terminal's own label. The transcripts are real runs, but the versions in them are the ones
  * this machine had, so the frame says so rather than presenting them as fixed output.
  */

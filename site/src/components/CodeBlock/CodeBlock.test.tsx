@@ -60,10 +60,23 @@ describe('CodeBlock', () => {
 	});
 
 	it('prints the prompt and the snippet together', async () => {
-		const screen = await render(<CodeBlock code={SHELL} prompt="$" language="sh" />, { wrapper: ThemeProvider });
+		const screen = await render(
+			<CodeBlock
+				code={SHELL}
+				prompt={{
+					dir: '~',
+					git: false
+				}}
+				language="sh"
+			/>,
+			{
+				wrapper: ThemeProvider
+			}
+		);
+
 		const pre = screen.container.querySelector('pre');
 
-		expect(pre?.textContent).toBe(`$ ${SHELL}`);
+		expect(pre?.textContent).toBe(`➜  ~ ${SHELL}`);
 	});
 
 	it('colours the roles it knows', async () => {

@@ -67,7 +67,10 @@ const GettingStarted = () => {
 							<CodeBlock
 								code={INSTALL_COMMAND}
 								language="sh"
-								prompt="$"
+								prompt={{
+									dir: '~',
+									git: false
+								}}
 								title="install.sh"
 								wrap
 								headerAction={<CopyButton feedback="icon" label="Copy the install command" value={INSTALL_COMMAND} />}
@@ -76,7 +79,10 @@ const GettingStarted = () => {
 							<CodeBlock
 								code="jss-devtools doctor"
 								language="sh"
-								prompt="$"
+								prompt={{
+									dir: '~',
+									git: false
+								}}
 								title="doctor"
 								headerAction={
 									<CopyButton feedback="icon" label="Copy the doctor command" value="jss-devtools doctor" />
@@ -89,7 +95,10 @@ const GettingStarted = () => {
 							<CodeBlock
 								code="jss-devtools init my-app --pm pnpm"
 								language="sh"
-								prompt="$"
+								prompt={{
+									dir: '~',
+									git: false
+								}}
 								title="init"
 								headerAction={
 									<CopyButton

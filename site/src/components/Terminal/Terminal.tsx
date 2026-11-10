@@ -21,7 +21,6 @@ import WindowChrome from '@/components/WindowChrome/WindowChrome';
 import styles from './styles.module.css';
 
 export type TerminalTab = {
-	/** The simulated working directory the tab shows, the way a real terminal tab names its cwd. */
 	label: string;
 	/** The shell comment the transcript opens with: the tab's purpose, in the terminal's own voice. */
 	comment?: string;
@@ -33,27 +32,21 @@ export type TerminalTab = {
 	lines?: readonly string[];
 	/** A full-screen program's view, shown after the command instead of output lines. */
 	screen?: ReactNode;
-	/** Moves to the next tab once this tab's replay has finished. */
-	advance?: boolean;
+	/** Milliseconds a finished replay stays on screen before the window moves to the next tab. */
+	advance?: number;
 };
-
-// How long a finished replay stays on screen before the window moves to the next tab.
-const ADVANCE_DELAY_MS = 800;
 
 export type TerminalProps = ComponentProps<'div'> & {
 	/** The window's title: the command, or the folder the terminal sits in. */
 	title?: string;
 	/** A note on the right of the title bar, for a transcript that is an example, not a promise. */
 	label?: string;
-	/** The command line, typed out in the animated variant. */
 	command?: string;
 	/** The shell comment above the command, for a window with a single transcript. */
 	comment?: string;
 	/** The CLI's output, one string per line, with its real glyphs. */
 	lines?: readonly string[];
-	/** The transcripts the reader switches between. */
 	tabs?: readonly TerminalTab[];
-	/** The name of the tab list, for a screen reader. */
 	tabListLabel?: string;
 	/** `animated` types the command and reveals the output; `static` shows the final state. */
 	variant?: 'static' | 'animated';
@@ -121,6 +114,8 @@ const Terminal = ({
 	}, [variant, run, active]);
 
 	const advanceTimer = useRef<number | undefined>(undefined);
+	// The tabs play on in a loop until the reader picks one; from then on the window stays where they put it.
+	const autoplay = useRef(true);
 
 	// A tab switch or a replay cancels the pending move, so a reader's own choice always wins.
 	useEffect(() => {
@@ -133,7 +128,10 @@ const Terminal = ({
 	const onRevealEnd = (event: AnimationEvent<HTMLDivElement>) => {
 		const count = tabs?.length ?? 0;
 
-		if (!tab?.advance || count < 2 || event.target !== body.current?.lastElementChild) {
+		// A program screen that keeps drawing after it appears marks its own last part.
+		const end = body.current?.querySelector('[data-reveal-end]') ?? body.current?.lastElementChild;
+
+		if (tab?.advance === undefined || !autoplay.current || count < 2 || event.target !== end) {
 			return;
 		}
 
@@ -141,8 +139,30 @@ const Terminal = ({
 			setActive((current) => {
 				return (current + 1) % count;
 			});
-		}, ADVANCE_DELAY_MS);
+		}, tab.advance);
 	};
+
+	// A program screen grows while it runs; the window stays at its bottom, as a terminal does.
+	useEffect(() => {
+		const element = body.current;
+		const screen = element?.querySelector(`.${styles.screen ?? ''}`);
+
+		if (!element || !screen) {
+			return;
+		}
+
+		const observer = new ResizeObserver(() => {
+			if (element.scrollHeight > element.clientHeight) {
+				element.scrollTop = element.scrollHeight;
+			}
+		});
+
+		observer.observe(screen);
+
+		return () => {
+			observer.disconnect();
+		};
+	}, [active, run]);
 
 	// Follows the output like a real terminal: each line that starts to appear is scrolled into view.
 	const onLineAppear = (event: AnimationEvent<HTMLDivElement>) => {
@@ -187,6 +207,7 @@ const Terminal = ({
 		}
 
 		event.preventDefault();
+		autoplay.current = false;
 		setActive(next);
 		document.getElementById(`${baseId}-tab-${next}`)?.focus();
 	};
@@ -210,6 +231,7 @@ const Terminal = ({
 								className={styles.tab}
 								data-selected={index === active}
 								onClick={() => {
+									autoplay.current = false;
 									setActive(index);
 									setRun((run) => {
 										return run + 1;

@@ -14,7 +14,7 @@
 }
 
 .prompt {
-	@apply text-primary;
+	@apply text-default;
 }
 
 .line {

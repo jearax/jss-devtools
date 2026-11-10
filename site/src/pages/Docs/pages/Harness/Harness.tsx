@@ -154,7 +154,7 @@ const Harness = () => {
 							<CodeBlock
 								code="jss-devtools harness update --dry-run"
 								language="sh"
-								prompt="$"
+								prompt={{ dir: 'my-app' }}
 								title="update"
 								headerAction={
 									<CopyButton
@@ -167,7 +167,7 @@ const Harness = () => {
 							<CodeBlock
 								code="jss-devtools harness update --continue"
 								language="sh"
-								prompt="$"
+								prompt={{ dir: 'my-app' }}
 								title="resume"
 								headerAction={
 									<CopyButton

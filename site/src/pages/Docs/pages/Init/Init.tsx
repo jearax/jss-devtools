@@ -26,7 +26,10 @@ const Init = () => {
 							<CodeBlock
 								code="jss-devtools init my-app --pm pnpm"
 								language="sh"
-								prompt="$"
+								prompt={{
+									dir: '~',
+									git: false
+								}}
 								title="a new project"
 								headerAction={
 									<CopyButton
@@ -39,7 +42,7 @@ const Init = () => {
 							<CodeBlock
 								code="jss-devtools init"
 								language="sh"
-								prompt="$"
+								prompt={{ dir: 'my-app' }}
 								title="the current folder"
 								headerAction={<CopyButton feedback="icon" label="Copy the init command" value="jss-devtools init" />}
 							/>
@@ -179,7 +182,10 @@ const Init = () => {
 							<CodeBlock
 								code="jss-devtools init my-app --pm pnpm --dry-run"
 								language="sh"
-								prompt="$"
+								prompt={{
+									dir: '~',
+									git: false
+								}}
 								title="dry run"
 								headerAction={
 									<CopyButton

@@ -22,7 +22,7 @@ const vitestConfig = defineConfig((env) => {
 		 * warms it before the first iframe loads.
 		 */
 		optimizeDeps: {
-			include: ['react-dom/client']
+			include: ['react-dom/client', '@mantine/hooks']
 		},
 		test: {
 			include: ['src/**/*.test.{ts,tsx}'],

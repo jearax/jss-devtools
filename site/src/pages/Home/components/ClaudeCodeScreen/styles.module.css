@@ -1,6 +1,162 @@
 .root {
-	/* The header sits at the top and the prompt at the bottom, with the window's free height between them. */
 	@apply flex flex-1 flex-col justify-between gap-4 whitespace-pre-wrap text-default;
+}
+
+.log {
+	@apply flex flex-col gap-3;
+}
+
+/*
+ * A turn takes no height until its time comes, then grows into place, so the window follows a
+ * conversation that is still being written. `--screen-at` is set by the terminal.
+ */
+.turn {
+	@apply grid grid-rows-[1fr] animate-[claude-turn_260ms_cubic-bezier(0.16,1,0.3,1)_both] [animation-delay:calc(var(--screen-at,0ms)+var(--t,0s))];
+
+	@apply motion-reduce:[animation:none];
+}
+
+.turn > * {
+	@apply min-h-0 overflow-hidden;
+}
+
+.prompt {
+	@apply bg-selection px-1 text-selection-foreground;
+}
+
+.bullet {
+	@apply text-default;
+}
+
+.done {
+	@apply text-success;
+}
+
+.path {
+	@apply text-info;
+}
+
+.indent {
+	@apply pl-[2ch];
+}
+
+.question {
+	@apply border-t border-default pt-2;
+}
+
+.chip {
+	@apply bg-selection px-1 text-selection-foreground;
+}
+
+.option {
+	@apply text-info;
+}
+
+/*
+ * The prompt is typed over the placeholder, then sent: the input empties to the caret, and the placeholder stays gone.
+ * Typing starts 1s after the screen, takes 45ms a character, and the prompt is sent 0.4s later.
+ */
+.input {
+	@apply border-y border-default py-1.5 [--type-at:calc(var(--screen-at,0ms)+1s)] [--send-at:calc(var(--type-at)+var(--chars)*45ms+400ms)] [--choose-at:calc(var(--screen-at,0ms)+7.6s)];
+}
+
+.typed {
+	@apply inline-block w-0 overflow-hidden align-bottom whitespace-nowrap [animation:claude-type_calc(var(--chars)*45ms)_steps(var(--chars),end)_var(--type-at)_both,claude-clear_1ms_linear_var(--send-at)_forwards];
+
+	@apply motion-reduce:[animation:none];
+}
+
+/* The reader's answer to the onboarding question: the question appears at 6.1s, and the reader takes 1.5s to read it before typing. */
+.choice {
+	@apply inline-block w-[1ch] overflow-hidden align-bottom animate-[claude-choose_1ms_linear_both] [animation-delay:var(--choose-at)];
+
+	@apply motion-reduce:[animation:none];
+}
+
+/* The block caret sits on the placeholder's first letter until typing starts, then follows the text and stays after the prompt is sent. */
+.caret {
+	@apply inline-block w-0 align-text-bottom [height:1.05em] [animation:claude-caret-in_1ms_linear_var(--type-at)_forwards];
+
+	@apply motion-reduce:[animation:none];
+}
+
+.caret::after {
+	@apply block size-full animate-[claude-caret_1s_steps(2,jump-none)_infinite] bg-primary content-[''];
+}
+
+.caretOn {
+	@apply animate-[claude-caret-on_1s_steps(2,jump-none)_infinite] bg-primary text-primary-foreground;
+
+	@apply motion-reduce:[animation:none];
+}
+
+.placeholder {
+	@apply text-muted [animation:claude-hide_1ms_linear_var(--type-at)_forwards];
+
+	@apply motion-reduce:[animation:none];
+}
+
+@keyframes claude-turn {
+	from {
+		grid-template-rows: 0fr;
+		opacity: 0;
+	}
+
+	to {
+		grid-template-rows: 1fr;
+		opacity: 1;
+	}
+}
+
+@keyframes claude-type {
+	from {
+		width: 0;
+	}
+
+	to {
+		width: calc(var(--chars) * 1ch);
+	}
+}
+
+@keyframes claude-choose {
+	from {
+		width: 0;
+	}
+
+	to {
+		width: 1ch;
+	}
+}
+
+@keyframes claude-clear {
+	to {
+		width: 0;
+	}
+}
+
+@keyframes claude-caret {
+	50% {
+		opacity: 0;
+	}
+}
+
+@keyframes claude-caret-on {
+	50% {
+		background-color: transparent;
+		color: inherit;
+	}
+}
+
+@keyframes claude-caret-in {
+	to {
+		width: 0.5em;
+	}
+}
+
+@keyframes claude-hide {
+	to {
+		opacity: 0;
+	}
 }
 
 .foot {
@@ -17,11 +173,6 @@
 
 .muted {
 	@apply text-muted;
-}
-
-/* The prompt box spans the window, so its rules are borders, never a row of box-drawing characters. */
-.input {
-	@apply border-y border-default py-1.5;
 }
 
 .chevron {

@@ -5,6 +5,7 @@ import { render } from 'vitest-browser-react';
 import { stripAnsi } from '@/components/Terminal/ansi.util';
 import {
 	DOCTOR_TRANSCRIPT,
+	HARNESS_ONBOARDED_TRANSCRIPT,
 	HARNESS_TRANSCRIPT,
 	INIT_RUN_TRANSCRIPT,
 	INIT_TRANSCRIPT
@@ -12,7 +13,13 @@ import {
 
 import Terminal from './Terminal';
 
-const TRANSCRIPTS = [DOCTOR_TRANSCRIPT, INIT_TRANSCRIPT, INIT_RUN_TRANSCRIPT, HARNESS_TRANSCRIPT];
+const TRANSCRIPTS = [
+	DOCTOR_TRANSCRIPT,
+	INIT_TRANSCRIPT,
+	INIT_RUN_TRANSCRIPT,
+	HARNESS_TRANSCRIPT,
+	HARNESS_ONBOARDED_TRANSCRIPT
+];
 
 const COMMAND = 'jss-devtools doctor';
 const OTHER = 'jss-devtools init';

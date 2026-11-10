@@ -64,8 +64,8 @@ Home, top to bottom:
 5. **Closing install band**: removed (user, 2026-11-10): "Bỏ section Install in one line. nhé". The
    page ends at the repository band. It is still the end of the page: there is no footer.
 
-The page frame is Bun's: vertical hairlines at the `wrapper` edges running the page height and a hairline
-between bands, so the page reads as one ruled sheet. No drop shadows on surfaces; one soft teal glow is
+A hairline runs between bands. The vertical hairlines at the `wrapper` edges were removed (user,
+2026-11-10): "2 border inline của Hero__inner--nR4Yj là không cần thiết". No drop shadows on surfaces; one soft teal glow is
 allowed behind the replay terminal, built from colour tokens only.
 
 Docs (mini): the same header and frame; sidebar with mono group labels and one selected-item pattern;

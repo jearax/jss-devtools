@@ -2,6 +2,8 @@ import { cn } from '@jjuidev/styles/variants';
 import { ComponentProps, ReactNode } from 'react';
 
 import { tokenizeLines } from '@/components/CodeBlock/highlight';
+import ShellCommand from '@/components/ShellCommand/ShellCommand';
+import ShellPrompt, { ShellPromptProps } from '@/components/ShellPrompt/ShellPrompt';
 import WindowChrome from '@/components/WindowChrome/WindowChrome';
 
 import styles from './styles.module.css';
@@ -9,15 +11,12 @@ import styles from './styles.module.css';
 export type CodeBlockProps = ComponentProps<'div'> & {
 	/** The file name or the language, shown in the header. */
 	title?: string;
-	/** The snippet. */
 	code: string;
-	/** The shell prompt the snippet is typed at. */
-	prompt?: string;
-	/** Let a long line wrap instead of scrolling. */
+	/** Types the snippet's first line as a command at this prompt, coloured as zsh colours it. */
+	prompt?: Pick<ShellPromptProps, 'dir' | 'git'>;
 	wrap?: boolean;
 	/** The one-based line numbers to highlight. */
 	highlighted?: readonly number[];
-	/** What sits on the right of the header. */
 	headerAction?: ReactNode;
 	/** The language of the snippet: `sh`, `json` or `ts`. Anything else prints as plain text. */
 	language?: string;
@@ -59,7 +58,7 @@ const CodeBlock = ({
 			<pre className={styles.code} data-wrap={wrap}>
 				{prompt && (
 					<span className={styles.prompt}>
-						{prompt} {renderLine(0)}
+						<ShellPrompt {...prompt} /> <ShellCommand command={lines[0] ?? ''} />
 						{lines.length === 1 ? null : '\n'}
 					</span>
 				)}

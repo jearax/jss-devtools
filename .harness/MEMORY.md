@@ -34,3 +34,4 @@ Short facts about this repository, injected at every session start. Size limits 
 - Vitest scopes CSS Module classes differently from Vite, so `[class*="Component__x"]` selectors that work on the dev server match nothing in site tests; select by role, text or data attribute. (src: site/vitest.config.ts)
 - Real, coloured CLI transcripts for the site are captured with the `capture-cli-transcript` learned skill (pty, headless terminal replay). (src: .claude/skills/capture-cli-transcript/SKILL.md)
 - `doctor` is not a main command (user): the hero terminal shows `init`, `Claude Code` and `harness` only; do not add a `doctor` tab back. The docs page for it stays. (src: site/src/pages/Home/Home.constant.ts)
+- A dependency the site tests import for the first time must be added to `optimizeDeps.include` in `site/vitest.config.ts`: otherwise Vite re-optimizes mid-run and a cold run times out in unrelated suites, while a warm rerun passes. (src: site/vitest.config.ts)

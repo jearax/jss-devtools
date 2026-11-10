@@ -22,7 +22,10 @@ metadata:
    `(for i in $(seq 1 20); do sleep 4; printf '\r'; done) | env -u CI FORCE_COLOR=1 script -q run.tty sh -c 'stty cols 100 rows 50; node <repo>/dist/cli.mjs init my-app'`
 4. Replay the recording to the final screen: install `@xterm/headless@5.5.0` in a scratch folder, then
    `node .claude/skills/capture-cli-transcript/scripts/render-tty.cjs run.tty <scratch folder>`; read `run.tty.screen`.
-5. Paste lines into the constant with ESC written as `\u001b`; drop the startup banner and cut long file
+5. A state after onboarding (`HARNESS_ONBOARDED_TRANSCRIPT`): in a scratch `init my-app -y`, onboard by
+   hand as `.harness/BOOTSTRAP.md` says (memory lines, one decision from the template with its index
+   row, delete `BOOTSTRAP.md`), then run step 2 there; the constant's doc block names the sample answers.
+6. Paste lines into the constant with ESC written as `\u001b`; drop the startup banner and cut long file
    lists to a few lines, as the existing transcripts do, and say so in the constant's doc block.
 
 ## Pitfalls

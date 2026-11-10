@@ -1,51 +1,36 @@
 /*
- * The VitePress pattern: a hairline above, then the two neighbouring pages pull apart — the
- * previous page leans left with its direction label, the next leans right. The direction label
- * is the quiet half; the title carries the link's weight and picks up the brand colour on hover.
+ * Two equal cards on one row, the Docusaurus and VitePress pattern: the previous page on the left,
+ * the next on the right. The direction label is the quiet half; the title carries the link.
  */
 .root {
-	@apply mt-4 flex justify-between gap-3 border-t border-default pt-8;
+	@apply mt-4 grid grid-cols-2 gap-4 border-t border-default pt-8;
 
-	@apply max-md:flex-col max-md:gap-4 max-md:divide-y max-md:divide-default;
+	@apply max-sm:grid-cols-1 max-sm:gap-3;
 }
 
-/*
- * The link keeps the same padding on both viewports, so on a phone the divider's hairline
- * lands between the two touches, not under a thumb.
- */
 .link {
-	@apply pointer-coarse:h-11 focus-ring flex flex-col gap-2 self-start rounded-md border border-default px-4 py-3 text-default no-underline transition-colors duration-150 hover:bg-hover active:bg-active;
-
-	@apply max-md:w-full max-md:rounded-none max-md:px-0 max-md:py-4;
+	@apply focus-ring flex min-w-0 flex-col gap-1 rounded-lg border border-default px-5 py-4 text-default no-underline transition-colors duration-150 hover:border-primary hover:bg-hover active:bg-active;
 }
 
-/*
- * `ml-auto` keeps Next on the right even when Previous is missing (the first page), so the
- * direction's position never moves as the reader walks the sequence.
- */
+/* Next keeps the right column and edge even on the first page, where there is no previous card. */
 .next {
-	@apply ml-auto self-end text-right;
+	@apply col-start-2 items-end text-right;
 
-	@apply max-md:ml-0 max-md:self-start max-md:text-left;
+	@apply max-sm:col-start-1;
 }
 
-/*
- * The direction row is a quiet label with its arrow at the outer edge of the link; the icon is
- * aria-hidden art inside the label, so it takes the row's colour and hover shift with it.
- */
 .direction {
-	@apply inline-flex items-center gap-1.5 text-label-sm uppercase tracking-widest text-muted transition-colors duration-150;
+	@apply inline-flex items-center gap-1.5 text-label-xs uppercase tracking-widest text-muted transition-colors duration-150;
 }
 
 .title {
-	@apply font-medium text-xl text-default;
+	@apply text-heading-lg text-default transition-colors duration-150;
 }
 
 .link:hover .title {
 	@apply text-primary;
 }
 
-/* The quiet half answers the hover too, so the whole link reads as one thing. */
 .link:hover .direction {
 	@apply text-default;
 }

@@ -6,7 +6,7 @@
 import { createElement } from 'react';
 
 import { TerminalTab } from '@/components/Terminal/Terminal';
-import { HARNESS_TRANSCRIPT, INIT_RUN_TRANSCRIPT } from '@/constants/transcripts.constant';
+import { HARNESS_ONBOARDED_TRANSCRIPT, INIT_RUN_TRANSCRIPT } from '@/constants/transcripts.constant';
 import ClaudeCodeScreen from '@/pages/Home/components/ClaudeCodeScreen/ClaudeCodeScreen';
 
 /*
@@ -27,7 +27,7 @@ export const HERO_TERMINAL_TABS: readonly TerminalTab[] = [
 			git: false
 		},
 		lines: INIT_RUN_TRANSCRIPT,
-		advance: true
+		advance: 2800
 	},
 	{
 		label: 'Claude Code',
@@ -42,12 +42,16 @@ export const HERO_TERMINAL_TABS: readonly TerminalTab[] = [
 			}
 		],
 		command: 'claude',
-		screen: createElement(ClaudeCodeScreen)
+		screen: createElement(ClaudeCodeScreen),
+		// Long enough to read the onboarding question and its answer before the window moves on.
+		advance: 1000
 	},
 	{
 		label: 'harness',
-		comment: 'Check the repository harness',
+		comment: 'After onboarding, check the harness',
 		command: 'jss-devtools harness doctor',
-		lines: HARNESS_TRANSCRIPT
+		lines: HARNESS_ONBOARDED_TRANSCRIPT,
+		// The last tab hands back to init, so the hero replays the whole story.
+		advance: 3500
 	}
 ];

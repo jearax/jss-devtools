@@ -2,7 +2,6 @@
 	@apply flex flex-col;
 }
 
-/* The repository band: the tree left, the three points right, inside the page frame. */
 .repository {
 	/* The page's last band: the tail keeps the floating back-to-top off the final content. */
 	@apply reveal wrapper grid grid-cols-2 items-start gap-10 pt-10 pb-20;

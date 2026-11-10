@@ -10,7 +10,6 @@
 	@apply max-w-2xl text-body-lg text-muted;
 }
 
-/* The content and the table of contents sit side by side; below lg the column stacks. */
 .body {
 	@apply grid grid-cols-[minmax(0,1fr)_12.5rem] gap-14;
 
@@ -104,6 +103,9 @@
 
 .prose table {
 	@apply w-full border-collapse text-body-sm;
+
+	/* Commands keep one line, so on a phone the table scrolls inside itself instead of the page. */
+	@apply max-sm:block max-sm:overflow-x-auto;
 }
 
 .prose th {

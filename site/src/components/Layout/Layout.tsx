@@ -17,8 +17,6 @@ const Layout = ({ className, ...props }: LayoutProps) => {
 
 	return (
 		<div className={cn(styles.root, className)} {...props}>
-			{/* Two vertical hairlines at the wrapper's edges: the page reads as one ruled sheet. */}
-			<div className={styles.frame} aria-hidden="true" />
 			<a className={styles.skipLink} href="#main">
 				Skip to the content
 			</a>

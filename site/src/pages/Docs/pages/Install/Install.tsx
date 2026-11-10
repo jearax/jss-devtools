@@ -48,7 +48,10 @@ const Install = () => {
 							<CodeBlock
 								code={INSTALL_COMMAND}
 								language="sh"
-								prompt="$"
+								prompt={{
+									dir: '~',
+									git: false
+								}}
 								title="install.sh"
 								wrap
 								headerAction={<CopyButton feedback="icon" label="Copy the install command" value={INSTALL_COMMAND} />}

@@ -50,10 +50,8 @@ describe('Hero', () => {
 	it('shows the transcripts in a tabbed terminal window titled by the CLI', async () => {
 		const screen = await render(<Hero />, { wrapper });
 
-		// The title bar comes before the command, whose program word is now a span of its own.
 		await expect.element(screen.getByText(PRODUCT_NAME, { exact: true }).first()).toBeInTheDocument();
 
-		// The tabs are the three commands, replaying their own transcripts.
 		const tabs = [...screen.container.querySelectorAll('button[role="tab"]')];
 
 		expect(tabs.length).toBe(HERO_TERMINAL_TABS.length);
@@ -114,6 +112,7 @@ describe('Hero', () => {
 
 		await expect.element(screen.getByText('cd my-app')).toBeInTheDocument();
 		await expect.element(screen.getByText('Fable 5.2 with max effort · Claude Max')).toBeInTheDocument();
+		await expect.element(screen.getByText('Run harness onboarding now?')).toBeInTheDocument();
 	});
 
 	it('replays the transcript when the reader switches tabs', async () => {
