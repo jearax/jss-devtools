@@ -25,13 +25,29 @@
 	@apply relative border-default border-b-0 bg-selected text-default;
 }
 
-.replay {
-	/* The strip's top padding belongs to the tabs; the negative margin centres the button on the whole strip. */
+/* The strip's top padding belongs to the tabs; the negative margin centres the button on the whole strip. */
+.pause {
+	/* The pause button carries the strip's right-edge margin, so the pair hugs the far end together. */
 	@apply pointer-coarse:size-11 ml-auto -mt-3 focus-ring inline-flex size-8 shrink-0 items-center justify-center self-center rounded-md text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
+}
+
+.replay {
+	@apply pointer-coarse:size-11 -mt-3 focus-ring inline-flex size-8 shrink-0 items-center justify-center self-center rounded-md text-muted transition-colors duration-150 hover:bg-hover hover:text-default active:bg-active;
 }
 
 .replayIcon {
 	@apply size-4;
+}
+
+/*
+ * Paused freezes every descendant animation and its pseudo-elements where they stand; a frozen
+ * animation's delay stops counting down with it. The flag is important because each animation
+ * shorthand below resets the play state implicitly.
+ */
+.root[data-paused='true'] *,
+.root[data-paused='true'] *::before,
+.root[data-paused='true'] *::after {
+	animation-play-state: paused !important;
 }
 
 .label {

@@ -1,5 +1,5 @@
 import { cn } from '@jjuidev/styles/variants';
-import { RotateCcw } from 'lucide-react';
+import { Pause, Play, RotateCcw } from 'lucide-react';
 import {
 	AnimationEvent,
 	ComponentProps,
@@ -16,6 +16,7 @@ import CopyButton from '@/components/CopyButton/CopyButton';
 import ShellCommand from '@/components/ShellCommand/ShellCommand';
 import ShellPrompt, { ShellPromptProps } from '@/components/ShellPrompt/ShellPrompt';
 import { parseAnsi } from '@/components/Terminal/ansi.util';
+import usePausableTimeout from '@/components/Terminal/pausable-timeout';
 import WindowChrome from '@/components/WindowChrome/WindowChrome';
 
 import styles from './styles.module.css';
@@ -79,6 +80,7 @@ const Terminal = ({
 }: TerminalProps) => {
 	const [active, setActive] = useState(0);
 	const [run, setRun] = useState(0);
+	const [paused, setPaused] = useState(false);
 	const baseId = useId();
 	const tab = tabs?.[active];
 	const shownCommand = tab?.command ?? command;
@@ -113,16 +115,25 @@ const Terminal = ({
 		element.scrollTop = reduced ? element.scrollHeight : 0;
 	}, [variant, run, active]);
 
-	const advanceTimer = useRef<number | undefined>(undefined);
+	const advanceTimer = usePausableTimeout();
 	// The tabs play on in a loop until the reader picks one; from then on the window stays where they put it.
 	const autoplay = useRef(true);
 
 	// A tab switch or a replay cancels the pending move, so a reader's own choice always wins.
 	useEffect(() => {
 		return () => {
-			window.clearTimeout(advanceTimer.current);
+			advanceTimer.clear();
 		};
-	}, [active, run]);
+	}, [active, run, advanceTimer]);
+
+	// Pausing freezes the pending waits where they stand; playing picks up the remainders.
+	useEffect(() => {
+		if (paused) {
+			advanceTimer.pause();
+		} else {
+			advanceTimer.resume();
+		}
+	}, [paused, advanceTimer]);
 
 	// The last line's reveal ending is the replay ending; under reduced motion nothing animates, so nothing moves.
 	const onRevealEnd = (event: AnimationEvent<HTMLDivElement>) => {
@@ -135,7 +146,7 @@ const Terminal = ({
 			return;
 		}
 
-		advanceTimer.current = window.setTimeout(() => {
+		advanceTimer.start(() => {
 			setActive((current) => {
 				return (current + 1) % count;
 			});
@@ -208,12 +219,19 @@ const Terminal = ({
 
 		event.preventDefault();
 		autoplay.current = false;
+		setPaused(false);
 		setActive(next);
 		document.getElementById(`${baseId}-tab-${next}`)?.focus();
 	};
 
 	return (
-		<div className={cn(styles.root, className)} data-variant={variant} data-fixed-body={fixedBody} {...props}>
+		<div
+			className={cn(styles.root, className)}
+			data-variant={variant}
+			data-fixed-body={fixedBody}
+			data-paused={paused}
+			{...props}
+		>
 			<WindowChrome title={title}>{label && <span className={styles.label}>{label}</span>}</WindowChrome>
 
 			{tabs && (
@@ -233,6 +251,7 @@ const Terminal = ({
 								onClick={() => {
 									autoplay.current = false;
 									setActive(index);
+									setPaused(false);
 									setRun((run) => {
 										return run + 1;
 									});
@@ -246,20 +265,39 @@ const Terminal = ({
 						);
 					})}
 					{replay && variant === 'animated' ? (
-						<button
-							type="button"
-							className={styles.replay}
-							aria-label="Replay the transcript"
-							onClick={() => {
-								// A replay is a "play again": it puts the loop back where the reader stopped it.
-								autoplay.current = true;
-								setRun((run) => {
-									return run + 1;
-								});
-							}}
-						>
-							<RotateCcw className={styles.replayIcon} size={13} aria-hidden="true" />
-						</button>
+						<>
+							<button
+								type="button"
+								className={styles.pause}
+								aria-label={paused ? 'Play the transcript' : 'Pause the transcript'}
+								onClick={() => {
+									setPaused((current) => {
+										return !current;
+									});
+								}}
+							>
+								{paused ? (
+									<Play className={styles.replayIcon} size={13} aria-hidden="true" />
+								) : (
+									<Pause className={styles.replayIcon} size={13} aria-hidden="true" />
+								)}
+							</button>
+							<button
+								type="button"
+								className={styles.replay}
+								aria-label="Replay the transcript"
+								onClick={() => {
+									// A replay is a "play again": it puts the loop back where the reader stopped it.
+									autoplay.current = true;
+									setPaused(false);
+									setRun((run) => {
+										return run + 1;
+									});
+								}}
+							>
+								<RotateCcw className={styles.replayIcon} size={13} aria-hidden="true" />
+							</button>
+						</>
 					) : null}
 				</div>
 			)}

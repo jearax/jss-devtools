@@ -159,3 +159,137 @@ describe('Terminal', () => {
 			.toBe(OTHER);
 	});
 });
+
+describe('the play/pause control', () => {
+	const pauseTabs = [
+		{
+			label: 'one',
+			command: 'jss-devtools doctor',
+			lines: ['Everything looks good.'],
+			advance: 2000
+		},
+		{
+			label: 'two',
+			command: 'jss-devtools init',
+			lines: []
+		}
+	];
+
+	const renderPause = async (props = {}) => {
+		return await render(<Terminal variant="animated" replay tabs={pauseTabs} {...props} />, {
+			wrapper: ThemeProvider
+		});
+	};
+
+	const rootElement = (screen: { container: HTMLElement }) => {
+		return screen.container.firstElementChild as HTMLElement;
+	};
+
+	const selectedTab = (screen: { container: HTMLElement }) => {
+		return screen.container.querySelector('button[role="tab"][aria-selected="true"]')?.textContent;
+	};
+
+	// The suite runs under prefers-reduced-motion, so this is the reduced-motion case itself.
+	it('renders next to replay under reduced motion, with pause to the left of replay', async () => {
+		const screen = await renderPause();
+
+		const buttons = [...rootElement(screen).querySelectorAll('button')];
+
+		const pause = buttons.findIndex((button) => {
+			return button.getAttribute('aria-label') === 'Pause the transcript';
+		});
+
+		const replay = buttons.findIndex((button) => {
+			return button.getAttribute('aria-label') === 'Replay the transcript';
+		});
+
+		expect(pause).toBeGreaterThan(-1);
+		expect(replay).toBeGreaterThan(pause);
+	});
+
+	it('flips its label and the root data-paused as it toggles', async () => {
+		const screen = await renderPause();
+
+		expect(rootElement(screen).getAttribute('data-paused')).toBe('false');
+
+		await screen.getByRole('button', { name: 'Pause the transcript' }).click();
+
+		await expect.element(screen.getByRole('button', { name: 'Play the transcript' })).toBeInTheDocument();
+		expect(rootElement(screen).getAttribute('data-paused')).toBe('true');
+
+		await screen.getByRole('button', { name: 'Play the transcript' }).click();
+
+		await expect.element(screen.getByRole('button', { name: 'Pause the transcript' })).toBeInTheDocument();
+		expect(rootElement(screen).getAttribute('data-paused')).toBe('false');
+	});
+
+	it('a replay while paused plays again', async () => {
+		const screen = await renderPause();
+
+		await screen.getByRole('button', { name: 'Pause the transcript' }).click();
+		await expect.element(screen.getByRole('button', { name: 'Play the transcript' })).toBeInTheDocument();
+
+		await screen.getByRole('button', { name: 'Replay the transcript' }).click();
+
+		await expect.element(screen.getByRole('button', { name: 'Pause the transcript' })).toBeInTheDocument();
+		expect(rootElement(screen).getAttribute('data-paused')).toBe('false');
+	});
+
+	it('pausing during the advance wait holds the tab, and play finishes the wait', async () => {
+		const screen = await renderPause();
+
+		await expect.element(screen.getByText('Everything looks good.')).toBeInTheDocument();
+
+		const end = screen.container.querySelector<HTMLElement>('[role="tabpanel"] > p:last-child');
+
+		end?.dispatchEvent(new AnimationEvent('animationend', { bubbles: true }));
+
+		await screen.getByRole('button', { name: 'Pause the transcript' }).click();
+
+		await new Promise((resolve) => {
+			setTimeout(resolve, 1000);
+		});
+
+		expect(selectedTab(screen)).toBe('one');
+
+		await screen.getByRole('button', { name: 'Play the transcript' }).click();
+
+		await expect
+			.poll(
+				() => {
+					return selectedTab(screen);
+				},
+				{ timeout: 3000 }
+			)
+			.toBe('two');
+	});
+
+	it('a program screen inside a paused root has its animations paused', async () => {
+		const screen = await render(
+			<Terminal
+				variant="animated"
+				replay
+				tabs={[
+					{
+						label: 'one',
+						command: 'jss-devtools doctor',
+						lines: [],
+						screen: <div data-screen-probe>the screen</div>
+					}
+				]}
+			/>,
+			{ wrapper: ThemeProvider }
+		);
+
+		await expect.element(screen.getByText('the screen')).toBeInTheDocument();
+
+		const wrapper = screen.container.querySelector('[data-screen-probe]')?.parentElement;
+
+		expect(wrapper).toBeTruthy();
+		expect(getComputedStyle(wrapper!).animationPlayState).toBe('running');
+
+		await screen.getByRole('button', { name: 'Pause the transcript' }).click();
+
+		expect(getComputedStyle(wrapper!).animationPlayState).toBe('paused');
+	});
+});
