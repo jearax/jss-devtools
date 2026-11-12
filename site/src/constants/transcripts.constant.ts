@@ -3,7 +3,8 @@
  * ANSI colour codes the CLI printed; the terminal renders them through the design system's tokens.
  *
  * The `init` transcript is the head of a dry run, cut on purpose: the run lists fifty-one files, and
- * the whole list would be noise. The count line says how many there are.
+ * the whole list would be noise. The count line says how many there are; the run's `To apply` hint
+ * is kept.
  */
 export const INSTALL_TRANSCRIPT: readonly string[] = [
 	'jss-devtools-install: downloading from https://jss-devtools.jjuidev.com/releases/latest',
@@ -38,22 +39,26 @@ export const INIT_TRANSCRIPT: readonly string[] = [
 	'\u001b[90m│\u001b[39m  \u001b[32m+\u001b[39m package.json',
 	'\u001b[90m│\u001b[39m  \u001b[32m+\u001b[39m tsconfig.json',
 	'\u001b[90m│\u001b[39m',
-	'\u001b[90m└\u001b[39m  Dry run: nothing written'
+	'\u001b[90m│\u001b[39m  Assumed npm for this plan; pass --pm to pick another',
+	'\u001b[90m│\u001b[39m',
+	'\u001b[90m└\u001b[39m  Dry run: nothing written',
+	'   To apply:',
+	'     \u001b[2m$ \u001b[22m\u001b[36mjss-devtools init my-app -y\u001b[39m'
 ];
 
 /**
  * A real `jss-devtools init my-app` in an empty folder, answering every question with its default,
  * as the terminal showed it when the run finished: replayed through a headless terminal, so the
  * install log the CLI clears is gone, with clack's one bar above the summary. The startup banner is left out like every other transcript
- * here, and the file list keeps eight of its fifty-one lines; the count line says how many.
+ * here, and the file list keeps nine of its fifty-one lines; the count line says how many.
  */
 export const INIT_RUN_TRANSCRIPT: readonly string[] = [
-	'\u001b[90m┌\u001b[39m  \u001b[7m jss-devtools init \u001b[27m',
-	'\u001b[0m\u001b[90m│\u001b[0m',
+	'\u001b[0m\u001b[90m┌\u001b[0m  \u001b[0m\u001b[7m jss-devtools init ',
+	'\u001b[0m\u001b[90m│',
 	'\u001b[0m\u001b[32m◇\u001b[0m  Which package manager?',
-	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[2mnpm\u001b[0m',
-	'\u001b[0m\u001b[90m│\u001b[0m',
-	'\u001b[0m\u001b[32m◇\u001b[0m  Changes in my-app: \u001b[0m\u001b[32m51 to create\u001b[0m',
+	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[2mnpm',
+	'\u001b[0m\u001b[90m│',
+	'\u001b[0m\u001b[32m◇\u001b[0m  Changes in my-app: \u001b[0m\u001b[32m51 to create',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.claude/\u001b[0msettings.json',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.harness/bin/\u001b[0mharness-hook.mjs',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.harness/core/\u001b[0mmanifest.json',
@@ -62,18 +67,21 @@ export const INIT_RUN_TRANSCRIPT: readonly string[] = [
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.vscode/\u001b[0msettings.json',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m eslint.config.mjs',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m package.json',
-	'\u001b[0m\u001b[90m│\u001b[0m',
+	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m tsconfig.json',
+	'\u001b[0m\u001b[90m│',
 	'\u001b[0m\u001b[32m◇\u001b[0m  Write 51 files to my-app and install?',
-	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[2mYes\u001b[0m',
-	'\u001b[0m\u001b[90m│\u001b[0m',
-	'\u001b[0m\u001b[32m◆\u001b[0m  Installed with npm \u001b[0m\u001b[2m(5.3s)\u001b[0m',
-	'\u001b[0m\u001b[90m│\u001b[0m',
+	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[2mYes',
+	'\u001b[0m\u001b[90m│',
+	'\u001b[0m\u001b[32m◆\u001b[0m  Installed with npm \u001b[0m\u001b[2m(12.1s)',
+	'\u001b[0m\u001b[90m│',
 	'\u001b[0m\u001b[32m◇\u001b[0m  Sorted package.json',
-	'\u001b[0m\u001b[90m│\u001b[0m',
+	'\u001b[0m\u001b[90m│',
+	'\u001b[0m\u001b[32m◇\u001b[0m  Formatted 43 files',
+	'\u001b[0m\u001b[90m│',
 	'\u001b[0m\u001b[90m└\u001b[0m  Next steps',
 	'     The harness is installed; open Claude Code in the project folder to onboard.',
-	'     \u001b[0m\u001b[2m$ \u001b[0m\u001b[36mcd my-app\u001b[0m',
-	'     \u001b[0m\u001b[2m$ \u001b[0m\u001b[36mnpm run dev\u001b[0m'
+	'     \u001b[0m\u001b[2m$ \u001b[0m\u001b[36mcd my-app',
+	'     \u001b[0m\u001b[2m$ \u001b[0m\u001b[36mnpm run dev'
 ];
 
 export const HARNESS_TRANSCRIPT: readonly string[] = [
@@ -93,7 +101,7 @@ export const HARNESS_TRANSCRIPT: readonly string[] = [
 export const HARNESS_ONBOARDED_TRANSCRIPT: readonly string[] = [
 	'\u001b[90m┌\u001b[39m  \u001b[7m jss-devtools harness doctor \u001b[27m',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Version         0.1.0',
-	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Memory          833/9600 chars, 8 entries',
+	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Memory          735/9600 chars, 8 entries',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Decisions       1',
 	'\u001b[90m│\u001b[39m  \u001b[32m✔\u001b[39m Learned skills  0',
 	'\u001b[90m│\u001b[39m',
