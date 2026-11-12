@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 
 import { readPackageInfo } from './package-info.mjs';
 
@@ -23,6 +24,8 @@ const PACKAGES = [
 	'typescript',
 	'typescript-eslint'
 ];
+
+const MONOREPO_PACKAGES = ['turbo'];
 
 const NODE_FLOOR = readPackageInfo().nodeFloor;
 const TYPES_NODE_MAJOR = Number(NODE_FLOOR.split('.')[0]);
@@ -186,7 +189,7 @@ const isOldEnough = (publishedAt) => {
 
 const registry = {};
 
-for (const pkg of PACKAGES) {
+for (const pkg of [...PACKAGES, ...MONOREPO_PACKAGES]) {
 	const { time, versions, 'dist-tags': distTags } = npmView([pkg, 'time', 'versions', 'dist-tags']);
 
 	registry[pkg] = {
@@ -328,14 +331,64 @@ console.table(
 console.log(
 	`node floor: ${NODE_FLOOR}; highest package engines.node floor major: ${highestNode}; peer passes: ${pass}`
 );
-console.log(
-	JSON.stringify(
-		Object.fromEntries(
-			PACKAGES.map((pkg) => {
-				return [pkg, chosen[pkg]];
-			})
-		),
-		null,
-		'\t'
+
+const monorepoChosen = {};
+
+for (const pkg of MONOREPO_PACKAGES) {
+	let version = candidates(pkg)[0];
+
+	while (!isOldEnough(registry[pkg].time[version])) {
+		const older = candidates(pkg).find((candidate) => {
+			return compareVersions(parseVersion(candidate), parseVersion(version)) < 0;
+		});
+
+		if (!older) {
+			throw new Error(`${pkg} has no stable release older than ${MIN_AGE_MINUTES} minutes`);
+		}
+
+		version = older;
+	}
+
+	monorepoChosen[pkg] = version;
+
+	const { engines } = fetchVersionMetadata(pkg, version);
+
+	if (engines?.node && compareVersions(rangeMinVersion(engines.node), parseVersion(NODE_FLOOR)) > 0) {
+		throw new Error(`${pkg} engines.node above the ${NODE_FLOOR} floor`);
+	}
+}
+
+const quoteKey = (key) => {
+	return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key) ? key : `'${key}'`;
+};
+
+const renderDependencyTable = (entries) => {
+	const lines = Object.entries(entries).map(([name, version]) => {
+		return `\t${quoteKey(name)}: '${version}'`;
+	});
+
+	return lines.join(',\n');
+};
+
+const constantsPath = new URL('../src/commands/init/constants/node-preset-dependency.constant.ts', import.meta.url);
+
+writeFileSync(
+	constantsPath,
+	`// Written by scripts/pin-node-preset.mjs; rerun it instead of editing by hand.
+export const NODE_PRESET_DEPENDENCIES = {
+${renderDependencyTable(
+	Object.fromEntries(
+		PACKAGES.map((pkg) => {
+			return [pkg, chosen[pkg]];
+		})
 	)
+)}
+} as const;
+
+export const MONOREPO_PRESET_DEPENDENCIES = {
+${renderDependencyTable(monorepoChosen)}
+} as const;
+`
 );
+
+console.log(`wrote ${constantsPath.pathname}`);

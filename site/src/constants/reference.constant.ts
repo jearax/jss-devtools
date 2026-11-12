@@ -21,6 +21,11 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 		meaning: 'The package manager for a new project: `bun`, `pnpm`, `yarn` or `npm`. Defaults to `npm`.'
 	},
 	{
+		flag: '--monorepo',
+		meaning:
+			'Create the project as a Turborepo: the toolchain and the harness at the root, one app under `apps/<framework>`, and an empty `packages/`. Create mode only, default off.'
+	},
+	{
 		flag: '--force, -f',
 		meaning:
 			'Replace the existing ESLint, Prettier, commitlint and editor configs. Without it, `init` stops and lists them.'

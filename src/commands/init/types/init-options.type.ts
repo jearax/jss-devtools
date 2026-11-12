@@ -7,6 +7,7 @@ export type InitOptions = {
 	dryRun?: true;
 	pm?: PackageManagerName;
 	force?: true;
+	monorepo?: true;
 	framework?: InitFramework;
 	vscode?: boolean;
 	harness?: boolean;

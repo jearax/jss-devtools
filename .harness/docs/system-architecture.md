@@ -235,12 +235,16 @@ same as the root help.
 `jss-devtools init` is the toolchain command, shipping the `node` preset
 ([0030](../decisions/0030-init-node-preset.md)). `init <dir>` creates a TypeScript node project;
 `init` sets up the current one. The syntax picks the mode; every edge case exits 1 with the finding
-and the next step.
+and the next step. With `--monorepo`, create mode writes a Turborepo instead
+([0045](../decisions/0045-init-monorepo-creates-a-turborepo.md)): the toolchain and the harness
+once at the root, one app at `apps/<framework>` named `@<project>/<framework>`, and an empty
+`packages/`; the install and the sort then run at the root, and the sort covers the app manifest
+too. Without the flag nothing changes.
 
 A run moves through services in one direction:
 
 ```
-validateInitArguments -> preflightInit -> buildInitPlan -> renderPlan -> confirm -> applyInitPlan -> installPackages -> sort
+validateInitArguments -> preflightInit -> buildInitPlan -> renderPlan -> confirm -> applyInitPlan -> installPackages -> sort -> format
 ```
 
 `preflightInit` runs every check before the first write: the mode's argument rules, package.json,
@@ -256,10 +260,17 @@ The install runs under `createTaskLog`, which keeps the last 5 dim lines on a te
 collapses them into `Installed with <pm> (<seconds>s)`; piped, every line the package manager
 prints is kept with the `│  ` prefix. A failed install retains the whole log, then the error path
 reports on stderr. `prettier-package-json` and `prettier` then sort the manifest through the
-project's own local bins, under a `Sorted package.json` task.
+project's own local bins, under a `Sorted package.json` task, and a second task,
+`Formatting the written files`, runs the project's own `prettier --write` over every written file
+Prettier can parse — the paths are filtered by extension, because Prettier exits 2 on a file with
+no parser, while `.prettierignore`d files passed explicitly are skipped with exit 0, which leaves
+the `.harness/bin` and `.harness/core` bundles untouched. A failed format keeps the same shape: a
+message that says the files are written and the `To finish` command that formats them by hand.
+Why init formats at all is [0046](../decisions/0046-init-formats-the-files-it-writes.md).
 
 The file contents live in `templates/`, one export per file, and the pinned devDependency versions
-in `constants/node-preset-dependency.constant.ts`, written by `scripts/pin-node-preset.mjs`.
+in `constants/node-preset-dependency.constant.ts`, written by `scripts/pin-node-preset.mjs`; the
+monorepo plan entries live in `services/monorepo-plan.service.ts`.
 
 The flags are declared once, as plain data in `src/core/constants/common-option.constant.ts`, and a
 command attaches the ones it needs in its own `*.command.ts`. Core holds no commander import,
@@ -272,6 +283,7 @@ because only a command file may import commander.
 | `--force, -f`        | Replace the configs init owns, and delete their other documented names             |
 | `--pm <name>`        | Package manager for a new project; detected in existing mode, where it exits 1     |
 | `--framework <name>` | Preset to apply; only node for now                                                 |
+| `--monorepo`         | Create mode only: build a Turborepo with the app under `apps/<framework>`          |
 | `--no-vscode`        | Do not write `.vscode/`                                                            |
 | `--help, -h`         | commander's usage and options, plus an `Examples` section                          |
 

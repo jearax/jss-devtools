@@ -120,6 +120,7 @@ describe('init wired through commander', () => {
 
 		expect(calls.bins).toEqual([
 			['pnpm', 'prettier-package-json'],
+			['pnpm', 'prettier'],
 			['pnpm', 'prettier']
 		]);
 		expect(stdout).toContain('Next steps');

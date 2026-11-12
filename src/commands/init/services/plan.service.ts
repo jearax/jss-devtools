@@ -27,12 +27,13 @@ import { CLAUDE_MD, CLAUDE_SETTINGS } from '@/modules/harness/constants/harness-
 import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
 
 import { mergeHook, mergeLines, mergePackageJson, mergePnpmWorkspaceYaml } from './merge.service';
+import { monorepoCreateModeEntries } from './monorepo-plan.service';
 
 import type { PackageManagerName } from '@/commands/init/templates/package-json.template';
 import type { InitOptions } from '@/commands/init/types/init-options.type';
 import type { InitPlan, InitPreflight, PlanEntry } from '@/commands/init/types/init-plan.type';
 
-const hookCommands = (pm: PackageManagerName): { preCommit: string; commitMsg: string } => {
+export const hookCommands = (pm: PackageManagerName): { preCommit: string; commitMsg: string } => {
 	return {
 		preCommit: localBinCommandLine(pm, 'lint-staged', []),
 		commitMsg: localBinCommandLine(pm, 'commitlint', ['--edit', '"$1"'])
@@ -281,7 +282,9 @@ export const buildInitPlan = (preflight: InitPreflight, options: InitOptions): I
 		targetDir: preflight.targetDir,
 		entries: [
 			...(preflight.mode === 'create'
-				? createModeEntries(preflight, options)
+				? options.monorepo === true
+					? monorepoCreateModeEntries(preflight, options)
+					: createModeEntries(preflight, options)
 				: existingModeEntries(preflight, options)),
 			...harnessEntries(preflight, options)
 		]

@@ -34,7 +34,7 @@ from [`../templates/decision.md`](../templates/decision.md).
 | 0027 | [the landing page is a React SPA built by Vite, the design system is vendored as a tarball](./0027-react-spa-landing-page.md)                            | partly superseded         | 2026-11-03 |
 | 0028 | [Imports carry no file extension](./0028-extensionless-imports.md)                                                                                       | accepted                  | 2026-10-21 |
 | 0029 | [The shared command flags](./0029-shared-command-flags.md)                                                                                               | accepted                  | 2026-10-22 |
-| 0030 | [The init node preset](./0030-init-node-preset.md)                                                                                                       | accepted                  | 2026-10-27 |
+| 0030 | [The init node preset](./0030-init-node-preset.md)                                                                                                       | partly superseded by 0045 | 2026-10-27 |
 | 0031 | [init installs the harness](./0031-init-installs-the-harness.md)                                                                                         | accepted                  | 2026-11-01 |
 | 0032 | [harness update follows the old prototype's decision 0001 unchanged](./0032-harness-update.md)                                                           | accepted                  | 2026-11-01 |
 | 0033 | [harness doctor checks the repository, the machine doctor checks the machine](./0033-harness-doctor.md)                                                  | accepted                  | 2026-11-01 |
@@ -49,3 +49,5 @@ from [`../templates/decision.md`](../templates/decision.md).
 | 0042 | [Site UI work is delegated, but every value comes from the design system](./0042-site-ui-stays-inside-the-design-system.md)                              | Accepted                  | 2026-11-10 |
 | 0043 | [JSX renders optional parts with && and groups attributes that share one condition](./0043-conditional-rendering-in-jsx.md)                              | Accepted                  | 2026-11-10 |
 | 0044 | [The version moves to 0.1.0 for the first feature release](./0044-the-version-moves-to-0-1-0.md)                                                         | Accepted                  | 2026-11-10 |
+| 0045 | [init --monorepo creates a Turborepo with one app under apps/<framework>](./0045-init-monorepo-creates-a-turborepo.md)                                   | Accepted                  | 2026-11-12 |
+| 0046 | [init formats every file it writes with the project's own Prettier](./0046-init-formats-the-files-it-writes.md)                                          | Accepted                  | 2026-11-12 |

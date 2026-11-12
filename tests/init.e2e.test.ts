@@ -1,38 +1,23 @@
-import { execFile, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { promisify } from 'node:util';
+import { join } from 'node:path';
 
 import { afterAll, describe, expect, it } from 'vitest';
 
 import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
+
+import { CLI, TIMEOUT, available, run } from './support/init-e2e';
 
 // Needs the network for the installs and every manager on PATH, so it stays out of the default
 // `pnpm test`: run it alone with `INIT_E2E=1 pnpm vitest run tests/init.e2e.test.ts` after a build
 // (the vitest globalSetup builds the bundle when it is missing).
 const enabled = process.env['INIT_E2E'] === '1';
 
-const CLI = resolve(import.meta.dirname, '../dist/cli.mjs');
-
 const MANAGERS = ['bun', 'pnpm', 'yarn', 'npm'] as const;
 
 type Manager = (typeof MANAGERS)[number];
-
-const TIMEOUT = 10 * 60 * 1000;
-
-const run = promisify(execFile);
-
-const available = async (pm: Manager): Promise<boolean> => {
-	try {
-		await run(pm, ['--version']);
-
-		return true;
-	} catch {
-		return false;
-	}
-};
 
 const gitOut = (cwd: string, args: readonly string[]): Promise<string> => {
 	return run('git', args, { cwd }).then((result) => {
@@ -148,6 +133,11 @@ describe.runIf(enabled)('init end to end', () => {
 
 			await run('node', [CLI, 'init', `my-app-${pm}`, '--pm', pm, '-y'], {
 				cwd: root,
+				timeout: TIMEOUT
+			});
+
+			await run(join(project, 'node_modules', '.bin', 'prettier'), ['--check', '.'], {
+				cwd: project,
 				timeout: TIMEOUT
 			});
 

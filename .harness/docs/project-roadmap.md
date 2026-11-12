@@ -117,6 +117,28 @@ Decision: [0030](../decisions/0030-init-node-preset.md); the discussion history 
   required; yarn 1 and bun skipped where absent), gated behind `INIT_E2E=1` because it installs
   from the registry.
 
+## Done: init --monorepo creates a Turborepo
+
+Plan: [../plans/261112-0959-init-monorepo-turborepo/plan.md](../plans/261112-0959-init-monorepo-turborepo/plan.md).
+Decision: [0045](../decisions/0045-init-monorepo-creates-a-turborepo.md), which supersedes the
+monorepo non-goal of [0030](../decisions/0030-init-node-preset.md) for create mode only.
+
+- `jss-devtools init <dir> --monorepo` creates a Turborepo for pnpm, npm, yarn 1 and bun: the
+  toolchain and the harness once at the root, one app at `apps/<framework>` named
+  `@<project>/<framework>`, and an empty `packages/`. The root follows the Turborepo docs, with
+  this repository's `typecheck` task name and top-level `packageManager`. Existing mode, and
+  `init` without the flag, are unchanged.
+- `tests/init-monorepo.e2e.test.ts` proves a created monorepo lints, typechecks, builds, caches
+  (`FULL TURBO`) and runs with each manager on `PATH`, gated behind `INIT_E2E=1` like the
+  single-package suite.
+- `init` formats every file it writes with the project's own Prettier, in both modes
+  ([0046](../decisions/0046-init-formats-the-files-it-writes.md)); both end-to-end suites assert
+  `prettier --check .` passes right after init.
+- Known: `tests/init.e2e.test.ts` has two failures that predate this work, proven at the commit
+  before it: the `--agent-kit` file list, and a second `init -y` that hits the existing-mode
+  "Already set up" harness conflict. Fixing either needs a policy call on existing-mode harness
+  conflicts.
+
 ## Done: init installs the harness
 
 Plan: [../plans/261101-0204-init-harness/plan.md](../plans/261101-0204-init-harness/plan.md),

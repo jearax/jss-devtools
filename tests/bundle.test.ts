@@ -189,6 +189,8 @@ Options:
                       "react" | "rn" | "next" | "nest"; default: "node")
   --pm <name>         Package manager for a new project (values: "bun" | "pnpm"
                       | "yarn" | "npm"; default: "npm")
+  --monorepo          Create a Turborepo with the app under apps/<framework>
+                      (default: off)
   --force, -f         Replace existing ESLint, Prettier, commitlint and editor
                       configs (init stops and lists them; default: off)
   --no-vscode         Do not write .vscode/ (default: written)
@@ -204,6 +206,7 @@ Options:
 Examples:
   $ jss-devtools init my-app              Create my-app, asking for the package manager
   $ jss-devtools init my-app --pm pnpm -y Create my-app with pnpm, no questions (CI)
+  $ jss-devtools init my-app --monorepo   Create my-app as a Turborepo monorepo
   $ jss-devtools init                     Set up the project in the current folder
   $ jss-devtools init -f                  Replace existing ESLint, Prettier and commitlint configs
   $ jss-devtools init --no-harness        Set up the toolchain without the harness

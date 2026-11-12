@@ -12,8 +12,10 @@ import { eslintConfigMjsTemplate } from '@/commands/init/templates/eslint-config
 import { LINT_STAGED } from '@/commands/init/templates/package-json.template';
 import {
 	pnpmWorkspaceYamlExistingTemplate,
+	pnpmWorkspaceYamlMonorepoTemplate,
 	pnpmWorkspaceYamlTemplate
 } from '@/commands/init/templates/pnpm-workspace-yaml.template';
+import { srcMainTemplate } from '@/commands/init/templates/src-main.template';
 import { localBinCommandLine } from '@/core/adapters/package-manager.adapter';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
@@ -150,6 +152,113 @@ describe('the plan, create mode', () => {
 		expect(entryFor(plan, '.husky/pre-commit')?.content).toBe(
 			`#!/usr/bin/env sh\n${localBinCommandLine('yarn', 'lint-staged', [])}\n`
 		);
+	});
+});
+
+describe('the plan, create mode with --monorepo', () => {
+	const MONOREPO_PATHS = [
+		'.husky/commit-msg',
+		'.husky/pre-commit',
+		'.vscode/extensions.json',
+		'.vscode/settings.json',
+		'apps/node/src/main.ts',
+		'apps/node/package.json',
+		'apps/node/tsconfig.json',
+		'packages/.gitkeep',
+		'.editorconfig',
+		'.gitignore',
+		'.prettierignore',
+		'.prettierrc.json',
+		'commitlint.config.mjs',
+		'eslint.config.mjs',
+		'package.json',
+		'tsconfig.base.json',
+		'turbo.json'
+	];
+
+	const monorepoPaths = (pm: 'bun' | 'pnpm' | 'yarn' | 'npm', options: Record<string, unknown> = {}): string[] => {
+		const plan = buildInitPlan(
+			{
+				...createPreflight('/tmp/nowhere'),
+				pm
+			},
+			{
+				harness: false,
+				monorepo: true,
+				...options
+			}
+		);
+
+		return renderPlan(plan)
+			.split('\n')
+			.map((line) => {
+				return line.replace(/^[+~-] /, '');
+			});
+	};
+
+	it('plans the turborepo tree for every manager, with pnpm-workspace.yaml only for pnpm', () => {
+		for (const pm of ['bun', 'pnpm', 'yarn', 'npm'] as const) {
+			const expected =
+				pm === 'pnpm'
+					? [...MONOREPO_PATHS.slice(0, 15), 'pnpm-workspace.yaml', ...MONOREPO_PATHS.slice(15)]
+					: MONOREPO_PATHS;
+
+			expect(monorepoPaths(pm)).toEqual(expected);
+		}
+	});
+
+	it('writes the pnpm workspace globs and the scoped app name', () => {
+		const plan = buildInitPlan(
+			{
+				...createPreflight('/tmp/nowhere'),
+				pm: 'pnpm'
+			},
+			{
+				harness: false,
+				monorepo: true
+			}
+		);
+
+		expect(entryFor(plan, 'pnpm-workspace.yaml')?.content).toBe(pnpmWorkspaceYamlMonorepoTemplate());
+		expect(entryFor(plan, 'apps/node/package.json')?.content).toContain('"name": "@my-app/node"');
+		expect(entryFor(plan, 'apps/node/package.json')?.content).toContain('"version": "0.0.0"');
+		expect(entryFor(plan, 'packages/.gitkeep')?.content).toBe('');
+		expect(entryFor(plan, 'apps/node/src/main.ts')?.content).toBe(srcMainTemplate({ projectName: 'my-app' }));
+	});
+
+	it('leaves the workspace folders out of the eslint config in the single-package plan', () => {
+		const plan = buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false });
+
+		expect(entryFor(plan, 'eslint.config.mjs')?.content).toBe(eslintConfigMjsTemplate());
+	});
+
+	it('leaves .vscode/ out of the monorepo plan with --no-vscode', () => {
+		const paths = monorepoPaths('pnpm', { vscode: false });
+
+		expect(
+			paths.some((path) => {
+				return path.startsWith('.vscode/');
+			})
+		).toBe(false);
+	});
+
+	it('installs the harness at the root by default and leaves it out with --no-harness', () => {
+		const withHarness = buildInitPlan(createPreflight('/tmp/nowhere'), { monorepo: true });
+
+		const paths = withHarness.entries.map((entry) => {
+			return entry.path;
+		});
+
+		expect(paths).toContain('CLAUDE.md');
+		expect(
+			paths.some((path) => {
+				return path.startsWith('.harness/');
+			})
+		).toBe(true);
+		expect(paths).toContain('turbo.json');
+		expect(paths).toContain('apps/node/package.json');
+
+		expect(monorepoPaths('npm')).not.toContain('CLAUDE.md');
 	});
 });
 

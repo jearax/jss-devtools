@@ -15,3 +15,18 @@ export const pnpmWorkspaceYamlExistingTemplate = (): string => {
   unrs-resolver: true
 `;
 };
+
+export const pnpmWorkspaceYamlMonorepoTemplate = (): string => {
+	return `packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+
+strictPeerDependencies: true
+
+engineStrict: true
+`;
+};

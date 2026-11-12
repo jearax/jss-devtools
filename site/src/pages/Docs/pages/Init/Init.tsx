@@ -7,7 +7,29 @@ import { INIT_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constan
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import RichText from '@/pages/Docs/components/RichText/RichText';
 import { INIT_FILES, INIT_PRESETS } from '@/pages/Docs/Docs.constant';
-import { meta } from '@/pages/Docs/pages/Init/Init.constant';
+import {
+	INIT_COMMANDS,
+	INIT_FILES_INTRO,
+	INIT_FILES_NOTE,
+	INIT_FLOW_AFTER,
+	INIT_FLOW_STEPS,
+	INIT_MONOREPO_PARAGRAPHS,
+	INIT_WHAT_IT_DOES,
+	meta
+} from '@/pages/Docs/pages/Init/Init.constant';
+
+const commandBlock = (command: (typeof INIT_COMMANDS)[number]) => {
+	return (
+		<CodeBlock
+			key={command.code}
+			code={command.code}
+			language="sh"
+			prompt={command.prompt}
+			title={command.title}
+			headerAction={<CopyButton feedback="icon" label={command.label} value={command.code} />}
+		/>
+	);
+};
 
 const Init = () => {
 	return (
@@ -20,32 +42,9 @@ const Init = () => {
 					body: (
 						<>
 							<p>
-								With a folder name, <code>init</code> creates a new project. Without one, it sets up the folder you are
-								in. The two paths differ in what they read, not in what they write: the same toolchain either way.
+								<RichText text={INIT_WHAT_IT_DOES} />
 							</p>
-							<CodeBlock
-								code="jss-devtools init my-app --pm pnpm"
-								language="sh"
-								prompt={{
-									dir: '~',
-									git: false
-								}}
-								title="a new project"
-								headerAction={
-									<CopyButton
-										feedback="icon"
-										label="Copy the init command"
-										value="jss-devtools init my-app --pm pnpm"
-									/>
-								}
-							/>
-							<CodeBlock
-								code="jss-devtools init"
-								language="sh"
-								prompt={{ dir: 'my-app' }}
-								title="the current folder"
-								headerAction={<CopyButton feedback="icon" label="Copy the init command" value="jss-devtools init" />}
-							/>
+							{INIT_COMMANDS.slice(0, 2).map(commandBlock)}
 						</>
 					)
 				},
@@ -55,22 +54,16 @@ const Init = () => {
 						<>
 							<p>Every check runs before the first write, so a failure never leaves a half-written project behind.</p>
 							<ul>
-								<li>
-									The preflight reads the folder and the machine, and refuses what it cannot do: a folder that already
-									holds a project, a config <code>init</code> owns that is already there.
-								</li>
-								<li>The plan is built and printed. Every file it would write is listed with what it would do to it.</li>
-								<li>
-									You confirm it. <code>--yes</code> skips the question, which is what a CI job needs.
-								</li>
-								<li>
-									The files are written, the packages are installed with the chosen manager, and{' '}
-									<code>package.json</code> is sorted.
-								</li>
+								{INIT_FLOW_STEPS.map((step) => {
+									return (
+										<li key={step}>
+											<RichText text={step} />
+										</li>
+									);
+								})}
 							</ul>
 							<p>
-								After that, <code>git init</code>, the install and the sort can each still exit 1. When one does, the
-								files are already written: the command says so and prints the command to finish the step by hand.
+								<RichText text={INIT_FLOW_AFTER} />
 							</p>
 						</>
 					)
@@ -107,10 +100,7 @@ const Init = () => {
 					body: (
 						<>
 							<p>
-								A new project gets the toolchain, the git hooks and the editor settings. These are the files{' '}
-								<code>init</code> owns, and it will not overwrite the three it considers its own &mdash;{' '}
-								<code>eslint.config.mjs</code>, <code>.prettierrc.json</code> and <code>commitlint.config.mjs</code>{' '}
-								&mdash; unless you pass <code>--force</code>.
+								<RichText text={INIT_FILES_INTRO} />
 							</p>
 							<ul>
 								{INIT_FILES.map((file) => {
@@ -122,10 +112,22 @@ const Init = () => {
 								})}
 							</ul>
 							<p>
-								With <code>--pm pnpm</code> the project also gets a <code>pnpm-workspace.yaml</code>, and with the
-								harness installed it gets the <code>.harness/</code> folder and the hook entries in{' '}
-								<code>.claude/settings.json</code>.
+								<RichText text={INIT_FILES_NOTE} />
 							</p>
+						</>
+					)
+				},
+				{
+					...meta('the-monorepo'),
+					body: (
+						<>
+							{INIT_MONOREPO_PARAGRAPHS.map((paragraph) => {
+								return (
+									<p key={paragraph}>
+										<RichText text={paragraph} />
+									</p>
+								);
+							})}
 						</>
 					)
 				},
@@ -179,22 +181,7 @@ const Init = () => {
 								<code>--dry-run</code> prints the plan and stops. Nothing is written, nothing is installed, and the
 								command prints the command line that would apply it.
 							</p>
-							<CodeBlock
-								code="jss-devtools init my-app --pm pnpm --dry-run"
-								language="sh"
-								prompt={{
-									dir: '~',
-									git: false
-								}}
-								title="dry run"
-								headerAction={
-									<CopyButton
-										feedback="icon"
-										label="Copy the init command"
-										value="jss-devtools init my-app --pm pnpm --dry-run"
-									/>
-								}
-							/>
+							{commandBlock(INIT_COMMANDS[2]!)}
 							<Terminal
 								label={TERMINAL_LABEL}
 								comment="Set up a project, without writing anything"

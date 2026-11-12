@@ -48,6 +48,20 @@ describe('init argument rules', () => {
 		await removeDir(dir);
 	});
 
+	it('exits 1 for --monorepo without <dir>, and the folder is unchanged', async () => {
+		const dir = await makeEmptyDir();
+		const before = snapshotDir(dir);
+
+		expect(
+			messageOf(() => {
+				validateInitArguments([], { monorepo: true });
+			})
+		).toBe('Option --monorepo needs <dir>');
+		expectsUnchangedDir(dir, before);
+
+		await removeDir(dir);
+	});
+
 	it('exits 1 for -f with <dir>, and the folder is unchanged', async () => {
 		const dir = await makeEmptyDir();
 		const before = snapshotDir(dir);

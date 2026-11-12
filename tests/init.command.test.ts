@@ -6,7 +6,7 @@ import { promisify } from 'node:util';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createProgram, runProgram } from '@/cli';
-import { sortFailureMessage } from '@/commands/init/init.command';
+import { prettierPaths, sortFailureMessage } from '@/commands/init/init.command';
 
 import { capture } from './support/capture-stream';
 import { snapshotDir } from './support/fs-snapshot';
@@ -75,6 +75,8 @@ Options:
                       "react" | "rn" | "next" | "nest"; default: "node")
   --pm <name>         Package manager for a new project (values: "bun" | "pnpm"
                       | "yarn" | "npm"; default: "npm")
+  --monorepo          Create a Turborepo with the app under apps/<framework>
+                      (default: off)
   --force, -f         Replace existing ESLint, Prettier, commitlint and editor
                       configs (init stops and lists them; default: off)
   --no-vscode         Do not write .vscode/ (default: written)
@@ -90,6 +92,7 @@ Options:
 Examples:
   $ jss-devtools init my-app              Create my-app, asking for the package manager
   $ jss-devtools init my-app --pm pnpm -y Create my-app with pnpm, no questions (CI)
+  $ jss-devtools init my-app --monorepo   Create my-app as a Turborepo monorepo
   $ jss-devtools init                     Set up the project in the current folder
   $ jss-devtools init -f                  Replace existing ESLint, Prettier and commitlint configs
   $ jss-devtools init --no-harness        Set up the toolchain without the harness
@@ -214,6 +217,18 @@ describe('the init command', () => {
 		const { stdout: pinned } = await runInit('my-app', '--dry-run', '--pm', 'pnpm');
 
 		expect(pinned).not.toContain('Assumed npm');
+	});
+
+	it('lists the monorepo tree in a dry run and writes nothing', async () => {
+		const dir = await useCwd();
+
+		const { stdout } = await runInit('my-app', '--monorepo', '--dry-run', '--pm', 'pnpm');
+
+		expect(stdout).toContain('+ turbo.json');
+		expect(stdout).toContain('+ apps/node/package.json');
+		expect(stdout).toContain('+ packages/.gitkeep');
+		expect(stdout).toContain('Dry run: nothing written');
+		expect(existsSync(join(dir, 'my-app'))).toBe(false);
 	});
 
 	it('exits 1 without a terminal when a question would be asked', async () => {
@@ -524,6 +539,81 @@ describe('the init command', () => {
 
 		expect(stderr).toContain("Error: unknown option '--yes'");
 		expect(process.exitCode).toBe(1);
+	});
+});
+
+describe('the post-install format paths', () => {
+	it('keeps only written files prettier can parse, in plan order', () => {
+		const paths = prettierPaths([
+			{
+				action: 'create',
+				path: 'package.json',
+				content: '{}'
+			},
+			{
+				action: 'create',
+				path: '.husky/pre-commit',
+				content: '#!/bin/sh\n'
+			},
+			{
+				action: 'create',
+				path: 'packages/.gitkeep',
+				content: ''
+			},
+			{
+				action: 'create',
+				path: 'pnpm-workspace.yaml',
+				content: 'packages:'
+			},
+			{
+				action: 'create',
+				path: 'CLAUDE.md',
+				content: '# Claude'
+			},
+			{
+				action: 'create',
+				path: '.gitignore',
+				content: 'node_modules/'
+			},
+			{
+				action: 'update',
+				path: 'eslint.config.mjs',
+				content: 'export {};'
+			},
+			{
+				action: 'delete',
+				path: 'removed.json'
+			},
+			{
+				action: 'create',
+				path: '.harness/bin/harness-hook.mjs',
+				content: 'bundle'
+			}
+		]);
+
+		expect(paths).toEqual([
+			'package.json',
+			'pnpm-workspace.yaml',
+			'CLAUDE.md',
+			'eslint.config.mjs',
+			'.harness/bin/harness-hook.mjs'
+		]);
+	});
+
+	it('formats nothing when no written file has a prettier extension', () => {
+		expect(
+			prettierPaths([
+				{
+					action: 'create',
+					path: '.editorconfig',
+					content: 'root = true'
+				},
+				{
+					action: 'delete',
+					path: 'old.json'
+				}
+			])
+		).toEqual([]);
 	});
 });
 

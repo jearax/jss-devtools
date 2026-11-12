@@ -28,6 +28,7 @@ node dist/cli.mjs --help      # usage
 node dist/cli.mjs -v          # the version from package.json (also --version)
 node dist/cli.mjs doctor      # check the machine, exit 1 with a fix hint when a check fails
 node dist/cli.mjs init my-app # create a TypeScript node project
+node dist/cli.mjs init my-app --monorepo # create it as a Turborepo, the app under apps/node
 node dist/cli.mjs init        # set up the current project
 node dist/cli.mjs nope        # error plus help, exit code 1
 ```
@@ -58,10 +59,17 @@ not failed.
 typechecks, builds and runs (`node dist/main.js`), with git hooks active. `jss-devtools init` in an
 existing TypeScript repository adds the same toolchain, merging what the user owns and stopping with
 exit 1 and the list when a config init owns is already there (`--force` replaces them). Every check
-runs before the first write; after it, `git init`, the install and the `package.json` sort can each
-still exit 1, and nothing is rolled back.
+runs before the first write; after it, `git init`, the install, the `package.json` sort and the
+format of the written files can each still exit 1, and nothing is rolled back.
 [decision 0030](.harness/decisions/0030-init-node-preset.md) records the flow; the full discussion
 history is the [decision log](.harness/plans/261022-0141-init-flow-discussion/decision-log.md).
+`init` formats every file it writes with the project's own Prettier, so the first format or commit
+changes nothing ([decision 0046](.harness/decisions/0046-init-formats-the-files-it-writes.md)).
+
+`jss-devtools init my-app --monorepo` creates a Turborepo instead: the toolchain and the harness
+once at the root, the app under `apps/node`, and an empty `packages/`, for bun, pnpm, yarn 1 and npm.
+It works in create mode only
+([decision 0045](.harness/decisions/0045-init-monorepo-creates-a-turborepo.md)).
 
 ## Development
 

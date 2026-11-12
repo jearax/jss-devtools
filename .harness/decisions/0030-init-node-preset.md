@@ -1,7 +1,7 @@
 ---
 id: 0030
 title: The init node preset
-status: accepted
+status: partly superseded by 0045
 date: 2026-10-27
 ---
 

@@ -42,6 +42,7 @@ const PM_QUESTION_ORDER = [...PACKAGE_MANAGERS].reverse();
 const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools init my-app', 'Create my-app, asking for the package manager'],
 	['jss-devtools init my-app --pm pnpm -y', 'Create my-app with pnpm, no questions (CI)'],
+	['jss-devtools init my-app --monorepo', 'Create my-app as a Turborepo monorepo'],
 	['jss-devtools init', 'Set up the project in the current folder'],
 	['jss-devtools init -f', 'Replace existing ESLint, Prettier and commitlint configs'],
 	['jss-devtools init --no-harness', 'Set up the toolchain without the harness'],
@@ -65,6 +66,7 @@ export const registerInitCommand = (program: Command): void => {
 				.default('node')
 		)
 		.addOption(pmOption)
+		.option('--monorepo', 'Create a Turborepo with the app under apps/<framework> (default: off)')
 		.option(
 			'--force, -f',
 			'Replace existing ESLint, Prettier, commitlint and editor configs (init stops and lists them; default: off)'
@@ -124,28 +126,73 @@ const nextStepCommands = (preflight: InitPreflight, relativeTarget: string, comm
 	return [...cd, command];
 };
 
-export const sortFailureMessage = (bin: string, result: { stdout: string; stderr: string }): string => {
+const binFailureMessage = (action: string, bin: string, result: { stdout: string; stderr: string }): string => {
 	const output = result.stderr.trim() || result.stdout.trim();
 
 	return output === ''
-		? `Could not sort package.json with ${bin}; the files are written`
-		: `Could not sort package.json with ${bin}; the files are written\n${output}`;
+		? `Could not ${action} with ${bin}; the files are written`
+		: `Could not ${action} with ${bin}; the files are written\n${output}`;
 };
 
-const sortPackageJson = async (preflight: InitPreflight, relativeTarget: string, cwd: string): Promise<void> => {
-	const bins = [
-		['prettier-package-json', ['--write', 'package.json']],
-		['prettier', ['--write', 'package.json']]
-	] as const;
+export const sortFailureMessage = (bin: string, result: { stdout: string; stderr: string }): string => {
+	return binFailureMessage('sort package.json', bin, result);
+};
 
-	for (const [bin, args] of bins) {
-		const result = await runLocalBin(preflight.pm, bin, [...args], cwd);
+const formatFailureMessage = (result: { stdout: string; stderr: string }): string => {
+	return binFailureMessage('format', 'prettier', result);
+};
 
-		if (result.code !== 0) {
-			throw new CliError(sortFailureMessage(bin, result), {
-				commands: nextStepCommands(preflight, relativeTarget, localBinCommandLine(preflight.pm, bin, [...args]))
-			});
+const PRETTIER_EXTENSIONS = /\.(?:[cm]?[jt]sx?|json|jsonc|md|markdown|ya?ml)$/;
+
+export const prettierPaths = (entries: readonly { action: string; path: string; content?: string }[]): string[] => {
+	return entries
+		.filter((entry) => {
+			return entry.action !== 'delete' && entry.content !== undefined && PRETTIER_EXTENSIONS.test(entry.path);
+		})
+		.map((entry) => {
+			return entry.path;
+		});
+};
+
+const sortPackageJson = async (
+	preflight: InitPreflight,
+	relativeTarget: string,
+	cwd: string,
+	manifests: readonly string[]
+): Promise<void> => {
+	for (const manifest of manifests) {
+		for (const bin of ['prettier-package-json', 'prettier'] as const) {
+			const args = ['--write', manifest];
+
+			const result = await runLocalBin(preflight.pm, bin, args, cwd);
+
+			if (result.code !== 0) {
+				throw new CliError(sortFailureMessage(bin, result), {
+					commands: nextStepCommands(preflight, relativeTarget, localBinCommandLine(preflight.pm, bin, args))
+				});
+			}
 		}
+	}
+};
+
+const formatWrittenFiles = async (
+	preflight: InitPreflight,
+	relativeTarget: string,
+	cwd: string,
+	paths: readonly string[]
+): Promise<void> => {
+	if (paths.length === 0) {
+		return;
+	}
+
+	const args = ['--write', ...paths];
+
+	const result = await runLocalBin(preflight.pm, 'prettier', args, cwd);
+
+	if (result.code !== 0) {
+		throw new CliError(formatFailureMessage(result), {
+			commands: nextStepCommands(preflight, relativeTarget, localBinCommandLine(preflight.pm, 'prettier', args))
+		});
 	}
 };
 
@@ -237,13 +284,33 @@ const runInit = async (dirArg: string | undefined, options: InitOptions, command
 
 	installLog.success(taskLogSummary(`Installed with ${preflight.pm}`, (Date.now() - startedAt) / 1000));
 
+	const manifests = plan.entries
+		.map((entry) => {
+			return entry.path;
+		})
+		.filter((path) => {
+			return path === 'package.json' || path.endsWith('/package.json');
+		});
+
+	const formatPaths = prettierPaths(plan.entries).filter((path) => {
+		return !manifests.includes(path);
+	});
+
 	await runTasks([
 		{
 			title: 'Sorting package.json',
 			run: async () => {
-				await sortPackageJson(preflight, relativeTarget, plan.targetDir);
+				await sortPackageJson(preflight, relativeTarget, plan.targetDir, manifests);
 
-				return 'Sorted package.json';
+				return manifests.length === 1 ? 'Sorted package.json' : `Sorted ${manifests.length} package.json files`;
+			}
+		},
+		{
+			title: 'Formatting the written files',
+			run: async () => {
+				await formatWrittenFiles(preflight, relativeTarget, plan.targetDir, formatPaths);
+
+				return `Formatted ${formatPaths.length} files`;
 			}
 		}
 	]);

@@ -1,4 +1,12 @@
-export const eslintConfigMjsTemplate = (): string => {
+const MONOREPO_SOURCE_FOLDERS = ',apps/*/{src,test,tools,e2e},packages/*/{src,test,tools}';
+
+export type EslintConfigMjsTemplateInput = {
+	monorepo?: boolean;
+};
+
+export const eslintConfigMjsTemplate = ({ monorepo = false }: EslintConfigMjsTemplateInput = {}): string => {
+	const monorepoFolders = monorepo ? MONOREPO_SOURCE_FOLDERS : '';
+
 	return `import js from '@eslint/js';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
@@ -11,7 +19,7 @@ import tseslint from 'typescript-eslint';
 
 const { JAVASCRIPT_FILES, TYPESCRIPT_FILES, CODE_FILES } = (() => {
 	const TEST_FOLDERS = 'test{,s},__test{s,}__,spec{,s},e2e';
-	const SOURCE_FOLDERS = \`src,lib{,s},bin{,s},script{,s},tool{,s},config{,s},type{,s},\${TEST_FOLDERS}\`;
+	const SOURCE_FOLDERS = \`src,lib{,s},bin{,s},script{,s},tool{,s},config{,s},type{,s},\${TEST_FOLDERS}${monorepoFolders}\`;
 
 	const JAVASCRIPT_EXTENSIONS = 'cjs,mjs,js,jsx';
 	const TYPESCRIPT_EXTENSIONS = 'cts,mts,ts,tsx';

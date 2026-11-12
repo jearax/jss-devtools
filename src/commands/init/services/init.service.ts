@@ -18,6 +18,12 @@ export const validateInitArguments = (positional: readonly string[], options: In
 		});
 	}
 
+	if (dir === undefined && options.monorepo === true) {
+		throw new CliError('Option --monorepo needs <dir>', {
+			hint: 'Create one with jss-devtools init <project-name> --monorepo'
+		});
+	}
+
 	if (dir !== undefined && options.force === true) {
 		throw new CliError('Option --force is for an existing project', {
 			hint: 'Drop it when creating one'
