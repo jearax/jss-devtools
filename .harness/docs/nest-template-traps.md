@@ -14,6 +14,9 @@ Policy lives in decisions [0047](../decisions/0047-init-nest-preset.md) and
   controller under `setupApp` is `/api/v1/_probe`, not `/api/_probe`
   (`templates/nest/src/app/app.setup.ts`, `templates/nest/test/app.e2e-spec.ts`).
 
+- `templates/nest/` has no `.gitignore` of its own, so after a local `nest build` there,
+  `prettier --check .` fails on `dist/`; delete `dist/` first. A generated project ignores it.
+
 ## Conventions (user)
 
 - An injected field is named after its class in camelCase:
@@ -28,7 +31,9 @@ Policy lives in decisions [0047](../decisions/0047-init-nest-preset.md) and
 
 - On Express, `setGlobalPrefix` sends any path outside the prefix and its `exclude` list to
   Express's HTML 404, past every Nest filter; an envelope there needs a fallback of its own
-  (decision 0051). `exclude` is matched without the version segment.
+  (decision 0051), appended after `app.init()` as the last Express handler, or any route added
+  later (a docs page, static files) answers 404 (`templates/nest/src/app/app.setup.ts`). `exclude`
+  is matched without the version segment.
 - Nest runs global filters last-registered first, so a type-specific `APP_FILTER` goes after the
   `AllExceptionsFilter` catch-all, or the catch-all swallows its exceptions
   (`templates/nest/src/app/app.module.ts`).
