@@ -4,6 +4,7 @@ import CodeBlock from '@/components/CodeBlock/CodeBlock';
 import CopyButton from '@/components/CopyButton/CopyButton';
 import { DocSection } from '@/pages/Docs/components/DocPage/DocPage';
 import RichText from '@/pages/Docs/components/RichText/RichText';
+import { NEST_DOMAIN_PARAGRAPHS, NEST_DOMAIN_ROUTES } from '@/pages/Docs/pages/Nest/constants/domain.constant';
 import { NEST_RESPONSES } from '@/pages/Docs/pages/Nest/constants/examples.constant';
 import { NEST_ENV_PARAGRAPHS, NEST_ENV_ROWS, NEST_TREE, meta } from '@/pages/Docs/pages/Nest/Nest.constant';
 
@@ -21,6 +22,47 @@ export const whatItWritesSection: DocSection = {
 				own <code>src/</code>; the specs beside them are left out here.
 			</p>
 			<CodeBlock code={NEST_TREE} title="the src/ tree" />
+		</>
+	)
+};
+
+export const exampleDomainSection: DocSection = {
+	...meta('the-example-domain'),
+	body: (
+		<>
+			{NEST_DOMAIN_PARAGRAPHS.map((paragraph) => {
+				return (
+					<p key={paragraph}>
+						<RichText text={paragraph} />
+					</p>
+				);
+			})}
+			<table>
+				<thead>
+					<tr>
+						<th scope="col">Method</th>
+						<th scope="col">Path</th>
+						<th scope="col">Success</th>
+					</tr>
+				</thead>
+				<tbody>
+					{NEST_DOMAIN_ROUTES.map((route) => {
+						return (
+							<tr key={`${route.method} ${route.path}`}>
+								<td>
+									<code>{route.method}</code>
+								</td>
+								<td>
+									<code>{route.path}</code>
+								</td>
+								<td>
+									<RichText text={route.success} />
+								</td>
+							</tr>
+						);
+					})}
+				</tbody>
+			</table>
 		</>
 	)
 };

@@ -10,6 +10,10 @@ export const NEST_SECTIONS = [
 		title: 'What it writes'
 	},
 	{
+		id: 'the-example-domain',
+		title: 'The example domain'
+	},
+	{
 		id: 'the-environment',
 		title: 'The environment'
 	},
@@ -48,11 +52,13 @@ export const NEST_TREE = `src/
   app/
     app.controller.ts
     app.module.ts
+    app.setup.ts
     decorators/response-message.decorator.ts
     exceptions/validation.exception.ts
     filters/all-exceptions.filter.ts
     interceptors/response.interceptor.ts
     interfaces/api-response.interface.ts
+    schemas/partial-update.schema.ts
   core/
     config/config.module.ts
     config/config.service.ts
@@ -64,14 +70,24 @@ export const NEST_TREE = `src/
     i18n/http-message.ts
     i18n/i18n.module.ts
     i18n/issue-keys.ts
+    i18n/locales/en/course.json
     i18n/locales/en/http.json
     i18n/locales/en/validation.json
+    i18n/locales/vi/course.json
     i18n/locales/vi/http.json
     i18n/locales/vi/validation.json
     logger/logger.module.ts
     logger/logger.options.ts
     logger/logger.service.ts
-  domains/.gitkeep`;
+  domains/
+    learning/course/
+      dtos/create-course.dto.ts
+      dtos/update-course.dto.ts
+      entities/course.entity.ts
+      repositories/course.repository.ts
+      services/course.service.ts
+      course.controller.ts
+      course.module.ts`;
 
 /** One row of the environment table: the variable, its default in `.env.example`, and what it does. */
 export type NestEnvRow = {

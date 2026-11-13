@@ -18,7 +18,7 @@ export const NEST_RESPONSES: readonly NestResponseExample[] = [
 	},
 	{
 		title: 'A malformed body answers 400',
-		curl: "curl -s 'http://localhost:3000/_nowhere?lang=vi' -X POST -H 'Content-Type: application/json' --data '{\"name\":'",
+		curl: "curl -s 'http://localhost:3000/api/_nowhere?lang=vi' -X POST -H 'Content-Type: application/json' --data '{\"name\":'",
 		output: '{"status":400,"message":"The request is invalid.","data":null}',
 		note: 'Express parses the body before the i18n middleware runs, so a malformed body answers in the default locale even with `?lang=vi`.'
 	},
@@ -26,6 +26,16 @@ export const NEST_RESPONSES: readonly NestResponseExample[] = [
 		title: 'An unknown route answers 404 in the requested language',
 		curl: "curl -s 'http://localhost:3000/_nowhere?lang=en'",
 		output: '{"status":404,"message":"The resource was not found.","data":null}'
+	},
+	{
+		title: 'Deleting a course keeps the envelope on 200',
+		curl: "curl -s -X DELETE 'http://localhost:3000/api/v1/courses/course-os?lang=vi'",
+		output: '{"status":200,"message":"Đã xóa khóa học.","data":null}'
+	},
+	{
+		title: 'A missing course reads its own translated message',
+		curl: "curl -s 'http://localhost:3000/api/v1/courses/missing?lang=en'",
+		output: '{"status":404,"message":"The course was not found.","data":null}'
 	}
 ];
 

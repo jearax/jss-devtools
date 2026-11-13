@@ -9,7 +9,12 @@ import {
 	NEST_SCRIPTS,
 	meta
 } from '@/pages/Docs/pages/Nest/Nest.constant';
-import { environmentSection, responsesSection, whatItWritesSection } from '@/pages/Docs/pages/Nest/NestSections';
+import {
+	environmentSection,
+	exampleDomainSection,
+	responsesSection,
+	whatItWritesSection
+} from '@/pages/Docs/pages/Nest/NestSections';
 
 const Nest = () => {
 	return (
@@ -18,6 +23,7 @@ const Nest = () => {
 			summary="The nest preset: the app it writes, the environment, the responses and the health route."
 			sections={[
 				whatItWritesSection,
+				exampleDomainSection,
 				environmentSection,
 				responsesSection,
 				{

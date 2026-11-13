@@ -35,6 +35,11 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 		meaning: 'Do not write `.vscode/`. It is written by default.'
 	},
 	{
+		flag: '--no-sample',
+		meaning:
+			'Do not write the nest example domain; an empty `src/domains/.gitkeep` instead. Needs `--framework nest`, written by default.'
+	},
+	{
 		flag: '--no-harness',
 		meaning: 'Do not install the harness. It is installed by default.'
 	},
