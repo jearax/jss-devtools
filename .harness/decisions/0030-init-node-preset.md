@@ -1,7 +1,7 @@
 ---
 id: 0030
 title: The init node preset
-status: partly superseded by 0045
+status: partly superseded by 0045 and 0047
 date: 2026-10-27
 ---
 

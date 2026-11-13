@@ -11,7 +11,7 @@ carried over as code. They are sources of ideas and lessons.
 The CLI does two things.
 
 1. **Toolchain.** Initialise a JavaScript-stack repository with a lint, format, test and build
-   toolchain. Node first; React, Next, Nest and React Native presets are planned. The command tree
+   toolchain. Node and Nest ship; React, Next and React Native presets are planned. The command tree
    nests like Docker's: `jss-devtools --help` opens into `jss-devtools init --help`.
 2. **Harness.** Make an agent-driven repository stay excellent over time. The repository, not chat
    context, is the authority an agent works from.

@@ -134,10 +134,26 @@ monorepo non-goal of [0030](../decisions/0030-init-node-preset.md) for create mo
 - `init` formats every file it writes with the project's own Prettier, in both modes
   ([0046](../decisions/0046-init-formats-the-files-it-writes.md)); both end-to-end suites assert
   `prettier --check .` passes right after init.
-- Known: `tests/init.e2e.test.ts` has two failures that predate this work, proven at the commit
-  before it: the `--agent-kit` file list, and a second `init -y` that hits the existing-mode
-  "Already set up" harness conflict. Fixing either needs a policy call on existing-mode harness
-  conflicts.
+
+## Done: init --framework nest creates a Nest app
+
+Plan: [../plans/261112-1647-init-nest-preset/plan.md](../plans/261112-1647-init-nest-preset/plan.md).
+Decision: [0047](../decisions/0047-init-nest-preset.md), which supersedes the non-node non-goal of
+[0030](../decisions/0030-init-node-preset.md) for nest.
+
+- `jss-devtools init <dir> --framework nest` creates a Nest 12 ESM app: the real project in
+  `templates/nest/` embedded in the bundle and copied by init, with the project name substituted
+  and the shared toolchain devDependencies merged in; with `--monorepo` the app is `apps/nest` as
+  `@<project>/nest` and the root stays as for node. The preset is create mode only: an existing
+  folder refuses it before any write.
+- The app answers every JSON response as `{ status, message, data }` in the request's language
+  ([0049](../decisions/0049-nest-response-envelope.md)); `templates/nest/test/response.e2e-spec.ts`
+  proves it inside the template, and the generated project's `test:e2e` runs it per manager.
+- `tests/init-nest.e2e.test.ts` proves, per manager on `PATH` and gated behind `INIT_E2E=1`:
+  single and monorepo apps lint, typecheck, pass `test` and `test:e2e` (the bad-body 400s in `vi`
+  and `en` run there, through supertest), build, rebuild cached through turbo, and answer
+  `GET /health/ready` 200 on a free port before the process is stopped; `prettier --check .` is
+  asserted right after init. The gated suites stay local; CI runs none of them.
 
 ## Done: init installs the harness
 
@@ -201,11 +217,11 @@ Each of these needs its own plan before implementation. Open questions that will
 collected in
 [../plans/261019-1050-jss-devtools-rewrite/open-questions.md](../plans/261019-1050-jss-devtools-rewrite/open-questions.md).
 
-| Area             | What it covers                                                  | Open questions |
-| ---------------- | --------------------------------------------------------------- | -------------- |
-| Toolchain module | Framework presets beyond `node` (`react`, `rn`, `next`, `nest`) | T1 to T5       |
-| Harness module   | Managed files, first-run bootstrap, review trigger, curation    | H1 to H12      |
-| Cross-cutting    | Which decisions carry over from the old prototype               | X2, X3         |
+| Area             | What it covers                                                     | Open questions |
+| ---------------- | ------------------------------------------------------------------ | -------------- |
+| Toolchain module | Framework presets beyond `node` and `nest` (`react`, `rn`, `next`) | T1 to T5       |
+| Harness module   | Managed files, first-run bootstrap, review trigger, curation       | H1 to H12      |
+| Cross-cutting    | Which decisions carry over from the old prototype                  | X2, X3         |
 
 ## Dependencies between these
 

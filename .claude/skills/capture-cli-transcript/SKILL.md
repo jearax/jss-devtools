@@ -27,6 +27,10 @@ metadata:
    row, delete `BOOTSTRAP.md`), then run step 2 there; the constant's doc block names the sample answers.
 6. Paste lines into the constant with ESC written as `\u001b`; drop the startup banner and cut long file
    lists to a few lines, as the existing transcripts do, and say so in the constant's doc block.
+7. Verify the pasted arrays against the capture files with a script, not by eye: eval the constant file
+   (strip `/* */` blocks and line-anchored `//` comment lines so `https://` inside strings survives,
+   drop `: readonly string[]` and `export`), then compare each array to the capture file's lines after
+   dropping trailing blank lines.
 
 ## Pitfalls
 
@@ -36,6 +40,13 @@ metadata:
 - Never use the raw `.tty` text: it holds spinner frames and the install log that clack later erases.
 - The emulated full `init` run showed one extra `│` between the confirm answer and `◆ Installed`, which
   plain clack does not print; check a real terminal before treating it as output.
+- The `> file.ansi` captures end with a trailing blank line; drop it before comparing, or every
+  byte-equality check comes back false.
+- The replayed screen's line endings carry xterm's own resets, so pasted lines may lack the trailing
+  `\u001b[0m` the old constant had; paste as captured, never hand-edit escape codes.
+- The onboarded `harness doctor` numbers are artifacts of whatever sample answers you onboarded with;
+  any three memory lines and one decision are fine. The constant must hold a real run, not a specific
+  number.
 
 ## Verification
 
