@@ -22,8 +22,7 @@ describe('CourseController (e2e)', () => {
 		}).compile();
 
 		app = moduleFixture.createNestApplication({ logger: false });
-		setupApp(app, app.get(ConfigService));
-		await app.init();
+		await setupApp(app, app.get(ConfigService));
 	});
 
 	it('answers /health/ready without a version prefix', async () => {

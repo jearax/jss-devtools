@@ -13,7 +13,7 @@ const bootstrap = async (): Promise<void> => {
 
 	loggerService.setContext('Bootstrap');
 	app.useLogger(loggerService);
-	setupApp(app, configService);
+	await setupApp(app, configService);
 	app.enableShutdownHooks();
 
 	await app.listen(configService.appPort);

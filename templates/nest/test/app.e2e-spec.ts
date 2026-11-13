@@ -50,8 +50,7 @@ describe('AppController (e2e)', () => {
 		}).compile();
 
 		app = moduleFixture.createNestApplication();
-		setupApp(app, app.get(ConfigService));
-		await app.init();
+		await setupApp(app, app.get(ConfigService));
 	});
 
 	it('GET /health/ready answers 200 with the Terminus result', async () => {

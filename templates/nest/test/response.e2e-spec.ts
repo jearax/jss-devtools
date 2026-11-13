@@ -61,8 +61,7 @@ describe('Response envelope (e2e)', () => {
 		}).compile();
 
 		app = moduleFixture.createNestApplication({ logger: false });
-		setupApp(app, app.get(ConfigService));
-		await app.init();
+		await setupApp(app, app.get(ConfigService));
 	});
 
 	afterEach(async () => {
@@ -134,7 +133,7 @@ describe('Response envelope (e2e)', () => {
 		});
 	});
 
-	// Outside the /api prefix the request never reaches the router; the fallback in setupApp owns it.
+	// Outside the /api prefix Express matches no route; the fallback in setupApp owns it.
 	it('a path outside the prefix answers the translated envelope in both locales', async () => {
 		const byVi = await request(app.getHttpServer()).get('/_nowhere?lang=vi').expect(404);
 		const byEn = await request(app.getHttpServer()).get('/_nowhere?lang=en').expect(404);

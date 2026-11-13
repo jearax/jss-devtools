@@ -9,14 +9,6 @@ import type { NextFunction, Request, Response } from 'express';
 
 export const API_PREFIX = 'api';
 export const API_VERSION_DEFAULT = '1';
-const UNPREFIXED_ROUTES = ['health'];
-
-// Express answers any other path itself, past every Nest filter.
-const reachesNest = (path: string): boolean => {
-	return [API_PREFIX, ...UNPREFIXED_ROUTES].some((root) => {
-		return path === `/${root}` || path.startsWith(`/${root}/`);
-	});
-};
 
 const notFoundFallback = (app: INestApplication) => {
 	const resolveLocale = async (req: Request): Promise<string | undefined> => {
@@ -39,11 +31,6 @@ const notFoundFallback = (app: INestApplication) => {
 	};
 
 	return (req: Request, reply: Response, next: NextFunction): void => {
-		if (reachesNest(req.path)) {
-			next();
-			return;
-		}
-
 		void (async (): Promise<void> => {
 			const i18nService = app.get(I18nService);
 			const locale = await resolveLocale(req);
@@ -60,16 +47,16 @@ const notFoundFallback = (app: INestApplication) => {
 	};
 };
 
-export const setupApp = (app: INestApplication, configService: ConfigService): void => {
+// Routes registered after this never answer: the 404 fallback is the last Express handler.
+export const setupApp = async (app: INestApplication, configService: ConfigService): Promise<void> => {
 	app.enableCors({ origin: configService.corsOrigin });
-	app.setGlobalPrefix(API_PREFIX, {
-		exclude: UNPREFIXED_ROUTES.map((root) => {
-			return `${root}/{*splat}`;
-		})
-	});
+	app.setGlobalPrefix(API_PREFIX, { exclude: ['health/{*splat}'] });
 	app.enableVersioning({
 		type: VersioningType.URI,
 		defaultVersion: API_VERSION_DEFAULT
 	});
+
+	await app.init();
+
 	app.use(notFoundFallback(app));
 };
