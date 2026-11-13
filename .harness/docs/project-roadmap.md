@@ -154,6 +154,9 @@ Decision: [0047](../decisions/0047-init-nest-preset.md), which supersedes the no
   and `en` run there, through supertest), build, rebuild cached through turbo, and answer
   `GET /health/ready` 200 on a free port before the process is stopped; `prettier --check .` is
   asserted right after init. The gated suites stay local; CI runs none of them.
+- The site documents the preset at `/docs/nest`
+  ([plan](../plans/261113-1218-site-nest-docs-page/plan.md)); `tests/site-nest-docs.test.ts` fails
+  when the page's env table, scripts or tree drift from `templates/nest/`.
 
 ## Done: init installs the harness
 

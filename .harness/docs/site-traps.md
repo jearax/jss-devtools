@@ -36,6 +36,9 @@ themselves live in [site/conventions/](./site/conventions/); screenshot procedur
   `click()`.
 - A first-time test dependency goes into `optimizeDeps.include`, else Vite re-optimizes mid-run and
   a cold run times out.
+- A wrong named import in `site/src/constants/search-index.constant.ts` fails unrelated suites
+  (AppRouter, Layout, SearchPalette load the index) with "does not provide an export named X";
+  fix the import, not those suites.
 - Tests run with `reducedMotion: 'reduce'`; a test needing the reveal end dispatches `animationend`
   on the marked element.
 - `@tanstack/react-hotkeys` reads `navigator.platform`; to test the Windows label in Playwright,

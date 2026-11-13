@@ -40,3 +40,4 @@ Short facts about this repository, injected at every session start. Size limits 
 - `ak journal create` dates files in UTC; an ICT evening lands on yesterday's name — rename the file (plain markdown) or pass `--date`.
 - The init e2e suites log `skipped, not on PATH` and pass when a manager is missing; check `<pm> --version` for all four before claiming they ran. (src: tests/init-nest.e2e.test.ts)
 - pnpm 11 skips the root `prepare` (and so template installs) when an install changes nothing, and `pnpm exec` in a folder without `node_modules` runs it as a side effect; after `template:clean` or a pin, run `pnpm template:install`. (src: scripts/template-deps.mjs)
+- `pnpm run <script> --fix` passes the flag to the script's last command only (`eslint … && stylelint …` gets it on stylelint); run `eslint --fix <file>` directly.
