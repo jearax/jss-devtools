@@ -149,6 +149,14 @@ Decision: [0047](../decisions/0047-init-nest-preset.md), which supersedes the no
 - The app answers every JSON response as `{ status, message, data }` in the request's language
   ([0049](../decisions/0049-nest-response-envelope.md)); `templates/nest/test/response.e2e-spec.ts`
   proves it inside the template, and the generated project's `test:e2e` runs it per manager.
+- `src/domains/learning/course/` is the example domain of
+  [0050](../decisions/0050-nest-example-domain-and-uri-versioning.md): an in-memory REST CRUD
+  example behind `/api/v1` (`API_VERSION_DEFAULT` and the `/api` prefix in
+  `src/app/app.setup.ts`), translated validation and not-found messages, `DELETE` on 200;
+  `templates/nest/test/course.e2e-spec.ts` proves each route inside the template and the CLI e2e
+  probes `GET /api/v1/courses` per manager. Every 404 — inside the prefix and outside it —
+  answers the translated envelope, and `init --no-sample` skips the example domain
+  ([0051](../decisions/0051-nest-api-prefix-and-no-sample.md)).
 - `tests/init-nest.e2e.test.ts` proves, per manager on `PATH` and gated behind `INIT_E2E=1`:
   single and monorepo apps lint, typecheck, pass `test` and `test:e2e` (the bad-body 400s in `vi`
   and `en` run there, through supertest), build, rebuild cached through turbo, and answer

@@ -242,8 +242,10 @@ once at the root, one app at `apps/<framework>` named `@<project>/<framework>`, 
 `packages/`; the install and the sort then run at the root, and the sort covers the app manifest
 too. Without the flag nothing changes. The nest preset is create mode only: an existing folder
 refuses `--framework nest` before any write, and the nest files are the embedded `templates/nest/`
-project, transformed only in `package.json` (the project name, the shared toolchain devDependencies
-merged in) by `services/nest-plan.service.ts`. The merge leaves out `tsx` and `tsc-alias`: `dev` is
+project, transformed by `services/nest-plan.service.ts` in `package.json` (the project name, the
+shared toolchain devDependencies merged in) and, under `--no-sample`, by dropping the example
+domain's files and its `CourseModule` line from `app.module.ts`
+([0051](../decisions/0051-nest-api-prefix-and-no-sample.md)). The merge leaves out `tsx` and `tsc-alias`: `dev` is
 `nest start --watch` because tsx's esbuild emits no decorator metadata, and `nest build` rewrites
 the `@/` paths itself. The generated app's own contract (the response envelope, the locale order)
 is [0049](../decisions/0049-nest-response-envelope.md); its traps are in

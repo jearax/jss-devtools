@@ -10,15 +10,25 @@ Policy lives in decisions [0047](../decisions/0047-init-nest-preset.md) and
   injection breaks (`templates/nest/package.json`).
 - ESM with `nodenext`: `@/` imports carry `.js`. Injected classes stay value imports, so
   `consistent-type-imports` is off in the template's ESLint (`templates/nest/eslint.config.mjs`).
+- URI versioning applies to every controller, test-only ones included: an e2e request to a spec
+  controller under `setupApp` is `/api/v1/_probe`, not `/api/_probe`
+  (`templates/nest/src/app/app.setup.ts`, `templates/nest/test/app.e2e-spec.ts`).
 
 ## Conventions (user)
 
 - An injected field is named after its class in camelCase:
   `private readonly helperService: HelperService`, never `helper`
   (`templates/nest/src/app/app.controller.ts`).
+- Shared, non-module HTTP pieces live in `src/app/<role>/` (`decorators/`, `schemas/`, …); the user
+  chose this over Nest samples' `src/common/`, so do not reopen it. A `PATCH` DTO is
+  `partialUpdate(createSchema)` (`templates/nest/src/app/schemas/partial-update.schema.ts`), never
+  `@nestjs/mapped-types`, which needs class-validator DTOs.
 
 ## Libraries
 
+- On Express, `setGlobalPrefix` sends any path outside the prefix and its `exclude` list to
+  Express's HTML 404, past every Nest filter; an envelope there needs a fallback of its own
+  (decision 0051). `exclude` is matched without the version segment.
 - Nest runs global filters last-registered first, so a type-specific `APP_FILTER` goes after the
   `AllExceptionsFilter` catch-all, or the catch-all swallows its exceptions
   (`templates/nest/src/app/app.module.ts`).

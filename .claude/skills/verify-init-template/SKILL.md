@@ -46,8 +46,9 @@ or a template init does not wire yet.
 
 `install` → `lint` → `typecheck` → `test` → `test:e2e` → `build` → `prettier --check .`, then
 the serve proof: `APP_PORT=<free port> NODE_ENV=prod node dist/main.js`, curl the health route
-for 200 and its `{ status, message, data }` envelope, an unknown route with `?lang=vi` for a
-Vietnamese 404, one request carrying `x-request-id` and `authorization` to prove reuse and
+(`/health/ready`, unprefixed) for 200 and its `{ status, message, data }` envelope,
+`/api/v1/courses` for 200, an unknown route inside `/api` and one outside it with `?lang=vi` for a
+Vietnamese 404 served as JSON (decision 0051), one request carrying `x-request-id` and `authorization` to prove reuse and
 redaction, and confirm the health route is silent in the request log. Kill the server and
 `lsof -i :<port>` before trusting
 the result — a stale server from another shell session answers otherwise (`kill %1` does not

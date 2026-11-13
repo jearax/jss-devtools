@@ -24,7 +24,7 @@ Short facts about this repository, injected at every session start. Size limits 
 - `harness update` writes `.claude/settings.json` with spaces; Prettier puts the tabs back. (src: src/modules/harness/services/merge.service.ts)
 - Yarn 1 ignores a workspace package without `version` (bins missing, scripts exit 127); every generated workspace `package.json` needs a `version`. (src: .harness/plans/reports/brainstorm-261112-1616-init-monorepo-turborepo.md)
 - A monorepo root ESLint config must list the `apps/*` and `packages/*` folders (globs resolve from the config's folder) and set `tsconfigRootDir` for JS files too, or linting under two configs fails with "multiple candidate TSConfigRootDirs". (src: src/commands/init/templates/eslint-config-mjs.template.ts)
-- `scripts/pin-node-preset.mjs` writes the constants file itself; a rerun moves pins that aged past `minimumReleaseAge`, and the repo's own prettier follows the preset (test-asserted). (src: scripts/pin-node-preset.mjs)
+- Pins, `minimumReleaseAge`, pnpm 11 `prepare` skips and template `node_modules` traps: see .harness/docs/pins-and-template-deps.md
 - Spreading a template's shared const reorders the generated JSON's keys and breaks byte-exact snapshots; derive variants by destructuring-omit. (src: src/commands/init/templates/tsconfig-json.template.ts)
 - Nest template traps (tsx breaks DI, `.js` imports, injected-field naming, env file order, @nestjs/i18n quirks): see .harness/docs/nest-template-traps.md
 - Prettier CLI exits 2 on a no-parser file (husky scripts, `.gitignore`) even mixed with formattable ones, but skips explicitly passed `.prettierignore`d files with exit 0; init's format step filters by extension. (src: src/commands/init/init.command.ts)
@@ -35,9 +35,9 @@ Short facts about this repository, injected at every session start. Size limits 
 - Guard rsync source vars with `test -n` (an unset one with --delete copies from /), and re-copy overlay files after an rsync --delete of the source over a scratch dir.
 - ESLint `no-restricted-imports` negation is gitignore-strict: under a `../*` ban only `!../scripts` (the bare directory) re-includes subpaths; `!../scripts/**` and `!../scripts/*` still ban them.
 - tsdown/vitest `define` values parse as JSON object literals, not raw text; declare the constant as the object type and consume it directly (src: src/core/constants/package.constant.ts); a `JSON.parse` wrapper chokes on `[object Object]`.
-- A caret on a version younger than `minimumReleaseAge` makes pnpm silently write `minimumReleaseAgeExclude` (entries need quotes: a bare `@` breaks YAML); pin an aged version through the pin script instead of keeping it. (src: scripts/pin-helpers.mjs)
 - tsx cannot resolve `@/`; to dump real output for test expectations, run a throwaway `tests/tmp-*.test.ts` with `pnpm vitest run <file> --disableConsoleIntercept`.
 - `ak journal create` dates files in UTC; an ICT evening lands on yesterday's name — rename the file (plain markdown) or pass `--date`.
 - The init e2e suites log `skipped, not on PATH` and pass when a manager is missing; check `<pm> --version` for all four before claiming they ran. (src: tests/init-nest.e2e.test.ts)
-- pnpm 11 skips the root `prepare` (and so template installs) when an install changes nothing, and `pnpm exec` in a folder without `node_modules` runs it as a side effect; after `template:clean` or a pin, run `pnpm template:install`. (src: scripts/template-deps.mjs)
 - `pnpm run <script> --fix` passes the flag to the script's last command only (`eslint … && stylelint …` gets it on stylelint); run `eslint --fix <file>` directly.
+- A drift test parsing a template literal from source text must evaluate `\\` escapes before `JSON.parse`; the raw text holds `\\"` where the runtime string holds `\"`. (src: tests/site-nest-docs.test.ts)
+- An init flag description must keep its `(default: …)` parenthetical ending a help line: a wrapped one fails `tests/init.command.test.ts`, `tests/bundle.test.ts` and `tests/help-colours.test.ts`; keep the text short enough not to wrap.
