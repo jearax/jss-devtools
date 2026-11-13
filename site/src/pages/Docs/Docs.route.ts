@@ -70,6 +70,12 @@ export const createDocsRoute = (): RouteObject => {
 				})
 			},
 			{
+				path: 'nest',
+				...lazyPage(() => {
+					return import('@/pages/Docs/pages/Nest/Nest');
+				})
+			},
+			{
 				path: 'reference',
 				...lazyPage(() => {
 					return import('@/pages/Docs/pages/Reference/Reference');

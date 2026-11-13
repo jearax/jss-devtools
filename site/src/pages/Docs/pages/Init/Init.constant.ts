@@ -98,11 +98,9 @@ export const INIT_MONOREPO_PARAGRAPHS: readonly string[] = [
 	'The flag is create mode only, and works with every manager: bun, pnpm, yarn 1 and npm. Without it, `init` writes exactly what it always has, and an existing project keeps the single-package flow.'
 ];
 
-/** The paragraphs of the nest-preset section, rendered through `RichText`. */
+/** The paragraph of the nest-preset section, rendered through `RichText`. */
 export const INIT_NEST_PARAGRAPHS: readonly string[] = [
-	'`--framework nest` creates a Nest 12 app in ESM TypeScript: a `src/main.ts` that boots with a pino logger, an `app/` module with a `GET /health/ready` route, and `core/` modules for config, logging, i18n, a database placeholder and helpers. `zod` validates the environment and the request bodies. Every JSON response is `{ status, message, data }`, errors included, and `@nestjs/i18n` translates the messages per request: `?lang=vi` first, then an `x-lang` header, then `Accept-Language`.',
-	'The toolchain around the app is the same one the node preset writes: ESLint, Prettier, commitlint, husky and vitest. `pnpm run dev` starts `nest start --watch`, and the manifest carries `build`, `test` and `test:e2e` besides the shared scripts.',
-	'With `--monorepo` the app lands at `apps/nest` as the workspace `@my-app/nest`, and the root scripts run it through turbo as before. The preset only creates a project: setting up an existing folder with `--framework nest` exits 1 and names the create command.'
+	'`--framework nest` creates a Nest 12 app in ESM TypeScript: a response envelope `{ status, message, data }`, per-request translation with `@nestjs/i18n`, Terminus health, a `zod` environment schema, and `core/` modules for config, logging, i18n, a database placeholder and helpers.'
 ];
 
 /** The intro of the what-it-does section, rendered through `RichText`. */

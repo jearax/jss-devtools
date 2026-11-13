@@ -52,6 +52,12 @@ export const DOCS_PAGES: readonly DocsPage[] = [
 		group: 'Commands'
 	},
 	{
+		slug: 'nest',
+		title: 'nest',
+		summary: 'The nest preset: the app it writes, the environment, the responses and the health route.',
+		group: 'Presets'
+	},
+	{
 		slug: 'reference',
 		title: 'Reference',
 		summary: 'The options, the presets and the exit codes.'

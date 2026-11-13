@@ -80,6 +80,32 @@ describe('the docs area', () => {
 		expect(screen.container.querySelector('a[href="/docs/Commands"]')).toBeNull();
 	});
 
+	it('groups the nest page under Presets and links it in the sidebar', async () => {
+		const screen = await renderAt('/docs/nest');
+
+		const sidebar = screen.getByRole('navigation', { name: 'The docs pages' });
+
+		// The disclosure may start folded at a narrow viewport; opening it reveals the links.
+		try {
+			const disclosure = page.getByRole('button', { name: 'Docs' });
+
+			await disclosure.click();
+		} catch {
+			// The wide nav shows its links outright; there is no disclosure to open.
+		}
+
+		await expect.element(sidebar.getByText('Presets')).toBeInTheDocument();
+		await expect.element(sidebar.getByRole('link', { name: 'nest' })).toHaveAttribute('href', '/docs/nest');
+	});
+
+	it('links the nest page from the init page', async () => {
+		const screen = await renderAt('/docs/init');
+
+		await expect
+			.element(screen.getByRole('link', { name: /The nest page documents/ }))
+			.toHaveAttribute('href', '/docs/nest');
+	});
+
 	it('shows the group in the breadcrumbs of a child page', async () => {
 		const screen = await renderAt('/docs/init');
 

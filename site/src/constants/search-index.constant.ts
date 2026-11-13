@@ -4,6 +4,7 @@ import { SECTIONS as GETTING_STARTED_SECTIONS } from '@/pages/Docs/pages/Getting
 import { SECTIONS as HARNESS_SECTIONS } from '@/pages/Docs/pages/Harness/Harness.constant';
 import { SECTIONS as INIT_SECTIONS } from '@/pages/Docs/pages/Init/Init.constant';
 import { SECTIONS as INSTALL_SECTIONS } from '@/pages/Docs/pages/Install/Install.constant';
+import { NEST_SECTIONS } from '@/pages/Docs/pages/Nest/Nest.constant';
 import { SECTIONS as REFERENCE_SECTIONS } from '@/pages/Docs/pages/Reference/Reference.constant';
 
 /**
@@ -52,6 +53,10 @@ const SECTION_LISTS = [
 	{
 		slug: 'harness',
 		sections: HARNESS_SECTIONS
+	},
+	{
+		slug: 'nest',
+		sections: NEST_SECTIONS
 	},
 	{
 		slug: 'reference',

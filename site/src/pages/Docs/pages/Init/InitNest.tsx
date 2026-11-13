@@ -1,11 +1,10 @@
-import CodeBlock from '@/components/CodeBlock/CodeBlock';
-import CopyButton from '@/components/CopyButton/CopyButton';
+import { Link } from 'react-router';
+
+import { docsHref } from '@/constants/routes.constant';
 import { DocSection } from '@/pages/Docs/components/DocPage/DocPage';
 import RichText from '@/pages/Docs/components/RichText/RichText';
 import { INIT_PRESETS } from '@/pages/Docs/Docs.constant';
 import { INIT_NEST_PARAGRAPHS, meta } from '@/pages/Docs/pages/Init/Init.constant';
-
-const NEST_COMMAND = 'jss-devtools init my-api --framework nest --pm pnpm -y';
 
 export const presetsSection: DocSection = {
 	...meta('the-presets'),
@@ -49,12 +48,11 @@ export const nestSection: DocSection = {
 					</p>
 				);
 			})}
-			<CodeBlock
-				code={NEST_COMMAND}
-				language="sh"
-				title="a Nest app"
-				headerAction={<CopyButton feedback="icon" label="Copy the init command" value={NEST_COMMAND} />}
-			/>
+			<p>
+				<Link to={docsHref('nest')}>
+					The nest page documents the tree, the environment, the responses, the language and the health route.
+				</Link>
+			</p>
 		</>
 	)
 };

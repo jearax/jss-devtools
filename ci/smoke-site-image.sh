@@ -53,6 +53,7 @@ expect_status "$base/docs" "200"
 expect_header "$base/docs" "Content-Type" "text/html"
 expect_status "$base/docs/" "200"
 expect_status "$base/docs/install" "200"
+expect_status "$base/docs/nest" "200"
 # Only the home page, the docs, the robots file, the installer and the two release files answer.
 expect_status "$base/vi/home" "404"
 expect_status "$base/docsomething" "404"
