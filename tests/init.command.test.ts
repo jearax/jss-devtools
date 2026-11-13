@@ -71,8 +71,8 @@ Arguments:
                       set up the current folder
 
 Options:
-  --framework <name>  Preset to apply; only node for now (values: "node" |
-                      "react" | "rn" | "next" | "nest"; default: "node")
+  --framework <name>  Preset to apply (values: "node" | "react" | "rn" | "next"
+                      | "nest"; default: "node")
   --pm <name>         Package manager for a new project (values: "bun" | "pnpm"
                       | "yarn" | "npm"; default: "npm")
   --monorepo          Create a Turborepo with the app under apps/<framework>
@@ -90,13 +90,14 @@ Options:
   --help, -h          Display help for command
 
 Examples:
-  $ jss-devtools init my-app              Create my-app, asking for the package manager
-  $ jss-devtools init my-app --pm pnpm -y Create my-app with pnpm, no questions (CI)
-  $ jss-devtools init my-app --monorepo   Create my-app as a Turborepo monorepo
-  $ jss-devtools init                     Set up the project in the current folder
-  $ jss-devtools init -f                  Replace existing ESLint, Prettier and commitlint configs
-  $ jss-devtools init --no-harness        Set up the toolchain without the harness
-  $ jss-devtools init --dry-run           Show what would change, write nothing
+  $ jss-devtools init my-app                     Create my-app, asking for the package manager
+  $ jss-devtools init my-app --pm pnpm -y        Create my-app with pnpm, no questions (CI)
+  $ jss-devtools init my-api --framework nest -y Create my-api as a Nest 12 app
+  $ jss-devtools init my-app --monorepo          Create my-app as a Turborepo monorepo
+  $ jss-devtools init                            Set up the project in the current folder
+  $ jss-devtools init -f                         Replace existing ESLint, Prettier and commitlint configs
+  $ jss-devtools init --no-harness               Set up the toolchain without the harness
+  $ jss-devtools init --dry-run                  Show what would change, write nothing
 `;
 
 const originalExitCode = process.exitCode;
@@ -446,6 +447,46 @@ describe('the init command', () => {
 		expect(stderr).toContain("argument 'vue' is invalid");
 		expect(stderr).toContain('Allowed choices are');
 		expect(process.exitCode).toBe(1);
+	});
+
+	it('refuses --framework nest in an existing project before any write', async () => {
+		const dir = await useCwd();
+
+		await setupExistingProject(dir);
+
+		const before = snapshotDir(dir);
+
+		const { stderr } = await runInit('--framework', 'nest');
+
+		expect(stderr).toContain('Framework nest needs <dir>');
+		expect(stderr).toContain('jss-devtools init <project-name> --framework nest');
+		expect(process.exitCode).toBe(1);
+		expect(snapshotDir(dir)).toBe(before);
+	});
+
+	it('lists the nest tree in a dry run and writes nothing', async () => {
+		const dir = await useCwd();
+
+		const { stdout } = await runInit('my-api', '--framework', 'nest', '--dry-run', '--pm', 'pnpm');
+
+		expect(stdout).toContain('+ nest-cli.json');
+		expect(stdout).toContain('+ src/main.ts');
+		expect(stdout).toContain('+ .husky/pre-commit');
+		expect(stdout).toContain('Dry run: nothing written');
+		expect(existsSync(join(dir, 'my-api'))).toBe(false);
+	});
+
+	it('lists the nest monorepo tree in a dry run and writes nothing', async () => {
+		const dir = await useCwd();
+
+		const { stdout } = await runInit('my-api', '--monorepo', '--framework', 'nest', '--dry-run', '--pm', 'pnpm');
+
+		expect(stdout).toContain('+ turbo.json');
+		expect(stdout).toContain('+ apps/nest/package.json');
+		expect(stdout).toContain('+ apps/nest/src/main.ts');
+		expect(stdout).toContain('+ packages/.gitkeep');
+		expect(stdout).toContain('Dry run: nothing written');
+		expect(existsSync(join(dir, 'my-api'))).toBe(false);
 	});
 
 	it('refuses -f with a folder', async () => {

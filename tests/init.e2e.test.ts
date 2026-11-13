@@ -41,16 +41,20 @@ const DECIDED_FILES = [
 	'tsconfig.json'
 ];
 
-const HARNESS_FILES = harnessInstallEntries({
-	mode: 'create',
-	agentKit: false,
-	claudeMd: null,
-	settingsJson: null
-})
-	.map((entry) => {
-		return entry.path;
+const harnessFiles = (agentKit: boolean): string[] => {
+	return harnessInstallEntries({
+		mode: 'create',
+		agentKit,
+		claudeMd: null,
+		settingsJson: null
 	})
-	.toSorted();
+		.map((entry) => {
+			return entry.path;
+		})
+		.toSorted();
+};
+
+const HARNESS_FILES = harnessFiles(false);
 
 const runHook = (project: string, payload: Record<string, unknown>): { stdout: string; code: number } => {
 	const result = spawnSync(process.execPath, [join(project, '.harness/bin/harness-hook.mjs')], {
@@ -272,7 +276,7 @@ exit 0
 			});
 
 			expect(readFileSync(calls, 'utf8')).toContain('init --docs-dir .harness/docs --plans-dir .harness/plans');
-			expect(listInitFiles(project, 'npm')).toEqual([...DECIDED_FILES, ...HARNESS_FILES].toSorted());
+			expect(listInitFiles(project, 'npm')).toEqual([...DECIDED_FILES, ...harnessFiles(true)].toSorted());
 		},
 		TIMEOUT
 	);
@@ -294,6 +298,9 @@ exit 0
 
 			for (const owned of [
 				'.vscode',
+				'.harness',
+				'.claude',
+				'CLAUDE.md',
 				'eslint.config.mjs',
 				'.prettierrc.json',
 				'.editorconfig',
@@ -335,7 +342,7 @@ exit 0
 			);
 
 			expect(again.code).toBe(1);
-			expect(again.stderr).toContain('already exist');
+			expect(again.stderr).toContain('Already set up');
 			expect(readFileSync(marker, 'utf8')).toBe(before);
 
 			await run('node', [CLI, 'init', '-f', '-y'], {

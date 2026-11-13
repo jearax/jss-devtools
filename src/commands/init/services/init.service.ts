@@ -6,9 +6,15 @@ import type { InitMode } from '@/commands/init/types/init-plan.type';
 export const validateInitArguments = (positional: readonly string[], options: InitOptions): void => {
 	const dir = positional[0];
 
-	if (options.framework !== undefined && options.framework !== 'node') {
+	if (options.framework === 'nest' && dir === undefined) {
+		throw new CliError('Framework nest needs <dir>', {
+			hint: 'Create one with jss-devtools init <project-name> --framework nest'
+		});
+	}
+
+	if (options.framework !== undefined && options.framework !== 'node' && options.framework !== 'nest') {
 		throw new CliError(`Framework ${options.framework} is not supported yet`, {
-			hint: 'Only node is'
+			hint: 'Only node and nest are'
 		});
 	}
 

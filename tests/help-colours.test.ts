@@ -69,7 +69,9 @@ describe('help colours', () => {
 		expect(output).toContain('default: "npm")\u001b[22m');
 		expect(output).toContain(dimmed('(init stops and lists them; default: off)'));
 		expect(output).toContain(dimmed('(default: off)'));
-		expect(output).toContain(`  ${dimmed('$ ')}${cyan('jss-devtools init my-app')}              Create my-app, asking`);
+		expect(output).toContain(
+			`  ${dimmed('$ ')}${cyan('jss-devtools init my-app')}                     Create my-app, asking`
+		);
 	});
 
 	it('styles the root help titles, the command names and their placeholders when colour is forced', async () => {

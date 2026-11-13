@@ -251,7 +251,8 @@ const eslintConfig = defineConfig(
 		languageOptions: {
 			ecmaVersion: 'latest',
 			sourceType: 'module',
-			globals: { ...globals.node }
+			globals: { ...globals.node },
+			parserOptions: { tsconfigRootDir: import.meta.dirname }
 		}
 	},
 
@@ -261,8 +262,7 @@ const eslintConfig = defineConfig(
 		extends: [tseslint.configs.recommendedTypeChecked],
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
-				tsconfigRootDir: import.meta.dirname
+				projectService: true
 			}
 		}
 	},

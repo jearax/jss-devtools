@@ -43,7 +43,11 @@ const IGNORED_PATHS = [
 	'.harness/bin/**',
 	'.harness/core/**',
 	'.agentkit/**',
-	'site/**'
+	'site/**',
+
+	// Each templates/<framework>/ has its own ESLint and TypeScript config, which the editor picks up once
+	// `pnpm install` (or `pnpm template:install`) gives it node_modules; init's e2e suites prove the generated projects.
+	'templates/**'
 ];
 
 const eslintConfig = defineConfig(
@@ -55,7 +59,8 @@ const eslintConfig = defineConfig(
 		languageOptions: {
 			ecmaVersion: 'latest',
 			sourceType: 'module',
-			globals: { ...globals.node }
+			globals: { ...globals.node },
+			parserOptions: { tsconfigRootDir: import.meta.dirname }
 		}
 	},
 
@@ -65,8 +70,7 @@ const eslintConfig = defineConfig(
 		extends: [tseslint.configs.recommendedTypeChecked],
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
-				tsconfigRootDir: import.meta.dirname
+				projectService: true
 			}
 		}
 	},
@@ -100,7 +104,8 @@ const eslintConfig = defineConfig(
 				{
 					patterns: [
 						{
-							group: ['../*'],
+							// Tests import the pin and template readers directly; scripts/ has no @/ mapping.
+							group: ['../*', '!../scripts'],
 							message: 'Import through the @/ alias, not a parent-relative path.'
 						},
 						{

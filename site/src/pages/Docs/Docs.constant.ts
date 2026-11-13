@@ -72,7 +72,7 @@ export const INIT_PRESETS: readonly { name: string; state: string }[] = [
 	},
 	{
 		name: 'nest',
-		state: 'Declared, not implemented yet.'
+		state: 'Implemented.'
 	}
 ];
 

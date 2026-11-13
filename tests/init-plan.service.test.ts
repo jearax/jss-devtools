@@ -9,7 +9,7 @@ import { mergePackageJson, mergePnpmWorkspaceYaml } from '@/commands/init/servic
 import { buildInitPlan, comparePlanPaths, renderPlan, renderPlanHeading } from '@/commands/init/services/plan.service';
 import { applyInitPlan } from '@/commands/init/services/write.service';
 import { eslintConfigMjsTemplate } from '@/commands/init/templates/eslint-config-mjs.template';
-import { LINT_STAGED } from '@/commands/init/templates/package-json.template';
+import { LINT_STAGED, packageJsonTemplate } from '@/commands/init/templates/package-json.template';
 import {
 	pnpmWorkspaceYamlExistingTemplate,
 	pnpmWorkspaceYamlMonorepoTemplate,
@@ -17,6 +17,7 @@ import {
 } from '@/commands/init/templates/pnpm-workspace-yaml.template';
 import { srcMainTemplate } from '@/commands/init/templates/src-main.template';
 import { localBinCommandLine } from '@/core/adapters/package-manager.adapter';
+import { PACKAGE } from '@/core/constants/package.constant';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
 
@@ -259,6 +260,207 @@ describe('the plan, create mode with --monorepo', () => {
 		expect(paths).toContain('apps/node/package.json');
 
 		expect(monorepoPaths('npm')).not.toContain('CLAUDE.md');
+	});
+});
+
+describe('the plan, create mode with --framework nest', () => {
+	const nestPlan = (pm: 'bun' | 'pnpm' | 'yarn' | 'npm', options: Record<string, unknown> = {}) => {
+		return buildInitPlan(
+			{
+				...createPreflight('/tmp/nowhere'),
+				pm
+			},
+			{
+				harness: false,
+				framework: 'nest',
+				...options
+			}
+		);
+	};
+
+	const nestPaths = (pm: 'bun' | 'pnpm' | 'yarn' | 'npm', options: Record<string, unknown> = {}): string[] => {
+		return renderPlan(nestPlan(pm, options))
+			.split('\n')
+			.map((line) => {
+				return line.replace(/^[+~-] /, '');
+			});
+	};
+
+	const NEST_SINGLE_PATHS = [
+		'.husky/commit-msg',
+		'.husky/pre-commit',
+		'.vscode/extensions.json',
+		'.vscode/settings.json',
+		'src/app/decorators/response-message.decorator.ts',
+		'src/app/exceptions/validation.exception.ts',
+		'src/app/filters/all-exceptions.filter.ts',
+		'src/app/interceptors/response.interceptor.ts',
+		'src/app/interfaces/api-response.interface.ts',
+		'src/app/app.controller.ts',
+		'src/app/app.module.ts',
+		'src/core/config/config.module.ts',
+		'src/core/config/config.service.ts',
+		'src/core/config/env.schema.spec.ts',
+		'src/core/config/env.schema.ts',
+		'src/core/database/database.module.ts',
+		'src/core/database/database.service.ts',
+		'src/core/helper/helper.module.ts',
+		'src/core/helper/helper.service.ts',
+		'src/core/i18n/locales/en/http.json',
+		'src/core/i18n/locales/en/validation.json',
+		'src/core/i18n/locales/vi/http.json',
+		'src/core/i18n/locales/vi/validation.json',
+		'src/core/i18n/http-message.ts',
+		'src/core/i18n/i18n.module.ts',
+		'src/core/i18n/issue-keys.ts',
+		'src/core/logger/logger.module.ts',
+		'src/core/logger/logger.options.spec.ts',
+		'src/core/logger/logger.options.ts',
+		'src/core/logger/logger.service.spec.ts',
+		'src/core/logger/logger.service.ts',
+		'src/domains/.gitkeep',
+		'src/main.ts',
+		'test/app.e2e-spec.ts',
+		'test/response.e2e-spec.ts',
+		'.editorconfig',
+		'.env.example',
+		'.gitattributes',
+		'.gitignore',
+		'.prettierignore',
+		'.prettierrc.json',
+		'commitlint.config.mjs',
+		'eslint.config.mjs',
+		'nest-cli.json',
+		'package.json',
+		'tsconfig.build.json',
+		'tsconfig.json',
+		'vitest.config.e2e.ts',
+		'vitest.config.ts'
+	];
+
+	const NEST_MONOREPO_PATHS = [
+		'.husky/commit-msg',
+		'.husky/pre-commit',
+		'.vscode/extensions.json',
+		'.vscode/settings.json',
+		'apps/nest/src/app/decorators/response-message.decorator.ts',
+		'apps/nest/src/app/exceptions/validation.exception.ts',
+		'apps/nest/src/app/filters/all-exceptions.filter.ts',
+		'apps/nest/src/app/interceptors/response.interceptor.ts',
+		'apps/nest/src/app/interfaces/api-response.interface.ts',
+		'apps/nest/src/app/app.controller.ts',
+		'apps/nest/src/app/app.module.ts',
+		'apps/nest/src/core/config/config.module.ts',
+		'apps/nest/src/core/config/config.service.ts',
+		'apps/nest/src/core/config/env.schema.spec.ts',
+		'apps/nest/src/core/config/env.schema.ts',
+		'apps/nest/src/core/database/database.module.ts',
+		'apps/nest/src/core/database/database.service.ts',
+		'apps/nest/src/core/helper/helper.module.ts',
+		'apps/nest/src/core/helper/helper.service.ts',
+		'apps/nest/src/core/i18n/locales/en/http.json',
+		'apps/nest/src/core/i18n/locales/en/validation.json',
+		'apps/nest/src/core/i18n/locales/vi/http.json',
+		'apps/nest/src/core/i18n/locales/vi/validation.json',
+		'apps/nest/src/core/i18n/http-message.ts',
+		'apps/nest/src/core/i18n/i18n.module.ts',
+		'apps/nest/src/core/i18n/issue-keys.ts',
+		'apps/nest/src/core/logger/logger.module.ts',
+		'apps/nest/src/core/logger/logger.options.spec.ts',
+		'apps/nest/src/core/logger/logger.options.ts',
+		'apps/nest/src/core/logger/logger.service.spec.ts',
+		'apps/nest/src/core/logger/logger.service.ts',
+		'apps/nest/src/domains/.gitkeep',
+		'apps/nest/src/main.ts',
+		'apps/nest/test/app.e2e-spec.ts',
+		'apps/nest/test/response.e2e-spec.ts',
+		'apps/nest/.env.example',
+		'apps/nest/.gitattributes',
+		'apps/nest/eslint.config.mjs',
+		'apps/nest/nest-cli.json',
+		'apps/nest/package.json',
+		'apps/nest/tsconfig.build.json',
+		'apps/nest/tsconfig.json',
+		'apps/nest/vitest.config.e2e.ts',
+		'apps/nest/vitest.config.ts',
+		'packages/.gitkeep',
+		'.editorconfig',
+		'.gitignore',
+		'.prettierignore',
+		'.prettierrc.json',
+		'commitlint.config.mjs',
+		'eslint.config.mjs',
+		'package.json',
+		'tsconfig.base.json',
+		'turbo.json'
+	];
+
+	// pnpm's workspace file is planned right after the root package.json.
+	const withPnpmWorkspace = (paths: readonly string[]): string[] => {
+		const at = paths.indexOf('package.json') + 1;
+
+		return [...paths.slice(0, at), 'pnpm-workspace.yaml', ...paths.slice(at)];
+	};
+
+	it('plans the nest tree for every manager, with pnpm-workspace.yaml only for pnpm', () => {
+		for (const pm of ['bun', 'pnpm', 'yarn', 'npm'] as const) {
+			const expected = pm === 'pnpm' ? withPnpmWorkspace(NEST_SINGLE_PATHS) : NEST_SINGLE_PATHS;
+
+			expect(nestPaths(pm)).toEqual(expected);
+		}
+	});
+
+	it('plans the nest monorepo tree, template under apps/nest, toolchain at the root', () => {
+		for (const pm of ['bun', 'pnpm', 'yarn', 'npm'] as const) {
+			const expected = pm === 'pnpm' ? withPnpmWorkspace(NEST_MONOREPO_PATHS) : NEST_MONOREPO_PATHS;
+
+			expect(nestPaths(pm, { monorepo: true })).toEqual(expected);
+		}
+	});
+
+	it('substitutes the package name and merges the shared devDependencies', () => {
+		const manifest = entryFor(nestPlan('pnpm'), 'package.json')?.content ?? '';
+
+		expect(manifest).toContain('"name": "my-app"');
+		expect(manifest).not.toContain('nest-app');
+		expect(manifest).toContain('"dev": "nest start --watch"');
+		expect(manifest).toContain('"@nestjs/common": "^12.4.2"');
+		expect(manifest).toContain(`"husky": "^${NODE_PRESET_DEPENDENCIES['husky']}"`);
+		expect(manifest.includes('"packageManager"')).toBe(false);
+
+		const appManifest = entryFor(nestPlan('pnpm', { monorepo: true }), 'apps/nest/package.json')?.content ?? '';
+
+		expect(appManifest).toContain('"name": "@my-app/nest"');
+		expect(appManifest).not.toContain('nest-app');
+	});
+
+	it('excludes the node-only runtime tools from the nest manifests', () => {
+		for (const content of [
+			entryFor(nestPlan('pnpm'), 'package.json')?.content,
+			entryFor(nestPlan('pnpm', { monorepo: true }), 'apps/nest/package.json')?.content
+		]) {
+			const { devDependencies } = JSON.parse(content ?? '{}') as {
+				devDependencies: Record<string, string>;
+			};
+
+			expect(devDependencies['tsx']).toBeUndefined();
+			expect(devDependencies['tsc-alias']).toBeUndefined();
+			expect(devDependencies['typescript']).toBe(`^${NODE_PRESET_DEPENDENCIES['typescript']}`);
+		}
+	});
+
+	it('leaves the node create plan byte-equal to the node templates', () => {
+		const nodePlan = buildInitPlan(createPreflight('/tmp/nowhere'), { harness: false });
+
+		expect(entryFor(nodePlan, 'package.json')?.content).toBe(
+			packageJsonTemplate({
+				projectName: 'my-app',
+				packageManager: 'npm',
+				packageManagerVersion: '11.10.0',
+				nodeFloor: PACKAGE.nodeFloor
+			})
+		);
+		expect(entryFor(nodePlan, 'src/main.ts')?.content).toBe(srcMainTemplate({ projectName: 'my-app' }));
 	});
 });
 

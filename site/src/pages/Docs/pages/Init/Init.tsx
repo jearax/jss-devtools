@@ -6,7 +6,7 @@ import { INIT_PACKAGE_SCRIPTS } from '@/constants/snippets.constant';
 import { INIT_TRANSCRIPT, TERMINAL_LABEL } from '@/constants/transcripts.constant';
 import DocPage from '@/pages/Docs/components/DocPage/DocPage';
 import RichText from '@/pages/Docs/components/RichText/RichText';
-import { INIT_FILES, INIT_PRESETS } from '@/pages/Docs/Docs.constant';
+import { INIT_FILES } from '@/pages/Docs/Docs.constant';
 import {
 	INIT_COMMANDS,
 	INIT_FILES_INTRO,
@@ -17,6 +17,7 @@ import {
 	INIT_WHAT_IT_DOES,
 	meta
 } from '@/pages/Docs/pages/Init/Init.constant';
+import { nestSection, presetsSection } from '@/pages/Docs/pages/Init/InitNest';
 
 const commandBlock = (command: (typeof INIT_COMMANDS)[number]) => {
 	return (
@@ -143,36 +144,8 @@ const Init = () => {
 						</>
 					)
 				},
-				{
-					...meta('the-presets'),
-					body: (
-						<>
-							<p>
-								<code>--framework</code> declares five choices. One of them is implemented.
-							</p>
-							<table>
-								<thead>
-									<tr>
-										<th scope="col">Preset</th>
-										<th scope="col">State</th>
-									</tr>
-								</thead>
-								<tbody>
-									{INIT_PRESETS.map((preset) => {
-										return (
-											<tr key={preset.name}>
-												<td>
-													<code>{preset.name}</code>
-												</td>
-												<td>{preset.state}</td>
-											</tr>
-										);
-									})}
-								</tbody>
-							</table>
-						</>
-					)
-				},
+				presetsSection,
+				nestSection,
 				{
 					...meta('the-dry-run'),
 					body: (

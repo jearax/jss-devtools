@@ -10,17 +10,13 @@ import { gitignoreTemplate } from '@/commands/init/templates/gitignore.template'
 import { huskyCommitMsgTemplate } from '@/commands/init/templates/husky-commit-msg.template';
 import { huskyPreCommitTemplate } from '@/commands/init/templates/husky-pre-commit.template';
 import { packageJsonTemplate } from '@/commands/init/templates/package-json.template';
-import {
-	pnpmWorkspaceYamlExistingTemplate,
-	pnpmWorkspaceYamlTemplate
-} from '@/commands/init/templates/pnpm-workspace-yaml.template';
+import { pnpmWorkspaceYamlExistingTemplate } from '@/commands/init/templates/pnpm-workspace-yaml.template';
 import { prettierignoreTemplate } from '@/commands/init/templates/prettierignore.template';
 import { prettierrcJsonTemplate } from '@/commands/init/templates/prettierrc-json.template';
 import { srcMainTemplate } from '@/commands/init/templates/src-main.template';
 import { tsconfigJsonTemplate } from '@/commands/init/templates/tsconfig-json.template';
 import { vscodeExtensionsJsonTemplate } from '@/commands/init/templates/vscode-extensions-json.template';
 import { vscodeSettingsJsonTemplate } from '@/commands/init/templates/vscode-settings-json.template';
-import { localBinCommandLine } from '@/core/adapters/package-manager.adapter';
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
 import { CLAUDE_MD, CLAUDE_SETTINGS } from '@/modules/harness/constants/harness-paths.constant';
@@ -28,17 +24,11 @@ import { harnessInstallEntries } from '@/modules/harness/services/install-plan.s
 
 import { mergeHook, mergeLines, mergePackageJson, mergePnpmWorkspaceYaml } from './merge.service';
 import { monorepoCreateModeEntries } from './monorepo-plan.service';
+import { nestCreateModeEntries } from './nest-plan.service';
+import { hookCommands, sharedToolchainEntries } from './shared-toolchain-plan.service';
 
-import type { PackageManagerName } from '@/commands/init/templates/package-json.template';
 import type { InitOptions } from '@/commands/init/types/init-options.type';
 import type { InitPlan, InitPreflight, PlanEntry } from '@/commands/init/types/init-plan.type';
-
-export const hookCommands = (pm: PackageManagerName): { preCommit: string; commitMsg: string } => {
-	return {
-		preCommit: localBinCommandLine(pm, 'lint-staged', []),
-		commitMsg: localBinCommandLine(pm, 'commitlint', ['--edit', '"$1"'])
-	};
-};
 
 export const derivePackageName = (folder: string): string => {
 	const name = folder
@@ -61,7 +51,6 @@ export const derivePackageName = (folder: string): string => {
 const createModeEntries = (preflight: InitPreflight, options: InitOptions): readonly PlanEntry[] => {
 	const { pm, projectName, pmVersion } = preflight;
 	const packageName = derivePackageName(projectName);
-	const commands = hookCommands(pm);
 
 	const at = (path: string, content: string): PlanEntry => {
 		return {
@@ -71,7 +60,7 @@ const createModeEntries = (preflight: InitPreflight, options: InitOptions): read
 		};
 	};
 
-	const entries = [
+	return [
 		at(
 			'package.json',
 			packageJsonTemplate({
@@ -83,28 +72,8 @@ const createModeEntries = (preflight: InitPreflight, options: InitOptions): read
 		),
 		at('tsconfig.json', tsconfigJsonTemplate()),
 		at('src/main.ts', srcMainTemplate({ projectName })),
-		at('eslint.config.mjs', eslintConfigMjsTemplate()),
-		at('.prettierrc.json', prettierrcJsonTemplate()),
-		at('.editorconfig', editorconfigTemplate()),
-		at('.gitignore', gitignoreTemplate()),
-		at('.prettierignore', prettierignoreTemplate()),
-		at('commitlint.config.mjs', commitlintConfigMjsTemplate()),
-		at('.husky/pre-commit', huskyPreCommitTemplate({ command: commands.preCommit })),
-		at('.husky/commit-msg', huskyCommitMsgTemplate({ command: commands.commitMsg }))
+		...sharedToolchainEntries(pm, options.vscode, { eslintConfig: eslintConfigMjsTemplate() })
 	];
-
-	if (options.vscode !== false) {
-		entries.push(
-			at('.vscode/settings.json', vscodeSettingsJsonTemplate({ packageManager: pm })),
-			at('.vscode/extensions.json', vscodeExtensionsJsonTemplate())
-		);
-	}
-
-	if (pm === 'pnpm') {
-		entries.push(at('pnpm-workspace.yaml', pnpmWorkspaceYamlTemplate()));
-	}
-
-	return entries;
 };
 
 const readIfExists = (dir: string, name: string): string | null => {
@@ -284,7 +253,9 @@ export const buildInitPlan = (preflight: InitPreflight, options: InitOptions): I
 			...(preflight.mode === 'create'
 				? options.monorepo === true
 					? monorepoCreateModeEntries(preflight, options)
-					: createModeEntries(preflight, options)
+					: options.framework === 'nest'
+						? nestCreateModeEntries(preflight, options)
+						: createModeEntries(preflight, options)
 				: existingModeEntries(preflight, options)),
 			...harnessEntries(preflight, options)
 		]

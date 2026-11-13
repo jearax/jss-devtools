@@ -1,0 +1,20 @@
+{
+	"200": "Success.",
+	"201": "Created.",
+	"202": "Accepted.",
+	"204": "No content.",
+	"400": "The request is invalid.",
+	"401": "Please sign in to continue.",
+	"403": "You do not have permission to do this.",
+	"404": "The resource was not found.",
+	"405": "This method is not allowed.",
+	"409": "The request conflicts with the current state.",
+	"413": "The request is too large.",
+	"415": "This content type is not supported.",
+	"422": "The request could not be processed.",
+	"429": "Too many requests. Please try again later.",
+	"500": "Something went wrong. Please try again later.",
+	"502": "An upstream service failed. Please try again later.",
+	"503": "The service is unavailable. Please try again later.",
+	"504": "An upstream service timed out. Please try again later."
+}

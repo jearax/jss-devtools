@@ -42,6 +42,7 @@ const PM_QUESTION_ORDER = [...PACKAGE_MANAGERS].reverse();
 const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools init my-app', 'Create my-app, asking for the package manager'],
 	['jss-devtools init my-app --pm pnpm -y', 'Create my-app with pnpm, no questions (CI)'],
+	['jss-devtools init my-api --framework nest -y', 'Create my-api as a Nest 12 app'],
 	['jss-devtools init my-app --monorepo', 'Create my-app as a Turborepo monorepo'],
 	['jss-devtools init', 'Set up the project in the current folder'],
 	['jss-devtools init -f', 'Replace existing ESLint, Prettier and commitlint configs'],
@@ -61,7 +62,7 @@ export const registerInitCommand = (program: Command): void => {
 		.description('Create a project, or set up the current one')
 		.argument('[dir]', DIR_DESCRIPTION)
 		.addOption(
-			new Option('--framework <name>', 'Preset to apply; only node for now')
+			new Option('--framework <name>', 'Preset to apply')
 				.choices(['node', 'react', 'rn', 'next', 'nest'])
 				.default('node')
 		)

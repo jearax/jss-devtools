@@ -20,7 +20,7 @@ const expectsUnchangedDir = (dir: string, before: string): void => {
 };
 
 describe('init argument rules', () => {
-	it('exits 1 for a framework other than node, and the folder is unchanged', async () => {
+	it('exits 1 for a framework other than node or nest, and the folder is unchanged', async () => {
 		const dir = await makeEmptyDir();
 		const before = snapshotDir(dir);
 
@@ -29,6 +29,26 @@ describe('init argument rules', () => {
 				validateInitArguments([], { framework: 'react' });
 			})
 		).toBe('Framework react is not supported yet');
+		expectsUnchangedDir(dir, before);
+
+		await removeDir(dir);
+	});
+
+	it('accepts --framework nest with <dir>', () => {
+		expect(() => {
+			validateInitArguments(['my-api'], { framework: 'nest' });
+		}).not.toThrow();
+	});
+
+	it('exits 1 for --framework nest without <dir>, and the folder is unchanged', async () => {
+		const dir = await makeEmptyDir();
+		const before = snapshotDir(dir);
+
+		expect(
+			messageOf(() => {
+				validateInitArguments([], { framework: 'nest' });
+			})
+		).toBe('Framework nest needs <dir>');
 		expectsUnchangedDir(dir, before);
 
 		await removeDir(dir);

@@ -185,8 +185,8 @@ Arguments:
                       set up the current folder
 
 Options:
-  --framework <name>  Preset to apply; only node for now (values: "node" |
-                      "react" | "rn" | "next" | "nest"; default: "node")
+  --framework <name>  Preset to apply (values: "node" | "react" | "rn" | "next"
+                      | "nest"; default: "node")
   --pm <name>         Package manager for a new project (values: "bun" | "pnpm"
                       | "yarn" | "npm"; default: "npm")
   --monorepo          Create a Turborepo with the app under apps/<framework>
@@ -204,13 +204,14 @@ Options:
   --help, -h          Display help for command
 
 Examples:
-  $ jss-devtools init my-app              Create my-app, asking for the package manager
-  $ jss-devtools init my-app --pm pnpm -y Create my-app with pnpm, no questions (CI)
-  $ jss-devtools init my-app --monorepo   Create my-app as a Turborepo monorepo
-  $ jss-devtools init                     Set up the project in the current folder
-  $ jss-devtools init -f                  Replace existing ESLint, Prettier and commitlint configs
-  $ jss-devtools init --no-harness        Set up the toolchain without the harness
-  $ jss-devtools init --dry-run           Show what would change, write nothing
+  $ jss-devtools init my-app                     Create my-app, asking for the package manager
+  $ jss-devtools init my-app --pm pnpm -y        Create my-app with pnpm, no questions (CI)
+  $ jss-devtools init my-api --framework nest -y Create my-api as a Nest 12 app
+  $ jss-devtools init my-app --monorepo          Create my-app as a Turborepo monorepo
+  $ jss-devtools init                            Set up the project in the current folder
+  $ jss-devtools init -f                         Replace existing ESLint, Prettier and commitlint configs
+  $ jss-devtools init --no-harness               Set up the toolchain without the harness
+  $ jss-devtools init --dry-run                  Show what would change, write nothing
 `);
 	});
 

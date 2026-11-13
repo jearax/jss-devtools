@@ -498,7 +498,22 @@ describe('the exit 1 output, one test per error row', () => {
 			failureSync(() => {
 				validateInitArguments([], { framework: 'react' });
 			})
-		).toBe(['│', '└  Framework react is not supported yet', '   ↳ Only node is', ''].join('\n'));
+		).toBe(['│', '└  Framework react is not supported yet', '   ↳ Only node and nest are', ''].join('\n'));
+	});
+
+	it('E19: --framework nest without a folder names the create command', () => {
+		expect(
+			failureSync(() => {
+				validateInitArguments([], { framework: 'nest' });
+			})
+		).toBe(
+			[
+				'│',
+				'└  Framework nest needs <dir>',
+				'   ↳ Create one with jss-devtools init <project-name> --framework nest',
+				''
+			].join('\n')
+		);
 	});
 
 	it('E20: --pm without a folder', () => {

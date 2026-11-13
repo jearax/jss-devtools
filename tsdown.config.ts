@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { defineConfig } from 'tsdown';
 
+import { readFrameworkTemplate } from './scripts/framework-template.mjs';
 import { readPackageInfo } from './scripts/package-info.mjs';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
@@ -11,6 +12,8 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 const hookBundleText = (): string => {
 	return readFileSync(new URL('./dist/hooks.mjs', import.meta.url), 'utf8');
 };
+
+const nestTemplate = readFrameworkTemplate('nest');
 
 const tsdownConfig = defineConfig({
 	entry: ['src/cli.ts'],
@@ -35,7 +38,8 @@ const tsdownConfig = defineConfig({
 	},
 	define: {
 		__JSS_PACKAGE__: JSON.stringify(readPackageInfo()),
-		__HARNESS_HOOK_BUNDLE__: JSON.stringify(hookBundleText())
+		__HARNESS_HOOK_BUNDLE__: JSON.stringify(hookBundleText()),
+		__NEST_TEMPLATE__: JSON.stringify(nestTemplate)
 	}
 });
 

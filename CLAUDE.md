@@ -18,6 +18,7 @@ pnpm typecheck    # tsc --noEmit
 pnpm test         # vitest; builds the bundle first via globalSetup
 pnpm format       # eslint --fix, then prettier --write
 pnpm format:check # prettier --check, reporting only
+pnpm template:install      # reinstall every template's node_modules (pnpm install does it on a fresh clone; CI never)
 ```
 
 The site is a second project with its own commands:
@@ -81,6 +82,7 @@ state, not a result to assume.
 | `src/core/`                 | Shared code no command owns: the terminal layer, the error type, the exit codes, the utils     |
 | `src/commands/`             | One folder per command; the file suffix says what the file is                                  |
 | `src/modules/harness/`      | The repository-harness hook program; `harness-hook.entry.ts` is the entry Claude Code runs     |
+| `templates/nest/`           | The real Nest 12 project the build embeds; init copies it, the pin script owns its versions    |
 | `tests/`                    | vitest suites; `support/` holds scanners and helpers, `fixtures/` holds negative fixtures      |
 | `scripts/install.sh`        | The installer the site serves; POSIX sh, shellchecked in CI, exercised by `tests/`             |
 | `scripts/stage-release.mjs` | Stages the built bundle and its checksums into `release/` for the site image                   |

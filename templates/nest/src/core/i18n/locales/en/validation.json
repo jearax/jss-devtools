@@ -1,0 +1,21 @@
+{
+	"invalid_type": "The field {path} is required and must be of the expected type.",
+	"invalid_value": "The field {path} must be one of the allowed values.",
+	"invalid_format": {
+		"generic": "The field {path} has an invalid format.",
+		"email": "The field {path} must be a valid email address.",
+		"uuid": "The field {path} must be a valid UUID."
+	},
+	"too_small": {
+		"generic": "The field {path} is below the allowed minimum.",
+		"string": "The field {path} must be at least {count} characters.",
+		"number": "The field {path} must be at least {count}."
+	},
+	"too_big": {
+		"generic": "The field {path} is above the allowed maximum.",
+		"string": "The field {path} must be at most {count} characters.",
+		"number": "The field {path} must be at most {count}."
+	},
+	"unrecognized_keys": "The field {path} is not accepted.",
+	"custom": "The field {path} is invalid."
+}

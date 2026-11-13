@@ -1,0 +1,21 @@
+{
+	"invalid_type": "Trường {path} là bắt buộc và phải đúng kiểu dữ liệu.",
+	"invalid_value": "Trường {path} phải là một trong các giá trị cho phép.",
+	"invalid_format": {
+		"generic": "Trường {path} có định dạng không hợp lệ.",
+		"email": "Trường {path} phải là địa chỉ email hợp lệ.",
+		"uuid": "Trường {path} phải là UUID hợp lệ."
+	},
+	"too_small": {
+		"generic": "Trường {path} nhỏ hơn mức tối thiểu cho phép.",
+		"string": "Trường {path} phải có ít nhất {count} ký tự.",
+		"number": "Trường {path} phải từ {count}."
+	},
+	"too_big": {
+		"generic": "Trường {path} lớn hơn mức tối đa cho phép.",
+		"string": "Trường {path} phải có nhiều nhất {count} ký tự.",
+		"number": "Trường {path} phải tối đa {count}."
+	},
+	"unrecognized_keys": "Trường {path} không được chấp nhận.",
+	"custom": "Trường {path} không hợp lệ."
+}
