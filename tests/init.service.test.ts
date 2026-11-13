@@ -107,6 +107,31 @@ describe('init argument rules', () => {
 		).toBe('Option --agent-kit needs the harness');
 	});
 
+	it('exits 1 for --no-sample without --framework nest', () => {
+		expect(
+			messageOf(() => {
+				validateInitArguments(['my-app'], {
+					framework: 'node',
+					sample: false
+				});
+			})
+		).toBe('--no-sample needs --framework nest');
+		expect(
+			messageOf(() => {
+				validateInitArguments(['my-api'], { sample: false });
+			})
+		).toBe('--no-sample needs --framework nest');
+	});
+
+	it('accepts --no-sample with --framework nest', () => {
+		expect(() => {
+			validateInitArguments(['my-api'], {
+				framework: 'nest',
+				sample: false
+			});
+		}).not.toThrow();
+	});
+
 	it('picks create mode with <dir> and existing mode without', () => {
 		expect(resolveInitMode(['my-app'])).toBe('create');
 		expect(resolveInitMode([])).toBe('existing');

@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from '@/app/app.module.js';
+import { setupApp } from '@/app/app.setup.js';
 import { ConfigService } from '@/core/config/config.service.js';
 import { LoggerService } from '@/core/logger/logger.service.js';
 
@@ -12,7 +13,7 @@ const bootstrap = async (): Promise<void> => {
 
 	loggerService.setContext('Bootstrap');
 	app.useLogger(loggerService);
-	app.enableCors({ origin: configService.corsOrigin });
+	setupApp(app, configService);
 	app.enableShutdownHooks();
 
 	await app.listen(configService.appPort);

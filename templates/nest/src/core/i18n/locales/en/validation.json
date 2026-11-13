@@ -17,5 +17,8 @@
 		"number": "The field {path} must be at most {count}."
 	},
 	"unrecognized_keys": "The field {path} is not accepted.",
-	"custom": "The field {path} is invalid."
+	"custom": {
+		"generic": "The field {path} is invalid.",
+		"empty_body": "Send at least one field to update."
+	}
 }

@@ -30,7 +30,7 @@ export const monorepoCreateModeEntries = (preflight: InitPreflight, options: Ini
 
 	const appEntries =
 		framework === 'nest'
-			? nestMonorepoAppEntries(preflight)
+			? nestMonorepoAppEntries(preflight, options)
 			: [
 					at(`apps/${framework}/package.json`, appPackageJsonTemplate({ appName: `@${packageName}/${framework}` })),
 					at(`apps/${framework}/tsconfig.json`, appTsconfigJsonTemplate()),

@@ -5,7 +5,10 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '@/app/app.module.js';
+import { setupApp } from '@/app/app.setup.js';
 import { ResponseMessage } from '@/app/decorators/response-message.decorator.js';
+import { type ApiResponse } from '@/app/interfaces/api-response.interface.js';
+import { ConfigService } from '@/core/config/config.service.js';
 
 import type { App } from 'supertest/types.js';
 
@@ -58,6 +61,7 @@ describe('Response envelope (e2e)', () => {
 		}).compile();
 
 		app = moduleFixture.createNestApplication({ logger: false });
+		setupApp(app, app.get(ConfigService));
 		await app.init();
 	});
 
@@ -67,7 +71,7 @@ describe('Response envelope (e2e)', () => {
 
 	it('an exception built without a message reads the translated status line', async () => {
 		const response = await request(app.getHttpServer())
-			.get('/_response/missing-default')
+			.get('/api/v1/_response/missing-default')
 			.set('Accept-Language', 'vi')
 			.expect(404);
 
@@ -80,7 +84,7 @@ describe('Response envelope (e2e)', () => {
 
 	it('an exception message that is a catalog key reads translated', async () => {
 		const response = await request(app.getHttpServer())
-			.get('/_response/missing-key')
+			.get('/api/v1/_response/missing-key')
 			.set('Accept-Language', 'vi')
 			.expect(404);
 
@@ -93,7 +97,7 @@ describe('Response envelope (e2e)', () => {
 
 	it('an exception message that is no catalog key is not shown', async () => {
 		const response = await request(app.getHttpServer())
-			.get('/_response/missing-text')
+			.get('/api/v1/_response/missing-text')
 			.set('Accept-Language', 'vi')
 			.expect(404);
 
@@ -107,7 +111,7 @@ describe('Response envelope (e2e)', () => {
 	// Express parses the body before the i18n middleware runs, so this one reads the default locale.
 	it('a malformed JSON body answers the envelope in the default locale, not the parser text', async () => {
 		const response = await request(app.getHttpServer())
-			.post('/_nowhere')
+			.post('/api/_nowhere')
 			.set('Content-Type', 'application/json')
 			.set('Accept-Language', 'vi')
 			.send('{"name":')
@@ -130,8 +134,31 @@ describe('Response envelope (e2e)', () => {
 		});
 	});
 
+	// Outside the /api prefix the request never reaches the router; the fallback in setupApp owns it.
+	it('a path outside the prefix answers the translated envelope in both locales', async () => {
+		const byVi = await request(app.getHttpServer()).get('/_nowhere?lang=vi').expect(404);
+		const byEn = await request(app.getHttpServer()).get('/_nowhere?lang=en').expect(404);
+
+		expect(byVi.headers['content-type']).toContain('application/json');
+		expect(byEn.headers['content-type']).toContain('application/json');
+		expect((byVi.body as ApiResponse<null>).message).toBe('Không tìm thấy tài nguyên.');
+		expect((byEn.body as ApiResponse<null>).message).toBe('The resource was not found.');
+		expect((byEn.body as ApiResponse<null>).data).toBeNull();
+	});
+
+	it('the unversioned course path answers the envelope as well', async () => {
+		const response = await request(app.getHttpServer()).get('/v1/courses?lang=en').expect(404);
+
+		expect(response.headers['content-type']).toContain('application/json');
+		expect(response.body).toEqual({
+			status: 404,
+			message: 'The resource was not found.',
+			data: null
+		});
+	});
+
 	it('an unexpected error answers 500 and names nothing internal', async () => {
-		const response = await request(app.getHttpServer()).get('/_response/crash').expect(500);
+		const response = await request(app.getHttpServer()).get('/api/v1/_response/crash').expect(500);
 
 		expect(response.body).toEqual({
 			status: 500,
@@ -142,13 +169,13 @@ describe('Response envelope (e2e)', () => {
 	});
 
 	it('a file passes through unwrapped', async () => {
-		const response = await request(app.getHttpServer()).get('/_response/file').expect(200);
+		const response = await request(app.getHttpServer()).get('/api/v1/_response/file').expect(200);
 
 		expect(response.text).toBe('raw bytes');
 	});
 
 	it('@ResponseMessage replaces the status line', async () => {
-		const response = await request(app.getHttpServer()).get('/_response/custom-message').expect(200);
+		const response = await request(app.getHttpServer()).get('/api/v1/_response/custom-message').expect(200);
 
 		expect(response.body).toEqual({
 			status: 200,

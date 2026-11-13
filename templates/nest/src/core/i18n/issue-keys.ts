@@ -9,11 +9,13 @@ type ValidationIssue = {
 	readonly code?: unknown;
 	readonly format?: unknown;
 	readonly origin?: unknown;
+	readonly params?: { readonly key?: unknown } | undefined;
 };
 
 /**
- * The candidate catalog keys for a validation issue, in lookup order: the
- * specific `<code>.<format>` and `<code>.<origin>` first, then `<code>`, and
+ * The candidate catalog keys for a validation issue, in lookup order: a
+ * custom issue with a named key tries `custom.<key>` first, then the
+ * specific `<code>.<format>` and `<code>.<origin>`, then `<code>`, and
  * finally `<code>.generic`, which the catalogs hold so an origin or format
  * without a dedicated message still reads translated.
  */
@@ -23,6 +25,10 @@ export const validationIssueKeys = (issue: ValidationIssue): string[] => {
 
 	if (base === '') {
 		return keys;
+	}
+
+	if (typeof issue.params?.key === 'string') {
+		keys.push(`${base}.${issue.params.key}`);
 	}
 
 	if (typeof issue.format === 'string') {

@@ -1,7 +1,13 @@
+import { randomUUID } from 'node:crypto';
+
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class HelperService {
+	uuid(): string {
+		return randomUUID();
+	}
+
 	nowIso(): string {
 		return new Date().toISOString();
 	}

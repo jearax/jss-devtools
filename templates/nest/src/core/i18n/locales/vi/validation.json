@@ -17,5 +17,8 @@
 		"number": "Trường {path} phải tối đa {count}."
 	},
 	"unrecognized_keys": "Trường {path} không được chấp nhận.",
-	"custom": "Trường {path} không hợp lệ."
+	"custom": {
+		"generic": "Trường {path} không hợp lệ.",
+		"empty_body": "Cần gửi ít nhất một trường để cập nhật."
+	}
 }

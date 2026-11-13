@@ -9,6 +9,7 @@ export type InitOptions = {
 	force?: true;
 	monorepo?: true;
 	framework?: InitFramework;
+	sample?: boolean;
 	vscode?: boolean;
 	harness?: boolean;
 	agentKit?: true;

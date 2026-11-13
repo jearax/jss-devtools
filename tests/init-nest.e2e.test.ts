@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { createServer, type AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -79,6 +79,33 @@ const answersReady = async (port: number): Promise<void> => {
 };
 
 const serveAndStop = async (cwd: string, mainPath: string): Promise<void> => {
+	const port = await freePort();
+
+	const child = spawn(process.execPath, [mainPath], {
+		cwd,
+		env: {
+			...process.env,
+			APP_PORT: String(port),
+			NODE_ENV: 'prod'
+		},
+		stdio: 'ignore'
+	});
+
+	try {
+		await answersReady(port);
+
+		const courses = await fetch(`http://127.0.0.1:${port}/api/v1/courses`);
+
+		if (courses.status !== 200) {
+			throw new Error(`GET /api/v1/courses answered ${courses.status}`);
+		}
+	} finally {
+		child.kill('SIGTERM');
+		await exitOf(child);
+	}
+};
+
+const serveHealthAndStop = async (cwd: string, mainPath: string): Promise<void> => {
 	const port = await freePort();
 
 	const child = spawn(process.execPath, [mainPath], {
@@ -199,6 +226,54 @@ describe.runIf(enabled)('init --framework nest end to end', () => {
 			await serveAndStop(project, join('apps', 'nest', 'dist', 'main.js'));
 
 			console.log(`[init nest monorepo e2e] ${pm}: ${((Date.now() - started) / 1000).toFixed(1)}s`);
+		},
+		TIMEOUT
+	);
+
+	it.each(MANAGERS)(
+		'creates a %s nest app with --no-sample that lints, typechecks, tests, builds and serves',
+		async (pm: Manager) => {
+			if (!(await available(pm))) {
+				if (pm === 'npm' || pm === 'pnpm') {
+					throw new Error(`${pm} is required but not on PATH`);
+				}
+
+				console.log(`[init nest no-sample e2e] ${pm}: skipped, not on PATH`);
+
+				return;
+			}
+
+			const started = Date.now();
+			const project = join(root, `my-nest-bare-${pm}`);
+
+			await run('node', [CLI, 'init', `my-nest-bare-${pm}`, '--framework', 'nest', '--no-sample', '--pm', pm, '-y'], {
+				cwd: root,
+				timeout: TIMEOUT
+			});
+
+			await run(join(project, 'node_modules', '.bin', 'prettier'), ['--check', '.'], {
+				cwd: project,
+				timeout: TIMEOUT
+			});
+
+			expect(existsSync(join(project, 'src', 'domains', '.gitkeep'))).toBe(true);
+			expect(existsSync(join(project, 'src', 'domains', 'learning'))).toBe(false);
+			expect(existsSync(join(project, 'test', 'course.e2e-spec.ts'))).toBe(false);
+
+			const appModule = readFileSync(join(project, 'src', 'app', 'app.module.ts'), 'utf8');
+
+			expect(appModule).not.toContain('CourseModule');
+
+			for (const script of ['lint', 'typecheck', 'test', 'build'] as const) {
+				await run(pm, ['run', script], {
+					cwd: project,
+					timeout: TIMEOUT
+				});
+			}
+
+			await serveHealthAndStop(project, join('dist', 'main.js'));
+
+			console.log(`[init nest no-sample e2e] ${pm}: ${((Date.now() - started) / 1000).toFixed(1)}s`);
 		},
 		TIMEOUT
 	);

@@ -18,6 +18,12 @@ export const validateInitArguments = (positional: readonly string[], options: In
 		});
 	}
 
+	if (options.sample === false && options.framework !== 'nest') {
+		throw new CliError('--no-sample needs --framework nest', {
+			hint: 'The example domain ships only with the nest preset'
+		});
+	}
+
 	if (dir === undefined && options.pm !== undefined) {
 		throw new CliError('Option --pm needs <dir>', {
 			hint: 'An existing project uses the manager it has'

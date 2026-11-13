@@ -80,6 +80,7 @@ Options:
   --force, -f         Replace existing ESLint, Prettier, commitlint and editor
                       configs (init stops and lists them; default: off)
   --no-vscode         Do not write .vscode/ (default: written)
+  --no-sample         Do not write the example domain (default: written)
   --no-harness        Do not install the harness (default: installed)
   --agent-kit         Point AgentKit at .harness/docs and .harness/plans; needs
                       ak (default: off)
@@ -90,14 +91,15 @@ Options:
   --help, -h          Display help for command
 
 Examples:
-  $ jss-devtools init my-app                     Create my-app, asking for the package manager
-  $ jss-devtools init my-app --pm pnpm -y        Create my-app with pnpm, no questions (CI)
-  $ jss-devtools init my-api --framework nest -y Create my-api as a Nest 12 app
-  $ jss-devtools init my-app --monorepo          Create my-app as a Turborepo monorepo
-  $ jss-devtools init                            Set up the project in the current folder
-  $ jss-devtools init -f                         Replace existing ESLint, Prettier and commitlint configs
-  $ jss-devtools init --no-harness               Set up the toolchain without the harness
-  $ jss-devtools init --dry-run                  Show what would change, write nothing
+  $ jss-devtools init my-app                                 Create my-app, asking for the package manager
+  $ jss-devtools init my-app --pm pnpm -y                    Create my-app with pnpm, no questions (CI)
+  $ jss-devtools init my-api --framework nest -y             Create my-api as a Nest 12 app
+  $ jss-devtools init my-api --framework nest --no-sample -y Create it without the example domain
+  $ jss-devtools init my-app --monorepo                      Create my-app as a Turborepo monorepo
+  $ jss-devtools init                                        Set up the project in the current folder
+  $ jss-devtools init -f                                     Replace existing ESLint, Prettier and commitlint configs
+  $ jss-devtools init --no-harness                           Set up the toolchain without the harness
+  $ jss-devtools init --dry-run                              Show what would change, write nothing
 `;
 
 const originalExitCode = process.exitCode;

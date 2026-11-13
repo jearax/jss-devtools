@@ -296,8 +296,10 @@ describe('the plan, create mode with --framework nest', () => {
 		'src/app/filters/all-exceptions.filter.ts',
 		'src/app/interceptors/response.interceptor.ts',
 		'src/app/interfaces/api-response.interface.ts',
+		'src/app/schemas/partial-update.schema.ts',
 		'src/app/app.controller.ts',
 		'src/app/app.module.ts',
+		'src/app/app.setup.ts',
 		'src/core/config/config.module.ts',
 		'src/core/config/config.service.ts',
 		'src/core/config/env.schema.spec.ts',
@@ -305,9 +307,12 @@ describe('the plan, create mode with --framework nest', () => {
 		'src/core/database/database.module.ts',
 		'src/core/database/database.service.ts',
 		'src/core/helper/helper.module.ts',
+		'src/core/helper/helper.service.spec.ts',
 		'src/core/helper/helper.service.ts',
+		'src/core/i18n/locales/en/course.json',
 		'src/core/i18n/locales/en/http.json',
 		'src/core/i18n/locales/en/validation.json',
+		'src/core/i18n/locales/vi/course.json',
 		'src/core/i18n/locales/vi/http.json',
 		'src/core/i18n/locales/vi/validation.json',
 		'src/core/i18n/http-message.ts',
@@ -318,9 +323,17 @@ describe('the plan, create mode with --framework nest', () => {
 		'src/core/logger/logger.options.ts',
 		'src/core/logger/logger.service.spec.ts',
 		'src/core/logger/logger.service.ts',
-		'src/domains/.gitkeep',
+		'src/domains/learning/course/dtos/create-course.dto.ts',
+		'src/domains/learning/course/dtos/update-course.dto.ts',
+		'src/domains/learning/course/entities/course.entity.ts',
+		'src/domains/learning/course/repositories/course.repository.ts',
+		'src/domains/learning/course/services/course.service.spec.ts',
+		'src/domains/learning/course/services/course.service.ts',
+		'src/domains/learning/course/course.controller.ts',
+		'src/domains/learning/course/course.module.ts',
 		'src/main.ts',
 		'test/app.e2e-spec.ts',
+		'test/course.e2e-spec.ts',
 		'test/response.e2e-spec.ts',
 		'.editorconfig',
 		'.env.example',
@@ -348,8 +361,10 @@ describe('the plan, create mode with --framework nest', () => {
 		'apps/nest/src/app/filters/all-exceptions.filter.ts',
 		'apps/nest/src/app/interceptors/response.interceptor.ts',
 		'apps/nest/src/app/interfaces/api-response.interface.ts',
+		'apps/nest/src/app/schemas/partial-update.schema.ts',
 		'apps/nest/src/app/app.controller.ts',
 		'apps/nest/src/app/app.module.ts',
+		'apps/nest/src/app/app.setup.ts',
 		'apps/nest/src/core/config/config.module.ts',
 		'apps/nest/src/core/config/config.service.ts',
 		'apps/nest/src/core/config/env.schema.spec.ts',
@@ -357,9 +372,12 @@ describe('the plan, create mode with --framework nest', () => {
 		'apps/nest/src/core/database/database.module.ts',
 		'apps/nest/src/core/database/database.service.ts',
 		'apps/nest/src/core/helper/helper.module.ts',
+		'apps/nest/src/core/helper/helper.service.spec.ts',
 		'apps/nest/src/core/helper/helper.service.ts',
+		'apps/nest/src/core/i18n/locales/en/course.json',
 		'apps/nest/src/core/i18n/locales/en/http.json',
 		'apps/nest/src/core/i18n/locales/en/validation.json',
+		'apps/nest/src/core/i18n/locales/vi/course.json',
 		'apps/nest/src/core/i18n/locales/vi/http.json',
 		'apps/nest/src/core/i18n/locales/vi/validation.json',
 		'apps/nest/src/core/i18n/http-message.ts',
@@ -370,9 +388,17 @@ describe('the plan, create mode with --framework nest', () => {
 		'apps/nest/src/core/logger/logger.options.ts',
 		'apps/nest/src/core/logger/logger.service.spec.ts',
 		'apps/nest/src/core/logger/logger.service.ts',
-		'apps/nest/src/domains/.gitkeep',
+		'apps/nest/src/domains/learning/course/dtos/create-course.dto.ts',
+		'apps/nest/src/domains/learning/course/dtos/update-course.dto.ts',
+		'apps/nest/src/domains/learning/course/entities/course.entity.ts',
+		'apps/nest/src/domains/learning/course/repositories/course.repository.ts',
+		'apps/nest/src/domains/learning/course/services/course.service.spec.ts',
+		'apps/nest/src/domains/learning/course/services/course.service.ts',
+		'apps/nest/src/domains/learning/course/course.controller.ts',
+		'apps/nest/src/domains/learning/course/course.module.ts',
 		'apps/nest/src/main.ts',
 		'apps/nest/test/app.e2e-spec.ts',
+		'apps/nest/test/course.e2e-spec.ts',
 		'apps/nest/test/response.e2e-spec.ts',
 		'apps/nest/.env.example',
 		'apps/nest/.gitattributes',
@@ -446,6 +472,38 @@ describe('the plan, create mode with --framework nest', () => {
 			expect(devDependencies['tsx']).toBeUndefined();
 			expect(devDependencies['tsc-alias']).toBeUndefined();
 			expect(devDependencies['typescript']).toBe(`^${NODE_PRESET_DEPENDENCIES['typescript']}`);
+		}
+	});
+
+	it('plans the sample gitkeep and no course files with --no-sample, single and monorepo', () => {
+		for (const [options, prefix] of [
+			[{ sample: false }, 'src/'],
+			[
+				{
+					sample: false,
+					monorepo: true
+				},
+				'apps/nest/src/'
+			]
+		] as const) {
+			const paths = nestPaths('pnpm', options);
+
+			expect(paths).toContain(`${prefix}domains/.gitkeep`);
+
+			expect(
+				paths.filter((path) => {
+					return (
+						path.startsWith(`${prefix}domains/learning/`) ||
+						path.endsWith('/course.json') ||
+						path.endsWith('course.e2e-spec.ts')
+					);
+				})
+			).toEqual([]);
+
+			const appModule = entryFor(nestPlan('pnpm', options), `${prefix}app/app.module.ts`)?.content ?? '';
+
+			expect(appModule).not.toContain('CourseModule');
+			expect(appModule).toContain('TerminusModule');
 		}
 	});
 

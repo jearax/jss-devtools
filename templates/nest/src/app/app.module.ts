@@ -12,11 +12,12 @@ import { HelperModule } from '@/core/helper/helper.module.js';
 import { I18nModule } from '@/core/i18n/i18n.module.js';
 import { validationIssueKeys } from '@/core/i18n/issue-keys.js';
 import { LoggerModule } from '@/core/logger/logger.module.js';
+import { CourseModule } from '@/domains/learning/course/course.module.js';
 
 import { AppController } from './app.controller.js';
 
 @Module({
-	imports: [ConfigModule, LoggerModule, I18nModule, DatabaseModule, HelperModule, TerminusModule],
+	imports: [ConfigModule, LoggerModule, I18nModule, DatabaseModule, HelperModule, TerminusModule, CourseModule],
 	controllers: [AppController],
 	providers: [
 		{

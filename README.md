@@ -68,13 +68,16 @@ history is the [decision log](.harness/plans/261022-0141-init-flow-discussion/de
 changes nothing ([decision 0046](.harness/decisions/0046-init-formats-the-files-it-writes.md)).
 
 `jss-devtools init my-api --framework nest` creates a Nest 12 ESM app instead of the node project:
-`src/main.ts`, an `app/` module with a `@nestjs/terminus` health route, and `core/` modules for config, logging, i18n,
-a database placeholder and helpers, with zod validating the environment and request bodies. Every
+`src/main.ts`, an `app/` module with a `@nestjs/terminus` health route, `core/` modules for config, logging, i18n,
+a database placeholder and helpers, and an example `learning/course` domain answering `/api/v1/courses`
+through URI versioning, with zod validating the environment and request bodies. Every
 JSON response is `{ status, message, data }`, its message translated per request (`?lang`, then
-`x-lang`, then `Accept-Language`; `vi` and `en`)
+`x-lang`, then `Accept-Language`; `vi` and `en`) — a 404 inside or outside the prefix included
 ([decision 0049](.harness/decisions/0049-nest-response-envelope.md)). The toolchain around it is
 the same, `dev` runs `nest start --watch`, and the preset only creates a project: an existing
 folder set up with `init` refuses it ([decision 0047](.harness/decisions/0047-init-nest-preset.md)).
+`--no-sample` skips the example domain (an empty `src/domains/.gitkeep` instead); it needs
+`--framework nest` ([decision 0051](.harness/decisions/0051-nest-api-prefix-and-no-sample.md)).
 
 `jss-devtools init my-app --monorepo` creates a Turborepo instead: the toolchain and the harness
 once at the root, the app under `apps/node` (or `apps/nest` with `--framework nest`), and an empty

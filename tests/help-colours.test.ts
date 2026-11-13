@@ -70,7 +70,7 @@ describe('help colours', () => {
 		expect(output).toContain(dimmed('(init stops and lists them; default: off)'));
 		expect(output).toContain(dimmed('(default: off)'));
 		expect(output).toContain(
-			`  ${dimmed('$ ')}${cyan('jss-devtools init my-app')}                     Create my-app, asking`
+			`  ${dimmed('$ ')}${cyan('jss-devtools init my-app')}                                 Create my-app, asking`
 		);
 	});
 
