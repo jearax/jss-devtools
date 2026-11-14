@@ -329,7 +329,7 @@ requires the hook files to match before it reports `up-to-date`
 **Redaction rules** (`constants/redaction-rules.constant.ts`, `services/redaction.service.ts`). One
 named rule list covers the secret shapes (AWS, GitHub, Slack, GitLab, npm, Stripe, Google,
 JWT, private-key headers, credentials in URLs, Authorization header values, credential assignments) and the
-private shapes (home paths, e-mail addresses), each with exemptions (placeholder accounts,
+private shapes (home paths, plain or in the dash-encoded form of Claude Code's project and scratchpad folders, and e-mail addresses), each with exemptions (placeholder accounts,
 `example.*` domains, the public forges' SSH remotes, image-extension names). `redactLine` rewrites
 a line; `findMatches` returns rule, kind and line per match, skipping exempt matches and lines
 carrying the `harness-doctor: allow` marker. All patterns carry the `g` flag at module level and

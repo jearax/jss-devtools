@@ -100,6 +100,12 @@ const RULES: readonly RedactionRule[] = [
 		replacement: '~/'
 	},
 	{
+		name: 'encoded-home-path',
+		kind: 'private',
+		pattern: /(?<![A-Za-z0-9-])(?:[A-Z]-)?-(?:Users|home)-[A-Za-z0-9._]{1,32}-/g,
+		replacement: '-Users-<account>-'
+	},
+	{
 		name: 'email',
 		kind: 'private',
 		pattern: /[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,255}\.[A-Za-z]{2,24}/g,

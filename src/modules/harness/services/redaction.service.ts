@@ -40,6 +40,12 @@ const isExempt = (rule: RedactionRule, value: string): boolean => {
 		return exemptEmail(value);
 	}
 
+	if (rule.name === 'encoded-home-path') {
+		const account = /-(?:Users|home)-([A-Za-z0-9._]{1,32})-$/.exec(value)?.[1];
+
+		return account !== undefined && EXEMPT_ACCOUNTS.has(account);
+	}
+
 	return false;
 };
 

@@ -64,7 +64,7 @@
 		{
 			"path": ".harness/bin/hooks.mjs",
 			"kind": "managed",
-			"sha256": "fbd9ede3c9c2721dcc9a591476a30a277cbd8fc11dfd0c4ad9351200bd9a3a7f"
+			"sha256": "50ab65b8aa3dde5045905179462d202397ce32f62e6b8616df4de9b17d27739c"
 		},
 		{
 			"path": ".harness/bin/harness-hook.mjs",

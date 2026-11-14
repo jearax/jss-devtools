@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { REDACTION_RULES } from '@/modules/harness/constants/redaction-rules.constant';
 import { findMatches, redactLine } from '@/modules/harness/services/redaction.service';
 
+const ACCOUNT = ['a', 'lice'].join('');
+
 const SAMPLES: Record<string, string> = {
 	'openai-key': `connect ${'sk-' + 'a'.repeat(12)} now`,
 	'aws-key': `key ${'AKIA' + 'C'.repeat(16)} here`,
@@ -20,7 +22,8 @@ const SAMPLES: Record<string, string> = {
 	'private-key-header': '-----BEGIN PRIVATE KEY-----',
 	'url-credentials': 'connect postgres://user:password@10.0.0.1/db',
 	'home-path': 'lives at /Users/alice/projects/app',
-	email: 'contact alice@corp.internal today'
+	email: 'contact alice@corp.internal today',
+	'encoded-home-path': `projects/-Users-${ACCOUNT}-Documents-x`
 };
 
 describe('every rule matches its sample and skips its exemption', () => {
@@ -95,6 +98,43 @@ describe('the finder is stable and cheap', () => {
 
 		expect(result.matches).toEqual([]);
 		expect(Date.now() - start).toBeLessThan(5000);
+	});
+});
+
+describe('the encoded home path rule', () => {
+	it.each([
+		['a project folder', `projects/-Users-${ACCOUNT}-Documents-x`],
+		['a scratchpad folder', `claude-501/-Users-${ACCOUNT}-Desktop-y`],
+		['line-initial', `-home-${ACCOUNT}-x`],
+		['backtick-initial', `\`-home-${ACCOUNT}-x\``],
+		['the windows form', `C--Users-${ACCOUNT}-x`]
+	])('matches %s', (_name, sample) => {
+		expect(
+			findMatches(sample).matches.some((match) => {
+				return match.rule === 'encoded-home-path';
+			})
+		).toBe(true);
+	});
+
+	it.each([
+		['a kebab-case word', 'site-home-page-hero'],
+		['a kebab-case word with Users', 'docs-Users-guide'],
+		['an informal word', 'my-home-dir']
+	])('does not match %s', (_name, sample) => {
+		expect(findMatches(sample).matches).toEqual([]);
+	});
+
+	it('keeps the exempt accounts exempt', () => {
+		expect(findMatches(`-Users-${['m', 'e'].join('')}-x`).matches).toEqual([]);
+		expect(findMatches(`-Users-${['ru', 'nner'].join('')}-x`).matches).toEqual([]);
+	});
+
+	it('does not match a literal angle-bracket account', () => {
+		expect(findMatches('-Users-<account>-x').matches).toEqual([]);
+	});
+
+	it('redacts the account from an encoded project folder', () => {
+		expect(redactLine(`projects/-Users-${ACCOUNT}-Documents-x`)).toBe('projects/-Users-<account>-Documents-x');
 	});
 });
 

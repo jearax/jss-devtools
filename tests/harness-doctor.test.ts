@@ -388,6 +388,22 @@ describe('harness doctor, the check table', () => {
 		expect(exitCode).toBe(0);
 	});
 
+	it('errors on an encoded home path in a tracked report', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		const account = ['a', 'lice'].join('');
+
+		writeFile(dir, '.harness/plans/encoded.md', `projects/-Users-${account}-Documents-x\n`);
+		await run('git', ['add', '-f', '.harness/plans/encoded.md'], { cwd: dir });
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('Private content');
+		expect(stdout).toContain('.harness/plans/encoded.md:1 encoded-home-path');
+		expect(exitCode).toBe(1);
+	});
+
 	it('reports the knowledge state in the summary', async () => {
 		const dir = await makeRepo();
 

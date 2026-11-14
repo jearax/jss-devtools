@@ -44,3 +44,4 @@ Keep this file the index of the folder: add or remove a row in the same change a
 | [261110-0100-site-landing-redesign](./261110-0100-site-landing-redesign) | completed | Redesign the site as a CLI product landing with mini docs |
 | [261110-1533-site-replay-loop-and-version-bump](./261110-1533-site-replay-loop-and-version-bump) | completed | The hero's replay restores the tab loop, and the version moves to 0.1.0 |
 | [261113-2128-harness-security-hardening](./261113-2128-harness-security-hardening) | done | Harness hardening for public repositories: doctor verifies the hook files against the CLI, knowledge is gitignored unless `init --share-knowledge`, redaction rules and a content check, symlink refusal |
+| [261114-1132-encoded-home-path-redaction](./261114-1132-encoded-home-path-redaction) | done    | Redaction catches home paths in the dash-encoded form Claude Code writes into reports, without a version bump. |

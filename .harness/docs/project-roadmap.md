@@ -237,8 +237,10 @@ Decisions: [0052](../decisions/0052-hook-files-stay-in-the-repository.md) to
   `knowledge.share` key keeps sharing.
 - The release stays 0.1.0, so an existing install reports the Hook files error until its first
   `harness update`.
-- Not done: the plan's last phase, running the released CLI on this repository (`harness update`,
-  then clearing the home paths the content check reports in plans and decisions 0001 and 0014).
+- This repository runs the released harness: `harness doctor` exits 0, and its plans, reports and
+  decisions 0001 and 0014 hold no home path. Home paths are caught plain and in the dash-encoded
+  form Claude Code uses for project and scratchpad folders
+  ([plan](../plans/261114-1132-encoded-home-path-redaction/plan.md)).
 
 ## Not started
 

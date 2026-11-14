@@ -101,7 +101,7 @@ export const HARNESS_SECURITY: readonly { topic: string; detail: string }[] = [
 	{
 		topic: 'Content check',
 		detail:
-			'Secret-shaped values (AWS, GitHub, Slack, GitLab, npm, Stripe, Google, OpenAI-shaped keys, JWTs, private-key headers, credentials in URLs, Authorization header values, credential assignments) are errors; home paths and e-mail addresses are errors in files git would publish.'
+			'Secret-shaped values (AWS, GitHub, Slack, GitLab, npm, Stripe, Google, OpenAI-shaped keys, JWTs, private-key headers, credentials in URLs, Authorization header values, credential assignments) are errors; home paths — plain or as Claude Code dash-encodes them in project and scratchpad folder names — and e-mail addresses are errors in files git would publish.'
 	},
 	{
 		topic: 'The marker',

@@ -103,6 +103,12 @@ const RULES = [
 		replacement: "~/"
 	},
 	{
+		name: "encoded-home-path",
+		kind: "private",
+		pattern: /(?<![A-Za-z0-9-])(?:[A-Z]-)?-(?:Users|home)-[A-Za-z0-9._]{1,32}-/g,
+		replacement: "-Users-<account>-"
+	},
+	{
 		name: "email",
 		kind: "private",
 		pattern: /[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,255}\.[A-Za-z]{2,24}/g,
@@ -163,6 +169,10 @@ const isExempt = (rule, value) => {
 		return parts.length >= 2 && parts[1] !== void 0 && EXEMPT_ACCOUNTS.has(parts[1]);
 	}
 	if (rule.name === "email") return exemptEmail(value);
+	if (rule.name === "encoded-home-path") {
+		const account = /-(?:Users|home)-([A-Za-z0-9._]{1,32})-$/.exec(value)?.[1];
+		return account !== void 0 && EXEMPT_ACCOUNTS.has(account);
+	}
 	return false;
 };
 const redactLine = (text) => {
