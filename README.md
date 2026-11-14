@@ -85,6 +85,17 @@ once at the root, the app under `apps/node` (or `apps/nest` with `--framework ne
 It works in create mode only
 ([decision 0045](.harness/decisions/0045-init-monorepo-creates-a-turborepo.md)).
 
+`init` installs the repository harness by default (`--no-harness` leaves it out): hooks for Claude
+Code, the skills, and `harness doctor`/`harness update`. Harness knowledge — the memory, the
+decisions, the docs, the plans and learned skills — is gitignored by default;
+`init --share-knowledge` keeps it in git so a clone carries it
+([decision 0053](.harness/decisions/0053-knowledge-gitignored-unless-share-knowledge.md), and the
+[site's harness page](https://jss-devtools.jjuidev.com/docs/harness) documents the flag in full).
+On a repository set up by an older CLI build, run `jss-devtools harness update` once after
+installing this CLI: until then `harness doctor` reports the expected `Hook files` error, because
+the bundle changed outside `harness update`
+([decision 0056](.harness/decisions/0056-the-release-stays-at-0-1-0.md)).
+
 ## Development
 
 ```bash

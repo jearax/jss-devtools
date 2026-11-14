@@ -1,6 +1,6 @@
 # Cooker report: init touch-ups, phases 1 and 2
 
-Worktree: `/Users/tandm/Desktop/yyyy-init-touch-ups` (branch `init-touch-ups`, base `3fea7b1`).
+Worktree: `~/Desktop/yyyy-init-touch-ups` (branch `init-touch-ups`, base `3fea7b1`).
 Plan: [261103-1021-init-touch-ups](../261103-1021-init-touch-ups/plan.md). Not committed; left for user review.
 
 ## Scope note

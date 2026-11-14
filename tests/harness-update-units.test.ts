@@ -1,11 +1,22 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
 import { Command } from 'commander';
 import { describe, expect, it, vi } from 'vitest';
 
 import { applyCommandLineOf } from '@/core/utils/apply-command-line.util';
 import { hasConflictMarkers } from '@/modules/harness/services/block-region.service';
-import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/services/config-merge.service';
+import {
+	mergeHarnessConfig,
+	missingConfigKeys,
+	resolveKnowledgeShare
+} from '@/modules/harness/services/config-merge.service';
 import { mergeThreeWay } from '@/modules/harness/services/three-way-merge.service';
+import { compareHarnessVersions } from '@/modules/harness/services/update-release.service';
+import { settingsAction } from '@/modules/harness/services/update-settings.service';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
+
+import { makeEmptyDir } from './support/tmp-dir';
 
 const commandThrough = (argv: readonly string[]): Command => {
 	const program = new Command('jss-devtools');
@@ -205,7 +216,8 @@ describe('the config merge', () => {
 		expect(result.conflictKeys).toEqual([]);
 		expect(JSON.parse(result.content)).toEqual({
 			...DEFAULTS,
-			review: { ...DEFAULTS.review }
+			review: { ...DEFAULTS.review },
+			knowledge: { share: true }
 		});
 	});
 
@@ -221,14 +233,20 @@ describe('the config merge', () => {
 		const result = mergeHarnessConfig(base, local);
 
 		expect(result.conflictKeys).toEqual([]);
-		expect(JSON.parse(result.content)).toEqual(DEFAULTS);
+		expect(JSON.parse(result.content)).toEqual({
+			...DEFAULTS,
+			knowledge: { share: true }
+		});
 	});
 
 	it('repairs a missing key even without a base copy', () => {
 		const result = mergeHarnessConfig(null, configWith({}));
 
 		expect(result.conflictKeys).toEqual([]);
-		expect(JSON.parse(result.content)).toEqual(DEFAULTS);
+		expect(JSON.parse(result.content)).toEqual({
+			...DEFAULTS,
+			knowledge: { share: true }
+		});
 	});
 
 	it('reports a key both sides changed to different values and keeps the local value', () => {
@@ -243,7 +261,8 @@ describe('the config merge', () => {
 			curator: {
 				...DEFAULTS.curator,
 				intervalDays: 14
-			}
+			},
+			knowledge: { share: true }
 		});
 	});
 
@@ -259,7 +278,8 @@ describe('the config merge', () => {
 			curator: {
 				...DEFAULTS.curator,
 				intervalDays: 14
-			}
+			},
+			knowledge: { share: true }
 		});
 	});
 
@@ -272,7 +292,8 @@ describe('the config merge', () => {
 		expect(result.conflictKeys).toEqual([]);
 		expect(JSON.parse(result.content)).toEqual({
 			...DEFAULTS,
-			extra: { keep: true }
+			extra: { keep: true },
+			knowledge: { share: true }
 		});
 	});
 
@@ -287,5 +308,60 @@ describe('the config merge', () => {
 			'curator.archiveDays'
 		]);
 		expect(missingConfigKeys(`${JSON.stringify(DEFAULTS, null, '\t')}\n`)).toEqual([]);
+	});
+});
+
+describe('compareHarnessVersions', () => {
+	it.each([
+		['0.2.0', '0.2.0-beta.1', 1],
+		['0.2.0-beta.2', '0.2.0-beta.10', -1],
+		['0.10.0', '0.9.0', 1],
+		['1.0.0-alpha.1', '1.0.0-alpha.beta', -1],
+		['0.2.0-beta.1', '0.2.0-beta.1', 0],
+		['0.2.0-rc.1', '0.2.0', -1]
+	])('orders %s against %s as %i', (left, right, expected) => {
+		expect(compareHarnessVersions(left, right)).toBe(expected);
+	});
+
+	it('throws on a version that does not parse instead of comparing', () => {
+		expect(() => {
+			return compareHarnessVersions('v0.2.0', '0.2.0');
+		}).toThrow(/not semver/);
+		expect(() => {
+			return compareHarnessVersions('0.2.x', '0.2.0');
+		}).toThrow(/not semver/);
+	});
+});
+
+describe('settingsAction', () => {
+	it('throws a CliError naming the file when its JSON is broken', async () => {
+		const dir = await makeEmptyDir();
+		const path = join(dir, '.claude/settings.json');
+
+		mkdirSync(dirname(path), { recursive: true });
+		writeFileSync(path, '{nope');
+
+		expect(() => {
+			return settingsAction(dir);
+		}).toThrow(/Invalid JSON in \.claude\/settings\.json/);
+	});
+});
+
+describe('resolveKnowledgeShare', () => {
+	it.each([
+		['live boolean wins over the base', '{"knowledge": {"share": false}}', '{"knowledge": {"share": true}}', true],
+		['the base value wins when the live file lacks the key', '{"knowledge": {"share": true}}', '{}', true],
+		['an install predating the key has been sharing', null, '{}', true],
+		['unparsable text counts as sharing', 'not json', 'also not json', true]
+	])('%s', (_name, baseRaw, localRaw, expected) => {
+		expect(resolveKnowledgeShare(baseRaw, localRaw)).toBe(expected);
+	});
+
+	it('keeps a live false that matches its base', () => {
+		expect(resolveKnowledgeShare('{"knowledge": {"share": false}}', '{"knowledge": {"share": false}}')).toBe(false);
+	});
+
+	it('keeps a live false over a base true', () => {
+		expect(resolveKnowledgeShare('{"knowledge": {"share": true}}', '{"knowledge": {"share": false}}')).toBe(false);
 	});
 });

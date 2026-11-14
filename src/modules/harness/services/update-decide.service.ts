@@ -1,13 +1,11 @@
 import { CliError } from '@/core/errors/cli.error';
-import { HARNESS_DIR } from '@/modules/harness/constants/harness-paths.constant';
+import { HOOK_FILES } from '@/modules/harness/constants/harness-paths.constant';
 
 import { extractBlockUnit, embedBlockUnit } from './block-region.service';
 import { mergeHarnessConfig } from './config-merge.service';
 import { mergeThreeWay } from './three-way-merge.service';
 
 import type { UpdateAction } from '@/modules/harness/types/update.type';
-
-const HOOK_BUNDLE_PATH = `${HARNESS_DIR}/bin/hooks.mjs`;
 
 export type PathContext = {
 	path: string;
@@ -45,13 +43,14 @@ export const decideWholeFile = async (ctx: PathContext): Promise<UpdateAction | 
 		return conflictAction(ctx, 'edited a file dropped upstream', local);
 	}
 
-	if (path === HOOK_BUNDLE_PATH) {
+	// Doctor compares these two with the CLI's own copies, so an edit must not survive update.
+	if (HOOK_FILES.includes(path)) {
 		return local === upstream
 			? null
 			: {
 					path,
 					kind: 'update',
-					reason: 'hook bundle rebuilt',
+					reason: 'hook file restored',
 					content: upstream
 				};
 	}

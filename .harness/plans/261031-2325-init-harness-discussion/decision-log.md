@@ -107,7 +107,7 @@ unchanged:
 
 > "Trong .harness/**/*.README.md đóng vai trò như index vậy đó nha, cơ bản là ưu tiên ngắn gọn,
 > cần thì load" (user, 2026-11-01), pointing at the prototype and its test repository
-> `/Users/tandm/Desktop/test-harness`.
+> `~/Desktop/test-harness`.
 
 - Knowledge is reached in layers, each loaded only when the one above points to it: the `CLAUDE.md`
   block (every session; which kind of knowledge goes where), `MEMORY.md` and the titles of the
@@ -277,7 +277,7 @@ the prototype, whose onboarding committed `chore(harness): complete onboarding`.
 > "Giống 0001 nguyên vẹn, tự commit sau khi update thành công, đơn giản hoá thao tác là strategy
 > của thiết kế harness cũ, giờ vẫn giữ tinh thần đó." (user, 2026-11-01)
 
-The prototype's decision 0001 (`/Users/tandm/Documents/jearax/dokploy/harness`,
+The prototype's decision 0001 (`the dokploy repository`,
 `.harness/decisions/0001-update-conflicts-human-decided-install-collisions-overwrite.md`), quoting
 "Agent đề xuất, người quyết":
 

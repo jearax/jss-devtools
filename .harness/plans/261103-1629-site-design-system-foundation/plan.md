@@ -12,7 +12,7 @@ created: 2026-11-03
 
 # Port design-system styles, conventions and layout into `site/`
 
-Source repo (read-only): `/Users/tandm/Documents/jearax/dokploy/design-system` (DS below).
+Source repo (read-only): `the dokploy repository` (DS below).
 Target: `site/` in this repo. Nothing under `src/`, `tests/` or the CLI bundle changes behaviour.
 
 ## Outcome
@@ -83,7 +83,7 @@ Phase 5 records that in a new decision record.
 8. CI (`.github/workflows/ci.yml`) runs site lint, typecheck and test in `checks`, installing
    Chromium for the Vitest browser. The `image` job is unchanged apart from what the build needs.
 9. Every new dependency is pinned to an exact version. Prefer the versions the DS lockfile resolves
-   (`/Users/tandm/Documents/jearax/dokploy/design-system/pnpm-lock.yaml`) when they install.
+   (`the dokploy repository`) when they install.
 10. The docs in Phase 5 exist, and every claim in them matches the code.
 
 ## Phases

@@ -14,7 +14,7 @@ created: 2026-11-03
 
 Builds on [261103-1629-site-design-system-foundation](../261103-1629-site-design-system-foundation/plan.md)
 (done, not committed yet). Source repo for reference, read-only:
-`/Users/tandm/Documents/jearax/dokploy/design-system` (DS below). Site conventions:
+`the dokploy repository` (DS below). Site conventions:
 [docs/site/conventions/](../../docs/site/conventions/README.md).
 
 ## Outcome

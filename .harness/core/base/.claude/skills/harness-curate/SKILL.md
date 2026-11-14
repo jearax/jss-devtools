@@ -23,9 +23,9 @@ Curation removes, merges and moves; it never adds knowledge, which is review's j
    personal entries alone.
 5. **Decisions**: when two decisions in force conflict, ask the user which wins, then write a new
    decision superseding the other.
-6. Never stage or commit. List every file changed, archive moves included, for the user to commit,
-   with `.harness/curator.json`, which the Stop hook updates at the end of this turn: committing it
-   tells teammates the curation is done.
+6. Never stage or commit. List every file changed, archive moves included, for the user to commit
+   when knowledge is shared, with `.harness/curator.json`, which the Stop hook updates at the end
+   of this turn: committing it tells teammates the curation is done.
 
 ## Pitfalls
 

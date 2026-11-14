@@ -36,7 +36,7 @@ tests pass without expectation edits to node output.
 
 ## Scratch proof (real built CLI, pnpm 11.24.0)
 
-Scratchpad `~/.claude/projects/-Users-tandm-.../scratchpad/nest-phase-3/`. Built bundle 376,543 bytes (was 344,709 → +31,834).
+Scratchpad `~/.claude/projects/-Users-<account>-.../scratchpad/nest-phase-3/`. Built bundle 376,543 bytes (was 344,709 → +31,834).
 
 | Check | Result |
 | --- | --- |

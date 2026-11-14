@@ -81,7 +81,7 @@ export const runHarnessUpdate = async (options: UpdateOptions, command: Command)
 
 	if (mode === 'continue') {
 		const session = loadUpdateSession(cwd);
-		const preflight = await runUpdatePreflight(cwd, release.version, 'continue');
+		const preflight = await runUpdatePreflight(cwd, release, 'continue');
 
 		if (session === null || preflight.status !== 'ok') {
 			throw new CliError('No staged harness update to continue');
@@ -128,7 +128,7 @@ export const runHarnessUpdate = async (options: UpdateOptions, command: Command)
 		return;
 	}
 
-	const preflight = await runUpdatePreflight(cwd, release.version, 'update');
+	const preflight = await runUpdatePreflight(cwd, release, 'update');
 
 	if (preflight.status === 'up-to-date') {
 		outro('Harness is up to date');

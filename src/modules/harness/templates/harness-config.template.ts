@@ -11,9 +11,12 @@ export const HARNESS_CONFIG_DEFAULTS = {
 		intervalDays: 7,
 		staleDays: 14,
 		archiveDays: 28
-	}
+	},
+	knowledge: { share: false }
 } satisfies HarnessConfig;
 
-export const harnessConfigTemplate = (): string => {
-	return `${JSON.stringify(HARNESS_CONFIG_DEFAULTS, null, '\t')}\n`;
+export const harnessConfigTemplate = (shareKnowledge: boolean): string => {
+	return `${JSON.stringify({
+ ...HARNESS_CONFIG_DEFAULTS, knowledge: { share: shareKnowledge } 
+}, null, '\t')}\n`;
 };

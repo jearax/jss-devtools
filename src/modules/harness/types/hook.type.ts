@@ -47,4 +47,5 @@ export type HarnessConfig = {
 		staleDays?: number;
 		archiveDays?: number;
 	};
+	knowledge: { share?: boolean };
 };

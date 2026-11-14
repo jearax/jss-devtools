@@ -1,6 +1,6 @@
 # Task: harness plan, phase 5 (harness update)
 
-Repository: `/Users/tandm/Desktop/yyyy`, branch `main`, HEAD `d366187` (phase 4). Node 24.11.0.
+Repository: `~/Desktop/yyyy`, branch `main`, HEAD `d366187` (phase 4). Node 24.11.0.
 
 ## Task
 
@@ -18,7 +18,7 @@ command group and `jss-devtools harness update` with `--continue`, `--abort`, `-
 4. Phase 4 code: `src/modules/harness/install-plan.service.ts`, `merge.service.ts`, the templates,
    `constants/` (manifest and base paths, hook settings), and `src/commands/init/` for how a plan
    is rendered, confirmed and written
-5. Reference only, do not copy: `/Users/tandm/Documents/jearax/dokploy/harness/src/updater/`
+5. Reference only, do not copy: `the dokploy repository`
    (`planner.ts` for the edge cases, `staging.ts`, `run-core-update.ts`)
 
 ## Files you may create or modify

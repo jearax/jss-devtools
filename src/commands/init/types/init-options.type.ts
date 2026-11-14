@@ -13,4 +13,5 @@ export type InitOptions = {
 	vscode?: boolean;
 	harness?: boolean;
 	agentKit?: true;
+	shareKnowledge?: true;
 };

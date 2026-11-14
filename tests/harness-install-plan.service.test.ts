@@ -404,7 +404,8 @@ describe('the harness install plan', () => {
 				intervalDays: 7,
 				staleDays: 14,
 				archiveDays: 28
-			}
+			},
+			knowledge: { share: false }
 		});
 	});
 });

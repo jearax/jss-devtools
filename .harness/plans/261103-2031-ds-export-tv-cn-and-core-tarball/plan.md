@@ -14,7 +14,7 @@ created: 2026-11-03
 
 Two repositories:
 
-- **DS**: `/Users/tandm/Documents/jearax/dokploy/design-system`, branches `main` (`c9e5c1d`) and
+- **DS**: `the dokploy repository`, branches `main` (`c9e5c1d`) and
   `core` (`5d0a285`). Follow its own `AGENTS.md`, `docs/conventions/` and commit hooks.
 - **Site**: `site/` in this repo. It builds on plans
   [261103-1629](../261103-1629-site-design-system-foundation/plan.md) and

@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createProgram, runProgram } from '@/cli';
 import { PACKAGE } from '@/core/constants/package.constant';
 import { HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
-import { harnessInstallEntries } from '@/modules/harness/services/install-plan.service';
+import { harnessInstallEntries, sha256 } from '@/modules/harness/services/install-plan.service';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
 
 import { capture } from './support/capture-stream';
@@ -188,7 +188,7 @@ describe('harness doctor, the check table', () => {
 
 		const { stdout, exitCode } = await runCli(dir);
 
-		expect(stdout).toContain('names a path outside the repository');
+		expect(stdout).toContain('names an unsafe path: ../escaped.txt contains a ".." segment');
 		expect(stdout).toContain('../escaped.txt');
 		expect(stdout).not.toContain('No harness manifest here');
 		expect(exitCode).toBe(1);
@@ -388,7 +388,18 @@ describe('harness doctor, the check table', () => {
 		expect(exitCode).toBe(0);
 	});
 
-	it('errors on a secret-shaped value under .harness/', async () => {
+	it('reports the knowledge state in the summary', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const { stdout } = await runCli(dir);
+
+		expect(stdout).toContain('Knowledge');
+		expect(stdout).toContain('private to this machine');
+	});
+
+	it('errors on a secret-shaped value under .harness/, naming file, line and rule', async () => {
 		const dir = await makeRepo();
 
 		installHarness(dir);
@@ -396,7 +407,58 @@ describe('harness doctor, the check table', () => {
 
 		const { stdout, exitCode } = await runCli(dir);
 
-		expect(stdout).toContain('.harness/file.txt holds a secret-shaped value');
+		expect(stdout).toContain('Secrets');
+		expect(stdout).toContain('.harness/file.txt:1 credential-assignment');
+		expect(exitCode).toBe(1);
+	});
+
+	it('errors on a home path in a tracked plan, and stays silent when the file is ignored', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeFile(dir, '.harness/plans/leak.md', 'run at /Users/alice/tools\n');
+		await run('git', ['add', '-f', '.harness/plans/leak.md'], { cwd: dir });
+
+		const tracked = await runCli(dir);
+
+		expect(tracked.stdout).toContain('Private content');
+		expect(tracked.stdout).toContain('.harness/plans/leak.md:1 home-path');
+		expect(tracked.exitCode).toBe(1);
+
+		await run('git', ['rm', '--cached', '-q', '.harness/plans/leak.md'], { cwd: dir });
+		writeFile(dir, '.gitignore', '.harness/plans/leak.md\n');
+		const ignored = await runCli(dir);
+
+		expect(ignored.stdout).not.toContain('leak.md');
+	});
+
+	it('errors on a token in an ignored file, allows a marked line, and skips a binary file', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeFile(dir, '.gitignore', '.harness/ignored.txt\n');
+		writeFile(dir, '.harness/ignored.txt', `api_key = ${'a'.repeat(20)}\n`);
+		writeFile(dir, '.harness/marked.md', `token: ${'a'.repeat(20)} // harness-doctor: allow\n`);
+		writeFileSync(join(dir, '.harness/blob.bin'), Buffer.from([0x4e, 0x00, 0x55, 0x00]));
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('.harness/ignored.txt:1 credential-assignment');
+		expect(stdout).not.toContain('.harness/marked.md');
+		expect(stdout).toContain('1 lines allowed by marker');
+		expect(stdout).not.toContain('blob.bin');
+		expect(exitCode).toBe(1);
+	});
+
+	it('checks every candidate outside a git repository', async () => {
+		const dir = await makeEmptyDir();
+
+		installHarness(dir);
+		writeFile(dir, '.harness/plans/leak.md', 'run at /Users/alice/tools\n');
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('.harness/plans/leak.md:1 home-path');
 		expect(exitCode).toBe(1);
 	});
 
@@ -545,6 +607,133 @@ describe('harness doctor, the check table', () => {
 
 		expect(clean.stdout).not.toContain('`ak update` overwrites them');
 		expect(clean.exitCode).toBe(0);
+	});
+});
+
+describe('harness doctor, the hook files', () => {
+	it('shows the Hook files row matching the CLI on a fresh install', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain(`match CLI ${PACKAGE.version}`);
+		expect(exitCode).toBe(0);
+	});
+
+	it('errors when the bundle was edited together with its manifest hash', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const edited = `${readFileSync(join(dir, '.harness/bin/hooks.mjs'), 'utf8')}// hand edited\n`;
+
+		writeFile(dir, '.harness/bin/hooks.mjs', edited);
+
+		const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as {
+			files: Array<{ path: string; sha256: string }>;
+		};
+
+		const entry = manifest.files.find((file) => {
+			return file.path === '.harness/bin/hooks.mjs';
+		});
+
+		entry!['sha256'] = sha256(edited);
+		writeFile(dir, HARNESS_MANIFEST, `${JSON.stringify(manifest, null, '\t')}\n`);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain(
+			'.harness/bin/hooks.mjs is not the file this CLI ships: it was changed outside harness update'
+		);
+		expect(stdout).toContain('Read git log -p -- .harness/bin, then run jss-devtools harness update');
+		expect(stdout).not.toContain('match CLI');
+		expect(exitCode).toBe(1);
+	});
+
+	it('errors when the shim was edited', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		writeFile(
+			dir,
+			'.harness/bin/harness-hook.mjs',
+			`${readFileSync(join(dir, '.harness/bin/harness-hook.mjs'), 'utf8')}// hand edited\n`
+		);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain(
+			'.harness/bin/harness-hook.mjs is not the file this CLI ships: it was changed outside harness update'
+		);
+		expect(stdout).not.toContain('match CLI');
+		expect(exitCode).toBe(1);
+	});
+
+	it('warns instead of comparing when the installed harness is older than the CLI', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		setManifestVersion(dir, '0.0.0');
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain(`not verified: the harness is 0.0.0, this CLI is ${PACKAGE.version}`);
+		expect(stdout).toContain('the hook files are compared at the same version only');
+		expect(stdout).toContain('run jss-devtools harness update');
+		expect(stdout).not.toContain('match CLI');
+		expect(exitCode).toBe(0);
+	});
+
+	it('warns with the newer-direction next step when the harness is newer than the CLI', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		setManifestVersion(dir, '99.0.0');
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('not verified: the harness is 99.0.0');
+		expect(stdout).toContain('curl -fsSL https://jss-devtools.jjuidev.com/install.sh | sh');
+		expect(exitCode).toBe(0);
+	});
+
+	it('still errors on a stale manifest hash when the versions differ', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		setManifestVersion(dir, '0.0.0');
+		writeFile(
+			dir,
+			'.harness/bin/hooks.mjs',
+			`${readFileSync(join(dir, '.harness/bin/hooks.mjs'), 'utf8')}// hand edited\n`
+		);
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('.harness/bin/hooks.mjs differs from the manifest hash');
+		expect(exitCode).toBe(1);
+	});
+});
+
+describe('harness doctor, the symlinks check', () => {
+	it('lists a symlink under .harness/ as an error and exits 1', async () => {
+		const dir = await makeEmptyDir();
+
+		installHarness(dir);
+		await run('git', ['init'], { cwd: dir });
+		const outside = await makeEmptyDir();
+
+		writeFile(outside, 'target.md', 'outside\n');
+		rmSync(join(dir, '.harness/docs/README.md'));
+		symlinkSync(join(outside, 'target.md'), join(dir, '.harness/docs/README.md'));
+
+		const { stdout, exitCode } = await runCli(dir);
+
+		expect(stdout).toContain('Symlinks');
+		expect(stdout).toContain('.harness/docs/README.md is a symlink');
+		expect(exitCode).toBe(1);
 	});
 });
 

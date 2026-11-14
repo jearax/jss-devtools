@@ -32,8 +32,8 @@ Every behavior was decided with the user and is quoted in
 [the harness decision log](../261031-2325-init-harness-discussion/decision-log.md); the file list,
 hooks, review rules and config keys are in the accepted
 [design proposal](../261031-2325-init-harness-discussion/design-proposal.md). Read both first; this
-plan does not restate the reasons. The prototype H0 (`/Users/tandm/Documents/jearax/dokploy/harness`)
-and its installed result (`/Users/tandm/Desktop/test-harness`) are references for behavior, never
+plan does not restate the reasons. The prototype H0 (`the dokploy repository`)
+and its installed result (`~/Desktop/test-harness`) are references for behavior, never
 code to copy.
 
 ## Phases

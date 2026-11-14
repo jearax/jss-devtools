@@ -14,7 +14,7 @@ Make `yyyy` a git repository with a pinned, working TypeScript toolchain (pnpm, 
 
 ## Context
 - `yyyy` holds only `plans/`, and it is not a git repository.
-- Style reference: the configs in `/Users/tandm/Documents/jearax/npm/jss-devtools` (`eslint.config.mjs`, `.prettierrc.json`: tabs, width 120, no semicolons, single quotes, no trailing commas), because the CLI will generate this toolchain for consumers and its own repo should be the first user of it. Use the official `typescript-eslint` flat config package, not the split parser and plugin imports.
+- Style reference: the configs in `the repository` (`eslint.config.mjs`, `.prettierrc.json`: tabs, width 120, no semicolons, single quotes, no trailing commas), because the CLI will generate this toolchain for consumers and its own repo should be the first user of it. Use the official `typescript-eslint` flat config package, not the split parser and plugin imports.
 - Versions checked on npm (2026-10-19): typescript 6.0.3 (pinned, not 7.x), typescript-eslint 8.71.2, eslint 10.13.0, prettier 3.9.10, tsdown 0.23.1, vitest 5.0.5, husky 9.1.7, lint-staged 17.6.0, @commitlint/cli 21.2.4. Re-check exact versions at install time and record the resolved ones in the lockfile.
 
 ## Files to create
@@ -30,7 +30,7 @@ Make `yyyy` a git repository with a pinned, working TypeScript toolchain (pnpm, 
 - `vitest.config.ts`
 
 ## Steps
-- [x] `git init -b main` in `/Users/tandm/Desktop/yyyy`.
+- [x] `git init -b main` in `~/Desktop/yyyy`.
 - [x] Write the config files above.
 - [x] `pnpm add -D` the toolchain; `pnpm add commander@15 @clack/prompts@1.8` as runtime dependencies (used in phase 2).
 - [x] Check that `pnpm install` gives no build-script approval prompts. If it does, approve only what the toolchain needs (pnpm 11 setting) and note why.

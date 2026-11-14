@@ -82,7 +82,7 @@ themselves as designed.
 
 - `--no-sample` is flag-only as decided; no prompt was added.
 - The scratch probe project under
-  `~/.claude/projects/-Users-tandm-Documents-jjuidev-tools-jss-devtools/scratchpad/nest-docs-probe/`
+  `~/.claude/projects/-Users-<account>-Documents-jjuidev-tools-jss-devtools/scratchpad/nest-docs-probe/`
   can be deleted.
 
 ## Unresolved questions

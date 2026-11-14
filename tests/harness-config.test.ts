@@ -49,3 +49,17 @@ describe('the harness config keys', () => {
 		}
 	});
 });
+
+describe('readConfig, fresh groups', () => {
+	it('reports a key missing on the second call even though the first call saw it', async () => {
+		const first = await makeEmptyDir();
+
+		writeConfig(first, HARNESS_CONFIG_DEFAULTS);
+		expect(readConfig(first).problems).toEqual([]);
+
+		const second = await makeEmptyDir();
+
+		writeConfig(second, { review: HARNESS_CONFIG_DEFAULTS.review });
+		expect(readConfig(second).problems.join(' ')).toContain('"memory.maxChars"');
+	});
+});

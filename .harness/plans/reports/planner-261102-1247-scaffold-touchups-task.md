@@ -1,6 +1,6 @@
 # Task: scaffold touch-ups (moss green banner, fuller ignore files, CLAUDE block follows AgentKit)
 
-Repository: `/Users/tandm/Desktop/yyyy`, branch `main`. Node 24.11+, pnpm.
+Repository: `~/Desktop/yyyy`, branch `main`. Node 24.11+, pnpm.
 
 ## Task
 
@@ -45,7 +45,7 @@ Implement `plans/261102-1247-scaffold-touchups/plan.md` and its three phases,
 - Comments: default zero. No new dependency. The spinner and help colours stay as they are.
 - If a managed harness Markdown file changes under Prettier in phase 2's step 4, stop and report the
   diff; do not change the harness.
-- Another agent works in `/Users/tandm/Desktop/jss-harness-eval`; do not touch it. Edit nothing
+- Another agent works in `~/Desktop/jss-harness-eval`; do not touch it. Edit nothing
   outside this repository.
 - Do not commit, do not push.
 

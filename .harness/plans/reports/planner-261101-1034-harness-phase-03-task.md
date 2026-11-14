@@ -1,6 +1,6 @@
 # Task: harness plan, phase 3 (hooks and the embedded hook bundle)
 
-Repository: `/Users/tandm/Desktop/yyyy`, branch `main`. Node 24.11.0, pnpm.
+Repository: `~/Desktop/yyyy`, branch `main`. Node 24.11.0, pnpm.
 
 ## Task
 
@@ -18,7 +18,7 @@ program under `src/modules/harness/`, its own bundle `hooks.mjs`, the bundle's t
 5. `plans/261101-0204-init-harness/content/.harness/config.json` (keys and defaults) and
    `content/CLAUDE.md` (the block whose markers the hooks do not touch)
 6. `tests/support/architecture-rules.ts` (the `modules/` rules and the `.entry.ts` role)
-7. Reference only, do not copy: `/Users/tandm/Documents/jearax/dokploy/harness/src/hooks/*.ts`,
+7. Reference only, do not copy: `the dokploy repository`,
    `src/core/skill-usage.ts`, `src/core/harness-limits.ts`
 8. Claude Code hooks reference, `https://code.claude.com/docs/en/hooks`, for payload and output
    fields (`additionalContext`, `decision: "block"`, `stop_hook_active`, `agent_id`, `async`)

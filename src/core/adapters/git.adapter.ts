@@ -53,6 +53,21 @@ export const gitTopLevel = async (cwd: string): Promise<string | null> => {
 	return result.code === 0 ? result.stdout.trim() : null;
 };
 
+// What git would publish: tracked plus untracked-but-not-ignored files, NUL separated.
+export const gitPublishableFiles = async (cwd: string): Promise<string[] | null> => {
+	const result = await runCommand(
+		'git',
+		['ls-files', '--cached', '--others', '--exclude-standard', '-z', '--', '.harness', 'CLAUDE.md', '.claude/skills'],
+		{ cwd }
+	);
+
+	return result.code === 0
+		? result.stdout.split('\0').filter((name) => {
+				return name !== '';
+			})
+		: null;
+};
+
 export const gitMergeFile = async (
 	current: string,
 	base: string,

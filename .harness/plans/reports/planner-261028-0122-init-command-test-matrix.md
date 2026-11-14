@@ -193,7 +193,7 @@ stderr:
 ```text
 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 npm warn deprecated string-similarity@4.0.4: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me <!-- harness-doctor: allow -->
 ```
 
 ### CR2: create with pnpm
@@ -284,7 +284,7 @@ stderr:
 (node:15002) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 warning eslint-plugin-autofix > string-similarity@4.0.4: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-warning prettier-package-json > glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+warning prettier-package-json > glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me <!-- harness-doctor: allow -->
 warning prettier-package-json > glob > inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 warning Workspaces can only be enabled in private projects.
 warning Workspaces can only be enabled in private projects.
@@ -858,7 +858,7 @@ npm error code ECONNREFUSED
 npm error syscall connect
 npm error errno ECONNREFUSED
 npm error FetchError: request to http://127.0.0.1:9/@commitlint%2fcli failed, reason: connect ECONNREFUSED 127.0.0.1:9
-npm error     at ClientRequest.<anonymous> (/Users/tandm/.nvm/versions/node/v24.11.0/lib/node_modules/npm/node_modules/minipass-fetch/lib/index.js:130:14)
+npm error     at ClientRequest.<anonymous> (~/.nvm/versions/node/v24.11.0/lib/node_modules/npm/node_modules/minipass-fetch/lib/index.js:130:14)
 npm error     at ClientRequest.emit (node:events:508:28)
 npm error     at emitErrorEvent (node:_http_client:107:11)
 npm error     at _destroy (node:_http_client:954:9)
@@ -875,7 +875,7 @@ npm error }
 npm error
 npm error If you are behind a proxy, please make sure that the
 npm error 'proxy' config is set properly.  See: 'npm help config'
-npm error A complete log of this run can be found in: /Users/tandm/.npm/_logs/2026-10-27T18_01_06_067Z-debug-0.log
+npm error A complete log of this run can be found in: ~/.npm/_logs/2026-10-27T18_01_06_067Z-debug-0.log
 └  install failed; the files are written. To finish: cd my-app && npm install
 ```
 
@@ -1164,7 +1164,7 @@ stderr:
 ```text
 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 npm warn deprecated string-similarity@4.0.4: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me <!-- harness-doctor: allow -->
 ```
 
 ### EX2: plain TS project, pnpm
@@ -1254,7 +1254,7 @@ warning demo: No license field
 (node:22001) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 warning eslint-plugin-autofix > string-similarity@4.0.4: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-warning prettier-package-json > glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+warning prettier-package-json > glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me <!-- harness-doctor: allow -->
 warning prettier-package-json > glob > inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 warning Workspaces can only be enabled in private projects.
 warning Workspaces can only be enabled in private projects.
@@ -1944,7 +1944,7 @@ npm error code ECONNREFUSED
 npm error syscall connect
 npm error errno ECONNREFUSED
 npm error FetchError: request to http://127.0.0.1:9/@commitlint%2fcli failed, reason: connect ECONNREFUSED 127.0.0.1:9
-npm error     at ClientRequest.<anonymous> (/Users/tandm/.nvm/versions/node/v24.11.0/lib/node_modules/npm/node_modules/minipass-fetch/lib/index.js:130:14)
+npm error     at ClientRequest.<anonymous> (~/.nvm/versions/node/v24.11.0/lib/node_modules/npm/node_modules/minipass-fetch/lib/index.js:130:14)
 npm error     at ClientRequest.emit (node:events:508:28)
 npm error     at emitErrorEvent (node:_http_client:107:11)
 npm error     at _destroy (node:_http_client:954:9)
@@ -1961,7 +1961,7 @@ npm error }
 npm error
 npm error If you are behind a proxy, please make sure that the
 npm error 'proxy' config is set properly.  See: 'npm help config'
-npm error A complete log of this run can be found in: /Users/tandm/.npm/_logs/2026-10-27T18_01_59_986Z-debug-0.log
+npm error A complete log of this run can be found in: ~/.npm/_logs/2026-10-27T18_01_59_986Z-debug-0.log
 └  install failed; the files are written. To finish: npm install
 ```
 
@@ -2041,7 +2041,7 @@ $ husky
 stdout:
 
 ```text
-spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyyy/dist/cli.mjs init my-app
+spawn ~/.nvm/versions/node/v24.11.0/bin/node ~/Desktop/yyyy/dist/cli.mjs init my-app
      ██╗███████╗███████╗
      ██║██╔════╝██╔════╝   jss-devtools v0.0.1
      ██║███████╗███████╗   JavaScript stack dev tools CLI
@@ -2084,7 +2084,7 @@ Done in 2.3s using pnpm v11.24.0
 stdout:
 
 ```text
-spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyyy/dist/cli.mjs init my-app
+spawn ~/.nvm/versions/node/v24.11.0/bin/node ~/Desktop/yyyy/dist/cli.mjs init my-app
      ██╗███████╗███████╗
      ██║██╔════╝██╔════╝   jss-devtools v0.0.1
      ██║███████╗███████╗   JavaScript stack dev tools CLI
@@ -2130,7 +2130,7 @@ spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyy
 stdout:
 
 ```text
-spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyyy/dist/cli.mjs init my-app
+spawn ~/.nvm/versions/node/v24.11.0/bin/node ~/Desktop/yyyy/dist/cli.mjs init my-app
      ██╗███████╗███████╗
      ██║██╔════╝██╔════╝   jss-devtools v0.0.1
      ██║███████╗███████╗   JavaScript stack dev tools CLI
@@ -2158,7 +2158,7 @@ spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyy
 stdout:
 
 ```text
-spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyyy/dist/cli.mjs init my-app
+spawn ~/.nvm/versions/node/v24.11.0/bin/node ~/Desktop/yyyy/dist/cli.mjs init my-app
      ██╗███████╗███████╗
      ██║██╔════╝██╔════╝   jss-devtools v0.0.1
      ██║███████╗███████╗   JavaScript stack dev tools CLI
@@ -2204,7 +2204,7 @@ spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyy
 stdout:
 
 ```text
-spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyyy/dist/cli.mjs init
+spawn ~/.nvm/versions/node/v24.11.0/bin/node ~/Desktop/yyyy/dist/cli.mjs init
      ██╗███████╗███████╗
      ██║██╔════╝██╔════╝   jss-devtools v0.0.1
      ██║███████╗███████╗   JavaScript stack dev tools CLI
@@ -2247,7 +2247,7 @@ Blocked 1 postinstall. Run `bun pm untrusted` for details.
 stdout:
 
 ```text
-spawn /Users/tandm/.nvm/versions/node/v24.11.0/bin/node /Users/tandm/Desktop/yyyy/dist/cli.mjs init --help
+spawn ~/.nvm/versions/node/v24.11.0/bin/node ~/Desktop/yyyy/dist/cli.mjs init --help
      ██╗███████╗███████╗
      ██║██╔════╝██╔════╝   jss-devtools v0.0.1
      ██║███████╗███████╗   JavaScript stack dev tools CLI

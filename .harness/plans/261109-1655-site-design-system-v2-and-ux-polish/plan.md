@@ -9,7 +9,7 @@ created: 2026-11-09
 ## Outcome
 
 The landing site at `site/` runs on the stable design system the rest of the ecosystem uses:
-`@jjuidev/styles` and `@jjuidev/react`, built from `/Users/tandm/Documents/jearax/dokploy/design-system`.
+`@jjuidev/styles` and `@jjuidev/react`, built from `the dokploy repository`.
 The legacy `@jjuidev/design-system` 0.1.0 tarball is gone. On top of that, every control on the site
 answers the user: hover, press and keyboard focus are visible, consistent and timed the way the design
 system says. The visual defects listed in phase 3 are fixed.

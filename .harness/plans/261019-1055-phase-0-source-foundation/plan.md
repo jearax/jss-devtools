@@ -15,7 +15,7 @@ created: 2026-10-19
 
 ## Overview
 
-The rewrite of `@jjuidev/jss-devtools` lives in `/Users/tandm/Desktop/yyyy`. The user's rule: "init source trên `yyyy` này, bản thân nó phải tốt / clean thì mới phát triển các tính năng khác được". This plan delivers the repository, toolchain, a minimal CLI entry point, tests, agent and docs setup, and CI. It builds no product features: no `init`, no harness, no presets.
+The rewrite of `@jjuidev/jss-devtools` lives in `~/Desktop/yyyy`. The user's rule: "init source trên `yyyy` này, bản thân nó phải tốt / clean thì mới phát triển các tính năng khác được". This plan delivers the repository, toolchain, a minimal CLI entry point, tests, agent and docs setup, and CI. It builds no product features: no `init`, no harness, no presets.
 
 Context: [knowledge base](../261019-1050-jss-devtools-rewrite/knowledge-base.md), [open questions](../261019-1050-jss-devtools-rewrite/open-questions.md) (F1 to F12 answered on 2026-10-19).
 
@@ -23,7 +23,7 @@ Context: [knowledge base](../261019-1050-jss-devtools-rewrite/knowledge-base.md)
 
 | Item | Value |
 |---|---|
-| Source location | `/Users/tandm/Desktop/yyyy` (F1) |
+| Source location | `~/Desktop/yyyy` (F1) |
 | Lint and format | ESLint flat + typescript-eslint + Prettier; TypeScript 6.0.x because typescript-eslint 8.71 requires `<6.1.0` (F2) |
 | Dependencies | Node convention: runtime libraries in `dependencies`, tooling in `devDependencies` (F3). Native install means the bundle inlines runtime dependencies (`deps.alwaysBundle` in tsdown 0.23). |
 | CLI and TUI | commander 15 + @clack/prompts 1.8 (F4) |

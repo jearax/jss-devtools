@@ -213,14 +213,32 @@ phase 7. Decision: [0033](../decisions/0033-harness-doctor.md).
 
 - `jss-devtools harness doctor` checks the harness installed in the current repository, read-only:
   the manifest, the `CLAUDE.md` block, the harness hook entries in `.claude/settings.json`, the
-  hook files under `.harness/bin`, `config.json`, memory limits, index drift, decision records,
-  secrets in `.harness/`, learned skills, managed-file drift, the base copies against the manifest,
+  hook files under `.harness/bin` against the running CLI, `config.json`, memory limits, index
+  drift, decision records, symlinks, secrets and private content in the files git would publish,
+  learned skills, managed-file drift, the base copies against the manifest,
   staged updates, the installed harness version against the running CLI and, with AgentKit,
   uncommitted `ak-*` skill edits. It prints a summary plus one row per issue and exits 1 when any
   issue is an error; `--help` lists the checks and the exit codes. The Memory summary row takes the
   worst level of the memory issues, so a broken memory never shows a tick next to a cross. Every
   rule lives once in `src/modules/harness/services/health-*.service.ts`, shared with the hooks and
   `harness update`.
+
+## Done: harness security hardening
+
+Plan: [../plans/261113-2128-harness-security-hardening/plan.md](../plans/261113-2128-harness-security-hardening/plan.md).
+Decisions: [0052](../decisions/0052-hook-files-stay-in-the-repository.md) to
+[0056](../decisions/0056-the-release-stays-at-0-1-0.md).
+
+- `harness doctor` compares the hook files with the bundle of the running CLI, and a same-version
+  `harness update` restores them; every harness read and write refuses a symlink.
+- The content check fails on secrets anywhere under the harness, and on home paths and e-mail
+  addresses in the files git would publish; a line ending in `harness-doctor: allow` is skipped.
+- `init` gitignores harness knowledge unless `--share-knowledge`; an install that predates the
+  `knowledge.share` key keeps sharing.
+- The release stays 0.1.0, so an existing install reports the Hook files error until its first
+  `harness update`.
+- Not done: the plan's last phase, running the released CLI on this repository (`harness update`,
+  then clearing the home paths the content check reports in plans and decisions 0001 and 0014).
 
 ## Not started
 

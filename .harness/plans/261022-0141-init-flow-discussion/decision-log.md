@@ -528,7 +528,7 @@ using lefthook, simple-git-hooks or its own hooks folder would silently lose its
 ### Husky hooks (2026-10-27)
 
 > "Câu hỏi hooksky chạy gì quá dễ, trong logic của repo refs
-> `/Users/tandm/Documents/jearax/npm/jss-devtools` có mà, scout đi." (user, 2026-10-27)
+> `the repository` có mà, scout đi." (user, 2026-10-27)
 
 Taken from the reference (`src/commands/init/generators/husky-hooks-content.ts`, 0.6.4):
 

@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -9,9 +9,12 @@ import { createProgram, runProgram } from '@/cli';
 import { runHarnessUpdate } from '@/commands/harness/update.command';
 import { buildInitPlan } from '@/commands/init/services/plan.service';
 import { applyInitPlan } from '@/commands/init/services/write.service';
+import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
 import { HOOK_TIMEOUT_SECONDS } from '@/modules/harness/constants/harness-limits.constant';
 import {
+	HARNESS_CONFIG,
+	HARNESS_DIR,
 	HARNESS_MANIFEST,
 	HARNESS_UPDATE_DIR,
 	HARNESS_UPDATE_LOCK,
@@ -218,6 +221,161 @@ const expectForeignFilesUntouched = (dir: string): void => {
 	expect(readLive(dir, '.claude/skills/find-leaks/SKILL.md')).toContain('harness-origin: learned');
 	expect(readLive(dir, 'eslint.config.mjs')).toBe('toolchain file the CLI owns\n');
 };
+
+describe('harness update, unsafe paths and broken inputs', () => {
+	it('refuses a symlinked managed path, naming it, and stages nothing', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		const outside = await makeEmptyDir();
+
+		writeFile(outside, 'target.md', 'outside\n');
+		rmSync(join(dir, MANAGED));
+		symlinkSync(join(outside, 'target.md'), join(dir, MANAGED));
+
+		await expect(runUpdate(dir, { yes: true }, stubbedRelease({}))).rejects.toThrow(`${MANAGED} is a symlink`);
+
+		expect(lstatSync(join(dir, MANAGED)).isSymbolicLink()).toBe(true);
+		expect(readFileSync(join(outside, 'target.md'), 'utf8')).toBe('outside\n');
+		expect(existsSync(join(dir, HARNESS_UPDATE_SESSION))).toBe(false);
+		expect(existsSync(join(dir, HARNESS_UPDATE_LOCK))).toBe(false);
+	});
+
+	it('refuses a symlinked harness folder (.harness/docs) before any write', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		const outside = await makeEmptyDir();
+
+		writeFile(outside, 'outside.md', 'outside\n');
+		rmSync(join(dir, '.harness/docs'), { recursive: true });
+		symlinkSync(outside, join(dir, '.harness/docs'));
+
+		await expect(runUpdate(dir, { yes: true }, stubbedRelease({}))).rejects.toThrow('.harness/docs is a symlink');
+		expect(existsSync(join(dir, HARNESS_UPDATE_SESSION))).toBe(false);
+	});
+
+	it('refuses a broken .claude/settings.json before any write and leaves no lock', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		writeFile(dir, '.claude/settings.json', '{nope');
+
+		await expect(runUpdate(dir, { yes: true }, stubbedRelease({}))).rejects.toThrow(
+			/Invalid JSON in \.claude\/settings\.json/
+		);
+		expect(existsSync(join(dir, HARNESS_UPDATE_LOCK))).toBe(false);
+		expect(existsSync(join(dir, HARNESS_UPDATE_SESSION))).toBe(false);
+	});
+
+	it('refuses a manifest version that is not semver', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as { version: string };
+
+		writeFile(
+			dir,
+			HARNESS_MANIFEST,
+			`${JSON.stringify(
+				{
+					...manifest,
+					version: '0.2.x'
+				},
+				null,
+				'\t'
+			)}\n`
+		);
+
+		await expect(runUpdate(dir, { yes: true }, stubbedRelease({}))).rejects.toThrow(/not semver/);
+	});
+});
+
+describe('harness update, new and knowledge files', () => {
+	it('creates a file that is new upstream without a conflict', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+
+		const fresh = recordedOf(MANAGED);
+
+		const release = {
+			version: '0.9.0',
+			files: [
+				...harnessRecordedFiles(false),
+				{
+					path: '.harness/templates/extra.md',
+					kind: 'managed' as const,
+					content: 'added in this release\n'
+				}
+			]
+		};
+
+		await runUpdate(dir, { yes: true }, release);
+
+		expect(readLive(dir, '.harness/templates/extra.md')).toBe('added in this release\n');
+		expect(readLive(dir, MANAGED)).toBe(fresh);
+	});
+
+	it('keeps a 0.1.0-style install sharing through a same-version update, then follows the key', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		const legacyGitignore = 'state/\nupdate/\n';
+
+		// A 0.1.0 install: the two-line ignore file and a config without the knowledge group.
+		const legacyConfig =
+			'{\n\t"review": { "minToolCalls": 14 },\n\t"memory": { "maxChars": 9600, "maxEntryChars": 320 },\n\t"curator": { "minLearnedSkills": 10, "intervalDays": 7, "staleDays": 14, "archiveDays": 28 }\n}\n';
+
+		ageBase(dir, `${HARNESS_DIR}/.gitignore`, legacyGitignore);
+		writeFile(dir, `${HARNESS_DIR}/.gitignore`, legacyGitignore);
+		ageBase(dir, HARNESS_CONFIG, legacyConfig);
+		writeFile(dir, HARNESS_CONFIG, legacyConfig);
+
+		const sharedRelease = {
+			version: '0.9.0',
+			files: [...harnessRecordedFiles(false, true)]
+		};
+
+		const privateRelease = {
+			version: '0.9.0',
+			files: [...harnessRecordedFiles(false, false)]
+		};
+
+		await runUpdate(dir, { yes: true }, sharedRelease);
+
+		expect(readLive(dir, `${HARNESS_DIR}/.gitignore`)).toBe(legacyGitignore);
+		expect(JSON.parse(readFileSync(join(dir, HARNESS_CONFIG), 'utf8'))).toMatchObject({ knowledge: { share: true } });
+
+		writeFile(
+			dir,
+			HARNESS_CONFIG,
+			'{\n\t"review": { "minToolCalls": 14 },\n\t"memory": { "maxChars": 9600, "maxEntryChars": 320 },\n\t"curator": { "minLearnedSkills": 10, "intervalDays": 7, "staleDays": 14, "archiveDays": 28 },\n\t"knowledge": { "share": false }\n}\n'
+		);
+
+		await runUpdate(dir, { yes: true }, privateRelease);
+
+		expect(readLive(dir, `${HARNESS_DIR}/.gitignore`)).toBe(recordedOf(`${HARNESS_DIR}/.gitignore`));
+		expect(readLive(dir, '.claude/skills/.gitignore')).toBe(recordedOf('.claude/skills/.gitignore'));
+
+		writeFile(
+			dir,
+			HARNESS_CONFIG,
+			'{\n\t"review": { "minToolCalls": 14 },\n\t"memory": { "maxChars": 9600, "maxEntryChars": 320 },\n\t"curator": { "minLearnedSkills": 10, "intervalDays": 7, "staleDays": 14, "archiveDays": 28 },\n\t"knowledge": { "share": true }\n}\n'
+		);
+
+		await runUpdate(dir, { yes: true }, sharedRelease);
+
+		expect(readLive(dir, '.claude/skills/.gitignore')).toBeNull();
+		expect(readLive(dir, `${HARNESS_DIR}/.gitignore`)).toBe(legacyGitignore);
+	});
+});
 
 describe('harness update, the per-path table', () => {
 	it('takes upstream for a managed file the user never touched', async () => {
@@ -436,6 +594,121 @@ describe('harness update, deletions and the bundle', () => {
 		await runUpdate(dir, { yes: true }, stubbedRelease({ [bundle]: upstream }));
 
 		expect(readLive(dir, bundle)).toBe(upstream);
+	});
+
+	it('restores an edited shim instead of merging it', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+		ageManifest(dir);
+		const shim = '.harness/bin/harness-hook.mjs';
+
+		writeFile(dir, shim, `${readFileSync(join(dir, shim), 'utf8')}// hand edited\n`);
+
+		await runUpdate(dir, { yes: true }, stubbedRelease({}));
+
+		expect(readLive(dir, shim)).not.toContain('hand edited');
+		expect(readLive(dir, shim)).toBe(recordedOf(shim));
+	});
+});
+
+describe('harness update, tampered hook files at the same version', () => {
+	const runDoctor = async (dir: string): Promise<{ stdout: string; exitCode: number }> => {
+		process.chdir(dir);
+
+		const program = createProgram({ exitOverride: true });
+
+		const stdout = await capture(process.stdout, async () => {
+			await capture(process.stderr, () => {
+				return runProgram(program, ['node', 'jss-devtools', 'harness', 'doctor']);
+			});
+		});
+
+		return {
+			stdout,
+			exitCode: Number(process.exitCode ?? 0)
+		};
+	};
+
+	const rewriteManifestHash = (dir: string, path: string, hash: string): void => {
+		const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as {
+			files: Array<{ path: string; sha256: string }>;
+		};
+
+		const entry = manifest.files.find((file) => {
+			return file.path === path;
+		});
+
+		entry!['sha256'] = hash;
+
+		writeFile(dir, HARNESS_MANIFEST, `${JSON.stringify(manifest, null, '\t')}\n`);
+	};
+
+	it('restores an edited bundle whose manifest hash matches, and leaves a clean install', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const bundle = '.harness/bin/hooks.mjs';
+		const edited = `${readFileSync(join(dir, bundle), 'utf8')}// hand edited\n`;
+
+		writeFile(dir, bundle, edited);
+		rewriteManifestHash(dir, bundle, sha256(edited));
+
+		await runUpdate(dir, { yes: true }, stubbedRelease({}, PACKAGE.version));
+
+		expect(readLive(dir, bundle)).toBe(recordedOf(bundle));
+		expect(readFileSync(join(dir, '.harness/core/base', bundle), 'utf8')).toBe(recordedOf(bundle));
+
+		const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as {
+			version: string;
+			files: Array<{ path: string; sha256: string }>;
+		};
+
+		expect(manifest.version).toBe(PACKAGE.version);
+
+		const entry = manifest.files.find((file) => {
+			return file.path === bundle;
+		});
+
+		expect(entry?.['sha256']).toBe(sha256(recordedOf(bundle)));
+
+		const { stdout, exitCode } = await runDoctor(dir);
+
+		expect(stdout).toContain(`match CLI ${PACKAGE.version}`);
+		expect(exitCode).toBe(0);
+	});
+
+	it('restores an edited shim at the same version, and doctor is green after', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		const shim = '.harness/bin/harness-hook.mjs';
+
+		writeFile(dir, shim, `${readFileSync(join(dir, shim), 'utf8')}// hand edited\n`);
+
+		await runUpdate(dir, { yes: true }, stubbedRelease({}, PACKAGE.version));
+
+		expect(readLive(dir, shim)).toBe(recordedOf(shim));
+
+		const { stdout, exitCode } = await runDoctor(dir);
+
+		expect(stdout).toContain(`match CLI ${PACKAGE.version}`);
+		expect(exitCode).toBe(0);
+	});
+
+	it('still refuses when a non-hook base copy has drifted', async () => {
+		const dir = await makeRepo();
+
+		installHarness(dir);
+
+		// The raw write leaves the manifest at the shipped hash, unlike ageBase.
+		writeFile(dir, `.harness/core/base/${MANAGED}`, 'drifted base\n');
+
+		await expect(runUpdate(dir, { yes: true }, stubbedRelease({}, PACKAGE.version))).rejects.toThrow(
+			'Base copies do not match the manifest'
+		);
 	});
 });
 

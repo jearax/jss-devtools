@@ -303,6 +303,62 @@ option. The contracts of the flags are in
 [0030](../decisions/0030-init-node-preset.md), and the discussion history is the
 [init flow decision log](../plans/261022-0141-init-flow-discussion/decision-log.md).
 
+## The harness module
+
+`src/modules/harness/` holds the installed harness's own code: the hooks Claude Code runs, the
+services they share, and the health checks `harness doctor` runs. Five mechanisms are worth
+naming, each tested in `tests/`.
+
+**Path safety** (`services/path-safety.service.ts`). `pathSafetyOf(root, path)` answers whether a
+repository-relative path is safe to read or write: it passes the textual check (no absolute path,
+no `..` segment, inside the repository), no existing component below the root is a symlink
+(`lstatSync` each one), and the real path of its deepest existing ancestor stays inside the real
+root — a root reached through a symlink (macOS `/tmp`) passes. The hooks read and write only
+through `safeReadFile`/`safeWriteFile` on top of it, where an unsafe file counts as missing; the
+`update` readers (`readLiveFile`, `readBaseCopy`, `readManifest`) throw instead, so no caller can
+skip the check.
+
+**Hook files** (`services/health-hook-files.service.ts`). `.harness/bin/hooks.mjs` and the shim are
+tracked in the repository and compared byte-for-byte with `harnessHookBundle` and
+`hookShimTemplate(PACKAGE.nodeFloor)` at the same manifest version. A difference is a doctor error
+naming the file; at a different version it is the "not verified" warning, never `ok`. A
+same-version `harness update` restores an edited hook file wholesale instead of merging it, and
+requires the hook files to match before it reports `up-to-date`
+([0052](../decisions/0052-hook-files-stay-in-the-repository.md)).
+
+**Redaction rules** (`constants/redaction-rules.constant.ts`, `services/redaction.service.ts`). One
+named rule list covers the secret shapes (AWS, GitHub, Slack, GitLab, npm, Stripe, Google,
+JWT, private-key headers, credentials in URLs, Authorization header values, credential assignments) and the
+private shapes (home paths, e-mail addresses), each with exemptions (placeholder accounts,
+`example.*` domains, the public forges' SSH remotes, image-extension names). `redactLine` rewrites
+a line; `findMatches` returns rule, kind and line per match, skipping exempt matches and lines
+carrying the `harness-doctor: allow` marker. All patterns carry the `g` flag at module level and
+the finder uses `matchAll` only — `test`/`exec` keep `lastIndex` between calls — and the leading
+character classes are bounded so a long line cannot make a pattern quadratic.
+
+**Content check** (`services/health-content.service.ts`). `harness doctor` scans every regular
+file under `.harness/` except `bin/`, `core/`, `state/` and `update/`, `CLAUDE.md`, and every file
+of a learned skill folder, skipping binary files (a NUL byte in the first 8 kB) and files over
+2 MiB (one warning). The published set comes from
+`gitPublishableFiles` (`git ls-files --cached --others --exclude-standard -z`); when git fails,
+every candidate counts as published. A secret match is an error anywhere; a private match only in
+a published file. One issue per file names `<path>:<line> <rule>` for the first five matches
+([0054](../decisions/0054-harness-doctor-is-the-only-guard.md)).
+
+**Knowledge sharing** (`services/config-merge.service.ts`). `knowledge.share` in
+`.harness/config.json` (default `false`, set by `init --share-knowledge`) decides whether the
+harness knowledge is tracked. `resolveKnowledgeShare(baseRaw, localRaw)` holds the migration rule:
+a live boolean wins, then the base copy's, then an install predating the key counts as sharing.
+`mergeHarnessConfig` never resets it to the default, `harnessRelease` resolves it to render the
+two ignore files, and the SessionStart hook states the value and seeds the knowledge files when
+the key is explicitly `false`
+([0053](../decisions/0053-knowledge-gitignored-unless-share-knowledge.md)).
+
+The hooks never import the update chain (`update-manifest` pulls `install-plan`, which embeds the
+hook bundle constant): a hook-side read of config or state goes through the path-safety helpers
+and local constants instead, or the built `hooks.mjs` self-references its own bundle and crashes
+at load.
+
 ## Exit codes
 
 | Situation                                   | Exit code |

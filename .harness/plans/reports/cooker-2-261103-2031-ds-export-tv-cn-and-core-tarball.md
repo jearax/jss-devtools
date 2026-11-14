@@ -8,7 +8,7 @@ design system any more.
 
 ## Part A: the design system
 
-Repository: `/Users/tandm/Documents/jearax/dokploy/design-system`.
+Repository: `the dokploy repository`.
 
 ### What changed on each branch
 

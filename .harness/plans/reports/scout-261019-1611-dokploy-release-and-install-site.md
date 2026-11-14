@@ -25,7 +25,7 @@ labels: `jjuidev.com`, `www.jjuidev.com`, `design-system.jjuidev.com`, `jjuidev.
 
 ## Pattern in `design-system` (the reference the user named)
 
-Source: `/Users/tandm/Documents/jearax/dokploy/design-system`, `docs/ARCHITECTURE.md` "Deployment",
+Source: `the dokploy repository`, `docs/ARCHITECTURE.md` "Deployment",
 `docker/`, `.github/workflows/ci.yml`.
 
 1. CI `test` job, then an `image` job builds `docker/Dockerfile` on GitHub runners and pushes
@@ -46,7 +46,7 @@ Source: `/Users/tandm/Documents/jearax/dokploy/design-system`, `docs/ARCHITECTUR
 7. The build image is `ghcr.io/pnpm/pnpm:<packageManager version>` with Node from
    `pnpm runtime set node 24 -g`, not Corepack.
 
-## Prior art in H0 (`/Users/tandm/Documents/jearax/dokploy/harness`)
+## Prior art in H0 (`the dokploy repository`)
 
 - `release.yml` on a `v*` tag: a read-only `build` job runs the full gate and uploads the bundle;
   a `release` job with `contents: write` installs nothing, checks that tag, `package.json` and

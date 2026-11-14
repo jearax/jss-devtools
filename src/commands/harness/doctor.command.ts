@@ -17,7 +17,7 @@ export const runHarnessDoctor = async (): Promise<void> => {
 	const { config } = readConfig(root);
 	const issues = await collectHealth(root);
 
-	renderCheckList([...summaryRows(root, config, issues), ...issueRows(issues)]);
+	renderCheckList([...(await summaryRows(root, config, issues)), ...issueRows(issues)]);
 
 	const errors = issues.filter((issue) => {
 		return issue.level === 'error';

@@ -1,8 +1,7 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { MEMORY_WARN_RATIO } from '@/modules/harness/constants/harness-limits.constant';
 import { HARNESS_MEMORY } from '@/modules/harness/constants/harness-paths.constant';
+
+import { safeReadFile } from './path-safety.service';
 
 export type MemoryState = {
 	exists: boolean;
@@ -19,13 +18,11 @@ const EMPTY_MEMORY: MemoryState = {
 };
 
 export const readMemoryState = (root: string): MemoryState => {
-	const path = join(root, HARNESS_MEMORY);
+	const text = safeReadFile(root, HARNESS_MEMORY);
 
-	if (!existsSync(path)) {
+	if (text === null) {
 		return EMPTY_MEMORY;
 	}
-
-	const text = readFileSync(path, 'utf8');
 
 	return {
 		exists: true,

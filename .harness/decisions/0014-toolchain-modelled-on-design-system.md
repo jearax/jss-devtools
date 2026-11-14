@@ -32,7 +32,7 @@ Adopt the design-system configuration as the base, trimmed to what a Node CLI ne
 ## In the user's words
 
 > "Với các toolchain cần update đầy đủ thêm (ví dụ như tab, tab size, format, vscode,...) và base dựa
-> trên config của `/Users/tandm/Documents/jearax/dokploy/design-system`." (user, 2026-10-19)
+> trên config của `~/Documents/jearax/dokploy/design-system`." (user, 2026-10-19)
 
 ## Consequences
 

@@ -61,7 +61,7 @@ $ tsc --noEmit
 $ pnpm --dir site test
 $ vitest run
 
- RUN  v5.0.3 /Users/tandm/Documents/jearax/npm/jss-devtools/site
+ RUN  v5.0.3 .site
 
  Test Files  2 passed (2)
       Tests  7 passed (7)

@@ -12,7 +12,7 @@ export const learnedSkillNames = (root: string): string[] => {
 
 	return readdirSync(dir, { withFileTypes: true })
 		.filter((entry) => {
-			return entry.isDirectory();
+			return entry.isDirectory() && !entry.isSymbolicLink();
 		})
 		.map((entry) => {
 			return entry.name;

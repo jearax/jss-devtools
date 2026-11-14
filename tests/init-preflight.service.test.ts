@@ -205,6 +205,27 @@ describe('preflight, create mode', () => {
 	});
 });
 
+describe('preflight, symlinked harness entries', () => {
+	it('refuses a harness entry that is a symlink, and the folder is unchanged', async () => {
+		const dir = await makeGitProject(EXISTING_PROJECT);
+		const outside = await makeEmptyDir();
+
+		dirs.push(outside);
+		await writeFile(join(outside, 'outside.md'), 'outside\n');
+		await mkdir(join(dir, '.harness'), { recursive: true });
+		await symlink(join(outside, 'outside.md'), join(dir, '.harness/MEMORY.md'));
+
+		const before = snapshotDir(dir);
+
+		expect(
+			await failureMessage(() => {
+				return preflightInit(dir, [], {});
+			})
+		).toContain('.harness/MEMORY.md is a symlink');
+		expectUnchanged(dir, before);
+	});
+});
+
 describe('preflight, existing mode', () => {
 	it('exits 1 without a package.json', async () => {
 		const dir = await makeEmptyDir();

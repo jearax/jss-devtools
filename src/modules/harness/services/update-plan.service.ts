@@ -82,6 +82,19 @@ export const planHarnessUpdate = async (
 			}
 		}
 
+		const upstream = upstreamByPath.get(path) ?? null;
+
+		if (recorded === null && upstream !== null && readLiveFile(cwd, path) === null) {
+			actions.push({
+				path,
+				kind: 'create',
+				reason: 'new in this release',
+				content: upstream
+			});
+
+			continue;
+		}
+
 		const override = overrides?.get(path);
 
 		if (override !== undefined) {
@@ -100,7 +113,7 @@ export const planHarnessUpdate = async (
 		const ctx: PathContext = {
 			path,
 			kind,
-			upstream: upstreamByPath.get(path) ?? null,
+			upstream,
 			base: readBaseCopy(cwd, path),
 			local: readLiveFile(cwd, path)
 		};

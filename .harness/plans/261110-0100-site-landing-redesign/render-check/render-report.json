@@ -1,7 +1,7 @@
 [
   {
     "viewport": "375x812",
-    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/.harness/plans/261110-0100-site-landing-redesign/render-check/375x812.png",
+    "screenshot": "..harness/plans/261110-0100-site-landing-redesign/render-check/375x812.png",
     "outline": [
       "div#root \"Skip to the content jjuidev Joy·Journey·\" @ x0 y0 375x3541",
       "  div.Layout__root--d-w1O \"Skip to the content jjuidev Joy·Jou @ x0 y0 375x3541",
@@ -41,7 +41,7 @@
   },
   {
     "viewport": "768x1024",
-    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/.harness/plans/261110-0100-site-landing-redesign/render-check/768x1024.png",
+    "screenshot": "..harness/plans/261110-0100-site-landing-redesign/render-check/768x1024.png",
     "outline": [
       "div#root \"Skip to the content jjuidev Joy·Journey·\" @ x0 y0 768x2887",
       "  div.Layout__root--d-w1O \"Skip to the content jjuidev Joy·Jou @ x0 y0 768x2887",
@@ -69,7 +69,7 @@
   },
   {
     "viewport": "1440x900",
-    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/.harness/plans/261110-0100-site-landing-redesign/render-check/1440x900.png",
+    "screenshot": "..harness/plans/261110-0100-site-landing-redesign/render-check/1440x900.png",
     "outline": [
       "div#root \"Skip to the content jjuidev Joy·Journey·\" @ x0 y0 1440x2289",
       "  div.Layout__root--d-w1O \"Skip to the content jjuidev Joy·Jou @ x0 y0 1440x2289",

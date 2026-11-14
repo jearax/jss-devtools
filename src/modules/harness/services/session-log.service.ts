@@ -1,17 +1,10 @@
-import {
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	statSync,
-	unlinkSync,
-	utimesSync,
-	writeFileSync
-} from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { DAY_MS, SESSION_TTL_DAYS } from '@/modules/harness/constants/harness-limits.constant';
 import { HARNESS_SESSIONS_DIR } from '@/modules/harness/constants/harness-paths.constant';
+
+import { isSafePath, safeReadFile } from './path-safety.service';
 
 import type { SessionEvent } from '@/modules/harness/types/hook.type';
 
@@ -24,6 +17,12 @@ const logPath = (root: string, sessionId: string): string => {
 };
 
 export const appendSessionEvent = (root: string, sessionId: string, event: SessionEvent): void => {
+	const relative = `${HARNESS_SESSIONS_DIR}/${sessionIdOf(sessionId)}.jsonl`;
+
+	if (!isSafePath(root, relative)) {
+		return;
+	}
+
 	const path = logPath(root, sessionId);
 
 	mkdirSync(join(root, HARNESS_SESSIONS_DIR), { recursive: true });
@@ -31,13 +30,13 @@ export const appendSessionEvent = (root: string, sessionId: string, event: Sessi
 };
 
 export const readSessionLog = (root: string, sessionId: string): SessionEvent[] => {
-	const path = logPath(root, sessionId);
+	const text = safeReadFile(root, `${HARNESS_SESSIONS_DIR}/${sessionIdOf(sessionId)}.jsonl`);
 
-	if (!existsSync(path)) {
+	if (text === null) {
 		return [];
 	}
 
-	return readFileSync(path, 'utf8')
+	return text
 		.split('\n')
 		.filter((line) => {
 			return line !== '';

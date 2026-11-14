@@ -1,10 +1,11 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { HARNESS_DECISIONS_DIR, HARNESS_DOCS_DIR } from '@/modules/harness/constants/harness-paths.constant';
 
 import { usesAgentKit } from './agent-kit.service';
 import { decisionFileIds } from './decisions.service';
+import { safeReadFile } from './path-safety.service';
 
 type Row = string[];
 
@@ -85,9 +86,9 @@ const decisionsDrift = (root: string): string[] => {
 		return [];
 	}
 
-	const readmePath = join(dir, 'README.md');
 	const files = decisionFileIds(root);
-	const rows = existsSync(readmePath) ? decisionRows(readFileSync(readmePath, 'utf8')) : [];
+	const readme = safeReadFile(root, `${HARNESS_DECISIONS_DIR}/README.md`);
+	const rows = readme === null ? [] : decisionRows(readme);
 
 	const missing = files.filter((id) => {
 		return !rows.includes(id);
@@ -117,8 +118,6 @@ const docsDrift = (root: string): string[] => {
 		return [];
 	}
 
-	const readmePath = join(dir, 'README.md');
-
 	const files = readdirSync(dir)
 		.filter((name) => {
 			return name.endsWith('.md') && name !== 'README.md';
@@ -127,7 +126,8 @@ const docsDrift = (root: string): string[] => {
 			return name.replace(/\.md$/, '');
 		});
 
-	const rows = existsSync(readmePath) ? docRowNames(readFileSync(readmePath, 'utf8')) : [];
+	const readme = safeReadFile(root, `${HARNESS_DOCS_DIR}/README.md`);
+	const rows = readme === null ? [] : docRowNames(readme);
 	const drift: string[] = [];
 
 	const missing = files.filter((name) => {

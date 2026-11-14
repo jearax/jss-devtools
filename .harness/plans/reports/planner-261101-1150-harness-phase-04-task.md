@@ -1,6 +1,6 @@
 # Task: harness plan, phase 4 (init installs the harness)
 
-Repository: `/Users/tandm/Desktop/yyyy`, branch `main`, HEAD `d1f51e2` (phase 3). Node 24.11.0.
+Repository: `~/Desktop/yyyy`, branch `main`, HEAD `d1f51e2` (phase 3). Node 24.11.0.
 
 ## Task
 

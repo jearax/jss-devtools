@@ -1,8 +1,8 @@
 # Scout Report: local harness CLI + merge direction into jss-devtools
 
 Repos scouted (2026-10-19):
-- `/Users/tandm/Documents/jearax/npm/jss-devtools`: HEAD `f0ce945`, clean, identical to GitHub. Findings in `scout-261019-1008-jss-devtools-overhaul.md` still apply.
-- `/Users/tandm/Documents/jearax/dokploy/harness`: `@jearax/harness` 0.0.1, private, local only, 30 commits, HEAD `51dfdca`. ~5.4k LOC src, ~3.5k LOC tests, 20 decisions (`.harness/decisions/`). One uncommitted line in `.claude/skills/release-check/SKILL.md`.
+- `the repository`: HEAD `f0ce945`, clean, identical to GitHub. Findings in `scout-261019-1008-jss-devtools-overhaul.md` still apply.
+- `the dokploy repository`: `@jearax/harness` 0.0.1, private, local only, 30 commits, HEAD `51dfdca`. ~5.4k LOC src, ~3.5k LOC tests, 20 decisions (`.harness/decisions/`). One uncommitted line in `.claude/skills/release-check/SKILL.md`.
 
 ## Outcome
 

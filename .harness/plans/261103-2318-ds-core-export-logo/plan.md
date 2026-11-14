@@ -14,7 +14,7 @@ created: 2026-11-03
 
 Two repositories:
 
-- **DS**: `/Users/tandm/Documents/jearax/dokploy/design-system`, branch `core` (`ae147d6`, equal to
+- **DS**: `the dokploy repository`, branch `core` (`ae147d6`, equal to
   `origin/core`). `main` (`fa07334`) already exports `Logo` and is **not** touched. Follow the DS
   `AGENTS.md`, `docs/conventions/` and its commit hooks.
 - **Site**: `site/` in this repo. It builds on plans

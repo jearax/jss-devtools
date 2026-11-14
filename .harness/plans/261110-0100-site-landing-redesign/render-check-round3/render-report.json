@@ -1,7 +1,7 @@
 [
   {
     "viewport": "375x812",
-    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/render-check/375x812.png",
+    "screenshot": ".render-check/375x812.png",
     "outline": [
       "div#content \"Your file couldn’t be accessed It may ha\" @ x0 y81 375x268",
       "  div#main-frame-error.interstitial-wrapper \"Your file couldn’ @ x0 y81 375x268",
@@ -13,7 +13,7 @@
   },
   {
     "viewport": "768x1024",
-    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/render-check/768x1024.png",
+    "screenshot": ".render-check/768x1024.png",
     "outline": [
       "div#content \"Your file couldn’t be accessed It may ha\" @ x8 y143 752x291",
       "  div#main-frame-error.interstitial-wrapper \"Your file couldn’ @ x84 y143 600x291",
@@ -25,7 +25,7 @@
   },
   {
     "viewport": "1440x900",
-    "screenshot": "/Users/tandm/Documents/jearax/npm/jss-devtools/render-check/1440x900.png",
+    "screenshot": ".render-check/1440x900.png",
     "outline": [
       "div#content \"Your file couldn’t be accessed It may ha\" @ x8 y126 1424x291",
       "  div#main-frame-error.interstitial-wrapper \"Your file couldn’ @ x420 y126 600x291",

@@ -1,13 +1,33 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { HARNESS_BOOTSTRAP } from '@/modules/harness/constants/harness-paths.constant';
+import {
+	HARNESS_BOOTSTRAP,
+	HARNESS_BASE_DIR,
+	HARNESS_CONFIG,
+	HARNESS_DECISIONS_DIR,
+	HARNESS_DOCS_DIR,
+	HARNESS_MEMORY,
+	HARNESS_PLANS_DIR
+} from '@/modules/harness/constants/harness-paths.constant';
+import { usesAgentKit } from '@/modules/harness/services/agent-kit.service';
+import { resolveKnowledgeShare } from '@/modules/harness/services/config-merge.service';
 import { readConfig } from '@/modules/harness/services/config.service';
 import { decisionsInForce } from '@/modules/harness/services/decisions.service';
-import { hookErrorsSinceLastSession } from '@/modules/harness/services/hook-errors.service';
+import { symlinkWarnings } from '@/modules/harness/services/health-symlinks.service';
+import { hookErrorsSinceLastSession, logHookError } from '@/modules/harness/services/hook-errors.service';
 import { indexDrift } from '@/modules/harness/services/index-drift.service';
 import { memoryLimitProblems, memoryNearCap, readMemoryState } from '@/modules/harness/services/memory.service';
+import { safeReadFile, safeWriteFile } from '@/modules/harness/services/path-safety.service';
+import { redactLine } from '@/modules/harness/services/redaction.service';
 import { appendSessionEvent } from '@/modules/harness/services/session-log.service';
+import { harnessBootstrapTemplate } from '@/modules/harness/templates/bootstrap.template';
+import {
+	harnessDecisionsReadmeTemplate,
+	harnessDocsReadmeTemplate,
+	harnessMemoryTemplate,
+	harnessPlansReadmeTemplate
+} from '@/modules/harness/templates/harness-seeds.template';
 
 import type { HookContext, HookPayload, HookResult } from '@/modules/harness/types/hook.type';
 
@@ -16,10 +36,49 @@ const ONBOARDING_NOTICE = [
 	'Run the `harness-onboard` skill to seed the harness knowledge.'
 ].join(' ');
 
+const seedKnowledgeFiles = (root: string, memoryWasMissing: boolean): void => {
+	const agentKit = usesAgentKit(root);
+
+	const seeds: Array<readonly [string, string]> = [
+		[HARNESS_MEMORY, harnessMemoryTemplate],
+		[`${HARNESS_DECISIONS_DIR}/README.md`, harnessDecisionsReadmeTemplate],
+		[`${HARNESS_DOCS_DIR}/README.md`, harnessDocsReadmeTemplate],
+		[`${HARNESS_PLANS_DIR}/README.md`, harnessPlansReadmeTemplate(agentKit)]
+	];
+
+	if (memoryWasMissing) {
+		seeds.push([HARNESS_BOOTSTRAP, harnessBootstrapTemplate('existing')]);
+	}
+
+	for (const [path, content] of seeds) {
+		if (safeReadFile(root, path) !== null) {
+			continue;
+		}
+
+		if (!safeWriteFile(root, path, content)) {
+			logHookError(root, `could not write the knowledge seed ${path}`);
+		}
+	}
+};
+
 export const sessionStartHook = (root: string, payload: HookPayload, ctx: HookContext): HookResult | null => {
 	const { config, problems } = readConfig(root);
-	const warnings = [...problems];
+	const warnings = [...problems, ...symlinkWarnings(root)];
 	const sections: string[] = [];
+
+	const shared = resolveKnowledgeShare(
+		safeReadFile(root, `${HARNESS_BASE_DIR}/${HARNESS_CONFIG}`),
+		safeReadFile(root, HARNESS_CONFIG) ?? '{}'
+	);
+
+	sections.push(
+		shared ? 'Harness knowledge: shared through git' : 'Harness knowledge: private to this machine (gitignored)'
+	);
+
+	if (config.knowledge.share === false) {
+		seedKnowledgeFiles(root, !existsSync(join(root, HARNESS_MEMORY)));
+	}
+
 	const memory = readMemoryState(root);
 	const maxChars = config.memory.maxChars;
 
@@ -75,7 +134,7 @@ export const sessionStartHook = (root: string, payload: HookPayload, ctx: HookCo
 			? ''
 			: `\n\n## Warnings\n${warnings
 					.map((w) => {
-						return `- ${w}`;
+						return `- ${redactLine(w)}`;
 					})
 					.join('\n')}`);
 

@@ -47,6 +47,8 @@ the `harness-review` skill.
 ## Done means proven
 
 Claim done only with commands you ran and output you saw. Report what changed, how you checked it,
-what you did not check, and what harness knowledge changed. Commit harness changes with the work;
-the harness never commits.
+what you did not check, and what harness knowledge changed. Knowledge follows
+`knowledge.share` in `.harness/config.json`, which session start states: shared knowledge is
+committed with the work; private knowledge is gitignored and stays on this machine, so list what
+changed and ask for no commit. The harness never commits.
 <!-- HARNESS:END -->

@@ -28,7 +28,7 @@ GitHub — tiếng Việt, light/dark. Site dùng core brand tokens (màu + font
 | Vị trí | Thư mục `site/` độc lập, **không** vào `src/` (tránh tsdown bundle React vào CLI và đụng architecture rules) |
 | Cài đặt | Standalone: `pnpm --dir site install`, lockfile riêng `site/pnpm-lock.yaml`, **không** thêm vào `pnpm-workspace.yaml` |
 | Build tool | Vite + `@vitejs/plugin-react`, TypeScript, output `site/dist/` |
-| Design system | Vendor (đóng gói cục bộ) dạng local pack (gói cục bộ): tarball từ `/Users/tandm/Documents/jearax/dokploy/design-system` (`pnpm pack`), đặt tại `site/vendor/`, dependency `file:vendor/<tarball>` — **chỉ** dùng export `./styles.css` (core brand), **không** import component JS |
+| Design system | Vendor (đóng gói cục bộ) dạng local pack (gói cục bộ): tarball từ `the dokploy repository` (`pnpm pack`), đặt tại `site/vendor/`, dependency `file:vendor/<tarball>` — **chỉ** dùng export `./styles.css` (core brand), **không** import component JS |
 | Phạm vi UI | Chỉ "Hello world" = nội dung landing hiện tại |
 
 ## Non-goals (phạm vi loại trừ)

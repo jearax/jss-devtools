@@ -10,7 +10,7 @@ import {
 } from '@/modules/harness/constants/harness-paths.constant';
 
 import { extractBlockUnit, hasConflictMarkers } from './block-region.service';
-import { assertRepositoryPath } from './path-safety.service';
+import { assertRepositoryPath, safeReadFile } from './path-safety.service';
 
 import type { HarnessRecordedKind, UpdateSession } from '@/modules/harness/types/update.type';
 
@@ -21,14 +21,14 @@ export const updateDirOf = (cwd: string): string => {
 };
 
 export const loadUpdateSession = (cwd: string): UpdateSession | null => {
-	const path = join(cwd, HARNESS_UPDATE_SESSION);
+	const raw = safeReadFile(cwd, HARNESS_UPDATE_SESSION);
 
-	if (!existsSync(path)) {
+	if (raw === null) {
 		return null;
 	}
 
 	try {
-		return JSON.parse(readFileSync(path, 'utf8')) as UpdateSession;
+		return JSON.parse(raw) as UpdateSession;
 	} catch (error) {
 		throw new CliError(`${HARNESS_UPDATE_SESSION} is not valid JSON: ${(error as Error).message}`, {
 			hint: 'Run jss-devtools harness update --abort to discard the staged update'

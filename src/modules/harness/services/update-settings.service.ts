@@ -1,3 +1,4 @@
+import { CliError } from '@/core/errors/cli.error';
 import { CLAUDE_SETTINGS, HOOK_SHIM_PATH } from '@/modules/harness/constants/harness-paths.constant';
 
 import { buildHarnessHooks } from './merge.service';
@@ -7,7 +8,17 @@ import type { UpdateAction } from '@/modules/harness/types/update.type';
 
 export const settingsAction = (cwd: string): UpdateAction | null => {
 	const local = readLiveFile(cwd, CLAUDE_SETTINGS);
-	const parsed: Record<string, unknown> = local === null ? {} : (JSON.parse(local) as Record<string, unknown>);
+	let parsed: Record<string, unknown> = {};
+
+	if (local !== null) {
+		try {
+			parsed = JSON.parse(local) as Record<string, unknown>;
+		} catch (error) {
+			throw new CliError(`Invalid JSON in ${CLAUDE_SETTINGS}: ${(error as Error).message}`, {
+				hint: 'Fix it, then rerun'
+			});
+		}
+	}
 
 	const hooks = parsed['hooks'];
 	const existing = typeof hooks === 'object' && hooks !== null ? (hooks as Record<string, unknown>) : {};

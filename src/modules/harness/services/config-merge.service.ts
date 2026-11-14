@@ -30,6 +30,25 @@ const keyState = (base: Group | null, local: Group | null, key: string): 'missin
 	return local[key] === base[key] ? 'same' : 'edited';
 };
 
+// knowledge.share is a choice, not a default: live wins, then base, then an install predating the key.
+export const resolveKnowledgeShare = (baseRaw: string | null, localRaw: string): boolean => {
+	try {
+		const local = JSON.parse(localRaw) as HarnessConfig;
+		const live = groupOf(local, 'knowledge')?.['share'];
+
+		if (typeof live === 'boolean') {
+			return live;
+		}
+
+		const base = baseRaw === null ? null : (JSON.parse(baseRaw) as HarnessConfig);
+		const baseValue = base === null ? undefined : groupOf(base, 'knowledge')?.['share'];
+
+		return typeof baseValue === 'boolean' ? baseValue : true;
+	} catch {
+		return true;
+	}
+};
+
 export const mergeHarnessConfig = (baseRaw: string | null, localRaw: string): ConfigMergeResult => {
 	const base = baseRaw === null ? null : (JSON.parse(baseRaw) as HarnessConfig);
 	const local = JSON.parse(localRaw) as HarnessConfig;
@@ -37,7 +56,13 @@ export const mergeHarnessConfig = (baseRaw: string | null, localRaw: string): Co
 
 	const conflictKeys: string[] = [];
 
+	(merged as Record<string, unknown>)['knowledge'] = { share: resolveKnowledgeShare(baseRaw, localRaw) };
+
 	for (const [groupName, defaults] of Object.entries(HARNESS_CONFIG_DEFAULTS)) {
+		if (groupName === 'knowledge') {
+			continue;
+		}
+
 		const baseGroup = groupOf(base, groupName);
 		const localGroup = groupOf(local, groupName);
 
@@ -78,6 +103,10 @@ export const missingConfigKeys = (localRaw: string): readonly string[] => {
 	for (const [groupName, defaults] of Object.entries(HARNESS_CONFIG_DEFAULTS) as ReadonlyArray<
 		[groupName: string, defaults: Record<string, unknown>]
 	>) {
+		if (groupName === 'knowledge') {
+			continue;
+		}
+
 		const localGroup = groupOf(local, groupName);
 
 		for (const key of Object.keys(defaults)) {

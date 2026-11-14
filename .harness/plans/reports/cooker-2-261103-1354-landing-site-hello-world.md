@@ -50,10 +50,10 @@ thêm theo review. Chưa commit, chưa push.
 ### Vendor design system
 
 ```
-$ cd /Users/tandm/Documents/jearax/dokploy/design-system
+$ cd the dokploy repository
 $ pnpm pack --pack-destination .../site/vendor
 ...
-/Users/tandm/Documents/jearax/npm/jss-devtools/site/vendor/jjuidev-design-system-0.1.0.tgz
+.site/vendor/jjuidev-design-system-0.1.0.tgz
 ```
 
 `dist/lib/styles.css` đã có sẵn trong DS repo nên không cần chạy `pnpm build:lib`. `pnpm pack`
@@ -132,7 +132,7 @@ thái ban đầu.
 
 ```
 $ node scripts/stage-release.mjs dist/cli.mjs
-staged /Users/tandm/Documents/jearax/npm/jss-devtools/release/cli.mjs
+staged .release/cli.mjs
 
 $ docker build -f docker/Dockerfile -t jss-devtools-site-test .
 #12 0.085 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok

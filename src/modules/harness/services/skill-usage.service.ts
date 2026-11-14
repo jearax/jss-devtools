@@ -5,10 +5,17 @@ import { DAY_MS } from '@/modules/harness/constants/harness-limits.constant';
 import { HARNESS_CURATOR, HARNESS_SKILL_USAGE } from '@/modules/harness/constants/harness-paths.constant';
 
 import { logHookError } from './hook-errors.service';
+import { isSafePath } from './path-safety.service';
 
 export type SkillUsageMap = Record<string, string>;
 
-const writeJson = (path: string, data: unknown): void => {
+const writeJson = (root: string, name: string, data: unknown): void => {
+	if (!isSafePath(root, name)) {
+		return;
+	}
+
+	const path = join(root, name);
+
 	mkdirSync(join(path, '..'), { recursive: true });
 
 	const temp = `${path}.${process.pid}.tmp`;
@@ -25,8 +32,10 @@ const writeJson = (path: string, data: unknown): void => {
 	}
 };
 
-const readJson = <T>(root: string, path: string, label: string, fallback: T): { value: T; corrupt: boolean } => {
-	if (!existsSync(path)) {
+const readJson = <T>(root: string, name: string, label: string, fallback: T): { value: T; corrupt: boolean } => {
+	const path = join(root, name);
+
+	if (!existsSync(path) || !isSafePath(root, name)) {
 		return {
 			value: fallback,
 			corrupt: false
@@ -49,8 +58,7 @@ const readJson = <T>(root: string, path: string, label: string, fallback: T): { 
 };
 
 export const foldSkillUsage = (root: string, names: readonly string[], today: string): SkillUsageMap => {
-	const path = join(root, HARNESS_SKILL_USAGE);
-	const { value: usage, corrupt } = readJson<SkillUsageMap>(root, path, HARNESS_SKILL_USAGE, {});
+	const { value: usage, corrupt } = readJson<SkillUsageMap>(root, HARNESS_SKILL_USAGE, HARNESS_SKILL_USAGE, {});
 
 	if (names.length === 0 && !corrupt) {
 		return usage;
@@ -64,25 +72,19 @@ export const foldSkillUsage = (root: string, names: readonly string[], today: st
 		merged[name] = current === undefined || current < today ? today : current;
 	}
 
-	writeJson(path, merged);
+	writeJson(root, HARNESS_SKILL_USAGE, merged);
 
 	return merged;
 };
 
 export const lastCuratorRun = (root: string): string | null => {
-	const path = join(root, HARNESS_CURATOR);
-
-	if (!existsSync(path)) {
-		return null;
-	}
-
-	const { value } = readJson<{ lastRun?: unknown }>(root, path, HARNESS_CURATOR, {});
+	const { value } = readJson<{ lastRun?: unknown }>(root, HARNESS_CURATOR, HARNESS_CURATOR, {});
 
 	return typeof value.lastRun === 'string' ? value.lastRun : null;
 };
 
 export const recordCuratorRun = (root: string, day: string): void => {
-	writeJson(join(root, HARNESS_CURATOR), { lastRun: day });
+	writeJson(root, HARNESS_CURATOR, { lastRun: day });
 };
 
 export const dayDiff = (from: string, to: string): number | null => {

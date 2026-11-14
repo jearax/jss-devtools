@@ -5,14 +5,14 @@ import {
 	CLAUDE_MD,
 	CLAUDE_SETTINGS,
 	CLAUDE_SKILLS_DIR,
-	HARNESS_BASE_DIR,
 	HARNESS_CONFIG,
 	HARNESS_DECISIONS_DIR,
 	HARNESS_DIR,
 	HARNESS_DOCS_DIR,
-	HARNESS_MANIFEST,
 	HARNESS_PLANS_DIR,
-	HARNESS_TEMPLATES_DIR
+	HARNESS_TEMPLATES_DIR,
+	HOOK_BUNDLE_PATH,
+	HOOK_SHIM_PATH
 } from '@/modules/harness/constants/harness-paths.constant';
 import { harnessHookBundle } from '@/modules/harness/constants/hook-bundle.constant';
 import { harnessBootstrapTemplate } from '@/modules/harness/templates/bootstrap.template';
@@ -20,6 +20,7 @@ import { harnessClaudeBlockTemplate } from '@/modules/harness/templates/claude-b
 import { harnessConfigTemplate } from '@/modules/harness/templates/harness-config.template';
 import {
 	harnessGitignoreTemplate,
+	harnessSkillsGitignoreTemplate,
 	harnessMemoryTemplate,
 	harnessDecisionsReadmeTemplate,
 	harnessDocsReadmeTemplate,
@@ -56,6 +57,7 @@ export type HarnessInstallEntry = {
 export type HarnessInstallInput = {
 	mode: 'create' | 'existing';
 	agentKit: boolean;
+	shareKnowledge?: boolean;
 	claudeMd: string | null;
 	settingsJson: string | null;
 };
@@ -87,20 +89,23 @@ const plansReadmeKind = (agentKit: boolean): OwnedFile['kind'] => {
 	return agentKit === false ? 'managed' : 'seed';
 };
 
-const OWNED_FILES = (input: HarnessInstallInput): readonly OwnedFile[] => {
+export const OWNED_FILES = (input: HarnessInstallInput): readonly OwnedFile[] => {
 	const block = harnessClaudeBlockTemplate(input.agentKit);
 
 	const skills = [
+		...(input.shareKnowledge === true
+			? []
+			: [at(`${CLAUDE_SKILLS_DIR}/.gitignore`, 'managed', harnessSkillsGitignoreTemplate)]),
 		at(`${CLAUDE_SKILLS_DIR}/harness-onboard/SKILL.md`, 'managed', harnessOnboardSkillTemplate),
 		at(`${CLAUDE_SKILLS_DIR}/harness-review/SKILL.md`, 'managed', harnessReviewSkillTemplate),
 		at(`${CLAUDE_SKILLS_DIR}/harness-curate/SKILL.md`, 'managed', harnessCurateSkillTemplate)
 	];
 
 	return [
-		at(`${HARNESS_DIR}/.gitignore`, 'managed', harnessGitignoreTemplate),
+		at(`${HARNESS_DIR}/.gitignore`, 'managed', harnessGitignoreTemplate(input.shareKnowledge === true, input.agentKit)),
 		at(`${HARNESS_DIR}/MEMORY.md`, 'seed', harnessMemoryTemplate),
 		at(`${HARNESS_DIR}/BOOTSTRAP.md`, 'seed', harnessBootstrapTemplate(input.mode)),
-		at(HARNESS_CONFIG, 'config', harnessConfigTemplate()),
+		at(HARNESS_CONFIG, 'config', harnessConfigTemplate(input.shareKnowledge === true)),
 		at(`${HARNESS_DECISIONS_DIR}/README.md`, 'seed', harnessDecisionsReadmeTemplate),
 		at(`${HARNESS_DOCS_DIR}/README.md`, 'seed', harnessDocsReadmeTemplate),
 		at(`${HARNESS_PLANS_DIR}/README.md`, plansReadmeKind(input.agentKit), harnessPlansReadmeTemplate(input.agentKit)),
@@ -112,14 +117,14 @@ const OWNED_FILES = (input: HarnessInstallInput): readonly OwnedFile[] => {
 		at(`${HARNESS_TEMPLATES_DIR}/docs/architecture.md`, 'managed', harnessDocsArchitectureTemplateTemplate),
 		at(`${HARNESS_TEMPLATES_DIR}/docs/runbook.md`, 'managed', harnessDocsRunbookTemplateTemplate),
 		...skills,
-		at(`${HARNESS_DIR}/bin/hooks.mjs`, 'managed', harnessHookBundle),
-		at(`${HARNESS_DIR}/bin/harness-hook.mjs`, 'managed', hookShimTemplate(PACKAGE.nodeFloor)),
+		at(HOOK_BUNDLE_PATH, 'managed', harnessHookBundle),
+		at(HOOK_SHIM_PATH, 'managed', hookShimTemplate(PACKAGE.nodeFloor)),
 		at(CLAUDE_MD, 'block', mergeHarnessBlock(input.claudeMd, block)),
 		at(CLAUDE_SETTINGS, 'merge', mergeHarnessSettings(input.settingsJson))
 	];
 };
 
-const RECORDED_KINDS = new Set<string>(['managed', 'block', 'config']);
+export const RECORDED_KINDS = new Set<string>(['managed', 'block', 'config']);
 
 /**
  * The seed contents the release recognises for a path the repository owns under one setting and
@@ -142,10 +147,11 @@ export type HarnessRecordedFile = {
 	content: string;
 };
 
-export const harnessRecordedFiles = (agentKit: boolean): readonly HarnessRecordedFile[] => {
+export const harnessRecordedFiles = (agentKit: boolean, shareKnowledge = false): readonly HarnessRecordedFile[] => {
 	return OWNED_FILES({
 		mode: 'existing',
 		agentKit,
+		shareKnowledge,
 		claudeMd: null,
 		settingsJson: null
 	})
@@ -161,73 +167,4 @@ export const harnessRecordedFiles = (agentKit: boolean): readonly HarnessRecorde
 		});
 };
 
-const manifestOf = (recorded: readonly HarnessRecordedFile[], version: string): string => {
-	const files = recorded.map((file) => {
-		return {
-			path: file.path,
-			kind: file.kind,
-			sha256: sha256(file.content)
-		};
-	});
-
-	return `${JSON.stringify(
-		{
-			version,
-			files
-		},
-		null,
-		'\t'
-	)}\n`;
-};
-
-const baseEntriesOf = (recorded: readonly HarnessRecordedFile[]): readonly HarnessInstallEntry[] => {
-	return recorded.map((file) => {
-		return {
-			path: `${HARNESS_BASE_DIR}/${file.path}`,
-			kind: 'cli' as const,
-			content: file.content
-		};
-	});
-};
-
-export const harnessManifestOf = (recorded: readonly HarnessRecordedFile[], version: string): string => {
-	return manifestOf(recorded, version);
-};
-
-export const harnessBaseEntriesOf = (recorded: readonly HarnessRecordedFile[]): readonly HarnessInstallEntry[] => {
-	return baseEntriesOf(recorded);
-};
-
-export const harnessInstallEntries = (input: HarnessInstallInput): readonly HarnessInstallEntry[] => {
-	const owned = OWNED_FILES(input);
-
-	const recorded = owned
-		.filter((file) => {
-			return RECORDED_KINDS.has(file.kind);
-		})
-		.map((file) => {
-			return {
-				path: file.path,
-				kind: file.kind as 'managed' | 'block' | 'config',
-				content: file.content
-			};
-		});
-
-	const manifest = manifestOf(recorded, PACKAGE.version);
-
-	return [
-		...owned.map((file) => {
-			return {
-				path: file.path,
-				kind: file.kind,
-				content: file.content
-			};
-		}),
-		{
-			path: HARNESS_MANIFEST,
-			kind: 'cli',
-			content: manifest
-		},
-		...baseEntriesOf(recorded)
-	];
-};
+export { harnessManifestOf, harnessBaseEntriesOf, harnessInstallEntries } from './install-packaging.service';

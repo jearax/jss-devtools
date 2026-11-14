@@ -1,6 +1,6 @@
 import { spawnSync, execFile } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
@@ -8,6 +8,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { HOOK_ERROR_LOG_MAX_BYTES } from '@/modules/harness/constants/harness-limits.constant';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
+import { harnessMemoryTemplate } from '@/modules/harness/templates/harness-seeds.template';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
 
@@ -264,6 +265,22 @@ describe('session start', () => {
 		expect(context.split('the hook error log recorded').length - 1).toBe(1);
 	});
 
+	it('warns once on a symlinked MEMORY.md and leaks nothing from the target', async () => {
+		const outside = await makeEmptyDir();
+
+		tmpDirs.push(outside);
+		writeFileSync(join(outside, 'outside.md'), 'secret from outside\n');
+		rmSync(join(root, '.harness/MEMORY.md'));
+		symlinkSync(join(outside, 'outside.md'), join(root, '.harness/MEMORY.md'));
+
+		const context = sessionStart();
+
+		expect(context).toContain('.harness/MEMORY.md is a symlink; the harness does not read or write through symlinks');
+		expect(context.split('is a symlink').length - 1).toBe(1);
+		expect(context).not.toContain('secret from outside');
+		expect(context).not.toContain('# Harness memory');
+	});
+
 	it('appends a start line with the fingerprint baseline', () => {
 		sessionStart();
 		const lines = readLog();
@@ -313,6 +330,20 @@ describe('memory guard', () => {
 
 		expect(status).toBe(0);
 		expect(stdout).toBe('');
+	});
+
+	it('skips a symlinked MEMORY.md like a missing one', async () => {
+		const outside = await makeEmptyDir();
+
+		tmpDirs.push(outside);
+		writeFileSync(join(outside, 'outside.md'), 'secret from outside\n');
+		rmSync(join(root, '.harness/MEMORY.md'));
+		symlinkSync(join(outside, 'outside.md'), join(root, '.harness/MEMORY.md'));
+
+		const result = guard(toolPayload('Write', { file_path: join(outside, 'outside.md') }));
+
+		expect(result.status).toBe(0);
+		expect(result.stdout).toBe('');
 	});
 
 	it('the logging entry counts a memory write without blocking', () => {
@@ -380,6 +411,77 @@ describe('recording', () => {
 		expect(fails).toHaveLength(1);
 		expect(fails[0]).toMatchObject({ error: 'curl failed with [redacted]' });
 		expect(JSON.stringify(fails[0])).not.toContain('sk-live');
+	});
+});
+
+describe('knowledge seeding', () => {
+	it('reseeds a clone that lost the seeds and reports onboarding pending', () => {
+		rmSync(join(root, '.harness/MEMORY.md'));
+		rmSync(join(root, '.harness/decisions/README.md'), { force: true });
+		rmSync(join(root, '.harness/docs/README.md'), { force: true });
+		rmSync(join(root, '.harness/plans/README.md'), { force: true });
+
+		const context = sessionStart();
+
+		expect(readFileSync(join(root, '.harness/MEMORY.md'), 'utf8')).toBe(harnessMemoryTemplate);
+		expect(existsSync(join(root, '.harness/decisions/README.md'))).toBe(true);
+		expect(existsSync(join(root, '.harness/docs/README.md'))).toBe(true);
+		expect(existsSync(join(root, '.harness/plans/README.md'))).toBe(true);
+		expect(existsSync(join(root, '.harness/BOOTSTRAP.md'))).toBe(true);
+		expect(context).toContain('Harness knowledge: private to this machine (gitignored)');
+		expect(context).toContain('harness-onboard');
+	});
+
+	it('writes nothing when the key is true', () => {
+		write(
+			root,
+			'.harness/config.json',
+			JSON.stringify({
+				...DEFAULT_CONFIG,
+				knowledge: { share: true }
+			})
+		);
+		rmSync(join(root, '.harness/MEMORY.md'));
+
+		const context = sessionStart();
+
+		expect(existsSync(join(root, '.harness/MEMORY.md'))).toBe(false);
+		expect(existsSync(join(root, '.harness/BOOTSTRAP.md'))).toBe(false);
+		expect(context).toContain('Harness knowledge: shared through git');
+		expect(context).toContain('MEMORY.md is missing');
+	});
+});
+
+describe('redaction in the hooks', () => {
+	it('redacts a failure line before it reaches the log', () => {
+		const token = 'ghp_' + 'a'.repeat(24);
+
+		hook({
+			hook_event_name: 'PostToolUseFailure',
+			session_id: 's1',
+			tool_name: 'Bash',
+			error: `deploy failed with ${token} from /Users/alice/deploys\nsecond line`
+		});
+
+		const events = readLog();
+		const fail = events[0] as { type: string; error: string };
+
+		expect(fail.error).toContain('[redacted]');
+		expect(fail.error).not.toContain('ghp_');
+		expect(fail.error).not.toContain('/Users/alice');
+		expect(fail.error).not.toContain('second line');
+	});
+
+	it('redacts an old raw log line before it reaches the context', () => {
+		const token = 'ghp_' + 'a'.repeat(24);
+
+		write(root, '.harness/state/hook-errors.log', `2026-11-01T00:00:00Z boom ${token} at /Users/alice/x\n`);
+
+		const context = sessionStart();
+
+		expect(context).toContain('the hook error log recorded');
+		expect(context).not.toContain('ghp_');
+		expect(context).not.toContain('/Users/alice');
 	});
 });
 

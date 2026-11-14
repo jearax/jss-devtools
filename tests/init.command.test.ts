@@ -84,6 +84,8 @@ Options:
   --no-harness        Do not install the harness (default: installed)
   --agent-kit         Point AgentKit at .harness/docs and .harness/plans; needs
                       ak (default: off)
+  --share-knowledge   Keep harness knowledge in git instead of ignoring it
+                      (default: off)
   --yes, -y           Skip the questions and use the defaults (asks in a
                       terminal; default: off)
   --dry-run           Show what would change; write and install nothing
@@ -99,6 +101,7 @@ Examples:
   $ jss-devtools init                                        Set up the project in the current folder
   $ jss-devtools init -f                                     Replace existing ESLint, Prettier and commitlint configs
   $ jss-devtools init --no-harness                           Set up the toolchain without the harness
+  $ jss-devtools init --share-knowledge                      Let git track the harness knowledge
   $ jss-devtools init --dry-run                              Show what would change, write nothing
 `;
 
@@ -253,7 +256,7 @@ describe('the init command', () => {
 
 		const { stdout } = await runInit('--dry-run');
 
-		expect(stdout).toContain(': 48 to create; 1 to update');
+		expect(stdout).toContain(': 50 to create; 1 to update');
 		expect(stdout).toContain('+ .prettierrc.json');
 		expect(stdout).toContain('Dry run: nothing written\n   To apply:\n     $ jss-devtools init');
 		expect(stdout).not.toContain('would be written');

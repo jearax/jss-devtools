@@ -85,7 +85,7 @@ $ eslint "{src,lib{,s},bin{,s},script{,s},tool{,s},config{,s},type{,s},test{,s},
 $ tsc --noEmit
 $ vitest run
 
- RUN  v5.0.5 /Users/tandm/Desktop/yyyy
+ RUN  v5.0.5 ~/Desktop/yyyy
 
  Test Files  30 passed | 1 skipped (31)
       Tests  465 passed | 7 skipped (472)

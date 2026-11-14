@@ -11,5 +11,8 @@
 		"intervalDays": 7,
 		"staleDays": 14,
 		"archiveDays": 28
+	},
+	"knowledge": {
+		"share": true
 	}
 }

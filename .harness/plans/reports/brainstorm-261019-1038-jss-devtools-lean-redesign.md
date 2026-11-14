@@ -2,7 +2,7 @@
 
 Status: proposals only; nothing here is decided. Open items: `plans/261019-1050-jss-devtools-rewrite/open-questions.md`.
 
-Inputs: jss-devtools 0.6.4 (`/Users/tandm/Documents/jearax/npm/jss-devtools`), harness 0.0.1 prototype (`/Users/tandm/Documents/jearax/dokploy/harness`), K1, K2, K3. Prior reports: `scout-261019-1008-jss-devtools-overhaul.md`, `scout-261019-1029-harness-local-and-merge-direction.md`.
+Inputs: jss-devtools 0.6.4 (`the repository`), harness 0.0.1 prototype (`the dokploy repository`), K1, K2, K3. Prior reports: `scout-261019-1008-jss-devtools-overhaul.md`, `scout-261019-1029-harness-local-and-merge-direction.md`.
 
 ## Outcome, constraints, non-goals
 

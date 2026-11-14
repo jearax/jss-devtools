@@ -7,7 +7,7 @@ sections "Banner: the Node.js label" and "Banner colours").
 ## Target
 
 The approved preview, D1, is the script
-`/private/tmp/claude-501/-Users-tandm-Desktop-yyyy/97bd11d1-32de-4919-ad10-9f1ccf87d1bf/scratchpad/banner/ds-colours.mjs`
+`/private/tmp/claude-501/-Users-<account>-Desktop-yyyy/97bd11d1-32de-4919-ad10-9f1ccf87d1bf/scratchpad/banner/ds-colours.mjs`
 on the planner's Mac (not synced). Its colouring, to reproduce:
 
 - Same art (`BANNER_ART`, figlet ANSI Shadow `JSS`), same layout and info column as today.

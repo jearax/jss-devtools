@@ -18,6 +18,16 @@ export const SECTIONS = [
 		title: 'The file it writes'
 	},
 	{
+		id: 'knowledge',
+		title: 'Private or shared knowledge',
+		keywords: ['share-knowledge', '--share-knowledge', 'gitignored']
+	},
+	{
+		id: 'security',
+		title: 'Security',
+		keywords: ['hook files', 'content check', 'harness-doctor: allow']
+	},
+	{
 		id: 'session-start',
 		title: 'At the start of a session'
 	},

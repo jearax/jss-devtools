@@ -142,7 +142,7 @@ pnpm why @jjuidev/styles → Found 1 version of @jjuidev/styles
 - `state-palette-item.png`
 
 Full path prefix:
-`/Users/tandm/Documents/jearax/npm/jss-devtools/.harness/plans/261109-1655-site-design-system-v2-and-ux-polish/screenshots/final/`
+`..harness/plans/261109-1655-site-design-system-v2-and-ux-polish/screenshots/final/`
 
 Phase 1 baseline/after pairs: `screenshots/phase1-baseline/` and `screenshots/phase1-after/`.
 

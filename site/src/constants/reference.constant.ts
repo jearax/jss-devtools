@@ -48,6 +48,10 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 		meaning: 'Point AgentKit at `.harness/docs` and `.harness/plans`. Needs `ak`.'
 	},
 	{
+		flag: '--share-knowledge',
+		meaning: 'Keep harness knowledge in git instead of ignoring it. Off by default.'
+	},
+	{
 		flag: '--yes, -y',
 		meaning: 'Skip the questions and use the defaults.'
 	},

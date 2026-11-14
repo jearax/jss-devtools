@@ -8,8 +8,8 @@ description: Seed the harness knowledge of a repository the harness was just ins
 `.harness/BOOTSTRAP.md` holds the steps for this repository; this skill holds the rules around them.
 
 1. Ask the user whether to onboard now. If not, stop; the hook asks again next session.
-2. If the repository has a remote, `git pull`. If `.harness/BOOTSTRAP.md` is gone afterwards, a
-   teammate already onboarded: stop.
+2. If knowledge is shared and the repository has a remote, `git pull`. If
+   `.harness/BOOTSTRAP.md` is gone afterwards, a teammate already onboarded: stop.
 3. Follow `.harness/BOOTSTRAP.md` step by step. Read only: install nothing, start nothing, change
    no code.
 4. Write what you found where the table in `CLAUDE.md` says, starting each file from its template.
@@ -17,8 +17,9 @@ description: Seed the harness knowledge of a repository the harness was just ins
    words; code shows what the repository does, not what it must do.
 6. If `jss-devtools` is installed, run `jss-devtools harness doctor` and fix what it reports.
 7. Delete `.harness/BOOTSTRAP.md`.
-8. List every file you wrote and the deletion, and tell the user to commit them: until that commit
-   lands, every teammate is asked to onboard again. Never stage or commit yourself.
+8. List every file you wrote and the deletion. When knowledge is shared, tell the user to commit
+   them: until that commit lands, every teammate is asked to onboard again. Never stage or commit
+   yourself.
 
 ## Pitfalls
 

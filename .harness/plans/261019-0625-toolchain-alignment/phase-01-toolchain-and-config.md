@@ -14,7 +14,7 @@ Bring the toolchain to the design-system baseline, name every config export, and
 dotfiles whose contents belong in files that read them properly.
 
 ## Context
-- Reference: `/Users/tandm/Documents/jearax/dokploy/design-system`. It has no `.npmrc` and no
+- Reference: `the dokploy repository`. It has no `.npmrc` and no
   `.nvmrc`; its settings live in `package.json` and `pnpm-workspace.yaml`.
 - pnpm documents that only auth and registry settings are read from `.npmrc`. Everything else comes
   from `pnpm-workspace.yaml`, where `engineStrict` and `strictPeerDependencies` are both valid keys.

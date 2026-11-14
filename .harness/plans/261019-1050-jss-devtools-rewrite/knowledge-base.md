@@ -9,8 +9,8 @@ Living notes for the rewrite. These record goals, philosophies, features and tec
 | K1 | jearax/repository-harness (fork of hoangnb24/repository-harness, Rust, v0.1.10) | `plans/reports/scout-261018-1848-repository-harness.md` |
 | K2 | Hermes Agent self-learning (NousResearch) | `plans/reports/scout-261018-1909-hermes-agent-self-learning.md` |
 | K3 | OpenClaw first-run bootstrap (only the first-run pattern is wanted) | `plans/reports/scout-261018-1928-openclaw-bootstrap-onboarding.md` |
-| JSS | `@jjuidev/jss-devtools` 0.6.4, `/Users/tandm/Documents/jearax/npm/jss-devtools` | `plans/reports/scout-261019-1008-jss-devtools-overhaul.md` |
-| H0 | Old harness prototype 0.0.1, `/Users/tandm/Documents/jearax/dokploy/harness` (unpublished) | `plans/reports/scout-261019-1029-harness-local-and-merge-direction.md` |
+| JSS | `@jjuidev/jss-devtools` 0.6.4, `the repository` | `plans/reports/scout-261019-1008-jss-devtools-overhaul.md` |
+| H0 | Old harness prototype 0.0.1, `the dokploy repository` (unpublished) | `plans/reports/scout-261019-1029-harness-local-and-merge-direction.md` |
 
 ## Goal (user's own framing, 2026-10-19)
 

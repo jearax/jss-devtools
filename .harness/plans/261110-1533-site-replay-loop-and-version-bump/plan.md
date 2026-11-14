@@ -12,7 +12,7 @@ created: 2026-11-10
 
 # Plan: site replay loop fix + version 0.1.0
 
-Repo: `/Users/tandm/Documents/jearax/npm/jss-devtools` (main, clean). Read the repo `CLAUDE.md`
+Repo: `the repository` (main, clean). Read the repo `CLAUDE.md`
 and `.harness/MEMORY.md` first — this repo's harness rules apply, not the cs repo's.
 
 ## 1. Bug — Replay stops the tab loop

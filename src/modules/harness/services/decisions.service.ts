@@ -1,7 +1,9 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { HARNESS_DECISIONS_DIR } from '@/modules/harness/constants/harness-paths.constant';
+
+import { safeReadFile } from './path-safety.service';
 
 export type DecisionInfo = {
 	id: string;
@@ -40,11 +42,9 @@ export const decisionFileNames = (root: string): string[] => {
 };
 
 export const decisionsInForce = (root: string): DecisionInfo[] => {
-	const dir = join(root, HARNESS_DECISIONS_DIR);
-
 	return decisionFileNames(root)
 		.map((name) => {
-			const text = readFileSync(join(dir, name), 'utf8');
+			const text = safeReadFile(root, `${HARNESS_DECISIONS_DIR}/${name}`) ?? '';
 			const frontmatter = frontmatterOf(text);
 
 			return {

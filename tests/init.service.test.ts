@@ -107,6 +107,22 @@ describe('init argument rules', () => {
 		).toBe('Option --agent-kit needs the harness');
 	});
 
+	it('rejects --share-knowledge with --no-harness', () => {
+		expect(() => {
+			return validateInitArguments([], {
+				shareKnowledge: true,
+				harness: false
+			});
+		}).toThrow('Option --share-knowledge needs the harness');
+		expect(
+			(() => {
+				validateInitArguments([], { shareKnowledge: true });
+
+				return 'accepted';
+			})()
+		).toBe('accepted');
+	});
+
 	it('exits 1 for --no-sample without --framework nest', () => {
 		expect(
 			messageOf(() => {

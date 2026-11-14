@@ -19,7 +19,7 @@ user's approval file by file before any of it becomes code.
 "Giữ nguyên 0013 á, còn nội dung files thì xem xét lại ... sao cho câu văn, ý, mô tả đúng thứ mình
 muốn, ngắn gọn" (user, 2026-11-01). Every `.harness/` README is an index, loaded on demand
 (decision log, section "Every `.harness/` README is an index"). The prototype's files under
-`assets/` and the installed copies in `/Users/tandm/Desktop/test-harness` show what each file is for;
+`assets/` and the installed copies in `~/Desktop/test-harness` show what each file is for;
 their wording is not reused as is.
 
 ## Deliverable

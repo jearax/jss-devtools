@@ -5,7 +5,7 @@ Status: accepted with changes recorded in the decision log (2026-11-01): no vari
 [decision-log.md](./decision-log.md); this file proposes the rest. The user asked for one best
 option: "đề xuất cho tôi 1 option best nhất" (user, 2026-11-01).
 
-Base: the old prototype H0 (`/Users/tandm/Documents/jearax/dokploy/harness`, `assets/manifest.json`,
+Base: the old prototype H0 (`the dokploy repository`, `assets/manifest.json`,
 `src/hooks/`, `src/core/harness-limits.ts`), K1, K2 and K3 as recorded in the
 [knowledge base](../261019-1050-jss-devtools-rewrite/knowledge-base.md), and the current Claude Code
 hooks reference (`https://code.claude.com/docs/en/hooks`, read 2026-11-01).

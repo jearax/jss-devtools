@@ -46,7 +46,75 @@ export const HARNESS_SESSION_CONTEXT: readonly string[] = [
 	'The harness memory, and how much of its character budget is used',
 	'The decision records in force',
 	'The index drift, as a warning',
+	'The knowledge state: shared through git, or private to this machine',
 	'The onboarding notice, until the harness has been seeded'
+];
+
+/**
+ * What harness knowledge covers, what each share mode keeps in git, and what private mode cannot
+ * do. From `src/modules/harness/constants/harness-paths.constant.ts` and the ignore templates.
+ */
+export const HARNESS_KNOWLEDGE_TABLE: readonly { area: string; ignored: string; shared: string }[] = [
+	{
+		area: 'In git',
+		ignored:
+			'The `CLAUDE.md` block, `.harness/config.json`, `.harness/templates/`, `.harness/core/`, `.harness/bin/`, the `harness-*` skills, the hook entries',
+		shared: 'The same, plus memory, decisions, docs, plans, the archive, `curator.json` and learned skills'
+	},
+	{
+		area: 'A fresh clone',
+		ignored: 'Starts with empty knowledge; the first session writes the seed files and asks to onboard',
+		shared: "Has the team's knowledge"
+	},
+	{
+		area: 'Teammates, a second machine',
+		ignored: 'Each machine learns on its own',
+		shared: 'Learn from each other through commits'
+	},
+	{
+		area: 'Backup',
+		ignored: 'None: deleting the folder loses it',
+		shared: 'Git'
+	}
+];
+
+/**
+ * What the harness doctor content check reports, and the limits of the check. From
+ * `src/modules/harness/services/health-content.service.ts` and `redaction-rules.constant.ts`.
+ */
+export const HARNESS_SECURITY: readonly { topic: string; detail: string }[] = [
+	{
+		topic: 'Hook files',
+		detail:
+			'`.harness/bin/` runs on every session and is compared with the copy inside the running CLI; a difference is an error until `harness update` restores it.'
+	},
+	{
+		topic: 'Outside pull requests',
+		detail:
+			'Only a maintainer runs `jss-devtools harness update`; a pull request touching `.harness/bin/`, `.harness/core/` or the hook entries is refused. On GitHub, limiting pull requests to collaborators removes the case. Read the diff before checking a branch out, because the hooks run when the session starts.'
+	},
+	{
+		topic: 'Symlinks',
+		detail:
+			'The harness never reads or writes through a symlink; `harness doctor` lists every one it finds under the harness paths.'
+	},
+	{
+		topic: 'Content check',
+		detail:
+			'Secret-shaped values (AWS, GitHub, Slack, GitLab, npm, Stripe, Google, OpenAI-shaped keys, JWTs, private-key headers, credentials in URLs, Authorization header values, credential assignments) are errors; home paths and e-mail addresses are errors in files git would publish.'
+	},
+	{
+		topic: 'The marker',
+		detail: 'A line ending with `harness-doctor: allow` is skipped and counted in the summary.'
+	},
+	{
+		topic: 'What it cannot catch',
+		detail: 'A private name with no shape (a customer, a host in prose), and anything already pushed.'
+	},
+	{
+		topic: 'harness-review',
+		detail: 'Applies its edits without approval; the git diff is the only gate, so read the diff.'
+	}
 ];
 
 export type HarnessSkill = {

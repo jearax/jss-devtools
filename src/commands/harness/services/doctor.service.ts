@@ -3,16 +3,20 @@ import { join } from 'node:path';
 
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
-import { HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
+import { HARNESS_CONFIG, HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
+import { resolveKnowledgeShare } from '@/modules/harness/services/config-merge.service';
 import { readConfig } from '@/modules/harness/services/config.service';
 import { decisionsInForce } from '@/modules/harness/services/decisions.service';
+import { contentCheck } from '@/modules/harness/services/health-content.service';
+import { hookFilesStatus } from '@/modules/harness/services/health-hook-files.service';
 import { installIssues } from '@/modules/harness/services/health-install.service';
 import { akSkillIssues, learnedSkillIssues } from '@/modules/harness/services/health-skills.service';
 import { stateIssues } from '@/modules/harness/services/health-state.service';
+import { symlinkIssues } from '@/modules/harness/services/health-symlinks.service';
 import { managedDriftIssues, stagedUpdateIssue, versionIssue } from '@/modules/harness/services/health-update.service';
 import { learnedSkillNames } from '@/modules/harness/services/learned-skills.service';
 import { readMemoryState } from '@/modules/harness/services/memory.service';
-import { readManifest } from '@/modules/harness/services/update-manifest.service';
+import { readBaseCopy, readLiveFile, readManifest } from '@/modules/harness/services/update-manifest.service';
 import { compareHarnessVersions } from '@/modules/harness/services/update-release.service';
 
 import type { CheckListRow, CheckStatus } from '@/core/ui/check-list.ui';
@@ -59,8 +63,10 @@ const collectHealth = async (root: string): Promise<HealthIssue[]> => {
 		...learnedSkillIssues(root, config, today),
 		...(await akSkillIssues(root)),
 		...managedDriftIssues(root, manifest),
+		...symlinkIssues(root),
 		stagedUpdateIssue(root),
-		versionIssue(manifest)
+		versionIssue(manifest),
+		...(await contentCheck(root)).issues
 	].filter((issue) => {
 		return issue !== null;
 	});
@@ -90,11 +96,11 @@ const memoryStatusOf = (issues: readonly HealthIssue[]): CheckStatus => {
 	return 'ok';
 };
 
-const summaryRows = (
+const summaryRows = async (
 	root: string,
 	config: HealthContext['config'],
 	issues: readonly HealthIssue[]
-): readonly CheckListRow[] => {
+): Promise<readonly CheckListRow[]> => {
 	const memory = readMemoryState(root);
 	const maxChars = config.memory.maxChars;
 	const { manifest } = manifestOf(root);
@@ -106,6 +112,14 @@ const summaryRows = (
 			label: 'Version',
 			status: 'ok',
 			detail: manifest.version
+		});
+	}
+
+	if (hookFilesStatus(root, manifest).match) {
+		rows.push({
+			label: 'Hook files',
+			status: 'ok',
+			detail: `match CLI ${PACKAGE.version}`
 		});
 	}
 
@@ -125,6 +139,22 @@ const summaryRows = (
 		label: 'Learned skills',
 		status: 'ok',
 		detail: String(learnedSkillNames(root).length)
+	});
+
+	rows.push({
+		label: 'Knowledge',
+		status: 'ok',
+		detail: resolveKnowledgeShare(readBaseCopy(root, HARNESS_CONFIG), readLiveFile(root, HARNESS_CONFIG) ?? '{}')
+			? 'shared through git'
+			: 'private to this machine'
+	});
+
+	const { summary } = await contentCheck(root);
+
+	rows.push({
+		label: 'Content check',
+		status: 'ok',
+		detail: `${summary.filesChecked} files checked, ${summary.allowedLines} lines allowed by marker`
 	});
 
 	return rows;

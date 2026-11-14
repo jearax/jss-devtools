@@ -91,7 +91,7 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
 				group: SEARCH_GROUPS.SECTIONS,
 				detail: page?.title ?? slug,
 				href: `${docsHref(slug)}#${section.id}`,
-				keywords: [slug, page?.title ?? slug]
+				keywords: [slug, page?.title ?? slug, ...('keywords' in section ? section.keywords : [])]
 			};
 		});
 	})

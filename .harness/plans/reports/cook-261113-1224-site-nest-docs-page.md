@@ -65,7 +65,7 @@ the prose table carries `max-sm:overflow-x-auto` by design; no page-level horizo
 
 - `shellcheck` is not installed locally; verified through the official image instead.
 - The scratch probe project lives under
-  `~/.claude/projects/-Users-tandm-Documents-jjuidev-tools-jss-devtools/scratchpad/nest-docs-probe/`
+  `~/.claude/projects/-Users-<account>-Documents-jjuidev-tools-jss-devtools/scratchpad/nest-docs-probe/`
   and can be deleted.
 - The e2e smoke of the built image (`ci/smoke-site-image.sh`) itself was not run — it needs a built
   image and docker run; the added line mirrors the neighbouring `$base/docs/install` check that

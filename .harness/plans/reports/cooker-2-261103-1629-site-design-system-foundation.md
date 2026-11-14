@@ -75,7 +75,7 @@ $ tsc --noEmit
 
 $ pnpm --dir site test
 $ vitest run
- RUN  v5.0.3 /Users/tandm/Documents/jearax/npm/jss-devtools/site
+ RUN  v5.0.3 .site
  Test Files  1 passed (1)
       Tests  3 passed (3)
    Duration  677ms
@@ -144,7 +144,7 @@ A probe file was added under `site/src/pages/Home/`, the lint was run, and the p
 ESLint, three of the four kinds:
 
 ```
-/Users/tandm/Documents/jearax/npm/jss-devtools/site/src/pages/Home/lint-probe.ts
+.site/src/pages/Home/lint-probe.ts
   1:1   error    Use an `import` instead of an `import type`                          @typescript-eslint/consistent-type-imports
   3:1   error    './lint-probe.util' import is restricted from being used by a pattern. Import through the @/ alias; only CSS files are imported relatively  no-restricted-imports
   3:1   error    `./lint-probe.util` import should occur before type import of `react`  import-x/order

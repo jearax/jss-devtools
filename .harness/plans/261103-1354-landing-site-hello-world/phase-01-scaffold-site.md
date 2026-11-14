@@ -26,7 +26,7 @@ local pack (gói cục bộ) tarball.
 
 1. **Vendor design system:**
    ```sh
-   cd /Users/tandm/Documents/jearax/dokploy/design-system
+   cd the dokploy repository
    pnpm pack --pack-destination <plan-dir>/tmp-pack/
    ```
    DS phải được build lib trước (`pnpm build:lib`) nếu `dist/lib` chưa tươi — hiện đã có

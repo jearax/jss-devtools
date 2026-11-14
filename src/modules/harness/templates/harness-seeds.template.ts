@@ -1,5 +1,24 @@
-export const harnessGitignoreTemplate = `state/
-update/\n`;
+// The exception to one template per file: the ignore files follow knowledge.share.
+export const harnessGitignoreTemplate = (share: boolean, agentKit: boolean): string => {
+	const lines = ['state/', 'update/'];
+
+	if (!share) {
+		lines.push('MEMORY.md', 'BOOTSTRAP.md', 'curator.json', 'decisions/', 'docs/', 'archive/');
+
+		if (agentKit) {
+			lines.push('plans/');
+		} else {
+			lines.push('plans/*', '!plans/README.md');
+		}
+	}
+
+	return `${lines.join('\n')}\n`;
+};
+
+export const harnessSkillsGitignoreTemplate = `/*
+!/.gitignore
+!/harness-*/
+!/ak-*/\n`;
 
 export const harnessMemoryTemplate = `# Memory
 

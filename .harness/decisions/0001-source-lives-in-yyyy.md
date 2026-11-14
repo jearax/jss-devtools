@@ -15,7 +15,7 @@ order things would be built.
 
 ## Decision
 
-The source lives in `/Users/tandm/Desktop/yyyy`. The repository is initialised, the toolchain is
+The source lives in `~/Desktop/yyyy`. The repository is initialised, the toolchain is
 pinned, and the entry point is tested before any product feature is written.
 
 ## In the user's words

@@ -82,7 +82,7 @@ the routes table scrolls inside itself like the env table (the prose `max-sm:ove
   toolchain out of `node_modules` (twice); run the template checks through `node_modules/.bin`
   binaries instead. Memory line added.
 - The scratch probe project lives under
-  `~/.claude/projects/-Users-tandm-Documents-jjuidev-tools-jss-devtools/scratchpad/nest-docs-probe/`
+  `~/.claude/projects/-Users-<account>-Documents-jjuidev-tools-jss-devtools/scratchpad/nest-docs-probe/`
   and can be deleted.
 - No version change happened, so the pin script was not touched.
 

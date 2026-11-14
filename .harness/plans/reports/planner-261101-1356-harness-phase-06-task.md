@@ -1,6 +1,6 @@
 # Task: harness plan, phase 6 (services move into services/)
 
-Repository: `/Users/tandm/Desktop/yyyy`, branch `main`, HEAD `c8b7d68`. Node 24.11.0.
+Repository: `~/Desktop/yyyy`, branch `main`, HEAD `c8b7d68`. Node 24.11.0.
 
 ## Task
 

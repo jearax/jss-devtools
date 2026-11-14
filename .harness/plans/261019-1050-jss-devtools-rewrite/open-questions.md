@@ -10,7 +10,7 @@ F1 is answered. F2 to F12 now block the first step, setting up a clean source fo
 
 | # | Question | Context | Leaning | Status |
 |---|---|---|---|---|
-| F1 | "Init self source": where and how is the new CLI's own source set up? | Answered: the source lives in `/Users/tandm/Desktop/yyyy` (empty except `plans/`, not a git repo yet). The foundation must be clean before any feature work. | - | answered: "init source trên `yyyy` này, bản thân nó phải tốt / clean thì mới phát triển các tính năng khác được" (user, 2026-10-19) |
+| F1 | "Init self source": where and how is the new CLI's own source set up? | Answered: the source lives in `~/Desktop/yyyy` (empty except `plans/`, not a git repo yet). The foundation must be clean before any feature work. | - | answered: "init source trên `yyyy` này, bản thân nó phải tốt / clean thì mới phát triển các tính năng khác được" (user, 2026-10-19) |
 | F2 | Linter and formatter for the CLI's own source | It dogfoods the toolchain the CLI generates for consumers. typescript-eslint 8.71 requires `typescript <6.1.0`, so TypeScript is pinned to 6.0.x. | - | answered: "ESLint + Prettier, TS 6.0" (user, 2026-10-19) |
 | F3 | Dependency policy | Classify by the Node convention: runtime libraries in `dependencies`, tooling in `devDependencies`. Consequence of F7 (native install, no npm): the published artifact has no node_modules, so the build must inline runtime dependencies into the bundle. | - | answered: "deps hay dev-deps thì tuỳ kiến thức của nodejs mà cho vào phần tương ứng" (user, 2026-10-19) |
 | F4 | CLI parser and TUI framework | | - | answered: "commander 15 + @clack/prompts 1.8" (user, 2026-10-19) |

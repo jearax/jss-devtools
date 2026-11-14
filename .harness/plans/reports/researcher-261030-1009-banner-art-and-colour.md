@@ -30,7 +30,7 @@ back by `process.stdout.getColorDepth()` (truecolor, 256, 16 colours), and the b
 the output is not a terminal, as today, so `NO_COLOR` and piped output are unaffected.
 
 Preview script (run in a terminal):
-`node /private/tmp/claude-501/-Users-tandm-Desktop-yyyy/97bd11d1-32de-4919-ad10-9f1ccf87d1bf/scratchpad/banner/preview.mjs`.
+`node /private/tmp/claude-501/-Users-<account>-Desktop-yyyy/97bd11d1-32de-4919-ad10-9f1ccf87d1bf/scratchpad/banner/preview.mjs`.
 It prints eight candidates: today's banner, ANSI Shadow with two gradients, DOS Rebel, Delta Corps
 Priest 1, ANSI Regular, and two compact fonts (Calvin S, Rubifont).
 

@@ -46,7 +46,12 @@ breaks something.
 - When the memory guard rejects an edit for size, move the detail into a doc and leave a pointer
   line, in the same turn.
 
-## 5. Report
+## 5. Doctor check
+
+If `jss-devtools` is installed, run `jss-devtools harness doctor` and fix what the content check
+reports.
+
+## 6. Report
 
 Never stage or commit. End with:
 
@@ -60,5 +65,6 @@ Harness review:
 - files: .harness/MEMORY.md, .claude/skills/deploy-preview/SKILL.md
 ```
 
-Commit them with the work they describe, so a revert carries both. If nothing qualifies, reply
+When knowledge is shared, commit them with the work they describe, so a revert carries both. If
+nothing qualifies, reply
 `Harness review: nothing to keep.`

@@ -1,13 +1,12 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { HARNESS_DECISIONS_DIR, HARNESS_DIR } from '@/modules/harness/constants/harness-paths.constant';
+import { HARNESS_DECISIONS_DIR } from '@/modules/harness/constants/harness-paths.constant';
 
 import { readConfig } from './config.service';
 import { decisionFileNames, frontmatterOf } from './decisions.service';
 import { indexDrift } from './index-drift.service';
 import { memoryLimitProblems, memoryNearCap, readMemoryState } from './memory.service';
-import { redactSecrets } from './redaction.service';
 
 import type { HealthContext, HealthIssue } from '@/modules/harness/types/health-issue.type';
 
@@ -16,8 +15,7 @@ const stateIssues = (context: HealthContext): readonly HealthIssue[] => {
 		...configIssues(context.root),
 		...memoryIssues(context),
 		...driftIssues(context.root),
-		...decisionIssues(context.root),
-		...secretIssues(context.root)
+		...decisionIssues(context.root)
 	];
 };
 
@@ -102,47 +100,6 @@ const decisionIssues = (root: string): readonly HealthIssue[] => {
 			});
 		}
 	}
-
-	return issues;
-};
-
-const secretIssues = (root: string): readonly HealthIssue[] => {
-	const dir = join(root, HARNESS_DIR);
-
-	if (!existsSync(dir)) {
-		return [];
-	}
-
-	const issues: HealthIssue[] = [];
-
-	const walk = (current: string, rel: string): void => {
-		for (const entry of readdirSync(current, { withFileTypes: true })) {
-			const childRel = rel === '' ? entry.name : `${rel}/${entry.name}`;
-			const child = join(current, entry.name);
-
-			if (entry.isDirectory()) {
-				walk(child, childRel);
-
-				continue;
-			}
-
-			if (!entry.isFile()) {
-				continue;
-			}
-
-			const text = readFileSync(child, 'utf8');
-
-			if (redactSecrets(text) !== text) {
-				issues.push({
-					level: 'error',
-					label: 'Secrets',
-					detail: `${HARNESS_DIR}/${childRel} holds a secret-shaped value`
-				});
-			}
-		}
-	};
-
-	walk(dir, '');
 
 	return issues;
 };

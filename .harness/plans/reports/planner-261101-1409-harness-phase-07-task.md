@@ -1,6 +1,6 @@
 # Task: harness plan, phase 7 (harness doctor)
 
-Repository: `/Users/tandm/Desktop/yyyy`, branch `main`, HEAD `3e9450b`. Node 24.11.0.
+Repository: `~/Desktop/yyyy`, branch `main`, HEAD `3e9450b`. Node 24.11.0.
 
 ## Task
 
@@ -17,7 +17,7 @@ hooks cannot see, above all that the hooks are no longer wired.
 4. `src/commands/harness/` and `src/modules/harness/services/` (reuse: config, memory, index drift,
    decisions, learned skills, skill usage, redaction, block region, staging, manifest, hook
    settings constants)
-5. Reference only: `/Users/tandm/Documents/jearax/dokploy/harness/src/commands/doctor-command.ts`
+5. Reference only: `the dokploy repository`
    and the `check*` functions it calls under `src/core/`
 
 ## Files you may create or modify

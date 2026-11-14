@@ -15,7 +15,7 @@ Push the repository to the new GitHub repo `jearax/jss-devtools2` and have GitHu
 ## Context
 - F11: new repo `https://github.com/jearax/jss-devtools2`. On 2026-10-19 `gh repo view` reported that it does not exist.
 - CI only. CD (release, checksums, install.sh, install site on Dokploy) belongs to the release plan. The VPS `vps-5890-ci` runs Dokploy v0.30.8 with Traefik and has no GitHub Actions runner, so CI uses GitHub-hosted runners.
-- Reference workflow: `/Users/tandm/Documents/jearax/dokploy/harness/.github/workflows/ci.yml` (actions pinned by SHA, `persist-credentials: false`, read-only `contents` permission, concurrency cancel). Reuse its pattern and re-check the pinned action versions at implementation time.
+- Reference workflow: `the dokploy repository` (actions pinned by SHA, `persist-credentials: false`, read-only `contents` permission, concurrency cancel). Reuse its pattern and re-check the pinned action versions at implementation time.
 
 ## Open item raised at this step
 - Repository visibility (public or private), and confirmation before creating it. Public matters later if install.sh downloads GitHub release assets.

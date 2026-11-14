@@ -7,7 +7,7 @@ summary: Foundation questions F1-F12 answered; 4-phase plan to turn yyyy into a 
 # Phase 0 source foundation plan for the jss-devtools rewrite
 
 ## What happened
-Planned phase 0 of the jss-devtools rewrite in /Users/tandm/Desktop/yyyy (empty workspace, not yet a git repo). Plan: plans/261019-1055-phase-0-source-foundation/plan.md, 4 phases: repository and toolchain, CLI entry point and tests, agent and docs foundation, remote and CI.
+Planned phase 0 of the jss-devtools rewrite in ~/Desktop/yyyy (empty workspace, not yet a git repo). Plan: plans/261019-1055-phase-0-source-foundation/plan.md, 4 phases: repository and toolchain, CLI entry point and tests, agent and docs foundation, remote and CI.
 
 ## Decisions (user, 2026-10-19; logged in plans/261019-1050-jss-devtools-rewrite/open-questions.md)
 - ESLint + Prettier with TypeScript 6.0.x: typescript-eslint 8.71.2 peer range is `>=4.8.4 <6.1.0`, so TypeScript 7.0.2 is not usable with typed linting yet.

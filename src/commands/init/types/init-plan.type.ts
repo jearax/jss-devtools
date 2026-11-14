@@ -1,4 +1,5 @@
 import type { PackageManagerName } from '@/commands/init/templates/package-json.template';
+import type { DetectResult } from 'package-manager-detector';
 
 export type InitMode = 'create' | 'existing';
 
@@ -25,4 +26,12 @@ export type InitPreflight = {
 	packageJson?: {
 		parsed: Record<string, unknown>;
 	};
+};
+
+export type PreflightFolderChecks = {
+	mode: InitMode;
+	targetDir: string;
+	projectName: string;
+	detected: DetectResult | null;
+	parsed: Record<string, unknown> | undefined;
 };

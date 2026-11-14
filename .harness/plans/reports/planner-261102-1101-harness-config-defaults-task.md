@@ -1,6 +1,6 @@
 # Task: harness config defaults
 
-Repository: `/Users/tandm/Desktop/yyyy`, branch `main`, HEAD `76219a0`. Node 24.11+, pnpm.
+Repository: `~/Desktop/yyyy`, branch `main`, HEAD `76219a0`. Node 24.11+, pnpm.
 
 ## Task
 
@@ -37,7 +37,7 @@ Implement `plans/261102-1045-harness-config-defaults/plan.md` and its only phase
 
 - Comments: default zero; only a one-line non-inferable trap.
 - No new dependency. Values only: no new key, no behavior change.
-- Another agent works in `/Users/tandm/Desktop/jss-harness-eval`; do not touch that folder.
+- Another agent works in `~/Desktop/jss-harness-eval`; do not touch that folder.
 - Do not commit, do not push.
 
 ## Report
