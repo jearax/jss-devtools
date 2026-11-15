@@ -18,6 +18,7 @@ import {
 	meta
 } from '@/pages/Docs/pages/Init/Init.constant';
 import { nestSection, presetsSection } from '@/pages/Docs/pages/Init/InitNest';
+import { reactSection } from '@/pages/Docs/pages/Init/InitReact';
 
 const commandBlock = (command: (typeof INIT_COMMANDS)[number]) => {
 	return (
@@ -146,6 +147,7 @@ const Init = () => {
 				},
 				presetsSection,
 				nestSection,
+				reactSection,
 				{
 					...meta('the-dry-run'),
 					body: (

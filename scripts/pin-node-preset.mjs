@@ -5,6 +5,8 @@ import {
 	MIN_AGE_MINUTES,
 	NEST_DEPENDENCIES,
 	NEST_DEV_DEPENDENCIES,
+	REACT_DEPENDENCIES,
+	REACT_DEV_DEPENDENCIES,
 	compareVersions,
 	isOldEnough,
 	isStable,
@@ -40,7 +42,24 @@ const MONOREPO_PACKAGES = ['turbo'];
 
 const NODE_FLOOR = readPackageInfo().nodeFloor;
 const TYPES_NODE_MAJOR = Number(NODE_FLOOR.split('.')[0]);
-const ALL_PINNED = [...PACKAGES, ...NEST_DEPENDENCIES, ...NEST_DEV_DEPENDENCIES];
+// The compiler toolchain is built against Babel 7; major 8 exists but is not proven on this
+// template. Pinned to its fixed major the way @types/node follows the node floor.
+const BABEL_CORE_MAJOR = 7;
+
+const FIXED_MAJORS = {
+	'@types/node': TYPES_NODE_MAJOR,
+	'@babel/core': BABEL_CORE_MAJOR
+};
+
+const ALL_PINNED = [
+	...new Set([
+		...PACKAGES,
+		...NEST_DEPENDENCIES,
+		...NEST_DEV_DEPENDENCIES,
+		...REACT_DEPENDENCIES,
+		...REACT_DEV_DEPENDENCIES
+	])
+];
 
 const registry = {};
 
@@ -66,10 +85,12 @@ const fetchVersionMetadata = (pkg, version) => {
 };
 
 const candidates = (pkg) => {
-	if (pkg === '@types/node') {
+	const fixedMajor = FIXED_MAJORS[pkg];
+
+	if (fixedMajor !== undefined) {
 		return registry[pkg].stableVersions
 			.filter((version) => {
-				return parseVersion(version)[0] === TYPES_NODE_MAJOR;
+				return parseVersion(version)[0] === fixedMajor;
 			})
 			.reverse();
 	}
@@ -254,24 +275,18 @@ ${renderDependencyTable(monorepoChosen)}
 
 console.log(`wrote ${constantsPath.pathname}`);
 
-const nestManifestPath = new URL('../templates/nest/package.json', import.meta.url);
-const nestManifest = JSON.parse(readFileSync(nestManifestPath, 'utf8'));
-
-for (const pkg of [...NEST_DEPENDENCIES, ...NEST_DEV_DEPENDENCIES]) {
-	if (!chosen[pkg]) {
-		throw new Error(`${pkg} was not pinned`);
+const TEMPLATES = [
+	{
+		name: 'nest',
+		dependencies: NEST_DEPENDENCIES,
+		devDependencies: NEST_DEV_DEPENDENCIES
+	},
+	{
+		name: 'react',
+		dependencies: REACT_DEPENDENCIES,
+		devDependencies: REACT_DEV_DEPENDENCIES
 	}
-}
-
-for (const pkg of NEST_DEPENDENCIES) {
-	nestManifest.dependencies ??= {};
-	nestManifest.dependencies[pkg] = `^${chosen[pkg]}`;
-}
-
-for (const pkg of NEST_DEV_DEPENDENCIES) {
-	nestManifest.devDependencies ??= {};
-	nestManifest.devDependencies[pkg] = `^${chosen[pkg]}`;
-}
+];
 
 const sortByName = (entries) => {
 	return Object.fromEntries(
@@ -281,9 +296,30 @@ const sortByName = (entries) => {
 	);
 };
 
-nestManifest.dependencies = sortByName(nestManifest.dependencies);
-nestManifest.devDependencies = sortByName(nestManifest.devDependencies);
+for (const template of TEMPLATES) {
+	const manifestPath = new URL(`../templates/${template.name}/package.json`, import.meta.url);
+	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
-writeFileSync(nestManifestPath, `${JSON.stringify(nestManifest, null, '\t')}\n`);
+	for (const pkg of [...template.dependencies, ...template.devDependencies]) {
+		if (!chosen[pkg]) {
+			throw new Error(`${pkg} was not pinned`);
+		}
+	}
 
-console.log(`wrote ${nestManifestPath.pathname}`);
+	for (const pkg of template.dependencies) {
+		manifest.dependencies ??= {};
+		manifest.dependencies[pkg] = `^${chosen[pkg]}`;
+	}
+
+	for (const pkg of template.devDependencies) {
+		manifest.devDependencies ??= {};
+		manifest.devDependencies[pkg] = `^${chosen[pkg]}`;
+	}
+
+	manifest.dependencies = sortByName(manifest.dependencies);
+	manifest.devDependencies = sortByName(manifest.devDependencies);
+
+	writeFileSync(manifestPath, `${JSON.stringify(manifest, null, '\t')}\n`);
+
+	console.log(`wrote ${manifestPath.pathname}`);
+}

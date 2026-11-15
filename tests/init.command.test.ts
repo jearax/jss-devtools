@@ -97,6 +97,7 @@ Examples:
   $ jss-devtools init my-app --pm pnpm -y                    Create my-app with pnpm, no questions (CI)
   $ jss-devtools init my-api --framework nest -y             Create my-api as a Nest 12 app
   $ jss-devtools init my-api --framework nest --no-sample -y Create it without the example domain
+  $ jss-devtools init my-web --framework react -y            Create my-web as a Vite React app
   $ jss-devtools init my-app --monorepo                      Create my-app as a Turborepo monorepo
   $ jss-devtools init                                        Set up the project in the current folder
   $ jss-devtools init -f                                     Replace existing ESLint, Prettier and commitlint configs
@@ -506,10 +507,35 @@ describe('the init command', () => {
 	it('rejects a framework outside the choices and exits 1', async () => {
 		await useCwd();
 
-		const { stderr } = await runInit('my-app', '--framework', 'react');
+		const { stderr } = await runInit('my-app', '--framework', 'rn');
 
-		expect(stderr).toContain('Framework react is not supported yet');
+		expect(stderr).toContain('Framework rn is not supported yet');
 		expect(process.exitCode).toBe(1);
+	});
+
+	it('lists the react tree in a dry run and writes nothing', async () => {
+		const dir = await useCwd();
+
+		const { stdout } = await runInit('my-web', '--framework', 'react', '--dry-run', '--pm', 'pnpm');
+
+		expect(stdout).toContain('+ index.html');
+		expect(stdout).toContain('+ src/main.tsx');
+		expect(stdout).toContain('+ .husky/pre-commit');
+		expect(stdout).toContain('Dry run: nothing written');
+		expect(existsSync(join(dir, 'my-web'))).toBe(false);
+	});
+
+	it('lists the react monorepo tree in a dry run and writes nothing', async () => {
+		const dir = await useCwd();
+
+		const { stdout } = await runInit('my-web', '--monorepo', '--framework', 'react', '--dry-run', '--pm', 'pnpm');
+
+		expect(stdout).toContain('+ turbo.json');
+		expect(stdout).toContain('+ apps/react/package.json');
+		expect(stdout).toContain('+ apps/react/src/main.tsx');
+		expect(stdout).toContain('+ packages/.gitkeep');
+		expect(stdout).toContain('Dry run: nothing written');
+		expect(existsSync(join(dir, 'my-web'))).toBe(false);
 	});
 
 	it('suggests --dry-run for a misspelled flag and exits 1', async () => {

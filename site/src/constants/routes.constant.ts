@@ -58,6 +58,12 @@ export const DOCS_PAGES: readonly DocsPage[] = [
 		group: 'Presets'
 	},
 	{
+		slug: 'react',
+		title: 'react',
+		summary: 'The react preset: the app it writes, the environment, the conventions, the scripts and the monorepo.',
+		group: 'Presets'
+	},
+	{
 		slug: 'reference',
 		title: 'Reference',
 		summary: 'The options, the presets and the exit codes.'

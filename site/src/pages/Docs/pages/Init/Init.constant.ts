@@ -38,6 +38,10 @@ export const SECTIONS = [
 		title: 'The nest preset'
 	},
 	{
+		id: 'the-react-preset',
+		title: 'The react preset'
+	},
+	{
 		id: 'the-dry-run',
 		title: 'The dry run'
 	}
@@ -101,6 +105,11 @@ export const INIT_MONOREPO_PARAGRAPHS: readonly string[] = [
 /** The paragraph of the nest-preset section, rendered through `RichText`. */
 export const INIT_NEST_PARAGRAPHS: readonly string[] = [
 	'`--framework nest` creates a Nest 12 app in ESM TypeScript: a response envelope `{ status, message, data }`, per-request translation with `@nestjs/i18n`, Terminus health, a `zod` environment schema, and `core/` modules for config, logging, i18n, a database placeholder and helpers.'
+];
+
+/** The paragraph of the react-preset section, rendered through `RichText`. */
+export const INIT_REACT_PARAGRAPHS: readonly string[] = [
+	'`--framework react` creates a Vite React app built with the React Compiler on: `react-router` routes with lazy pages and auth guards, `zustand` state behind a `useAuth` hook, feature flags through OpenFeature, and error boundaries that report through a service.'
 ];
 
 /** The intro of the what-it-does section, rendered through `RichText`. */

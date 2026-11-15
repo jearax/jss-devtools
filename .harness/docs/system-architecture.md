@@ -232,9 +232,11 @@ same as the root help.
 
 ## The init command
 
-`jss-devtools init` is the toolchain command, shipping the `node` and `nest` presets
-([0030](../decisions/0030-init-node-preset.md), [0047](../decisions/0047-init-nest-preset.md)).
-`init <dir>` creates a TypeScript node project, or a Nest 12 ESM app with `--framework nest`;
+`jss-devtools init` is the toolchain command, shipping the `node`, `nest` and `react` presets
+([0030](../decisions/0030-init-node-preset.md), [0047](../decisions/0047-init-nest-preset.md),
+[0057](../decisions/0057-init-react-preset.md)).
+`init <dir>` creates a TypeScript node project, a Nest 12 ESM app with `--framework nest`, or a
+Vite React app with `--framework react`;
 `init` sets up the current one. The syntax picks the mode; every edge case exits 1 with the finding
 and the next step. With `--monorepo`, create mode writes a Turborepo instead
 ([0045](../decisions/0045-init-monorepo-creates-a-turborepo.md)): the toolchain and the harness
@@ -249,7 +251,13 @@ domain's files and its `CourseModule` line from `app.module.ts`
 `nest start --watch` because tsx's esbuild emits no decorator metadata, and `nest build` rewrites
 the `@/` paths itself. The generated app's own contract (the response envelope, the locale order)
 is [0049](../decisions/0049-nest-response-envelope.md); its traps are in
-[nest-template-traps.md](./nest-template-traps.md).
+[nest-template-traps.md](./nest-template-traps.md). The react preset is create mode only in the
+same way: an existing folder refuses `--framework react` before any write, the react files are the
+embedded `templates/react/` project transformed by `services/react-plan.service.ts` (the manifest
+through the shared `services/shared-template-plan.service.ts` helpers, the `index.html` title
+replaced by the escaped project name). Its manifest merge leaves out `tsx` and `tsc-alias` too,
+for its own reason: Vite runs the app and resolves the `@/` paths, so neither tool has a call
+site. Its traps are in [react-template-traps.md](./react-template-traps.md).
 
 A run moves through services in one direction:
 
@@ -292,7 +300,7 @@ because only a command file may import commander.
 | `--dry-run`          | Run preflight, show `+`, `~` and `-`, then the command that applies, write nothing |
 | `--force, -f`        | Replace the configs init owns, and delete their other documented names             |
 | `--pm <name>`        | Package manager for a new project; detected in existing mode, where it exits 1     |
-| `--framework <name>` | Preset to apply (`node`, `nest` implemented)                                       |
+| `--framework <name>` | Preset to apply (`node`, `nest`, `react` implemented)                              |
 | `--monorepo`         | Create mode only: build a Turborepo with the app under `apps/<framework>`          |
 | `--no-vscode`        | Do not write `.vscode/`                                                            |
 | `--help, -h`         | commander's usage and options, plus an `Examples` section                          |

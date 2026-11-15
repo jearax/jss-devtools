@@ -34,6 +34,33 @@ export const NEST_DEV_DEPENDENCIES = [
 	'vitest'
 ];
 
+// The React-specific manifest entries of templates/react/package.json. `vite` is named by the
+// nest and the react lists on purpose: it is pinned once and written to both manifests with the
+// same version. `rolldown` stays out: it is an auto-provided peer of `@rolldown/plugin-babel`
+// through vite, and nothing in a manifest names it.
+export const REACT_DEPENDENCIES = [
+	'@openfeature/core',
+	'@openfeature/react-sdk',
+	'@openfeature/web-sdk',
+	'react',
+	'react-dom',
+	'react-error-boundary',
+	'react-router',
+	'zustand'
+];
+
+export const REACT_DEV_DEPENDENCIES = [
+	'@babel/core',
+	'@rolldown/plugin-babel',
+	'@types/react',
+	'@types/react-dom',
+	'@vitejs/plugin-react',
+	'babel-plugin-react-compiler',
+	'eslint-plugin-react-hooks',
+	'eslint-plugin-react-refresh',
+	'vite'
+];
+
 export const npmView = (args) => {
 	return JSON.parse(
 		execFileSync('npm', ['view', ...args, '--json'], {

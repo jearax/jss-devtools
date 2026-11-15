@@ -14,6 +14,7 @@ const hookBundleText = (): string => {
 };
 
 const nestTemplate = readFrameworkTemplate('nest');
+const reactTemplate = readFrameworkTemplate('react');
 
 const tsdownConfig = defineConfig({
 	entry: ['src/cli.ts'],
@@ -39,7 +40,8 @@ const tsdownConfig = defineConfig({
 	define: {
 		__JSS_PACKAGE__: JSON.stringify(readPackageInfo()),
 		__HARNESS_HOOK_BUNDLE__: JSON.stringify(hookBundleText()),
-		__NEST_TEMPLATE__: JSON.stringify(nestTemplate)
+		__NEST_TEMPLATE__: JSON.stringify(nestTemplate),
+		__REACT_TEMPLATE__: JSON.stringify(reactTemplate)
 	}
 });
 

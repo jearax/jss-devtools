@@ -76,6 +76,12 @@ export const createDocsRoute = (): RouteObject => {
 				})
 			},
 			{
+				path: 'react',
+				...lazyPage(() => {
+					return import('@/pages/Docs/pages/React/React');
+				})
+			},
+			{
 				path: 'reference',
 				...lazyPage(() => {
 					return import('@/pages/Docs/pages/Reference/Reference');

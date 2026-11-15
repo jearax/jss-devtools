@@ -50,8 +50,8 @@ export const INIT_FILES: readonly string[] = [
 ];
 
 /**
- * The presets `init` declares. From `src/commands/init/init.command.ts`: the choices are declared,
- * and only `node` is implemented.
+ * The presets `init` declares. From `src/commands/init/init.command.ts`: `node`, `react` and
+ * `nest` are implemented, `rn` and `next` are declared only.
  */
 export const INIT_PRESETS: readonly { name: string; state: string }[] = [
 	{
@@ -60,7 +60,7 @@ export const INIT_PRESETS: readonly { name: string; state: string }[] = [
 	},
 	{
 		name: 'react',
-		state: 'Declared, not implemented yet.'
+		state: 'Implemented.'
 	},
 	{
 		name: 'rn',

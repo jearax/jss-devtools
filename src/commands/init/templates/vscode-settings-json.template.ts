@@ -11,7 +11,7 @@ export const vscodeSettingsJsonTemplate = ({ packageManager }: VscodeSettingsJso
 		"source.organizeImports": "never"
 	},
 	"prettier.requireConfig": true,
-	"eslint.validate": ["javascript", "typescript"],
+	"eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
 	"js/ts.tsdk.path": "node_modules/typescript/lib",
 	"js/ts.tsdk.promptToUseWorkspaceVersion": true,
 	"js/ts.preferences.importModuleSpecifier": "non-relative",

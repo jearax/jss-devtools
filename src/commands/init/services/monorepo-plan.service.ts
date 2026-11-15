@@ -10,6 +10,7 @@ import { PACKAGE } from '@/core/constants/package.constant';
 
 import { nestMonorepoAppEntries } from './nest-plan.service';
 import { derivePackageName } from './plan.service';
+import { reactMonorepoAppEntries } from './react-plan.service';
 import { sharedToolchainEntries } from './shared-toolchain-plan.service';
 
 import type { InitOptions } from '@/commands/init/types/init-options.type';
@@ -31,11 +32,13 @@ export const monorepoCreateModeEntries = (preflight: InitPreflight, options: Ini
 	const appEntries =
 		framework === 'nest'
 			? nestMonorepoAppEntries(preflight, options)
-			: [
-					at(`apps/${framework}/package.json`, appPackageJsonTemplate({ appName: `@${packageName}/${framework}` })),
-					at(`apps/${framework}/tsconfig.json`, appTsconfigJsonTemplate()),
-					at(`apps/${framework}/src/main.ts`, srcMainTemplate({ projectName }))
-				];
+			: framework === 'react'
+				? reactMonorepoAppEntries(preflight)
+				: [
+						at(`apps/${framework}/package.json`, appPackageJsonTemplate({ appName: `@${packageName}/${framework}` })),
+						at(`apps/${framework}/tsconfig.json`, appTsconfigJsonTemplate()),
+						at(`apps/${framework}/src/main.ts`, srcMainTemplate({ projectName }))
+					];
 
 	const entries = [
 		at(

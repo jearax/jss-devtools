@@ -83,6 +83,7 @@ state, not a result to assume.
 | `src/commands/`             | One folder per command; the file suffix says what the file is                                  |
 | `src/modules/harness/`      | The repository-harness hook program; `harness-hook.entry.ts` is the entry Claude Code runs     |
 | `templates/nest/`           | The real Nest 12 project the build embeds; init copies it, the pin script owns its versions    |
+| `templates/react/`          | The real Vite React project the build embeds; init copies it, the pin script owns its versions |
 | `tests/`                    | vitest suites; `support/` holds scanners and helpers, `fixtures/` holds negative fixtures      |
 | `scripts/install.sh`        | The installer the site serves; POSIX sh, shellchecked in CI, exercised by `tests/`             |
 | `scripts/stage-release.mjs` | Stages the built bundle and its checksums into `release/` for the site image                   |

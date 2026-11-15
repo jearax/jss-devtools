@@ -3,6 +3,9 @@ export declare const MIN_AGE_MINUTES: number;
 export declare const NEST_DEPENDENCIES: readonly string[];
 export declare const NEST_DEV_DEPENDENCIES: readonly string[];
 
+export declare const REACT_DEPENDENCIES: readonly string[];
+export declare const REACT_DEV_DEPENDENCIES: readonly string[];
+
 export declare const npmView: (args: string[]) => unknown;
 export declare const parseVersion: (version: string) => [number, number, number] | null;
 export declare const compareVersions: (

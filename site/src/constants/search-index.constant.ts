@@ -5,6 +5,7 @@ import { SECTIONS as HARNESS_SECTIONS } from '@/pages/Docs/pages/Harness/Harness
 import { SECTIONS as INIT_SECTIONS } from '@/pages/Docs/pages/Init/Init.constant';
 import { SECTIONS as INSTALL_SECTIONS } from '@/pages/Docs/pages/Install/Install.constant';
 import { NEST_SECTIONS } from '@/pages/Docs/pages/Nest/Nest.constant';
+import { REACT_SECTIONS } from '@/pages/Docs/pages/React/React.constant';
 import { SECTIONS as REFERENCE_SECTIONS } from '@/pages/Docs/pages/Reference/Reference.constant';
 
 /**
@@ -57,6 +58,10 @@ const SECTION_LISTS = [
 	{
 		slug: 'nest',
 		sections: NEST_SECTIONS
+	},
+	{
+		slug: 'react',
+		sections: REACT_SECTIONS
 	},
 	{
 		slug: 'reference',

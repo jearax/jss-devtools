@@ -20,7 +20,32 @@ const expectsUnchangedDir = (dir: string, before: string): void => {
 };
 
 describe('init argument rules', () => {
-	it('exits 1 for a framework other than node or nest, and the folder is unchanged', async () => {
+	it('exits 1 for a framework other than node, nest or react, and the folder is unchanged', async () => {
+		const dir = await makeEmptyDir();
+		const before = snapshotDir(dir);
+
+		expect(
+			messageOf(() => {
+				validateInitArguments([], { framework: 'rn' });
+			})
+		).toBe('Framework rn is not supported yet');
+		expect(
+			messageOf(() => {
+				validateInitArguments([], { framework: 'next' });
+			})
+		).toBe('Framework next is not supported yet');
+		expectsUnchangedDir(dir, before);
+
+		await removeDir(dir);
+	});
+
+	it('accepts --framework react with <dir>', () => {
+		expect(() => {
+			validateInitArguments(['my-web'], { framework: 'react' });
+		}).not.toThrow();
+	});
+
+	it('exits 1 for --framework react without <dir>, and the folder is unchanged', async () => {
 		const dir = await makeEmptyDir();
 		const before = snapshotDir(dir);
 
@@ -28,7 +53,7 @@ describe('init argument rules', () => {
 			messageOf(() => {
 				validateInitArguments([], { framework: 'react' });
 			})
-		).toBe('Framework react is not supported yet');
+		).toBe('Framework react needs <dir>');
 		expectsUnchangedDir(dir, before);
 
 		await removeDir(dir);
@@ -128,6 +153,14 @@ describe('init argument rules', () => {
 			messageOf(() => {
 				validateInitArguments(['my-app'], {
 					framework: 'node',
+					sample: false
+				});
+			})
+		).toBe('--no-sample needs --framework nest');
+		expect(
+			messageOf(() => {
+				validateInitArguments(['my-web'], {
+					framework: 'react',
 					sample: false
 				});
 			})

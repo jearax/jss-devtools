@@ -166,6 +166,29 @@ Decision: [0047](../decisions/0047-init-nest-preset.md), which supersedes the no
   ([plan](../plans/261113-1218-site-nest-docs-page/plan.md)); `tests/site-nest-docs.test.ts` fails
   when the page's env table, scripts or tree drift from `templates/nest/`.
 
+## Done: the init react preset
+
+Plan: [../plans/261115-0643-init-react-preset/plan.md](../plans/261115-0643-init-react-preset/plan.md).
+Decision: [0057](../decisions/0057-init-react-preset.md), which partly supersedes
+[0030](../decisions/0030-init-node-preset.md).
+
+- `jss-devtools init <dir> --framework react` creates a Vite React app with the React Compiler on:
+  the real project in `templates/react/` embedded in the bundle and copied by init, with the
+  project name substituted (the manifest and the `index.html` title) and the shared toolchain
+  devDependencies merged in; with `--monorepo` the app is `apps/react` as `@<project>/react` and
+  the root stays as for node. The preset is create mode only: an existing folder refuses it before
+  any write, and `--no-sample` is not offered — the preset ships no sample, no test runner and no
+  styling stack, all recorded in [0057](../decisions/0057-init-react-preset.md).
+- `tests/init-react.e2e.test.ts` proves, per manager on `PATH` and gated behind `INIT_E2E=1`:
+  single and monorepo apps lint, typecheck and build, the built chunks carry the
+  `memo_cache_sentinel` compiler marker, `vite preview` answers `/` and `/dashboard` with HTML on
+  a free port before the process is stopped with its port proven free, a monorepo rebuild answers
+  `FULL TURBO`, and `prettier --check .` passes. The gated suites stay local; CI
+  runs none of them.
+- The site documents the preset at `/docs/react`; `tests/site-react-docs.test.ts` fails when the
+  page's env table, scripts or tree drift from `templates/react/`. Traps the work hit are in
+  [react-template-traps.md](./react-template-traps.md).
+
 ## Done: init installs the harness
 
 Plan: [../plans/261101-0204-init-harness/plan.md](../plans/261101-0204-init-harness/plan.md),
@@ -250,7 +273,7 @@ collected in
 
 | Area             | What it covers                                                     | Open questions |
 | ---------------- | ------------------------------------------------------------------ | -------------- |
-| Toolchain module | Framework presets beyond `node` and `nest` (`react`, `rn`, `next`) | T1 to T5       |
+| Toolchain module | Framework presets beyond `node`, `nest` and `react` (`rn`, `next`) | T1 to T5       |
 | Harness module   | Managed files, first-run bootstrap, review trigger, curation       | H1 to H12      |
 | Cross-cutting    | Which decisions carry over from the old prototype                  | X2, X3         |
 

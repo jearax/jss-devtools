@@ -35,6 +35,7 @@ const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools init my-app --pm pnpm -y', 'Create my-app with pnpm, no questions (CI)'],
 	['jss-devtools init my-api --framework nest -y', 'Create my-api as a Nest 12 app'],
 	['jss-devtools init my-api --framework nest --no-sample -y', 'Create it without the example domain'],
+	['jss-devtools init my-web --framework react -y', 'Create my-web as a Vite React app'],
 	['jss-devtools init my-app --monorepo', 'Create my-app as a Turborepo monorepo'],
 	['jss-devtools init', 'Set up the project in the current folder'],
 	['jss-devtools init -f', 'Replace existing ESLint, Prettier and commitlint configs'],

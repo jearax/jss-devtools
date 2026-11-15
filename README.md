@@ -3,7 +3,7 @@
 A rewrite of `@jjuidev/jss-devtools`: a command-line tool for JavaScript-stack repositories.
 
 The CLI exists and is tested; `jss-devtools doctor` is its first command and `jss-devtools init`
-its second, shipping the `node` and `nest` presets. See
+its second, shipping the `node`, `nest` and `react` presets. See
 [docs/project-roadmap.md](.harness/docs/project-roadmap.md) for what comes next and
 [docs/system-architecture.md](.harness/docs/system-architecture.md) for how the current code is put together.
 
@@ -29,6 +29,7 @@ node dist/cli.mjs -v          # the version from package.json (also --version)
 node dist/cli.mjs doctor      # check the machine, exit 1 with a fix hint when a check fails
 node dist/cli.mjs init my-app # create a TypeScript node project
 node dist/cli.mjs init my-api --framework nest # create it as a Nest 12 app instead
+node dist/cli.mjs init my-web --framework react # create it as a Vite React app instead
 node dist/cli.mjs init my-app --monorepo # create it as a Turborepo, the app under apps/node
 node dist/cli.mjs init        # set up the current project
 node dist/cli.mjs nope        # error plus help, exit code 1
@@ -79,9 +80,17 @@ folder set up with `init` refuses it ([decision 0047](.harness/decisions/0047-in
 `--no-sample` skips the example domain (an empty `src/domains/.gitkeep` instead); it needs
 `--framework nest` ([decision 0051](.harness/decisions/0051-nest-api-prefix-and-no-sample.md)).
 
+`jss-devtools init my-web --framework react` creates a Vite React app instead: TypeScript with the
+React Compiler on, `react-router` routes with lazy pages and auth guards, `zustand` state behind a
+`useAuth` hook, feature flags through OpenFeature, and error boundaries that report through a
+service. Like the nest preset it only creates a project, with or without `--monorepo` (the app
+lands at `apps/react`): an existing folder set up with `init` refuses it
+([decision 0057](.harness/decisions/0057-init-react-preset.md)). The site documents it at
+`/docs/react`.
+
 `jss-devtools init my-app --monorepo` creates a Turborepo instead: the toolchain and the harness
-once at the root, the app under `apps/node` (or `apps/nest` with `--framework nest`), and an empty
-`packages/`, for bun, pnpm, yarn 1 and npm.
+once at the root, the app under `apps/node` (or `apps/nest` with `--framework nest`, or `apps/react`
+with `--framework react`), and an empty `packages/`, for bun, pnpm, yarn 1 and npm.
 It works in create mode only
 ([decision 0045](.harness/decisions/0045-init-monorepo-creates-a-turborepo.md)).
 

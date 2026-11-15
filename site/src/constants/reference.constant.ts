@@ -14,7 +14,7 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 	{
 		flag: '--framework <name>',
 		meaning:
-			'The preset to apply. `node` and `nest` work; `react`, `rn` and `next` are declared but not implemented. `nest` creates a new project only — an existing folder refuses it.'
+			'The preset to apply. `node`, `react` and `nest` work; `rn` and `next` are declared but not implemented. `nest` and `react` create a new project only — an existing folder refuses them.'
 	},
 	{
 		flag: '--pm <name>',

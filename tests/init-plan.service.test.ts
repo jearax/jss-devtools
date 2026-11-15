@@ -4,7 +4,9 @@ import { dirname, join } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { NEST_TEMPLATE_FILES } from '@/commands/init/constants/nest-template.constant';
 import { NODE_PRESET_DEPENDENCIES } from '@/commands/init/constants/node-preset-dependency.constant';
+import { REACT_TEMPLATE_FILES } from '@/commands/init/constants/react-template.constant';
 import { mergePackageJson, mergePnpmWorkspaceYaml } from '@/commands/init/services/merge.service';
 import { buildInitPlan, comparePlanPaths, renderPlan, renderPlanHeading } from '@/commands/init/services/plan.service';
 import { applyInitPlan } from '@/commands/init/services/write.service';
@@ -450,7 +452,12 @@ describe('the plan, create mode with --framework nest', () => {
 		expect(manifest).toContain('"name": "my-app"');
 		expect(manifest).not.toContain('nest-app');
 		expect(manifest).toContain('"dev": "nest start --watch"');
-		expect(manifest).toContain('"@nestjs/common": "^12.4.2"');
+
+		const nestManifest = JSON.parse(NEST_TEMPLATE_FILES['package.json']!) as {
+			dependencies?: Record<string, string>;
+		};
+
+		expect(manifest).toContain(`"@nestjs/common": "${nestManifest.dependencies?.['@nestjs/common']}"`);
 		expect(manifest).toContain(`"husky": "^${NODE_PRESET_DEPENDENCIES['husky']}"`);
 		expect(manifest.includes('"packageManager"')).toBe(false);
 
@@ -519,6 +526,110 @@ describe('the plan, create mode with --framework nest', () => {
 			})
 		);
 		expect(entryFor(nodePlan, 'src/main.ts')?.content).toBe(srcMainTemplate({ projectName: 'my-app' }));
+	});
+});
+
+describe('the plan, create mode with --framework react', () => {
+	const reactPlan = (pm: 'bun' | 'pnpm' | 'yarn' | 'npm', options: Record<string, unknown> = {}) => {
+		return buildInitPlan(
+			{
+				...createPreflight('/tmp/nowhere'),
+				pm
+			},
+			{
+				harness: false,
+				framework: 'react',
+				...options
+			}
+		);
+	};
+
+	const reactPaths = (pm: 'bun' | 'pnpm' | 'yarn' | 'npm', options: Record<string, unknown> = {}): string[] => {
+		return renderPlan(reactPlan(pm, options))
+			.split('\n')
+			.map((line) => {
+				return line.replace(/^[+~-] /, '');
+			});
+	};
+
+	// The toolchain the react preset adds beside its template, in the plan's sort order.
+	const REACT_TOOLCHAIN_PATHS = [
+		'.editorconfig',
+		'.gitignore',
+		'.prettierignore',
+		'.prettierrc.json',
+		'.husky/commit-msg',
+		'.husky/pre-commit',
+		'.vscode/extensions.json',
+		'.vscode/settings.json',
+		'commitlint.config.mjs'
+	];
+
+	it('plans the react tree for every manager, with pnpm-workspace.yaml only for pnpm', () => {
+		const templatePaths = Object.keys(REACT_TEMPLATE_FILES);
+
+		for (const pm of ['bun', 'pnpm', 'yarn', 'npm'] as const) {
+			const expected = [
+				...templatePaths,
+				...REACT_TOOLCHAIN_PATHS,
+				...(pm === 'pnpm' ? ['pnpm-workspace.yaml'] : [])
+			].sort(comparePlanPaths);
+
+			expect(reactPaths(pm)).toEqual(expected);
+		}
+	});
+
+	it('plans the react monorepo tree, template under apps/react, toolchain at the root', () => {
+		const templatePaths = Object.keys(REACT_TEMPLATE_FILES).map((path) => {
+			return `apps/react/${path}`;
+		});
+
+		const rootOnly = ['packages/.gitkeep', 'package.json', 'eslint.config.mjs', 'tsconfig.base.json', 'turbo.json'];
+
+		for (const pm of ['bun', 'pnpm', 'yarn', 'npm'] as const) {
+			const expected = [
+				...templatePaths,
+				...REACT_TOOLCHAIN_PATHS,
+				...rootOnly,
+				...(pm === 'pnpm' ? ['pnpm-workspace.yaml'] : [])
+			].sort(comparePlanPaths);
+
+			expect(reactPaths(pm, { monorepo: true })).toEqual(expected);
+		}
+	});
+
+	it('substitutes the package name into the manifest and the project name into the page title', () => {
+		const manifest = entryFor(reactPlan('pnpm'), 'package.json')?.content ?? '';
+		const indexHtml = entryFor(reactPlan('pnpm'), 'index.html')?.content ?? '';
+
+		expect(manifest).toContain('"name": "my-app"');
+		expect(manifest).not.toContain('react-app');
+		expect(indexHtml).toContain('<title>my-app</title>');
+		expect(indexHtml).not.toContain('<title>react-app</title>');
+	});
+
+	it('names the monorepo app @<project>/react and titles it with the project name', () => {
+		const appManifest = entryFor(reactPlan('pnpm', { monorepo: true }), 'apps/react/package.json')?.content ?? '';
+		const indexHtml = entryFor(reactPlan('pnpm', { monorepo: true }), 'apps/react/index.html')?.content ?? '';
+
+		expect(appManifest).toContain('"name": "@my-app/react"');
+		expect(appManifest).not.toContain('react-app');
+		expect(indexHtml).toContain('<title>my-app</title>');
+	});
+
+	it('excludes the node-only runtime tools from the react manifests', () => {
+		for (const content of [
+			entryFor(reactPlan('pnpm'), 'package.json')?.content,
+			entryFor(reactPlan('pnpm', { monorepo: true }), 'apps/react/package.json')?.content
+		]) {
+			const { devDependencies } = JSON.parse(content ?? '{}') as {
+				devDependencies: Record<string, string>;
+			};
+
+			expect(devDependencies['tsx']).toBeUndefined();
+			expect(devDependencies['tsc-alias']).toBeUndefined();
+			expect(devDependencies['typescript']).toBe(`^${NODE_PRESET_DEPENDENCIES['typescript']}`);
+		}
 	});
 });
 

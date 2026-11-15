@@ -7,7 +7,8 @@ const vitestConfig = defineConfig({
 	define: {
 		__JSS_PACKAGE__: JSON.stringify(readPackageInfo()),
 		__HARNESS_HOOK_BUNDLE__: JSON.stringify('__HARNESS_HOOK_BUNDLE_PLACEHOLDER__'),
-		__NEST_TEMPLATE__: JSON.stringify(readFrameworkTemplate('nest'))
+		__NEST_TEMPLATE__: JSON.stringify(readFrameworkTemplate('nest')),
+		__REACT_TEMPLATE__: JSON.stringify(readFrameworkTemplate('react'))
 	},
 	resolve: {
 		tsconfigPaths: true

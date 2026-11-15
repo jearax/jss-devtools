@@ -11,7 +11,7 @@ export const presetsSection: DocSection = {
 	body: (
 		<>
 			<p>
-				<code>--framework</code> declares five choices. Two of them are implemented.
+				<code>--framework</code> declares five choices. Three of them are implemented.
 			</p>
 			<table>
 				<thead>

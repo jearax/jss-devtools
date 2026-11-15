@@ -74,6 +74,12 @@ describe('standalone bundle', () => {
 		expect(stdout.trim()).toBe('false');
 	});
 
+	it('embeds the react template, so --framework react works from the bundle', async () => {
+		const text = await readFile(resolve(projectRoot, 'di' + 'st/cli.mjs'), 'utf8');
+
+		expect(text.match(/createAppRouter/g)?.length ?? 0).toBeGreaterThanOrEqual(1);
+	});
+
 	it('prints help', async () => {
 		const { stdout, code } = await cli('--help');
 
@@ -211,6 +217,7 @@ Examples:
   $ jss-devtools init my-app --pm pnpm -y                    Create my-app with pnpm, no questions (CI)
   $ jss-devtools init my-api --framework nest -y             Create my-api as a Nest 12 app
   $ jss-devtools init my-api --framework nest --no-sample -y Create it without the example domain
+  $ jss-devtools init my-web --framework react -y            Create my-web as a Vite React app
   $ jss-devtools init my-app --monorepo                      Create my-app as a Turborepo monorepo
   $ jss-devtools init                                        Set up the project in the current folder
   $ jss-devtools init -f                                     Replace existing ESLint, Prettier and commitlint configs

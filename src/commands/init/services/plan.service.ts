@@ -10,6 +10,7 @@ import { harnessInstallEntries } from '@/modules/harness/services/install-plan.s
 import { existingModeEntries, readIfExists } from './existing-entries.service';
 import { monorepoCreateModeEntries } from './monorepo-plan.service';
 import { nestCreateModeEntries } from './nest-plan.service';
+import { reactCreateModeEntries } from './react-plan.service';
 import { sharedToolchainEntries } from './shared-toolchain-plan.service';
 
 import type { InitOptions } from '@/commands/init/types/init-options.type';
@@ -109,7 +110,9 @@ export const buildInitPlan = (preflight: InitPreflight, options: InitOptions): I
 					? monorepoCreateModeEntries(preflight, options)
 					: options.framework === 'nest'
 						? nestCreateModeEntries(preflight, options)
-						: createModeEntries(preflight, options)
+						: options.framework === 'react'
+							? reactCreateModeEntries(preflight, options)
+							: createModeEntries(preflight, options)
 				: existingModeEntries(preflight, options)),
 			...harnessEntries(preflight, options)
 		]

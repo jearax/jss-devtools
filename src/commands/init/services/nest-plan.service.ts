@@ -1,13 +1,12 @@
 import { NEST_TEMPLATE_FILES } from '@/commands/init/constants/nest-template.constant';
-import { NODE_PRESET_DEPENDENCIES } from '@/commands/init/constants/node-preset-dependency.constant';
 
 import { derivePackageName } from './plan.service';
+import { planEntry, templateManifest } from './shared-template-plan.service';
 import { sharedToolchainEntries } from './shared-toolchain-plan.service';
 
 import type { InitOptions } from '@/commands/init/types/init-options.type';
 import type { InitPreflight, PlanEntry } from '@/commands/init/types/init-plan.type';
 
-const NEST_TEMPLATE_PACKAGE_JSON = 'package.json';
 const NEST_APP_FOLDER = 'nest';
 const NEST_APP_MODULE = 'src/app/app.module.ts';
 const NO_SAMPLE_GITKEEP = 'src/domains/.gitkeep';
@@ -39,58 +38,6 @@ const appModuleWithoutCourseModule = (path: string, raw: string): string => {
 	return withoutImport.replace(COURSE_MODULE_ENTRY, '');
 };
 
-type NestManifest = {
-	name: string;
-	devDependencies: Record<string, string>;
-};
-
-const planEntry = (path: string, content: string): PlanEntry => {
-	return {
-		action: 'create',
-		path,
-		content
-	};
-};
-
-// The nest scripts run through the nest CLI (dev is `nest start --watch`, `nest build` rewrites the
-// @/ paths), so the node preset's tsx runner and tsc-alias resolver have no call site in a nest app.
-const NODE_ONLY_RUNTIME_TOOLS = ['tsc-alias', 'tsx'] as const;
-
-const sharedDevDependencies = (): Record<string, string> => {
-	return Object.fromEntries(
-		Object.entries(NODE_PRESET_DEPENDENCIES)
-			.filter(([name]) => {
-				return !(NODE_ONLY_RUNTIME_TOOLS as readonly string[]).includes(name);
-			})
-			.map(([name, version]) => {
-				return [name, `^${version}`];
-			})
-	);
-};
-
-const nestManifest = (packageName: string): string => {
-	const raw = NEST_TEMPLATE_FILES[NEST_TEMPLATE_PACKAGE_JSON];
-
-	if (raw === undefined) {
-		throw new Error(`the embedded nest template has no ${NEST_TEMPLATE_PACKAGE_JSON}`);
-	}
-
-	const manifest = JSON.parse(raw) as NestManifest;
-
-	return `${JSON.stringify(
-		{
-			...manifest,
-			name: packageName,
-			devDependencies: {
-				...manifest.devDependencies,
-				...sharedDevDependencies()
-			}
-		},
-		null,
-		'\t'
-	)}\n`;
-};
-
 const nestTemplateEntries = (pathPrefix: string, packageName: string, sample: boolean): readonly PlanEntry[] => {
 	const entries = Object.entries(NEST_TEMPLATE_FILES)
 		.filter(([path]) => {
@@ -98,8 +45,8 @@ const nestTemplateEntries = (pathPrefix: string, packageName: string, sample: bo
 		})
 		.map(([path, content]) => {
 			const text =
-				path === NEST_TEMPLATE_PACKAGE_JSON
-					? nestManifest(packageName)
+				path === 'package.json'
+					? templateManifest(NEST_TEMPLATE_FILES, packageName, 'nest')
 					: path === NEST_APP_MODULE && !sample
 						? appModuleWithoutCourseModule(path, content)
 						: content;

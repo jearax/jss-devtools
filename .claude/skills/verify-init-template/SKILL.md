@@ -1,7 +1,7 @@
 ---
 name: verify-init-template
 description: >
-  Prove a template-generated project (templates/nest/, future framework templates) on pnpm,
+  Prove a template-generated project (templates/nest/, templates/react/, future templates) on pnpm,
   npm, yarn 1 and bun: build the scratch harness with the shared toolchain, run the checks
   and the serve proof, without polluting the repository. Use when a plan phase must prove a
   template installs, lints, typechecks, builds, tests and serves, or when re-proving after
@@ -15,11 +15,12 @@ metadata:
 
 ## Prefer the real CLI first
 
-Since the nest preset is wired into init (plan 261112-1647), the fast path needs no donor: build and
-run `node dist/cli.mjs init <dir> --framework nest --pm <pm> -y` — init itself merges the template
-and the shared toolchain. `tests/init-nest.e2e.test.ts` automates this per manager (gated by
-`INIT_E2E=1`). The donor procedure below is only for proving a raw template against an older bundle,
-or a template init does not wire yet.
+Since the nest and react presets are wired into init (plans 261112-1647 and 261115-0643), the fast
+path needs no donor: build and run `node dist/cli.mjs init <dir> --framework nest --pm <pm> -y`
+(or `--framework react`) — init itself merges the template and the shared toolchain.
+`tests/init-nest.e2e.test.ts` and `tests/init-react.e2e.test.ts` automate this per manager (gated
+by `INIT_E2E=1`). The donor procedure below is only for proving a raw template against an older
+bundle, or a template init does not wire yet.
 
 ## Harness setup (per manager, fresh copy; donor path)
 
@@ -53,6 +54,27 @@ redaction, and confirm the health route is silent in the request log. Kill the s
 `lsof -i :<port>` before trusting
 the result — a stale server from another shell session answers otherwise (`kill %1` does not
 reach it).
+
+## React template variant
+
+The react template has no test runner: the chain is `install` → `lint` → `typecheck` (`tsc -b`)
+→ `build` (`tsc -b && vite build`) → `prettier --check .`. Serve proof is `vite preview --port
+<free> --strictPort` (no env needed): `GET /` and a nested route (`/dashboard`) answer 200 with
+HTML — SPA fallback serves index.html for any path, so the 200s prove the server and build output,
+not the JS; the build's green exit is what proves `@/` resolution. Stop the server with SIGTERM and
+prove the port binds again before trusting the result, the same `lsof -i :<port>` discipline as the
+nest chain. React Compiler proof:
+`grep -c memo_cache_sentinel dist/assets/*.js` — one match in each lazy page chunk (the sentinel
+is emitted into the components the compiler transformed). `getCacheForType` in the index chunk is
+React's own dispatcher and is not proof. For a final (pre-hand-off) proof, merge the pinned
+versions from `NODE_PRESET_DEPENDENCIES` instead of the donor's carets, so the scratch installs
+exactly what init will ship.
+
+Render proof: neither the 200s nor the build show that a page renders or a guard redirects. Drive
+the preview in headless Chromium with the `playwright` already installed under `site/node_modules`
+(load it through `createRequire`), from a script kept in the scratchpad: read `#root`'s text on
+`/`, on a guarded route signed out and signed in, and on an unknown path, and fail on any
+`pageerror` or console error.
 
 ## Folding fixes back
 

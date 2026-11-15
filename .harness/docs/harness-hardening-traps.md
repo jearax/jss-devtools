@@ -34,6 +34,10 @@ a 200 kB line took 17 seconds until the classes were bounded. Token samples in t
 built at run time (`'sk_' + 'live_' + 'x'.repeat(24)`), so no literal token sits in the test file
 for GitHub push protection or a scanner to flag.
 
+The doctor content check matches prose and placeholders too: a credential word before a colon, an
+Authorization header, a URL with a password. Reword the sentence instead of marking the line
+(`src/modules/harness/services/redaction.service.ts`).
+
 ## Test helpers
 
 `ageBase` in `tests/harness-update.test.ts` rewrites the manifest sha256 to match the drifted base
