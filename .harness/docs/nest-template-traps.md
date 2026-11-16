@@ -16,6 +16,10 @@ Policy lives in decisions [0047](../decisions/0047-init-nest-preset.md) and
 
 - `templates/nest/` has no `.gitignore` of its own, so after a local `nest build` there,
   `prettier --check .` fails on `dist/`; delete `dist/` first. A generated project ignores it.
+- Adding or moving a file under `templates/nest/src/` also edits the expected path lists in
+  `tests/init-plan.service.test.ts` (single and monorepo) and `NEST_TREE` in
+  `site/src/pages/Docs/pages/Nest/Nest.constant.ts`, which `tests/site-nest-docs.test.ts` checks;
+  the site change needs the site check sequence too.
 
 ## Conventions (user)
 

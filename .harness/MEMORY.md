@@ -22,11 +22,10 @@ Short facts about this repository, injected at every session start. Size limits 
 - Pins, `minimumReleaseAge`, peers, pnpm 11 `prepare` skips, `allowBuilds` and template `node_modules` traps: see .harness/docs/pins-and-template-deps.md
 - A `scripts/*.mjs` export that a `.ts` test imports must be mirrored in the sibling `.d.mts` (tsc reads the declaration, runtime reads the `.mjs`; no `allowJs`), or the script runs while `pnpm typecheck` fails. (src: scripts/pin-helpers.d.mts)
 - Spreading a template's shared const reorders the generated JSON's keys and breaks byte-exact snapshots; derive variants by destructuring-omit. (src: src/commands/init/templates/tsconfig-json.template.ts)
-- Nest template traps (tsx breaks DI, `.js` imports, injected-field naming, env file order, @nestjs/i18n quirks): see .harness/docs/nest-template-traps.md
+- Nest template traps (tsx breaks DI, `.js` imports, injected-field naming, env file order, @nestjs/i18n quirks, the file-list tests): see .harness/docs/nest-template-traps.md
 - React template traps (ESLint 10 brace globs, the react-refresh config shape, polymorphic prop types, OpenFeature flag typing): see .harness/docs/react-template-traps.md
 - Prettier CLI exits 2 on a no-parser file (husky scripts, `.gitignore`) even mixed with formattable ones, but skips explicitly passed `.prettierignore`d files with exit 0; init's format step filters by extension. (src: src/commands/init/services/init-format.service.ts)
-- The user commits straight to `main`, only on request;
-- Division of labour (user): trivial fixes the assistant applies directly; large or design-bearing changes go through a plan to the cooker agent. pushing deploys, so never push unasked. A plan must not name a worktree or a feature branch: cook follows that text literally and implements in the wrong tree.
+- The user commits straight to `main`, only on request, and pushes only when asked. Division of labour (user): trivial fixes the assistant applies directly; large or design-bearing changes go through a plan to the cooker agent. A plan must not name a worktree or a feature branch: cook follows it literally.
 - `pnpm test -- <file>` ignores the file filter and runs the whole suite; run one suite with `pnpm vitest run <file>` (e2e: prefix `INIT_E2E=1`, after `pnpm build`). (src: tests/init.e2e.test.ts)
 - `tests/init-nest.e2e.test.ts` passes 12/12 under `INIT_E2E=1` but the file can be marked failed: its `afterAll` rm of twelve installed projects exceeds vitest's 10s `hookTimeout`. The cleanup timeout is the only failure; don't debug the suite for it.
 - `pnpm build` does not typecheck: tsdown strips types, so a tsc-only error builds into a broken bundle; run `pnpm typecheck` before launching a long INIT_E2E run against `dist/cli.mjs`.
