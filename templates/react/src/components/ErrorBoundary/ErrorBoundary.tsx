@@ -1,14 +1,12 @@
-import { type ErrorInfo, type ReactNode } from 'react';
+import { type ErrorInfo, type PropsWithChildren } from 'react';
 import { ErrorBoundary as ReactErrorBoundary, type FallbackProps, getErrorMessage } from 'react-error-boundary';
 
 import ErrorState from '@/components/ErrorState/ErrorState';
 import { reportError } from '@/services/error-reporting.service';
 
-export interface ErrorBoundaryProps {
-	children: ReactNode;
-}
+export interface ErrorBoundaryProps extends PropsWithChildren {}
 
-const AppErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
+const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
 	return (
 		<ErrorState
 			title="Something went wrong"
@@ -27,7 +25,7 @@ const handleError = (error: unknown, info: ErrorInfo) => {
 
 const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
 	return (
-		<ReactErrorBoundary FallbackComponent={AppErrorFallback} onError={handleError}>
+		<ReactErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
 			{children}
 		</ReactErrorBoundary>
 	);

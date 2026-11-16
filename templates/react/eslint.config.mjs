@@ -119,6 +119,10 @@ const eslintConfig = defineConfig(
 			],
 			'@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
 
+			// An interface extending only PropsWithChildren is the declared props shape of a
+			// children-only wrapper, not a type alias in disguise.
+			'@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
+
 			'prefer-arrow-functions/prefer-arrow-functions': ['error', { returnStyle: 'explicit' }],
 			'arrow-body-style': ['error', 'always'],
 

@@ -10,19 +10,20 @@ Policy lives in decision [0057](../decisions/0057-init-react-preset.md).
   `src/**/*` (`templates/react/eslint.config.mjs`).
 - `eslint-plugin-react-refresh` 0.5.7 exports `configs.vite` as a config object, not a function;
   calling it crashes the ESLint config load (`templates/react/eslint.config.mjs`).
-- A conditional prop type over a generic (`ComponentProps<C>` or `ComponentPropsWithRef<C>` with
-  `C extends ElementType`) collapses to `any` when destructured or passed to `createElement`, and
-  trips `no-unsafe-argument`. Keep the public type and render through JSX spread with the element
-  cast to `ElementType` (`templates/react/src/components/Polymorphic/Polymorphic.tsx`).
+- A conditional prop type over a generic (`ComponentProps<C>` with `C extends ElementType`)
+  collapses to `any` when destructured or passed to `createElement`, and trips
+  `no-unsafe-argument`. Keep the public type and render through JSX spread; with `NoInfer` on the
+  element's props, `as` is the only inference site and the spread needs no cast
+  (`templates/react/src/components/Polymorphic/Polymorphic.tsx`).
 - Moving a folder changes the alphabet the import order sorts by: after a rename like `layouts/` into
   `components/layouts/`, `import-x/order` fails in the files that import it, and only a generated
   app catches it — the repository never lints into `templates/`. After any template move, generate
   an app and lint it before folding the template back
   (`templates/react/src/router/router.tsx`, proven by the illustrators and layouts moves).
 - typescript-eslint's `no-empty-object-type` rejects an interface that only extends another
-  (`interface XProps extends PropsWithChildren {}`), so a props interface declares its members
-  directly: `children?: ReactNode | undefined` mirrors `PropsWithChildren` and passes lint
-  (`templates/react/src/hocs/AuthGuard/AuthGuard.tsx`).
+  (`interface XProps extends PropsWithChildren {}`) unless `allowSingleExtends` is on, which the
+  template's ESLint sets for its children-only wrappers
+  (`templates/react/eslint.config.mjs`).
 - The react-hooks preset enforces the React Compiler rule against creating a component during
   render ("Components created during render will reset their state"): a `Providers` that builds a
   composed component in its body fails lint. Nest the provider elements instead — `reduceRight`
