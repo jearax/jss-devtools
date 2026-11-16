@@ -1,6 +1,8 @@
 import type { PackageManagerName } from '@/commands/init/templates/package-json.template';
 
-export type InitFramework = 'node' | 'react' | 'rn' | 'next' | 'nest';
+export const INIT_FRAMEWORKS = ['node', 'react', 'rn', 'next', 'nest'] as const;
+
+export type InitFramework = (typeof INIT_FRAMEWORKS)[number];
 
 export type InitOptions = {
 	yes?: true;
@@ -8,7 +10,7 @@ export type InitOptions = {
 	pm?: PackageManagerName;
 	force?: true;
 	monorepo?: true;
-	framework?: InitFramework;
+	framework?: readonly InitFramework[];
 	sample?: boolean;
 	vscode?: boolean;
 	harness?: boolean;

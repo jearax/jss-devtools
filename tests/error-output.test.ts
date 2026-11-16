@@ -496,7 +496,7 @@ describe('the exit 1 output, one test per error row', () => {
 	it('E19: a framework other than node, nest or react', () => {
 		expect(
 			failureSync(() => {
-				validateInitArguments([], { framework: 'rn' });
+				validateInitArguments([], { framework: ['rn'] });
 			})
 		).toBe(['│', '└  Framework rn is not supported yet', '   ↳ Only node, nest and react are', ''].join('\n'));
 	});
@@ -504,7 +504,7 @@ describe('the exit 1 output, one test per error row', () => {
 	it('E19: --framework nest without a folder names the create command', () => {
 		expect(
 			failureSync(() => {
-				validateInitArguments([], { framework: 'nest' });
+				validateInitArguments([], { framework: ['nest'] });
 			})
 		).toBe(
 			[

@@ -26,12 +26,12 @@ describe('init argument rules', () => {
 
 		expect(
 			messageOf(() => {
-				validateInitArguments([], { framework: 'rn' });
+				validateInitArguments([], { framework: ['rn'] });
 			})
 		).toBe('Framework rn is not supported yet');
 		expect(
 			messageOf(() => {
-				validateInitArguments([], { framework: 'next' });
+				validateInitArguments([], { framework: ['next'] });
 			})
 		).toBe('Framework next is not supported yet');
 		expectsUnchangedDir(dir, before);
@@ -41,7 +41,7 @@ describe('init argument rules', () => {
 
 	it('accepts --framework react with <dir>', () => {
 		expect(() => {
-			validateInitArguments(['my-web'], { framework: 'react' });
+			validateInitArguments(['my-web'], { framework: ['react'] });
 		}).not.toThrow();
 	});
 
@@ -51,7 +51,7 @@ describe('init argument rules', () => {
 
 		expect(
 			messageOf(() => {
-				validateInitArguments([], { framework: 'react' });
+				validateInitArguments([], { framework: ['react'] });
 			})
 		).toBe('Framework react needs <dir>');
 		expectsUnchangedDir(dir, before);
@@ -61,7 +61,7 @@ describe('init argument rules', () => {
 
 	it('accepts --framework nest with <dir>', () => {
 		expect(() => {
-			validateInitArguments(['my-api'], { framework: 'nest' });
+			validateInitArguments(['my-api'], { framework: ['nest'] });
 		}).not.toThrow();
 	});
 
@@ -71,7 +71,7 @@ describe('init argument rules', () => {
 
 		expect(
 			messageOf(() => {
-				validateInitArguments([], { framework: 'nest' });
+				validateInitArguments([], { framework: ['nest'] });
 			})
 		).toBe('Framework nest needs <dir>');
 		expectsUnchangedDir(dir, before);
@@ -152,7 +152,7 @@ describe('init argument rules', () => {
 		expect(
 			messageOf(() => {
 				validateInitArguments(['my-app'], {
-					framework: 'node',
+					framework: ['node'],
 					sample: false
 				});
 			})
@@ -160,7 +160,7 @@ describe('init argument rules', () => {
 		expect(
 			messageOf(() => {
 				validateInitArguments(['my-web'], {
-					framework: 'react',
+					framework: ['react'],
 					sample: false
 				});
 			})
@@ -175,10 +175,55 @@ describe('init argument rules', () => {
 	it('accepts --no-sample with --framework nest', () => {
 		expect(() => {
 			validateInitArguments(['my-api'], {
-				framework: 'nest',
+				framework: ['nest'],
 				sample: false
 			});
 		}).not.toThrow();
+	});
+
+	it('accepts several frameworks with --monorepo, --no-sample included when nest is one of them', () => {
+		expect(() => {
+			validateInitArguments(['my-app'], {
+				monorepo: true,
+				framework: ['nest', 'react', 'node'],
+				sample: false
+			});
+		}).not.toThrow();
+	});
+
+	it('exits 1 for several frameworks without --monorepo', () => {
+		expect(
+			messageOf(() => {
+				validateInitArguments(['my-app'], { framework: ['nest', 'react'] });
+			})
+		).toBe('Several frameworks need --monorepo');
+	});
+
+	it('exits 1 for a framework listed twice, with or without --monorepo', () => {
+		expect(
+			messageOf(() => {
+				validateInitArguments(['my-app'], {
+					monorepo: true,
+					framework: ['nest', 'react', 'nest']
+				});
+			})
+		).toBe('Framework nest is listed twice');
+		expect(
+			messageOf(() => {
+				validateInitArguments(['my-app'], { framework: ['react', 'react'] });
+			})
+		).toBe('Framework react is listed twice');
+	});
+
+	it('exits 1 for an unsupported framework anywhere in the list', () => {
+		expect(
+			messageOf(() => {
+				validateInitArguments(['my-app'], {
+					monorepo: true,
+					framework: ['nest', 'next']
+				});
+			})
+		).toBe('Framework next is not supported yet');
 	});
 
 	it('picks create mode with <dir> and existing mode without', () => {

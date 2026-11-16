@@ -19,7 +19,7 @@ import type { InitPreflight, PlanEntry } from '@/commands/init/types/init-plan.t
 export const monorepoCreateModeEntries = (preflight: InitPreflight, options: InitOptions): readonly PlanEntry[] => {
 	const { pm, projectName, pmVersion } = preflight;
 	const packageName = derivePackageName(projectName);
-	const framework = options.framework ?? 'node';
+	const frameworks = options.framework ?? ['node'];
 
 	const at = (path: string, content: string): PlanEntry => {
 		return {
@@ -29,8 +29,8 @@ export const monorepoCreateModeEntries = (preflight: InitPreflight, options: Ini
 		};
 	};
 
-	const appEntries =
-		framework === 'nest'
+	const appEntries = frameworks.flatMap((framework) => {
+		return framework === 'nest'
 			? nestMonorepoAppEntries(preflight, options)
 			: framework === 'react'
 				? reactMonorepoAppEntries(preflight)
@@ -39,6 +39,7 @@ export const monorepoCreateModeEntries = (preflight: InitPreflight, options: Ini
 						at(`apps/${framework}/tsconfig.json`, appTsconfigJsonTemplate()),
 						at(`apps/${framework}/src/main.ts`, srcMainTemplate({ projectName }))
 					];
+	});
 
 	const entries = [
 		at(

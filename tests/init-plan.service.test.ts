@@ -274,7 +274,7 @@ describe('the plan, create mode with --framework nest', () => {
 			},
 			{
 				harness: false,
-				framework: 'nest',
+				framework: ['nest'],
 				...options
 			}
 		);
@@ -540,7 +540,7 @@ describe('the plan, create mode with --framework react', () => {
 			},
 			{
 				harness: false,
-				framework: 'react',
+				framework: ['react'],
 				...options
 			}
 		);
@@ -1245,5 +1245,52 @@ describe('rendering the plan', () => {
 
 		expect(heading).toBe('Changes in my-app: 13 to create');
 		expect(heading).not.toContain(ESC);
+	});
+});
+
+describe('the plan, create mode with --monorepo and several frameworks', () => {
+	const monorepoPaths = (framework: readonly ('node' | 'nest' | 'react')[], options: Record<string, unknown> = {}) => {
+		return renderPlan(
+			buildInitPlan(
+				{
+					...createPreflight('/tmp/nowhere'),
+					pm: 'pnpm'
+				},
+				{
+					harness: false,
+					monorepo: true,
+					framework,
+					...options
+				}
+			)
+		)
+			.split('\n')
+			.map((line) => {
+				return line.replace(/^[+~-] /, '');
+			});
+	};
+
+	it('writes one apps/<framework> per framework and the root toolchain once', () => {
+		const paths = monorepoPaths(['nest', 'react', 'node']);
+
+		const expected = [
+			...new Set([...monorepoPaths(['nest']), ...monorepoPaths(['react']), ...monorepoPaths(['node'])])
+		].sort(comparePlanPaths);
+
+		expect(paths).toEqual(expected);
+		expect(new Set(paths).size).toBe(paths.length);
+		expect(paths).toContain('apps/nest/src/main.ts');
+		expect(paths).toContain('apps/react/src/main.tsx');
+		expect(paths).toContain('apps/node/src/main.ts');
+	});
+
+	it('applies --no-sample to the nest app only', () => {
+		const paths = monorepoPaths(['nest', 'react'], { sample: false });
+
+		expect(paths).toContain('apps/nest/src/domains/.gitkeep');
+		expect(paths).not.toContain('apps/nest/src/domains/learning/course/course.module.ts');
+		expect(paths).toEqual(
+			[...new Set([...monorepoPaths(['nest'], { sample: false }), ...monorepoPaths(['react'])])].sort(comparePlanPaths)
+		);
 	});
 });

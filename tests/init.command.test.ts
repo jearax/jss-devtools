@@ -71,12 +71,13 @@ Arguments:
                       set up the current folder
 
 Options:
-  --framework <name>  Preset to apply (values: "node" | "react" | "rn" | "next"
-                      | "nest"; default: "node")
+  --framework <name>  Preset to apply; with --monorepo, several: nest,react or a
+                      repeated flag (values: "node" | "react" | "rn" | "next" |
+                      "nest"; default: "node")
   --pm <name>         Package manager for a new project (values: "bun" | "pnpm"
                       | "yarn" | "npm"; default: "npm")
-  --monorepo          Create a Turborepo with the app under apps/<framework>
-                      (default: off)
+  --monorepo          Create a Turborepo with each framework under
+                      apps/<framework> (default: off)
   --force, -f         Replace existing ESLint, Prettier, commitlint and editor
                       configs (init stops and lists them; default: off)
   --no-vscode         Do not write .vscode/ (default: written)
@@ -93,17 +94,19 @@ Options:
   --help, -h          Display help for command
 
 Examples:
-  $ jss-devtools init my-app                                 Create my-app, asking for the package manager
-  $ jss-devtools init my-app --pm pnpm -y                    Create my-app with pnpm, no questions (CI)
-  $ jss-devtools init my-api --framework nest -y             Create my-api as a Nest 12 app
-  $ jss-devtools init my-api --framework nest --no-sample -y Create it without the example domain
-  $ jss-devtools init my-web --framework react -y            Create my-web as a Vite React app
-  $ jss-devtools init my-app --monorepo                      Create my-app as a Turborepo monorepo
-  $ jss-devtools init                                        Set up the project in the current folder
-  $ jss-devtools init -f                                     Replace existing ESLint, Prettier and commitlint configs
-  $ jss-devtools init --no-harness                           Set up the toolchain without the harness
-  $ jss-devtools init --share-knowledge                      Let git track the harness knowledge
-  $ jss-devtools init --dry-run                              Show what would change, write nothing
+  $ jss-devtools init my-app                                               Create my-app, asking for the package manager
+  $ jss-devtools init my-app --pm pnpm -y                                  Create my-app with pnpm, no questions (CI)
+  $ jss-devtools init my-api --framework nest -y                           Create my-api as a Nest 12 app
+  $ jss-devtools init my-api --framework nest --no-sample -y               Create it without the example domain
+  $ jss-devtools init my-web --framework react -y                          Create my-web as a Vite React app
+  $ jss-devtools init my-app --monorepo                                    Create my-app as a Turborepo monorepo
+  $ jss-devtools init my-app --monorepo --framework nest,react             Create it with apps/nest and apps/react
+  $ jss-devtools init my-app --monorepo --framework nest --framework react The same, repeating the flag
+  $ jss-devtools init                                                      Set up the project in the current folder
+  $ jss-devtools init -f                                                   Replace existing ESLint, Prettier and commitlint configs
+  $ jss-devtools init --no-harness                                         Set up the toolchain without the harness
+  $ jss-devtools init --share-knowledge                                    Let git track the harness knowledge
+  $ jss-devtools init --dry-run                                            Show what would change, write nothing
 `;
 
 const originalExitCode = process.exitCode;
@@ -536,6 +539,61 @@ describe('the init command', () => {
 		expect(stdout).toContain('+ packages/.gitkeep');
 		expect(stdout).toContain('Dry run: nothing written');
 		expect(existsSync(join(dir, 'my-web'))).toBe(false);
+	});
+
+	it.each([
+		['comma-separated', ['--framework', 'nest,react']],
+		['repeated', ['--framework', 'nest', '--framework', 'react']],
+		['mixed', ['--framework', 'node', '--framework', 'nest,react']]
+	])('takes several frameworks with --monorepo, %s, and writes nothing in a dry run', async (_form, flags) => {
+		const dir = await useCwd();
+
+		const { stdout } = await runInit('my-app', '--monorepo', ...flags, '--dry-run', '--pm', 'pnpm');
+
+		expect(stdout).toContain('+ apps/nest/src/main.ts');
+		expect(stdout).toContain('+ apps/react/src/main.tsx');
+		expect(stdout).toContain('+ turbo.json');
+		expect(stdout).toContain('Dry run: nothing written');
+		expect(existsSync(join(dir, 'my-app'))).toBe(false);
+	});
+
+	it('refuses several frameworks without --monorepo', async () => {
+		await useCwd();
+
+		const { stderr } = await runInit('my-app', '--framework', 'nest,react', '--dry-run', '--pm', 'pnpm');
+
+		expect(stderr).toContain('Several frameworks need --monorepo');
+		expect(process.exitCode).toBe(1);
+	});
+
+	it('refuses a framework listed twice across the two forms', async () => {
+		const dir = await useCwd();
+
+		const { stderr } = await runInit(
+			'my-app',
+			'--monorepo',
+			'--framework',
+			'nest,react',
+			'--framework',
+			'nest',
+			'--dry-run',
+			'--pm',
+			'pnpm'
+		);
+
+		expect(stderr).toContain('Framework nest is listed twice');
+		expect(process.exitCode).toBe(1);
+		expect(existsSync(join(dir, 'my-app'))).toBe(false);
+	});
+
+	it('rejects a value outside the choices inside a comma-separated list at parse time', async () => {
+		await useCwd();
+
+		const { stderr } = await runInit('my-app', '--monorepo', '--framework', 'nest,vue');
+
+		expect(stderr).toContain("argument 'nest,vue' is invalid");
+		expect(stderr).toContain('Allowed choices are');
+		expect(process.exitCode).toBe(1);
 	});
 
 	it('suggests --dry-run for a misspelled flag and exits 1', async () => {

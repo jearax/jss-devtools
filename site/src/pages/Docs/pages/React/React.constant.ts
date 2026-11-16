@@ -126,7 +126,7 @@ export const REACT_SCRIPTS = `{
 
 /** The paragraphs of the monorepo section, rendered through `RichText`. */
 export const REACT_MONOREPO_PARAGRAPHS: readonly string[] = [
-	'With `--monorepo`, the app lands at `apps/react` as the workspace `@my-app/react`. The toolchain and the harness stay at the root, and every root script runs the app through turbo as in the node and nest presets.',
+	'With `--monorepo`, the app lands at `apps/react` as the workspace `@my-app/react`. The toolchain and the harness stay at the root, and every root script runs the app through turbo as in the node and nest presets. Listed with others, `--framework nest,react`, it sits beside them under `apps/`.',
 	'The preset only creates a project: setting up an existing folder with `--framework react` exits 1 and names the create command.'
 ];
 

@@ -239,8 +239,9 @@ same as the root help.
 Vite React app with `--framework react`;
 `init` sets up the current one. The syntax picks the mode; every edge case exits 1 with the finding
 and the next step. With `--monorepo`, create mode writes a Turborepo instead
-([0045](../decisions/0045-init-monorepo-creates-a-turborepo.md)): the toolchain and the harness
-once at the root, one app at `apps/<framework>` named `@<project>/<framework>`, and an empty
+([0045](../decisions/0045-init-monorepo-creates-a-turborepo.md),
+[0058](../decisions/0058-init-monorepo-takes-several-frameworks.md)): the toolchain and the harness
+once at the root, one app per framework at `apps/<framework>` named `@<project>/<framework>`, and an empty
 `packages/`; the install and the sort then run at the root, and the sort covers the app manifest
 too. Without the flag nothing changes. The nest preset is create mode only: an existing folder
 refuses `--framework nest` before any write, and the nest files are the embedded `templates/nest/`
@@ -294,16 +295,16 @@ The flags are declared once, as plain data in `src/core/constants/common-option.
 command attaches the ones it needs in its own `*.command.ts`. Core holds no commander import,
 because only a command file may import commander.
 
-| Flag                 | Meaning                                                                            |
-| -------------------- | ---------------------------------------------------------------------------------- |
-| `--yes, -y`          | Skip the questions and use the defaults                                            |
-| `--dry-run`          | Run preflight, show `+`, `~` and `-`, then the command that applies, write nothing |
-| `--force, -f`        | Replace the configs init owns, and delete their other documented names             |
-| `--pm <name>`        | Package manager for a new project; detected in existing mode, where it exits 1     |
-| `--framework <name>` | Preset to apply (`node`, `nest`, `react` implemented)                              |
-| `--monorepo`         | Create mode only: build a Turborepo with the app under `apps/<framework>`          |
-| `--no-vscode`        | Do not write `.vscode/`                                                            |
-| `--help, -h`         | commander's usage and options, plus an `Examples` section                          |
+| Flag                 | Meaning                                                                             |
+| -------------------- | ----------------------------------------------------------------------------------- |
+| `--yes, -y`          | Skip the questions and use the defaults                                             |
+| `--dry-run`          | Run preflight, show `+`, `~` and `-`, then the command that applies, write nothing  |
+| `--force, -f`        | Replace the configs init owns, and delete their other documented names              |
+| `--pm <name>`        | Package manager for a new project; detected in existing mode, where it exits 1      |
+| `--framework <name>` | Preset to apply (`node`, `nest`, `react` implemented); several with `--monorepo`    |
+| `--monorepo`         | Create mode only: build a Turborepo, one app per framework under `apps/<framework>` |
+| `--no-vscode`        | Do not write `.vscode/`                                                             |
+| `--help, -h`         | commander's usage and options, plus an `Examples` section                           |
 
 `doctor` asks nothing, so it has neither shared flag, and `jss-devtools doctor --yes` is an unknown
 option. The contracts of the flags are in

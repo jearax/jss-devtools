@@ -1,7 +1,7 @@
 ---
 id: 0045
 title: init --monorepo creates a Turborepo with one app under apps/<framework>
-status: Accepted
+status: partly superseded by 0058
 date: 2026-11-12
 supersedes: 0030 (the monorepo non-goal, for create mode only)
 ---

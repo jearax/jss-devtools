@@ -191,12 +191,13 @@ Arguments:
                       set up the current folder
 
 Options:
-  --framework <name>  Preset to apply (values: "node" | "react" | "rn" | "next"
-                      | "nest"; default: "node")
+  --framework <name>  Preset to apply; with --monorepo, several: nest,react or a
+                      repeated flag (values: "node" | "react" | "rn" | "next" |
+                      "nest"; default: "node")
   --pm <name>         Package manager for a new project (values: "bun" | "pnpm"
                       | "yarn" | "npm"; default: "npm")
-  --monorepo          Create a Turborepo with the app under apps/<framework>
-                      (default: off)
+  --monorepo          Create a Turborepo with each framework under
+                      apps/<framework> (default: off)
   --force, -f         Replace existing ESLint, Prettier, commitlint and editor
                       configs (init stops and lists them; default: off)
   --no-vscode         Do not write .vscode/ (default: written)
@@ -213,17 +214,19 @@ Options:
   --help, -h          Display help for command
 
 Examples:
-  $ jss-devtools init my-app                                 Create my-app, asking for the package manager
-  $ jss-devtools init my-app --pm pnpm -y                    Create my-app with pnpm, no questions (CI)
-  $ jss-devtools init my-api --framework nest -y             Create my-api as a Nest 12 app
-  $ jss-devtools init my-api --framework nest --no-sample -y Create it without the example domain
-  $ jss-devtools init my-web --framework react -y            Create my-web as a Vite React app
-  $ jss-devtools init my-app --monorepo                      Create my-app as a Turborepo monorepo
-  $ jss-devtools init                                        Set up the project in the current folder
-  $ jss-devtools init -f                                     Replace existing ESLint, Prettier and commitlint configs
-  $ jss-devtools init --no-harness                           Set up the toolchain without the harness
-  $ jss-devtools init --share-knowledge                      Let git track the harness knowledge
-  $ jss-devtools init --dry-run                              Show what would change, write nothing
+  $ jss-devtools init my-app                                               Create my-app, asking for the package manager
+  $ jss-devtools init my-app --pm pnpm -y                                  Create my-app with pnpm, no questions (CI)
+  $ jss-devtools init my-api --framework nest -y                           Create my-api as a Nest 12 app
+  $ jss-devtools init my-api --framework nest --no-sample -y               Create it without the example domain
+  $ jss-devtools init my-web --framework react -y                          Create my-web as a Vite React app
+  $ jss-devtools init my-app --monorepo                                    Create my-app as a Turborepo monorepo
+  $ jss-devtools init my-app --monorepo --framework nest,react             Create it with apps/nest and apps/react
+  $ jss-devtools init my-app --monorepo --framework nest --framework react The same, repeating the flag
+  $ jss-devtools init                                                      Set up the project in the current folder
+  $ jss-devtools init -f                                                   Replace existing ESLint, Prettier and commitlint configs
+  $ jss-devtools init --no-harness                                         Set up the toolchain without the harness
+  $ jss-devtools init --share-knowledge                                    Let git track the harness knowledge
+  $ jss-devtools init --dry-run                                            Show what would change, write nothing
 `);
 	});
 

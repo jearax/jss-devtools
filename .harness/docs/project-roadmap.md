@@ -189,6 +189,19 @@ Decision: [0057](../decisions/0057-init-react-preset.md), which partly supersede
   page's env table, scripts or tree drift from `templates/react/`. Traps the work hit are in
   [react-template-traps.md](./react-template-traps.md).
 
+## Done: init --monorepo takes several frameworks
+
+Decision: [0058](../decisions/0058-init-monorepo-takes-several-frameworks.md), which partly
+supersedes [0045](../decisions/0045-init-monorepo-creates-a-turborepo.md).
+
+- With `--monorepo`, `--framework` takes several values, comma-separated (`nest,react`), repeated
+  (`--framework nest --framework react`) or mixed, and writes one app per framework under
+  `apps/<framework>` beside one root toolchain. Several values without `--monorepo`, and a
+  framework listed twice, exit 1 before any write; `--no-sample` needs `nest` among them.
+- `tests/init-monorepo.e2e.test.ts` proves a `nest,react` monorepo per manager on `PATH`, gated
+  behind `INIT_E2E=1`: both apps lint, typecheck and build through turbo, a rebuild answers
+  `FULL TURBO`, and `prettier --check .` passes.
+
 ## Done: init installs the harness
 
 Plan: [../plans/261101-0204-init-harness/plan.md](../plans/261101-0204-init-harness/plan.md),

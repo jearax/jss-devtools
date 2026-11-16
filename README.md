@@ -89,10 +89,12 @@ lands at `apps/react`): an existing folder set up with `init` refuses it
 `/docs/react`.
 
 `jss-devtools init my-app --monorepo` creates a Turborepo instead: the toolchain and the harness
-once at the root, the app under `apps/node` (or `apps/nest` with `--framework nest`, or `apps/react`
-with `--framework react`), and an empty `packages/`, for bun, pnpm, yarn 1 and npm.
-It works in create mode only
-([decision 0045](.harness/decisions/0045-init-monorepo-creates-a-turborepo.md)).
+once at the root, one app per framework under `apps/<framework>` (`apps/node` by default), and an
+empty `packages/`, for bun, pnpm, yarn 1 and npm. With `--monorepo`, `--framework` takes several,
+comma-separated (`--framework nest,react`) or repeated (`--framework nest --framework react`), each
+listed once. It works in create mode only
+([decisions 0045](.harness/decisions/0045-init-monorepo-creates-a-turborepo.md) and
+[0058](.harness/decisions/0058-init-monorepo-takes-several-frameworks.md)).
 
 `init` installs the repository harness by default (`--no-harness` leaves it out): hooks for Claude
 Code, the skills, and `harness doctor`/`harness update`. Harness knowledge — the memory, the

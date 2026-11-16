@@ -6,24 +6,45 @@ import type { InitMode } from '@/commands/init/types/init-plan.type';
 export const validateInitArguments = (positional: readonly string[], options: InitOptions): void => {
 	const dir = positional[0];
 
-	if ((options.framework === 'nest' || options.framework === 'react') && dir === undefined) {
-		throw new CliError(`Framework ${options.framework} needs <dir>`, {
-			hint: `Create one with jss-devtools init <project-name> --framework ${options.framework}`
+	const frameworks = options.framework ?? [];
+
+	const repeated = frameworks.find((framework, index) => {
+		return frameworks.indexOf(framework) !== index;
+	});
+
+	if (repeated !== undefined) {
+		throw new CliError(`Framework ${repeated} is listed twice`, {
+			hint: 'List each framework once; each gets one apps/<framework>'
 		});
 	}
 
-	if (
-		options.framework !== undefined &&
-		options.framework !== 'node' &&
-		options.framework !== 'nest' &&
-		options.framework !== 'react'
-	) {
-		throw new CliError(`Framework ${options.framework} is not supported yet`, {
+	if (frameworks.length > 1 && options.monorepo !== true) {
+		throw new CliError('Several frameworks need --monorepo', {
+			hint: `Add --monorepo, or pass one --framework`
+		});
+	}
+
+	const unsupported = frameworks.find((framework) => {
+		return framework !== 'node' && framework !== 'nest' && framework !== 'react';
+	});
+
+	if (unsupported !== undefined) {
+		throw new CliError(`Framework ${unsupported} is not supported yet`, {
 			hint: 'Only node, nest and react are'
 		});
 	}
 
-	if (options.sample === false && options.framework !== 'nest') {
+	const needsDir = frameworks.find((framework) => {
+		return framework === 'nest' || framework === 'react';
+	});
+
+	if (needsDir !== undefined && dir === undefined) {
+		throw new CliError(`Framework ${needsDir} needs <dir>`, {
+			hint: `Create one with jss-devtools init <project-name> --framework ${needsDir}`
+		});
+	}
+
+	if (options.sample === false && !frameworks.includes('nest')) {
 		throw new CliError('--no-sample needs --framework nest', {
 			hint: 'The example domain ships only with the nest preset'
 		});

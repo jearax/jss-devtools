@@ -14,7 +14,7 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 	{
 		flag: '--framework <name>',
 		meaning:
-			'The preset to apply. `node`, `react` and `nest` work; `rn` and `next` are declared but not implemented. `nest` and `react` create a new project only — an existing folder refuses them.'
+			'The preset to apply. `node`, `react` and `nest` work; `rn` and `next` are declared but not implemented. `nest` and `react` create a new project only — an existing folder refuses them. With `--monorepo` it takes several, comma-separated (`nest,react`), repeated (`--framework nest --framework react`) or both, each listed once.'
 	},
 	{
 		flag: '--pm <name>',
@@ -23,7 +23,7 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 	{
 		flag: '--monorepo',
 		meaning:
-			'Create the project as a Turborepo: the toolchain and the harness at the root, one app under `apps/<framework>`, and an empty `packages/`. Create mode only, default off.'
+			'Create the project as a Turborepo: the toolchain and the harness at the root, one app per framework under `apps/<framework>`, and an empty `packages/`. Create mode only, default off.'
 	},
 	{
 		flag: '--force, -f',
@@ -37,7 +37,7 @@ export const INIT_OPTIONS: readonly InitOption[] = [
 	{
 		flag: '--no-sample',
 		meaning:
-			'Do not write the nest example domain; an empty `src/domains/.gitkeep` instead. Needs `--framework nest`, written by default.'
+			'Do not write the nest example domain; an empty `src/domains/.gitkeep` instead. Needs `nest` among the frameworks, written by default.'
 	},
 	{
 		flag: '--no-harness',

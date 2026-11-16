@@ -98,7 +98,8 @@ export const INIT_COMMANDS: readonly InitCommand[] = [
 
 /** The paragraphs of the monorepo section, rendered through `RichText`. */
 export const INIT_MONOREPO_PARAGRAPHS: readonly string[] = [
-	'With `--monorepo`, create mode builds a Turborepo instead of a single package. The toolchain and the harness are written once, at the root, next to a `turbo.json` and a `tsconfig.base.json`. One app lives at `apps/node`, named after `--framework`, as the workspace `@my-app/node`, and an empty `packages/` waits for shared code. Every script at the root runs through `turbo run`.',
+	'With `--monorepo`, create mode builds a Turborepo instead of a single package. The toolchain and the harness are written once, at the root, next to a `turbo.json` and a `tsconfig.base.json`. Each framework in `--framework` gets one app at `apps/<framework>`, as the workspace `@my-app/<framework>` — `apps/node` by default — and an empty `packages/` waits for shared code. Every script at the root runs through `turbo run`.',
+	'`--framework` takes several values only with `--monorepo`, in either community form or both mixed: comma-separated, `--framework nest,react`, or repeated, `--framework nest --framework react`. Both create `apps/nest` and `apps/react` in one Turborepo. A framework listed twice stops `init` before anything is written.',
 	'The flag is create mode only, and works with every manager: bun, pnpm, yarn 1 and npm. Without it, `init` writes exactly what it always has, and an existing project keeps the single-package flow.'
 ];
 

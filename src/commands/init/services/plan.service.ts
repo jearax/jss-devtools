@@ -108,9 +108,9 @@ export const buildInitPlan = (preflight: InitPreflight, options: InitOptions): I
 			...(preflight.mode === 'create'
 				? options.monorepo === true
 					? monorepoCreateModeEntries(preflight, options)
-					: options.framework === 'nest'
+					: options.framework?.[0] === 'nest'
 						? nestCreateModeEntries(preflight, options)
-						: options.framework === 'react'
+						: options.framework?.[0] === 'react'
 							? reactCreateModeEntries(preflight, options)
 							: createModeEntries(preflight, options)
 				: existingModeEntries(preflight, options)),

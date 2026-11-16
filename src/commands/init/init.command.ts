@@ -2,7 +2,7 @@ import { relative } from 'node:path';
 import { styleText } from 'node:util';
 
 import { confirm, intro, isCancel, log, outro } from '@clack/prompts';
-import { Option } from 'commander';
+import { InvalidArgumentError, Option } from 'commander';
 
 import { AGENT_KIT_INIT_COMMAND_LINE, agentKitInit } from '@/core/adapters/agent-kit.adapter';
 import { COMMON_OPTIONS } from '@/core/constants/common-option.constant';
@@ -20,8 +20,9 @@ import { validateInitArguments } from './services/init.service';
 import { buildInitPlan, planActionCounts, renderPlan, renderPlanHeading } from './services/plan.service';
 import { completePreflight, preflightFolderChecks } from './services/preflight.service';
 import { PACKAGE_MANAGERS } from './templates/package-json.template';
+import { INIT_FRAMEWORKS } from './types/init-options.type';
 
-import type { InitOptions } from './types/init-options.type';
+import type { InitFramework, InitOptions } from './types/init-options.type';
 import type { Command } from 'commander';
 
 export { prettierPaths, sortFailureMessage } from './services/init-format.service';
@@ -37,6 +38,8 @@ const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools init my-api --framework nest --no-sample -y', 'Create it without the example domain'],
 	['jss-devtools init my-web --framework react -y', 'Create my-web as a Vite React app'],
 	['jss-devtools init my-app --monorepo', 'Create my-app as a Turborepo monorepo'],
+	['jss-devtools init my-app --monorepo --framework nest,react', 'Create it with apps/nest and apps/react'],
+	['jss-devtools init my-app --monorepo --framework nest --framework react', 'The same, repeating the flag'],
 	['jss-devtools init', 'Set up the project in the current folder'],
 	['jss-devtools init -f', 'Replace existing ESLint, Prettier and commitlint configs'],
 	['jss-devtools init --no-harness', 'Set up the toolchain without the harness'],
@@ -50,18 +53,43 @@ const pmOption = new Option('--pm <name>', 'Package manager for a new project')
 	.choices([...PM_CHOICES])
 	.default(undefined, 'npm');
 
+const isInitFramework = (value: string): value is InitFramework => {
+	return (INIT_FRAMEWORKS as readonly string[]).includes(value);
+};
+
+// Repeated (`--framework nest --framework react`) and comma-separated (`nest,react`) values
+// accumulate into one list; duplicates are left for validateInitArguments to reject by name.
+const collectFrameworks = (value: string, previous: readonly InitFramework[] | undefined): InitFramework[] => {
+	const parsed = value.split(',').map((name) => {
+		const trimmed = name.trim();
+
+		if (!isInitFramework(trimmed)) {
+			throw new InvalidArgumentError(`Allowed choices are ${INIT_FRAMEWORKS.join(', ')}.`);
+		}
+
+		return trimmed;
+	});
+
+	return [...(previous ?? []), ...parsed];
+};
+
+// Like --pm: undefined when not passed, `default: "node"` in help only.
+const frameworkOption = new Option(
+	'--framework <name>',
+	'Preset to apply; with --monorepo, several: nest,react or a repeated flag'
+)
+	.choices([...INIT_FRAMEWORKS])
+	.argParser(collectFrameworks)
+	.default(undefined, 'node');
+
 export const registerInitCommand = (program: Command): void => {
 	program
 		.command('init')
 		.description('Create a project, or set up the current one')
 		.argument('[dir]', DIR_DESCRIPTION)
-		.addOption(
-			new Option('--framework <name>', 'Preset to apply')
-				.choices(['node', 'react', 'rn', 'next', 'nest'])
-				.default('node')
-		)
+		.addOption(frameworkOption)
 		.addOption(pmOption)
-		.option('--monorepo', 'Create a Turborepo with the app under apps/<framework> (default: off)')
+		.option('--monorepo', 'Create a Turborepo with each framework under apps/<framework> (default: off)')
 		.option(
 			'--force, -f',
 			'Replace existing ESLint, Prettier, commitlint and editor configs (init stops and lists them; default: off)'
