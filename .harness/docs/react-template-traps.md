@@ -20,8 +20,12 @@ Policy lives in decision [0057](../decisions/0057-init-react-preset.md).
   app catches it — the repository never lints into `templates/`. After any template move, generate
   an app and lint it before folding the template back
   (`templates/react/src/router/router.tsx`, proven by the illustrators and layouts moves).
+- The `no-empty-object-type` option for allowing an interface with one extends is
+  `allowInterfaces: 'with-single-extends'` in typescript-eslint 8; the old `allowSingleExtends`
+  spelling (from `no-empty-interface`) fails ESLint's config schema at load time
+  (`templates/react/eslint.config.mjs`).
 - typescript-eslint's `no-empty-object-type` rejects an interface that only extends another
-  (`interface XProps extends PropsWithChildren {}`) unless `allowSingleExtends` is on, which the
+  (`interface XProps extends PropsWithChildren {}`) unless `allowInterfaces: 'with-single-extends'` is set, which the
   template's ESLint sets for its children-only wrappers
   (`templates/react/eslint.config.mjs`).
 - The react-hooks preset enforces the React Compiler rule against creating a component during
