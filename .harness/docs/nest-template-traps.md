@@ -32,7 +32,7 @@ Policy lives in decisions [0047](../decisions/0047-init-nest-preset.md) and
 - On Express, `setGlobalPrefix` sends any path outside the prefix and its `exclude` list to
   Express's HTML 404, past every Nest filter; an envelope there needs a fallback of its own
   (decision 0051), appended after `app.init()` as the last Express handler, or any route added
-  later (a docs page, static files) answers 404 (`templates/nest/src/app/app.setup.ts`). `exclude`
+  later (a docs page, static files) answers 404 (`templates/nest/src/app/middlewares/not-found-fallback.middleware.ts`). `exclude`
   is matched without the version segment.
 - Nest runs global filters last-registered first, so a type-specific `APP_FILTER` goes after the
   `AllExceptionsFilter` catch-all, or the catch-all swallows its exceptions

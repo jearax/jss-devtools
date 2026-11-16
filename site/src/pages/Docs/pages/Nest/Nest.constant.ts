@@ -58,6 +58,7 @@ export const NEST_TREE = `src/
     filters/all-exceptions.filter.ts
     interceptors/response.interceptor.ts
     interfaces/api-response.interface.ts
+    middlewares/not-found-fallback.middleware.ts
     schemas/partial-update.schema.ts
   core/
     config/config.module.ts
