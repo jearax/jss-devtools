@@ -46,13 +46,12 @@ export const HARNESS_SESSION_CONTEXT: readonly string[] = [
 	'The harness memory, and how much of its character budget is used',
 	'The decision records in force',
 	'The index drift, as a warning',
-	'The knowledge state: shared through git, or private to this machine',
 	'The onboarding notice, until the harness has been seeded'
 ];
 
 /**
- * What harness knowledge covers, what each share mode keeps in git, and what private mode cannot
- * do. From `src/modules/harness/constants/harness-paths.constant.ts` and the ignore templates.
+ * What harness knowledge keeps in git, and what that means for a clone, a teammate and a backup.
+ * From `src/modules/harness/templates/claude-block.template.ts` and `.harness/.gitignore`.
  */
 export const HARNESS_KNOWLEDGE_TABLE: readonly { area: string; detail: string }[] = [
 	{

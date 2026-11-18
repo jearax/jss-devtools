@@ -89,6 +89,6 @@ the \`harness-review\` skill.
 
 Claim done only with commands you ran and output you saw. Report what changed, how you checked it,
 what you did not check, and what harness knowledge changed. Knowledge is committed with the work
-it describes, so list what changed and ask for no commit. The harness never commits.
+it describes; the harness itself never commits.
 <!-- HARNESS:END -->`;
 };
