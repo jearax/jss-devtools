@@ -44,9 +44,4 @@ the `harness-review` skill.
 - When a request contradicts a decision, name the decision first. Never edit an accepted decision:
   write a new one that supersedes it.
 
-## Done means proven
-
-Claim done only with commands you ran and output you saw. Report what changed, how you checked it,
-what you did not check, and what harness knowledge changed. Knowledge is committed with the work
-it describes; the harness itself never commits.
 <!-- HARNESS:END -->
