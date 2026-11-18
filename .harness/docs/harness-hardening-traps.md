@@ -44,3 +44,14 @@ Authorization header, a URL with a password. Reword the sentence instead of mark
 copy, so a test using it can never hit the base-drift refusal; write the base copy with
 `writeFile` directly instead. `harnessRelease` is stubbed in the update tests, so a test that
 depends on specific recorded files builds its own release object instead of relying on the stub.
+
+## The update preflight never diffs managed files at the same version
+
+`harness update` returns "Harness is up to date" whenever the manifest version equals the CLI
+version, every config key is present and the hook files match: the shortcut checks those three and
+never compares the managed files' hashes against the shipped templates, so a template change at the
+same version never re-renders. To force a re-render without a version bump, temporarily remove a
+config key (any one under `HARNESS_CONFIG_DEFAULTS`, e.g. `memory.maxChars`); `missingConfigKeys`
+then goes non-empty, the full plan runs, and the config-merge restores the key from defaults —
+write the plan in `--dry-run` first, then `git checkout -- .harness/config.json`: the merge rewrites
+it in defaults order, a reorder-only diff whose hash no longer matches the manifest's config entry.
