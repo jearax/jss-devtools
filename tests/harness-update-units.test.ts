@@ -6,11 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { applyCommandLineOf } from '@/core/utils/apply-command-line.util';
 import { hasConflictMarkers } from '@/modules/harness/services/block-region.service';
-import {
-	mergeHarnessConfig,
-	missingConfigKeys,
-	resolveKnowledgeShare
-} from '@/modules/harness/services/config-merge.service';
+import { mergeHarnessConfig, missingConfigKeys } from '@/modules/harness/services/config-merge.service';
 import { mergeThreeWay } from '@/modules/harness/services/three-way-merge.service';
 import { compareHarnessVersions } from '@/modules/harness/services/update-release.service';
 import { settingsAction } from '@/modules/harness/services/update-settings.service';
@@ -216,8 +212,7 @@ describe('the config merge', () => {
 		expect(result.conflictKeys).toEqual([]);
 		expect(JSON.parse(result.content)).toEqual({
 			...DEFAULTS,
-			review: { ...DEFAULTS.review },
-			knowledge: { share: true }
+			review: { ...DEFAULTS.review }
 		});
 	});
 
@@ -234,8 +229,7 @@ describe('the config merge', () => {
 
 		expect(result.conflictKeys).toEqual([]);
 		expect(JSON.parse(result.content)).toEqual({
-			...DEFAULTS,
-			knowledge: { share: true }
+			...DEFAULTS
 		});
 	});
 
@@ -244,8 +238,7 @@ describe('the config merge', () => {
 
 		expect(result.conflictKeys).toEqual([]);
 		expect(JSON.parse(result.content)).toEqual({
-			...DEFAULTS,
-			knowledge: { share: true }
+			...DEFAULTS
 		});
 	});
 
@@ -261,8 +254,7 @@ describe('the config merge', () => {
 			curator: {
 				...DEFAULTS.curator,
 				intervalDays: 14
-			},
-			knowledge: { share: true }
+			}
 		});
 	});
 
@@ -278,8 +270,7 @@ describe('the config merge', () => {
 			curator: {
 				...DEFAULTS.curator,
 				intervalDays: 14
-			},
-			knowledge: { share: true }
+			}
 		});
 	});
 
@@ -292,8 +283,17 @@ describe('the config merge', () => {
 		expect(result.conflictKeys).toEqual([]);
 		expect(JSON.parse(result.content)).toEqual({
 			...DEFAULTS,
-			extra: { keep: true },
-			knowledge: { share: true }
+			extra: { keep: true }
+		});
+	});
+
+	it('leaves a live knowledge key from an old install untouched', () => {
+		const result = mergeHarnessConfig(null, configWith({ knowledge: { share: false } }));
+
+		expect(result.conflictKeys).toEqual([]);
+		expect(JSON.parse(result.content)).toEqual({
+			...DEFAULTS,
+			knowledge: { share: false }
 		});
 	});
 
@@ -344,24 +344,5 @@ describe('settingsAction', () => {
 		expect(() => {
 			return settingsAction(dir);
 		}).toThrow(/Invalid JSON in \.claude\/settings\.json/);
-	});
-});
-
-describe('resolveKnowledgeShare', () => {
-	it.each([
-		['live boolean wins over the base', '{"knowledge": {"share": false}}', '{"knowledge": {"share": true}}', true],
-		['the base value wins when the live file lacks the key', '{"knowledge": {"share": true}}', '{}', true],
-		['an install predating the key has been sharing', null, '{}', true],
-		['unparsable text counts as sharing', 'not json', 'also not json', true]
-	])('%s', (_name, baseRaw, localRaw, expected) => {
-		expect(resolveKnowledgeShare(baseRaw, localRaw)).toBe(expected);
-	});
-
-	it('keeps a live false that matches its base', () => {
-		expect(resolveKnowledgeShare('{"knowledge": {"share": false}}', '{"knowledge": {"share": false}}')).toBe(false);
-	});
-
-	it('keeps a live false over a base true', () => {
-		expect(resolveKnowledgeShare('{"knowledge": {"share": true}}', '{"knowledge": {"share": false}}')).toBe(false);
 	});
 });

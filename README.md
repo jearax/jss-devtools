@@ -98,10 +98,10 @@ listed once. It works in create mode only
 
 `init` installs the repository harness by default (`--no-harness` leaves it out): hooks for Claude
 Code, the skills, and `harness doctor`/`harness update`. Harness knowledge — the memory, the
-decisions, the docs, the plans and learned skills — is gitignored by default;
-`init --share-knowledge` keeps it in git so a clone carries it
-([decision 0053](.harness/decisions/0053-knowledge-gitignored-unless-share-knowledge.md), and the
-[site's harness page](https://jss-devtools.jjuidev.com/docs/harness) documents the flag in full).
+decisions, the docs, the plans and learned skills — is ordinary tracked content, so a clone
+carries it ([decision 0059](.harness/decisions/0059-harness-knowledge-is-ordinary-tracked-content.md),
+and the [site's harness page](https://jss-devtools.jjuidev.com/docs/harness) documents the
+layout).
 On a repository set up by an older CLI build, run `jss-devtools harness update` once after
 installing this CLI: until then `harness doctor` reports the expected `Hook files` error, because
 the bundle changed outside `harness update`

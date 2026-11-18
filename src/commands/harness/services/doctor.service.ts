@@ -3,8 +3,7 @@ import { join } from 'node:path';
 
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
-import { HARNESS_CONFIG, HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
-import { resolveKnowledgeShare } from '@/modules/harness/services/config-merge.service';
+import { HARNESS_MANIFEST } from '@/modules/harness/constants/harness-paths.constant';
 import { readConfig } from '@/modules/harness/services/config.service';
 import { decisionsInForce } from '@/modules/harness/services/decisions.service';
 import { contentCheck } from '@/modules/harness/services/health-content.service';
@@ -16,7 +15,7 @@ import { symlinkIssues } from '@/modules/harness/services/health-symlinks.servic
 import { managedDriftIssues, stagedUpdateIssue, versionIssue } from '@/modules/harness/services/health-update.service';
 import { learnedSkillNames } from '@/modules/harness/services/learned-skills.service';
 import { readMemoryState } from '@/modules/harness/services/memory.service';
-import { readBaseCopy, readLiveFile, readManifest } from '@/modules/harness/services/update-manifest.service';
+import { readManifest } from '@/modules/harness/services/update-manifest.service';
 import { compareHarnessVersions } from '@/modules/harness/services/update-release.service';
 
 import type { CheckListRow, CheckStatus } from '@/core/ui/check-list.ui';
@@ -139,14 +138,6 @@ const summaryRows = async (
 		label: 'Learned skills',
 		status: 'ok',
 		detail: String(learnedSkillNames(root).length)
-	});
-
-	rows.push({
-		label: 'Knowledge',
-		status: 'ok',
-		detail: resolveKnowledgeShare(readBaseCopy(root, HARNESS_CONFIG), readLiveFile(root, HARNESS_CONFIG) ?? '{}')
-			? 'shared through git'
-			: 'private to this machine'
 	});
 
 	const { summary } = await contentCheck(root);

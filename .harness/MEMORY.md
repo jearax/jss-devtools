@@ -22,6 +22,7 @@ Short facts about this repository, injected at every session start. Size limits 
 - Pins, `minimumReleaseAge`, peers, pnpm 11 `prepare` skips, `allowBuilds` and template `node_modules` traps: see .harness/docs/pins-and-template-deps.md
 - A `scripts/*.mjs` export that a `.ts` test imports must be mirrored in the sibling `.d.mts` (tsc reads the declaration, runtime reads the `.mjs`; no `allowJs`), or the script runs while `pnpm typecheck` fails. (src: scripts/pin-helpers.d.mts)
 - Spreading a template's shared const reorders the generated JSON's keys and breaks byte-exact snapshots; derive variants by destructuring-omit. (src: src/commands/init/templates/tsconfig-json.template.ts)
+- A managed file leaving the harness install plan removes two entries (the file and its base copy): init plan-count assertions move by 2, not 1. (src: src/modules/harness/services/install-packaging.service.ts)
 - Nest template traps (tsx breaks DI, `.js` imports, injected-field naming, env file order, @nestjs/i18n quirks, the file-list tests): see .harness/docs/nest-template-traps.md
 - React template traps (ESLint 10 brace globs, the react-refresh config shape, polymorphic prop types, OpenFeature flag typing): see .harness/docs/react-template-traps.md
 - Prettier CLI exits 2 on a no-parser file (husky scripts, `.gitignore`) even mixed with formattable ones, but skips explicitly passed `.prettierignore`d files with exit 0; init's format step filters by extension. (src: src/commands/init/services/init-format.service.ts)

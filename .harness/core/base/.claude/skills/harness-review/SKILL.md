@@ -65,6 +65,6 @@ Harness review:
 - files: .harness/MEMORY.md, .claude/skills/deploy-preview/SKILL.md
 ```
 
-When knowledge is shared, commit them with the work they describe, so a revert carries both. If
+Commit them with the work they describe, so a revert carries both. If
 nothing qualifies, reply
 `Harness review: nothing to keep.`

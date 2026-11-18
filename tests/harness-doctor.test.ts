@@ -404,17 +404,6 @@ describe('harness doctor, the check table', () => {
 		expect(exitCode).toBe(1);
 	});
 
-	it('reports the knowledge state in the summary', async () => {
-		const dir = await makeRepo();
-
-		installHarness(dir);
-
-		const { stdout } = await runCli(dir);
-
-		expect(stdout).toContain('Knowledge');
-		expect(stdout).toContain('private to this machine');
-	});
-
 	it('errors on a secret-shaped value under .harness/, naming file, line and rule', async () => {
 		const dir = await makeRepo();
 

@@ -1,7 +1,7 @@
 ---
 id: 0053
 title: Harness knowledge is gitignored unless init is given --share-knowledge
-status: Accepted
+status: Superseded by 0059
 date: 2026-11-14
 supersedes: none
 ---

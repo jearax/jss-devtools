@@ -8,7 +8,7 @@ description: Seed the harness knowledge of a repository the harness was just ins
 \`.harness/BOOTSTRAP.md\` holds the steps for this repository; this skill holds the rules around them.
 
 1. Ask the user whether to onboard now. If not, stop; the hook asks again next session.
-2. If knowledge is shared and the repository has a remote, \`git pull\`. If
+2. If the repository has a remote, \`git pull\`. If
    \`.harness/BOOTSTRAP.md\` is gone afterwards, a teammate already onboarded: stop.
 3. Follow \`.harness/BOOTSTRAP.md\` step by step. Read only: install nothing, start nothing, change
    no code.
@@ -17,9 +17,8 @@ description: Seed the harness knowledge of a repository the harness was just ins
    words; code shows what the repository does, not what it must do.
 6. If \`jss-devtools\` is installed, run \`jss-devtools harness doctor\` and fix what it reports.
 7. Delete \`.harness/BOOTSTRAP.md\`.
-8. List every file you wrote and the deletion. When knowledge is shared, tell the user to commit
-   them: until that commit lands, every teammate is asked to onboard again. Never stage or commit
-   yourself.
+8. List every file you wrote and the deletion, and tell the user to commit them: until that commit
+   lands, every teammate is asked to onboard again. Never stage or commit yourself.
 
 ## Pitfalls
 
@@ -93,7 +92,7 @@ Harness review:
 - files: .harness/MEMORY.md, .claude/skills/deploy-preview/SKILL.md
 \`\`\`
 
-When knowledge is shared, commit them with the work they describe, so a revert carries both. If
+Commit them with the work they describe, so a revert carries both. If
 nothing qualifies, reply
 \`Harness review: nothing to keep.\`\n`;
 
@@ -122,8 +121,8 @@ Curation removes, merges and moves; it never adds knowledge, which is review's j
    personal entries alone.
 5. **Decisions**: when two decisions in force conflict, ask the user which wins, then write a new
    decision superseding the other.
-6. Never stage or commit. List every file changed, archive moves included, for the user to commit
-   when knowledge is shared, with \`.harness/curator.json\`, which the Stop hook updates at the end
+6. Never stage or commit. List every file changed, archive moves included, for the user to commit,
+   with \`.harness/curator.json\`, which the Stop hook updates at the end
    of this turn: committing it tells teammates the curation is done.
 
 ## Pitfalls

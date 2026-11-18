@@ -8,8 +8,7 @@ import type { HarnessConfig } from '@/modules/harness/types/hook.type';
 const EMPTY_CONFIG: HarnessConfig = {
 	review: {},
 	memory: {},
-	curator: {},
-	knowledge: {}
+	curator: {}
 };
 
 const REPAIR_HINT = 'run "jss-devtools harness update" to restore the default keys';

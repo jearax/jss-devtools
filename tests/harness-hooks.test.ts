@@ -8,7 +8,6 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { HOOK_ERROR_LOG_MAX_BYTES } from '@/modules/harness/constants/harness-limits.constant';
 import { HARNESS_CONFIG_DEFAULTS } from '@/modules/harness/templates/harness-config.template';
-import { harnessMemoryTemplate } from '@/modules/harness/templates/harness-seeds.template';
 
 import { makeEmptyDir, removeDir } from './support/tmp-dir';
 
@@ -411,44 +410,6 @@ describe('recording', () => {
 		expect(fails).toHaveLength(1);
 		expect(fails[0]).toMatchObject({ error: 'curl failed with [redacted]' });
 		expect(JSON.stringify(fails[0])).not.toContain('sk-live');
-	});
-});
-
-describe('knowledge seeding', () => {
-	it('reseeds a clone that lost the seeds and reports onboarding pending', () => {
-		rmSync(join(root, '.harness/MEMORY.md'));
-		rmSync(join(root, '.harness/decisions/README.md'), { force: true });
-		rmSync(join(root, '.harness/docs/README.md'), { force: true });
-		rmSync(join(root, '.harness/plans/README.md'), { force: true });
-
-		const context = sessionStart();
-
-		expect(readFileSync(join(root, '.harness/MEMORY.md'), 'utf8')).toBe(harnessMemoryTemplate);
-		expect(existsSync(join(root, '.harness/decisions/README.md'))).toBe(true);
-		expect(existsSync(join(root, '.harness/docs/README.md'))).toBe(true);
-		expect(existsSync(join(root, '.harness/plans/README.md'))).toBe(true);
-		expect(existsSync(join(root, '.harness/BOOTSTRAP.md'))).toBe(true);
-		expect(context).toContain('Harness knowledge: private to this machine (gitignored)');
-		expect(context).toContain('harness-onboard');
-	});
-
-	it('writes nothing when the key is true', () => {
-		write(
-			root,
-			'.harness/config.json',
-			JSON.stringify({
-				...DEFAULT_CONFIG,
-				knowledge: { share: true }
-			})
-		);
-		rmSync(join(root, '.harness/MEMORY.md'));
-
-		const context = sessionStart();
-
-		expect(existsSync(join(root, '.harness/MEMORY.md'))).toBe(false);
-		expect(existsSync(join(root, '.harness/BOOTSTRAP.md'))).toBe(false);
-		expect(context).toContain('Harness knowledge: shared through git');
-		expect(context).toContain('MEMORY.md is missing');
 	});
 });
 

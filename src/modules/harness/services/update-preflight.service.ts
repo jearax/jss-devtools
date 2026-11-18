@@ -16,7 +16,7 @@ import { loadUpdateSession } from './staging.service';
 import { ensureBaseCopies } from './update-base-copies.service';
 import { readManifest } from './update-manifest.service';
 import { compareHarnessVersions, INSTALL_COMMAND_LINE } from './update-release.service';
-import { ensureSafePaths, knowledgeInSync } from './update-safety.service';
+import { ensureSafePaths } from './update-safety.service';
 import { settingsAction } from './update-settings.service';
 
 import type { HarnessRelease, InstalledManifest } from '@/modules/harness/types/update.type';
@@ -148,8 +148,7 @@ export const runUpdatePreflight = async (
 		mode === 'update' &&
 		manifest.version === release.version &&
 		missingConfigKeys(liveConfigRaw(cwd, configInManifest)).length === 0 &&
-		hookFilesStatus(cwd, manifest).match &&
-		knowledgeInSync(cwd, release)
+		hookFilesStatus(cwd, manifest).match
 	) {
 		return {
 			status: 'up-to-date',

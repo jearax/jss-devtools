@@ -73,12 +73,6 @@ export const validateInitArguments = (positional: readonly string[], options: In
 			hint: 'Drop --no-harness'
 		});
 	}
-
-	if (options.shareKnowledge === true && options.harness === false) {
-		throw new CliError('Option --share-knowledge needs the harness', {
-			hint: 'Drop --no-harness'
-		});
-	}
 };
 
 export const resolveInitMode = (positional: readonly string[]): InitMode => {

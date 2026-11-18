@@ -1,11 +1,8 @@
 import { PACKAGE } from '@/core/constants/package.constant';
 import { CliError } from '@/core/errors/cli.error';
-import { HARNESS_CONFIG } from '@/modules/harness/constants/harness-paths.constant';
 
 import { usesAgentKit } from './agent-kit.service';
-import { resolveKnowledgeShare } from './config-merge.service';
 import { harnessRecordedFiles, harnessSeedRefreshes } from './install-plan.service';
-import { readBaseCopy, readLiveFile } from './update-manifest.service';
 
 import type { HarnessRelease } from '@/modules/harness/types/update.type';
 
@@ -112,11 +109,9 @@ export const compareHarnessVersions = (left: string, right: string): number => {
 export const harnessRelease = (root: string): HarnessRelease => {
 	const agentKit = usesAgentKit(root);
 
-	const share = resolveKnowledgeShare(readBaseCopy(root, HARNESS_CONFIG), readLiveFile(root, HARNESS_CONFIG) ?? '{}');
-
 	return {
 		version: PACKAGE.version,
-		files: harnessRecordedFiles(agentKit, share),
+		files: harnessRecordedFiles(agentKit),
 		seeds: harnessSeedRefreshes()
 	};
 };

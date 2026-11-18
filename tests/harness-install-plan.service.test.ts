@@ -394,18 +394,17 @@ describe('the harness install plan', () => {
 		const content = entryFor(harnessInstallEntries(createInput()), '.harness/config.json')?.content ?? '';
 
 		expect(JSON.parse(content)).toEqual({
-			review: { minToolCalls: 14 },
+			review: { minToolCalls: 21 },
 			memory: {
-				maxChars: 9600,
-				maxEntryChars: 320
+				maxChars: 12800,
+				maxEntryChars: 400
 			},
 			curator: {
 				minLearnedSkills: 10,
 				intervalDays: 7,
 				staleDays: 14,
 				archiveDays: 28
-			},
-			knowledge: { share: false }
+			}
 		});
 	});
 });

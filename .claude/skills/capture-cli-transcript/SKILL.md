@@ -44,9 +44,13 @@ metadata:
   byte-equality check comes back false.
 - The replayed screen's line endings carry xterm's own resets, so pasted lines may lack the trailing
   `\u001b[0m` the old constant had; paste as captured, never hand-edit escape codes.
+- When a generator script assembles the constant, a `'\u001b'` literal inside its own JS strings is
+  interpreted at string creation and writes a raw ESC byte into the file; write `\\u001b`, and when
+  an escape looks wrong inspect bytes with `od -c`, since grep hides a raw ESC.
 - The onboarded `harness doctor` numbers are artifacts of whatever sample answers you onboarded with;
   any three memory lines and one decision are fine. The constant must hold a real run, not a specific
-  number.
+  number, and the sample decision must quote the user (decision template) or the content check flags
+  the run and the capture shows an issue row.
 
 ## Verification
 

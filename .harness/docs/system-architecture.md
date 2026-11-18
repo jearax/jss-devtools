@@ -354,14 +354,13 @@ every candidate counts as published. A secret match is an error anywhere; a priv
 a published file. One issue per file names `<path>:<line> <rule>` for the first five matches
 ([0054](../decisions/0054-harness-doctor-is-the-only-guard.md)).
 
-**Knowledge sharing** (`services/config-merge.service.ts`). `knowledge.share` in
-`.harness/config.json` (default `false`, set by `init --share-knowledge`) decides whether the
-harness knowledge is tracked. `resolveKnowledgeShare(baseRaw, localRaw)` holds the migration rule:
-a live boolean wins, then the base copy's, then an install predating the key counts as sharing.
-`mergeHarnessConfig` never resets it to the default, `harnessRelease` resolves it to render the
-two ignore files, and the SessionStart hook states the value and seeds the knowledge files when
-the key is explicitly `false`
-([0053](../decisions/0053-knowledge-gitignored-unless-share-knowledge.md)).
+**Config merge** (`services/config-merge.service.ts`). `mergeHarnessConfig(baseRaw, localRaw)`
+brings every default key to the current default unless the repository edited it: an untouched key
+takes the new default, an edited key keeps the local value (with a conflict row when both sides
+changed it differently), and keys or groups that are not defaults pass through untouched — an old
+install's `knowledge.share` from [0053](../decisions/0053-knowledge-gitignored-unless-share-knowledge.md)
+is ignored this way, silently, by every reader
+([0059](../decisions/0059-harness-knowledge-is-ordinary-tracked-content.md)).
 
 The hooks never import the update chain (`update-manifest` pulls `install-plan`, which embeds the
 hook bundle constant): a hook-side read of config or state goes through the path-safety helpers

@@ -269,14 +269,28 @@ Decisions: [0052](../decisions/0052-hook-files-stay-in-the-repository.md) to
   `harness update` restores them; every harness read and write refuses a symlink.
 - The content check fails on secrets anywhere under the harness, and on home paths and e-mail
   addresses in the files git would publish; a line ending in `harness-doctor: allow` is skipped.
-- `init` gitignores harness knowledge unless `--share-knowledge`; an install that predates the
-  `knowledge.share` key keeps sharing.
+- `init` gitignored harness knowledge unless `--share-knowledge`; retired by
+  [0059](../decisions/0059-harness-knowledge-is-ordinary-tracked-content.md), which made the
+  knowledge ordinary tracked content.
 - The release stays 0.1.0, so an existing install reports the Hook files error until its first
   `harness update`.
 - This repository runs the released harness: `harness doctor` exits 0, and its plans, reports and
   decisions 0001 and 0014 hold no home path. Home paths are caught plain and in the dash-encoded
   form Claude Code uses for project and scratchpad folders
   ([plan](../plans/261114-1132-encoded-home-path-redaction/plan.md)).
+
+## Done: the share mode is retired
+
+Plan: [../plans/261118-2103-remove-share-knowledge/plan.md](../plans/261118-2103-remove-share-knowledge/plan.md).
+Decisions: [0059](../decisions/0059-harness-knowledge-is-ordinary-tracked-content.md) (supersedes 0053) and [0060](../decisions/0060-harness-config-defaults-21-12800-400.md).
+
+- Harness knowledge is ordinary tracked content; the `--share-knowledge` flag, the
+  `knowledge.share` key and the doctor `Knowledge` row are gone. An old install whose config still
+  holds the key keeps working: every reader ignores it silently
+  (`services/config-merge.service.ts`).
+- The harness config defaults are `review.minToolCalls: 21`, `memory.maxChars: 12800` and
+  `memory.maxEntryChars: 400`, in the template and this repository's own config alike; a live
+  config that was never edited takes the new numbers at its next `harness update`.
 
 ## Not started
 

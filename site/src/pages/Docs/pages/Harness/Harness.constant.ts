@@ -19,8 +19,8 @@ export const SECTIONS = [
 	},
 	{
 		id: 'knowledge',
-		title: 'Private or shared knowledge',
-		keywords: ['share-knowledge', '--share-knowledge', 'gitignored']
+		title: 'Knowledge in git',
+		keywords: ['knowledge', 'git', 'backup']
 	},
 	{
 		id: 'security',

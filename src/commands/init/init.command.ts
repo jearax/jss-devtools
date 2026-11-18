@@ -43,7 +43,6 @@ const EXAMPLE_ROWS: ReadonlyArray<readonly [string, string]> = [
 	['jss-devtools init', 'Set up the project in the current folder'],
 	['jss-devtools init -f', 'Replace existing ESLint, Prettier and commitlint configs'],
 	['jss-devtools init --no-harness', 'Set up the toolchain without the harness'],
-	['jss-devtools init --share-knowledge', 'Let git track the harness knowledge'],
 	['jss-devtools init --dry-run', 'Show what would change, write nothing']
 ];
 
@@ -98,7 +97,6 @@ export const registerInitCommand = (program: Command): void => {
 		.option('--no-sample', 'Do not write the example domain (default: written)')
 		.option('--no-harness', 'Do not install the harness (default: installed)')
 		.option('--agent-kit', 'Point AgentKit at .harness/docs and .harness/plans; needs ak (default: off)')
-		.option('--share-knowledge', 'Keep harness knowledge in git instead of ignoring it (default: off)')
 		.option(COMMON_OPTIONS.yes.flags, COMMON_OPTIONS.yes.description)
 		.option(COMMON_OPTIONS.dryRun.flags, COMMON_OPTIONS.dryRun.description)
 		.addHelpText('after', examplesText(EXAMPLE_ROWS))

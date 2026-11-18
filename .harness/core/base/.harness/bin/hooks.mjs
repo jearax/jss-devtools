@@ -1,5 +1,5 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, resolve, sep } from "node:path";
+import { isAbsolute, join, resolve, sep } from "node:path";
 import { createHash } from "node:crypto";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
@@ -206,13 +206,11 @@ const HARNESS_CONFIG = `${HARNESS_DIR}/config.json`;
 const HARNESS_CURATOR = `${HARNESS_DIR}/curator.json`;
 const HARNESS_DECISIONS_DIR = `${HARNESS_DIR}/decisions`;
 const HARNESS_DOCS_DIR = `${HARNESS_DIR}/docs`;
-const HARNESS_PLANS_DIR = `${HARNESS_DIR}/plans`;
 const HARNESS_STATE_DIR = `${HARNESS_DIR}/state`;
 const HARNESS_SESSIONS_DIR = `${HARNESS_STATE_DIR}/sessions`;
 const HARNESS_ERROR_LOG = `${HARNESS_STATE_DIR}/hook-errors.log`;
 const HARNESS_ERROR_CURSOR = `${HARNESS_STATE_DIR}/hook-errors.cursor`;
 const HARNESS_SKILL_USAGE = `${HARNESS_STATE_DIR}/skill-usage.json`;
-const HARNESS_BASE_DIR = `${HARNESS_DIR}/core/base`;
 const CLAUDE_SKILLS_DIR = ".claude/skills";
 const AGENT_KIT_CONFIG = ".agentkit/config.yaml";
 
@@ -272,14 +270,6 @@ const safeReadFile = (root, path) => {
 	const full = join(root, path);
 	return existsSync(full) ? readFileSync(full, "utf8") : null;
 };
-/** An unsafe file is not written; the caller decides whether that is an error. */
-const safeWriteFile = (root, path, content) => {
-	if (!isSafePath(root, path)) return false;
-	const full = join(root, path);
-	mkdirSync(dirname(full), { recursive: true });
-	writeFileSync(full, content);
-	return true;
-};
 
 //#endregion
 //#region src/modules/harness/services/session-log.service.ts
@@ -336,18 +326,17 @@ const postToolUseFailureHook = (root, payload, _ctx) => {
 //#endregion
 //#region src/modules/harness/templates/harness-config.template.ts
 const HARNESS_CONFIG_DEFAULTS = {
-	review: { minToolCalls: 14 },
+	review: { minToolCalls: 21 },
 	memory: {
-		maxChars: 9600,
-		maxEntryChars: 320
+		maxChars: 12800,
+		maxEntryChars: 400
 	},
 	curator: {
 		minLearnedSkills: 10,
 		intervalDays: 7,
 		staleDays: 14,
 		archiveDays: 28
-	},
-	knowledge: { share: false }
+	}
 };
 
 //#endregion
@@ -355,8 +344,7 @@ const HARNESS_CONFIG_DEFAULTS = {
 const EMPTY_CONFIG = {
 	review: {},
 	memory: {},
-	curator: {},
-	knowledge: {}
+	curator: {}
 };
 const REPAIR_HINT = "run \"jss-devtools harness update\" to restore the default keys";
 const NUMBER_KEYS = Object.keys(HARNESS_CONFIG_DEFAULTS).flatMap((group) => {
@@ -373,7 +361,7 @@ const BOOLEAN_KEYS = Object.keys(HARNESS_CONFIG_DEFAULTS).flatMap((group) => {
 		return [group, key];
 	});
 });
-const groupOf$1 = (config, group) => {
+const groupOf = (config, group) => {
 	const value = config?.[group];
 	return typeof value === "object" && value !== null ? value : {};
 };
@@ -392,12 +380,12 @@ const readConfig = (root) => {
 		return [group, {}];
 	}));
 	for (const [group, key] of NUMBER_KEYS) {
-		const value = groupOf$1(parsed, group)[key];
+		const value = groupOf(parsed, group)[key];
 		if (typeof value === "number" && Number.isFinite(value)) config[group][key] = value;
 		else problems.push(`config.json is missing a usable "${group}.${key}" — ${REPAIR_HINT}`);
 	}
 	for (const [group, key] of BOOLEAN_KEYS) {
-		const value = groupOf$1(parsed, group)[key];
+		const value = groupOf(parsed, group)[key];
 		if (typeof value === "boolean") config[group][key] = value;
 		else problems.push(`config.json is missing a usable "${group}.${key}" — ${REPAIR_HINT}`);
 	}
@@ -490,31 +478,6 @@ const toolLogHook = (root, payload, _ctx) => {
 		onboarded
 	});
 	return null;
-};
-
-//#endregion
-//#region src/modules/harness/services/agent-kit.service.ts
-const usesAgentKit = (root) => {
-	return existsSync(join(root, AGENT_KIT_CONFIG));
-};
-
-//#endregion
-//#region src/modules/harness/services/config-merge.service.ts
-const groupOf = (config, name) => {
-	const value = config?.[name];
-	return typeof value === "object" && value !== null ? value : null;
-};
-const resolveKnowledgeShare = (baseRaw, localRaw) => {
-	try {
-		const local = JSON.parse(localRaw);
-		const live = groupOf(local, "knowledge")?.["share"];
-		if (typeof live === "boolean") return live;
-		const base = baseRaw === null ? null : JSON.parse(baseRaw);
-		const baseValue = base === null ? void 0 : groupOf(base, "knowledge")?.["share"];
-		return typeof baseValue === "boolean" ? baseValue : true;
-	} catch {
-		return true;
-	}
 };
 
 //#endregion
@@ -628,6 +591,12 @@ const hookErrorsSinceLastSession = (root) => {
 };
 
 //#endregion
+//#region src/modules/harness/services/agent-kit.service.ts
+const usesAgentKit = (root) => {
+	return existsSync(join(root, AGENT_KIT_CONFIG));
+};
+
+//#endregion
 //#region src/modules/harness/services/index-drift.service.ts
 const cellsOf = (line) => {
 	return line.split("|").slice(1, -1).map((cell) => {
@@ -719,105 +688,12 @@ const indexDrift = (root) => {
 };
 
 //#endregion
-//#region src/modules/harness/templates/bootstrap.template.ts
-const BOOTSTRAP_CREATE = `# Onboarding pending
-
-The harness was just installed into a new project. Run the \`harness-onboard\` skill; it deletes
-this file when onboarding is done.
-
-1. Ask the user what the project is for and which conventions they already want, unless the
-   session already says.
-2. Record what they said: facts as memory lines, choices later work must follow as decisions
-   quoting the user.\n`;
-const BOOTSTRAP_EXISTING = `# Onboarding pending
-
-The harness was just installed into a project that already has code. Run the \`harness-onboard\`
-skill; it deletes this file when onboarding is done.
-
-1. Read the README, the build, test and CI config, and the top-level layout.
-2. Trace one real path end to end: entry point, core logic, its test.
-3. Find how to build, test, lint and run, and what about it is not obvious.
-4. Write \`.harness/docs/architecture.md\` from its template, its row in \`.harness/docs/README.md\`,
-   and a memory line pointing to it.
-5. Add the non-obvious facts to \`.harness/MEMORY.md\`, each with \`(src: path)\`.
-6. Ask the user the policy questions the code cannot answer, and record the answers as decisions.\n`;
-const harnessBootstrapTemplate = (mode) => {
-	return mode === "create" ? BOOTSTRAP_CREATE : BOOTSTRAP_EXISTING;
-};
-
-//#endregion
-//#region src/modules/harness/templates/harness-seeds.template.ts
-const harnessMemoryTemplate = `# Memory
-
-Short facts about this repository, injected at every session start. Size limits are in
-\`.harness/config.json\` under \`memory\`.
-
-- One \`- \` line per entry: a fact, convention, trap or user correction, and its reason.
-- Cite the source when there is one: \`(src: path:line)\`.
-- Longer than a line: write \`.harness/docs/<topic>.md\` and leave
-  \`- <fact>. See .harness/docs/<topic>.md\`.
-- Lessons, not logs: no dates, PR numbers or narration.
-- Never a secret. Name where it is kept.\n`;
-const harnessDecisionsReadmeTemplate = `# Decisions
-
-User decisions that later work must follow: the only product policy in this repository. Write one
-from [\`../templates/decision.md\`](../templates/decision.md).
-
-| #   | Title | Status | Date |
-| --- | ----- | ------ | ---- |\n`;
-const harnessDocsReadmeTemplate = `# Docs
-
-Knowledge longer than one line of [\`../MEMORY.md\`](../MEMORY.md). Pick the template from
-[\`../templates/README.md\`](../templates/README.md).
-
-| Doc | Kind | Summary |
-| --- | ---- | ------- |\n`;
-const harnessPlansReadmeTemplate = (agentKit) => {
-	if (agentKit === false) return `# Plans
-
-Work that spans sessions. One file per plan; its folder is its state.
-
-- \`active/<YYMMDD>-<slug>.md\`: in progress or blocked.
-- \`completed/<YYMMDD>-<slug>.md\`: done, kept as a record, never rewritten.
-
-Start from [\`../templates/plan.md\`](../templates/plan.md). When done, fill its Result and
-\`git mv\` it to \`completed/\`. A user decision goes to \`../decisions/\`, lasting knowledge to
-\`../docs/\` or \`../MEMORY.md\`.\n`;
-	return `# Plans
-
-Work that spans sessions. The plan skill that owns this folder decides the layout: a plan is a
-folder with its plan and its phase files.
-
-Keep this file the index of the folder: add or remove a row in the same change as the plan.
-
-| Plan | Status | Summary |
-| ---- | ------ | ------- |\n`;
-};
-
-//#endregion
 //#region src/modules/harness/hooks/session-start.hook.ts
 const ONBOARDING_NOTICE = ["Onboarding is pending: `.harness/BOOTSTRAP.md` is present.", "Run the `harness-onboard` skill to seed the harness knowledge."].join(" ");
-const seedKnowledgeFiles = (root, memoryWasMissing) => {
-	const agentKit = usesAgentKit(root);
-	const seeds = [
-		[HARNESS_MEMORY, harnessMemoryTemplate],
-		[`${HARNESS_DECISIONS_DIR}/README.md`, harnessDecisionsReadmeTemplate],
-		[`${HARNESS_DOCS_DIR}/README.md`, harnessDocsReadmeTemplate],
-		[`${HARNESS_PLANS_DIR}/README.md`, harnessPlansReadmeTemplate(agentKit)]
-	];
-	if (memoryWasMissing) seeds.push([HARNESS_BOOTSTRAP, harnessBootstrapTemplate("existing")]);
-	for (const [path, content] of seeds) {
-		if (safeReadFile(root, path) !== null) continue;
-		if (!safeWriteFile(root, path, content)) logHookError(root, `could not write the knowledge seed ${path}`);
-	}
-};
 const sessionStartHook = (root, payload, ctx) => {
 	const { config, problems } = readConfig(root);
 	const warnings = [...problems, ...symlinkWarnings(root)];
 	const sections = [];
-	const shared = resolveKnowledgeShare(safeReadFile(root, `${HARNESS_BASE_DIR}/${HARNESS_CONFIG}`), safeReadFile(root, ".harness/config.json") ?? "{}");
-	sections.push(shared ? "Harness knowledge: shared through git" : "Harness knowledge: private to this machine (gitignored)");
-	if (config.knowledge.share === false) seedKnowledgeFiles(root, !existsSync(join(root, HARNESS_MEMORY)));
 	const memory = readMemoryState(root);
 	const maxChars = config.memory.maxChars;
 	if (memory.exists) {

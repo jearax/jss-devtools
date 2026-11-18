@@ -54,27 +54,23 @@ export const HARNESS_SESSION_CONTEXT: readonly string[] = [
  * What harness knowledge covers, what each share mode keeps in git, and what private mode cannot
  * do. From `src/modules/harness/constants/harness-paths.constant.ts` and the ignore templates.
  */
-export const HARNESS_KNOWLEDGE_TABLE: readonly { area: string; ignored: string; shared: string }[] = [
+export const HARNESS_KNOWLEDGE_TABLE: readonly { area: string; detail: string }[] = [
 	{
 		area: 'In git',
-		ignored:
-			'The `CLAUDE.md` block, `.harness/config.json`, `.harness/templates/`, `.harness/core/`, `.harness/bin/`, the `harness-*` skills, the hook entries',
-		shared: 'The same, plus memory, decisions, docs, plans, the archive, `curator.json` and learned skills'
+		detail:
+			'Everything: the `CLAUDE.md` block, `.harness/` with its memory, decisions, docs, plans, templates, core, bin and config, the learned skills and the hook entries. Only `.harness/state/` and `.harness/update/` are gitignored, because they are machine-local.'
 	},
 	{
 		area: 'A fresh clone',
-		ignored: 'Starts with empty knowledge; the first session writes the seed files and asks to onboard',
-		shared: "Has the team's knowledge"
+		detail: "Has the team's knowledge"
 	},
 	{
 		area: 'Teammates, a second machine',
-		ignored: 'Each machine learns on its own',
-		shared: 'Learn from each other through commits'
+		detail: 'Learn from each other through commits'
 	},
 	{
 		area: 'Backup',
-		ignored: 'None: deleting the folder loses it',
-		shared: 'Git'
+		detail: 'Git'
 	}
 ];
 
@@ -147,7 +143,7 @@ export const HARNESS_SKILLS: readonly HarnessSkill[] = [
 export const HARNESS_LIMITS: readonly { label: string; value: string }[] = [
 	{
 		label: 'Memory budget',
-		value: '9600 characters, 320 per entry'
+		value: '12800 characters, 400 per entry'
 	},
 	{
 		label: 'Hook timeout',

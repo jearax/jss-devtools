@@ -75,7 +75,6 @@ const harnessEntries = (preflight: InitPreflight, options: InitOptions): readonl
 	return harnessInstallEntries({
 		mode: preflight.mode,
 		agentKit: options.agentKit === true,
-		shareKnowledge: options.shareKnowledge === true,
 		claudeMd,
 		settingsJson
 	}).flatMap((file) => {

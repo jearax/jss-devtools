@@ -1,5 +1,3 @@
-import CodeBlock from '@/components/CodeBlock/CodeBlock';
-import CopyButton from '@/components/CopyButton/CopyButton';
 import {
 	HARNESS_KNOWLEDGE_TABLE,
 	HARNESS_LIMITS,
@@ -9,21 +7,21 @@ import {
 } from '@/constants/harness.constant';
 import RichText from '@/pages/Docs/components/RichText/RichText';
 
-/** The body of the "Private or shared knowledge" section of the harness page. */
+/** The body of the "Knowledge in git" section of the harness page. */
 export const KnowledgeSection = () => {
 	return (
 		<>
 			<p>
-				By default <code>init</code> keeps harness knowledge out of git: the memory, the decisions, the docs, the plans
-				and learned skills are gitignored and stay on this machine. <code>init --share-knowledge</code> keeps them in
-				git instead, so a clone carries the team&rsquo;s knowledge.
+				Harness knowledge is ordinary tracked content: the memory, the decisions, the docs, the plans and the learned
+				skills are committed with the work they describe, so a clone carries the team&rsquo;s knowledge. Only{' '}
+				<code>.harness/state/</code> and <code>.harness/update/</code> are gitignored, because they hold machine-local
+				state the CLI writes at run time.
 			</p>
 			<table>
 				<thead>
 					<tr>
 						<th scope="col">&nbsp;</th>
-						<th scope="col">Ignored (default)</th>
-						<th scope="col">--share-knowledge</th>
+						<th scope="col">What that means</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -32,10 +30,7 @@ export const KnowledgeSection = () => {
 							<tr key={row.area}>
 								<td>{row.area}</td>
 								<td>
-									<RichText text={row.ignored} />
-								</td>
-								<td>
-									<RichText text={row.shared} />
+									<RichText text={row.detail} />
 								</td>
 							</tr>
 						);
@@ -43,34 +38,9 @@ export const KnowledgeSection = () => {
 				</tbody>
 			</table>
 			<p>
-				To change the key later, edit <code>knowledge.share</code> in <code>.harness/config.json</code> and run{' '}
-				<code>jss-devtools harness update</code>; it re-renders the two ignore files. Going private then needs you to
-				untrack the knowledge with <code>git rm -r --cached</code> on the paths; sharing needs <code>git add</code>. The
-				CLI never runs git itself.
-			</p>
-			<CodeBlock
-				code={
-					'jss-devtools harness update\n# then, to go private:\ngit rm -r --cached .harness/MEMORY.md .harness/decisions .harness/docs .harness/plans .harness/curator.json\n# or, to share:\ngit add .harness/MEMORY.md .harness/decisions .harness/docs .harness/plans .harness/curator.json'
-				}
-				language="sh"
-				prompt={{ dir: 'my-app' }}
-				title="flip the key, then move the files"
-				headerAction={
-					<CopyButton
-						feedback="icon"
-						label="Copy the knowledge flip commands"
-						value={
-							'jss-devtools harness update\ngit rm -r --cached .harness/MEMORY.md .harness/decisions .harness/docs .harness/plans .harness/curator.json'
-						}
-					/>
-				}
-			/>
-			<p>
-				Private mode cannot back the knowledge up, cannot put it on a fresh clone or a second machine, and counts skill
-				usage per machine. A hand-written skill under <code>.claude/skills/</code> that git does not track yet is
-				ignored too; the ignore file keeps <code>!/harness-*/</code> and <code>!/ak-*/</code> so the harness-owned
-				folders stay tracked, and an edit to that managed ignore file survives <code>harness update</code> through the
-				normal merge.
+				The CLI never runs git itself; the memory, docs and skills say what to commit with the work. An install whose{' '}
+				<code>.harness/config.json</code> still holds the retired <code>knowledge.share</code> key keeps working: every
+				reader of the config ignores the key silently.
 			</p>
 		</>
 	);

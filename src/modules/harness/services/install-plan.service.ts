@@ -20,7 +20,6 @@ import { harnessClaudeBlockTemplate } from '@/modules/harness/templates/claude-b
 import { harnessConfigTemplate } from '@/modules/harness/templates/harness-config.template';
 import {
 	harnessGitignoreTemplate,
-	harnessSkillsGitignoreTemplate,
 	harnessMemoryTemplate,
 	harnessDecisionsReadmeTemplate,
 	harnessDocsReadmeTemplate,
@@ -57,7 +56,6 @@ export type HarnessInstallEntry = {
 export type HarnessInstallInput = {
 	mode: 'create' | 'existing';
 	agentKit: boolean;
-	shareKnowledge?: boolean;
 	claudeMd: string | null;
 	settingsJson: string | null;
 };
@@ -93,19 +91,16 @@ export const OWNED_FILES = (input: HarnessInstallInput): readonly OwnedFile[] =>
 	const block = harnessClaudeBlockTemplate(input.agentKit);
 
 	const skills = [
-		...(input.shareKnowledge === true
-			? []
-			: [at(`${CLAUDE_SKILLS_DIR}/.gitignore`, 'managed', harnessSkillsGitignoreTemplate)]),
 		at(`${CLAUDE_SKILLS_DIR}/harness-onboard/SKILL.md`, 'managed', harnessOnboardSkillTemplate),
 		at(`${CLAUDE_SKILLS_DIR}/harness-review/SKILL.md`, 'managed', harnessReviewSkillTemplate),
 		at(`${CLAUDE_SKILLS_DIR}/harness-curate/SKILL.md`, 'managed', harnessCurateSkillTemplate)
 	];
 
 	return [
-		at(`${HARNESS_DIR}/.gitignore`, 'managed', harnessGitignoreTemplate(input.shareKnowledge === true, input.agentKit)),
+		at(`${HARNESS_DIR}/.gitignore`, 'managed', harnessGitignoreTemplate),
 		at(`${HARNESS_DIR}/MEMORY.md`, 'seed', harnessMemoryTemplate),
 		at(`${HARNESS_DIR}/BOOTSTRAP.md`, 'seed', harnessBootstrapTemplate(input.mode)),
-		at(HARNESS_CONFIG, 'config', harnessConfigTemplate(input.shareKnowledge === true)),
+		at(HARNESS_CONFIG, 'config', harnessConfigTemplate()),
 		at(`${HARNESS_DECISIONS_DIR}/README.md`, 'seed', harnessDecisionsReadmeTemplate),
 		at(`${HARNESS_DOCS_DIR}/README.md`, 'seed', harnessDocsReadmeTemplate),
 		at(`${HARNESS_PLANS_DIR}/README.md`, plansReadmeKind(input.agentKit), harnessPlansReadmeTemplate(input.agentKit)),
@@ -147,11 +142,10 @@ export type HarnessRecordedFile = {
 	content: string;
 };
 
-export const harnessRecordedFiles = (agentKit: boolean, shareKnowledge = false): readonly HarnessRecordedFile[] => {
+export const harnessRecordedFiles = (agentKit: boolean): readonly HarnessRecordedFile[] => {
 	return OWNED_FILES({
 		mode: 'existing',
 		agentKit,
-		shareKnowledge,
 		claudeMd: null,
 		settingsJson: null
 	})

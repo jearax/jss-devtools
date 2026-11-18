@@ -322,58 +322,66 @@ describe('harness update, new and knowledge files', () => {
 		expect(readLive(dir, MANAGED)).toBe(fresh);
 	});
 
-	it('keeps a 0.1.0-style install sharing through a same-version update, then follows the key', async () => {
+	it('retires a private old install silently: the update re-renders the ignore files and keeps the live key', async () => {
 		const dir = await makeRepo();
 
 		installHarness(dir);
 		ageManifest(dir);
-		const legacyGitignore = 'state/\nupdate/\n';
 
-		// A 0.1.0 install: the two-line ignore file and a config without the knowledge group.
+		const legacyGitignore =
+			'state/\nupdate/\nMEMORY.md\nBOOTSTRAP.md\ncurator.json\ndecisions/\ndocs/\narchive/\nplans/*\n!plans/README.md\n';
+
+		const legacySkillsGitignore = '/*\n!/.gitignore\n!/harness-*/\n!/ak-*/\n';
+
 		const legacyConfig =
-			'{\n\t"review": { "minToolCalls": 14 },\n\t"memory": { "maxChars": 9600, "maxEntryChars": 320 },\n\t"curator": { "minLearnedSkills": 10, "intervalDays": 7, "staleDays": 14, "archiveDays": 28 }\n}\n';
+			'{\n\t"review": { "minToolCalls": 14 },\n\t"memory": { "maxChars": 9600, "maxEntryChars": 320 },\n\t"curator": { "minLearnedSkills": 10, "intervalDays": 7, "staleDays": 14, "archiveDays": 28 },\n\t"knowledge": { "share": false }\n}\n';
 
 		ageBase(dir, `${HARNESS_DIR}/.gitignore`, legacyGitignore);
 		writeFile(dir, `${HARNESS_DIR}/.gitignore`, legacyGitignore);
+		ageBase(dir, '.claude/skills/.gitignore', legacySkillsGitignore);
+		writeFile(dir, '.claude/skills/.gitignore', legacySkillsGitignore);
 		ageBase(dir, HARNESS_CONFIG, legacyConfig);
 		writeFile(dir, HARNESS_CONFIG, legacyConfig);
 
-		const sharedRelease = {
-			version: '0.9.0',
-			files: [...harnessRecordedFiles(false, true)]
+		// The manifest of a private 0053 install also recorded the skills ignore file.
+		const manifest = JSON.parse(readFileSync(join(dir, HARNESS_MANIFEST), 'utf8')) as {
+			version: string;
+			files: Array<{ path: string; kind: string; sha256: string }>;
 		};
 
-		const privateRelease = {
-			version: '0.9.0',
-			files: [...harnessRecordedFiles(false, false)]
-		};
+		manifest.files.push({
+			path: '.claude/skills/.gitignore',
+			kind: 'managed',
+			sha256: sha256(legacySkillsGitignore)
+		});
 
-		await runUpdate(dir, { yes: true }, sharedRelease);
+		writeFile(dir, HARNESS_MANIFEST, `${JSON.stringify(manifest, null, '\t')}\n`);
 
-		expect(readLive(dir, `${HARNESS_DIR}/.gitignore`)).toBe(legacyGitignore);
-		expect(JSON.parse(readFileSync(join(dir, HARNESS_CONFIG), 'utf8'))).toMatchObject({ knowledge: { share: true } });
-
-		writeFile(
+		await runUpdate(
 			dir,
-			HARNESS_CONFIG,
-			'{\n\t"review": { "minToolCalls": 14 },\n\t"memory": { "maxChars": 9600, "maxEntryChars": 320 },\n\t"curator": { "minLearnedSkills": 10, "intervalDays": 7, "staleDays": 14, "archiveDays": 28 },\n\t"knowledge": { "share": false }\n}\n'
+			{ yes: true },
+			{
+				version: '0.9.0',
+				files: [...harnessRecordedFiles(false)]
+			}
 		);
-
-		await runUpdate(dir, { yes: true }, privateRelease);
 
 		expect(readLive(dir, `${HARNESS_DIR}/.gitignore`)).toBe(recordedOf(`${HARNESS_DIR}/.gitignore`));
-		expect(readLive(dir, '.claude/skills/.gitignore')).toBe(recordedOf('.claude/skills/.gitignore'));
-
-		writeFile(
-			dir,
-			HARNESS_CONFIG,
-			'{\n\t"review": { "minToolCalls": 14 },\n\t"memory": { "maxChars": 9600, "maxEntryChars": 320 },\n\t"curator": { "minLearnedSkills": 10, "intervalDays": 7, "staleDays": 14, "archiveDays": 28 },\n\t"knowledge": { "share": true }\n}\n'
-		);
-
-		await runUpdate(dir, { yes: true }, sharedRelease);
-
 		expect(readLive(dir, '.claude/skills/.gitignore')).toBeNull();
-		expect(readLive(dir, `${HARNESS_DIR}/.gitignore`)).toBe(legacyGitignore);
+		expect(JSON.parse(readFileSync(join(dir, HARNESS_CONFIG), 'utf8'))).toEqual({
+			review: { minToolCalls: 21 },
+			memory: {
+				maxChars: 12800,
+				maxEntryChars: 400
+			},
+			curator: {
+				minLearnedSkills: 10,
+				intervalDays: 7,
+				staleDays: 14,
+				archiveDays: 28
+			},
+			knowledge: { share: false }
+		});
 	});
 });
 

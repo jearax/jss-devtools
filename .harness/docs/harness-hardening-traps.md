@@ -43,5 +43,4 @@ Authorization header, a URL with a password. Reword the sentence instead of mark
 `ageBase` in `tests/harness-update.test.ts` rewrites the manifest sha256 to match the drifted base
 copy, so a test using it can never hit the base-drift refusal; write the base copy with
 `writeFile` directly instead. `harnessRelease` is stubbed in the update tests, so a test that
-depends on the resolved `knowledge.share` builds its own release object instead of relying on the
-stub.
+depends on specific recorded files builds its own release object instead of relying on the stub.
