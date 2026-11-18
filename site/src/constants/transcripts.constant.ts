@@ -58,7 +58,7 @@ export const INIT_RUN_TRANSCRIPT: readonly string[] = [
 	'\u001b[0m\u001b[32m◇\u001b[0m  Which package manager?',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[2mnpm',
 	'\u001b[0m\u001b[90m│',
-	'\u001b[0m\u001b[32m◇\u001b[0m  Changes in my-app3: \u001b[0m\u001b[32m51 to create',
+	'\u001b[0m\u001b[32m◇\u001b[0m  Changes in my-app: \u001b[0m\u001b[32m51 to create',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.claude/skills/harness-curate/\u001b[0mSKILL.md',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.claude/skills/harness-onboard/\u001b[0mSKILL.md',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.claude/skills/harness-review/\u001b[0mSKILL.md',
@@ -69,7 +69,7 @@ export const INIT_RUN_TRANSCRIPT: readonly string[] = [
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[32m+\u001b[0m \u001b[0m\u001b[2m.harness/core/base/.claude/skills/harness-onboard/\u001b[0mSKILL.md',
 	'\u001b[0m\u001b[90m│',
 	'\u001b[0m\u001b[90m│',
-	'\u001b[0m\u001b[32m◇\u001b[0m  Write 51 files to my-app3 and install?',
+	'\u001b[0m\u001b[32m◇\u001b[0m  Write 51 files to my-app and install?',
 	'\u001b[0m\u001b[90m│\u001b[0m  \u001b[0m\u001b[2mYes',
 	'\u001b[0m\u001b[90m│',
 	'\u001b[0m\u001b[32m◇\u001b[0m  Installing with npm',
@@ -84,7 +84,7 @@ export const INIT_RUN_TRANSCRIPT: readonly string[] = [
 	'\u001b[0m\u001b[90m│',
 	'\u001b[0m\u001b[90m└\u001b[0m  Next steps',
 	'     The harness is installed; open Claude Code in the project folder to onboard.',
-	'     \u001b[0m\u001b[2m$ \u001b[0m\u001b[36mcd my-app3',
+	'     \u001b[0m\u001b[2m$ \u001b[0m\u001b[36mcd my-app',
 	'     \u001b[0m\u001b[2m$ \u001b[0m\u001b[36mnpm run dev'
 ];
 

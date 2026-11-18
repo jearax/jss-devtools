@@ -18,7 +18,9 @@ metadata:
 1. Build the CLI: `pnpm build`, so `dist/cli.mjs` is current.
 2. Non-interactive commands (`doctor`, `harness doctor`, `init <dir> -y --dry-run`): run with colour forced
    and keep the raw codes: `FORCE_COLOR=1 node dist/cli.mjs doctor > out.ansi`.
-3. Interactive commands run in a pseudo-terminal with a size, answering prompts with Enter, from a scratch folder:
+3. Interactive commands run in a pseudo-terminal with a size, answering prompts with Enter, from a fresh,
+   empty scratch folder. The project is always `my-app`, the name the hero prompt shows: never rename it to
+   dodge a folder left by an earlier run; delete that folder or make a new scratch folder.
    `(for i in $(seq 1 20); do sleep 4; printf '\r'; done) | env -u CI FORCE_COLOR=1 script -q run.tty sh -c 'stty cols 100 rows 50; node <repo>/dist/cli.mjs init my-app'`
 4. Replay the recording to the final screen: install `@xterm/headless@5.5.0` in a scratch folder, then
    `node .claude/skills/capture-cli-transcript/scripts/render-tty.cjs run.tty <scratch folder>`; read `run.tty.screen`.
